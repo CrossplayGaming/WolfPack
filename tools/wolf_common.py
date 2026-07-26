@@ -196,3 +196,47 @@ def object_meaning(v, sod: bool):
                 return {"kind": "enemy", "enemy": enemy, "mode": mode,
                         "dir": DIR4[v - lo], "min_skill": min_skill}
     return {"kind": "unknown", "code": v}
+
+
+def omf_extract(path):
+    """Return the raw bytes of the data segment stored in a MakeOBJ .OBJ.
+
+    Walks OMF records and reconstructs the segment from LEDATA (0xA0) records,
+    placing each record's payload at its enumerated data offset. (Shared with
+    the Catacomb pipeline; GAMEPAL.OBJ/SIGNON.OBJ use only LEDATA.)
+    """
+    d = path.read_bytes()
+    seg = bytearray()
+    i = 0
+    while i < len(d):
+        rectype = d[i]
+        (reclen,) = struct.unpack_from("<H", d, i + 1)
+        body = d[i + 3:i + 3 + reclen]           # includes trailing checksum byte
+        content = body[:-1]
+        if rectype in (0xA0, 0xA1):               # LEDATA (16-/32-bit)
+            if rectype == 0xA0:
+                (offset,) = struct.unpack_from("<H", content, 1)
+                data = content[3:]
+            else:
+                (offset,) = struct.unpack_from("<I", content, 1)
+                data = content[5:]
+            end = offset + len(data)
+            if end > len(seg):
+                seg.extend(b"\x00" * (end - len(seg)))
+            seg[offset:end] = data
+        elif rectype in (0xA2, 0xA3):
+            raise NotImplementedError(f"LIDATA in {path.name} unsupported")
+        i += 3 + reclen
+    return bytes(seg)
+
+
+def load_palette():
+    """Wolf VGA palette from the source release's GAMEPAL.OBJ: 256 RGB
+    triplets, 6-bit VGA scaled to 8-bit (<<2 | >>4 per VGA convention)."""
+    raw = omf_extract(ROOT / "reference" / "wolfsrc" / "WOLFSRC" / "OBJ" / "GAMEPAL.OBJ")
+    assert len(raw) >= 768, f"GAMEPAL segment too short: {len(raw)}"
+    pal = []
+    for i in range(256):
+        r, g, b = raw[i * 3:i * 3 + 3]
+        pal.append(((r << 2) | (r >> 4), (g << 2) | (g >> 4), (b << 2) | (b >> 4)))
+    return pal
