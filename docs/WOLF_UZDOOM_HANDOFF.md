@@ -116,7 +116,7 @@ Initial list (Claude Code proposes additions during Phase 2; user curates):
 - Jump/crouch (sim-variant; MP-gated; expect this to stay a novelty)
 - Weapon bob / view bob (visual only)
 - Crosshair
-- Automap (Doom-style overlay; original had none)
+- Automap (ECWolf-style capabilities/style per D-003; original had none)
 - Depth shading / distance darkening (Wolf renders unshaded; this is the single biggest "looks
   like Doom now" switch)
 - Textured floors/ceilings (the AFADoomer feature — present here as an OFF-default toggle rather
@@ -247,8 +247,11 @@ from launch freely.
 - Product name (TURBOSTEIN-convention; must avoid the trademark).
 - Shareware-episode support posture (shareware data is freely distributable — bundle-adjacent
   convenience vs. keep uniform bring-your-own-data posture).
-- Automap toggle default (original had none; ship off-by-default QoL per philosophy — confirm).
-- Classic cheat codes included as fan service?
+- ~~Automap toggle default~~ RESOLVED (D-003, docs/DECISIONS.md): ECWolf-style, off by
+  default, menu toggle.
+- ~~Classic cheat codes~~ RESOLVED (D-001): dedicated cheat menu page (Doom-style set, all
+  off by default) + authentic MLI always present one-for-one (charter CHEAT-001); text
+  overlays/intermission/episode-end screens one-for-one incl. 16:9 posture per D-002.
 - Co-op lobby defaults (lives model, scaling) — decide via playtest, not speculation.
 - Milestone release of SP-only before co-op lands?
 

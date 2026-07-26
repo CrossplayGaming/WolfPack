@@ -407,6 +407,18 @@ sight/shots.
 | DATA-003 | parTimes: 60 WL6 + 20 SoD (bosses/secrets par 0 = "??:??", no par bonus) | par_times.json |
 | DATA-004 | statinfo: 56 rows (incl. SoD conditionals) with block/dressing/pickup class | statinfo.json |
 
+## Constants inventory — RESOLVED (batch 4 partial: cheats, 2026-07-26)
+
+### MLI cheat + debug unlock — `WL_PLAY.C` CheckKeys (l. 656-723)
+
+| ID | Item | Value |
+|---|---|---|
+| CHEAT-001 | MLI (M+L+I held): health=100, ammo=99, keys=3 (both), **score=0**, **TimeCount += 42000 (10 min penalty)**, GiveWeapon(chaingun); all HUD redrawn; overlay message then wait-for-ack, border redraw | l. 658-693 |
+| CHEAT-002 | MLI message text (FOREIGN.H:95-99): "You now have 100% Health,\n99 Ammo and both Keys!\n\nNote that you have basically\neliminated your chances of\ngetting a high score!" — font STARTFONT+1 |
+| CHEAT-003 | Debug-keys unlock: LShift+Alt+Backspace, gated on cmdline param — WL6: `goobers`, Spear: `debugmode`; message "Debugging keys are\nnow available!"; sets DebugOk | l. 698-723 |
+| CHEAT-004 | Spear-only in-game god toggle block with "God mode ON/OFF" message + ENDBONUS2SND | l. 630-652 |
+| CHEAT-005 | Tab-key debug set (DebugOk): inventory in WL_DEBUG.C → enumerate at presentation phase |
+
 ## Open [VERIFY] items — batch 4 queue
 
 - Ghost movement specifics (T_Ghosts uses SelectChaseDir but which blocking rules? noclip
