@@ -20,8 +20,14 @@ class WolfStatusBar : BaseStatusBar
         Super.Draw(state, TicFrac);
         if (state == HUD_None)
             return;
+        if (state == HUD_Fullscreen)
+        {
+            DrawMinimal();
+            return;
+        }
         BeginStatusBar();
-        DrawImage("STATBAR", (0, 160), DI_ITEM_OFFSETS);
+        // 1120-wide bar (frame + bevel tiled outward) centered on 320
+        DrawImage("STATBAR", (-400, 160), DI_ITEM_OFFSETS);
 
         // floor number (1-based within episode: levelnum 1..10 per ep)
         int floorNum = ((Level.levelnum - 1) % 10) + 1;
@@ -60,6 +66,38 @@ class WolfStatusBar : BaseStatusBar
         else if (w is "WolfMachineGun") wico = "MGUNP";
         else if (w is "WolfPistol")     wico = "GUNP";
         DrawImage(wico, (256, 168), DI_ITEM_OFFSETS);
+    }
+
+    // Minimal HUD (fullscreen view): floating pickup sprites with N_-font
+    // counts beneath — lives + health bottom-left, ammo bottom-right.
+    void DrawMinimal()
+    {
+        BeginHUD();
+        DrawHudItem("HUDLIFE", 3, 14, false);
+        DrawHudItem("HUDMED",
+                    CPlayer.mo == null ? 0 : CPlayer.health, 52, false);
+        Inventory am = CPlayer.mo.FindInventory("WolfAmmo");
+        DrawHudItem("HUDAMMO", am == null ? 0 : am.Amount, -14, true);
+    }
+
+    void DrawHudItem(String tex, int value, double x, bool fromRight)
+    {
+        TextureID t = TexMan.CheckForTexture(tex, TexMan.Type_Any);
+        Vector2 sz = (24, 24);
+        if (t.IsValid())
+            sz = TexMan.GetScaledSize(t);
+        int anchor = fromRight ? DI_SCREEN_RIGHT_BOTTOM : DI_SCREEN_LEFT_BOTTOM;
+        double cx = fromRight ? x - sz.X / 2 : x + sz.X / 2;
+        DrawImage(tex, (fromRight ? x - sz.X : x, -14 - sz.Y),
+                  anchor | DI_ITEM_OFFSETS, 0.72);
+        String s = String.Format("%d", Max(0, value));
+        double tx = cx - s.Length() * 4.0;
+        for (int i = 0; i < s.Length(); i++)
+        {
+            DrawImage(String.Format("N_%c", s.ByteAt(i)), (tx, -12),
+                      anchor | DI_ITEM_OFFSETS);
+            tx += 8;
+        }
     }
 
     // LatchNumber: right-justified, 8px per digit, leading blanks

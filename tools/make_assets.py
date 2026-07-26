@@ -119,6 +119,53 @@ def main():
             shutil.copy(p, ASSETS / "graphics" / f"{lump}.png")
             nhud += 1
 
+    # widescreen status bar: extend by tiling an interior edge column so
+    # the frame + top bevel continue to the screen edges (ECWolf look)
+    barp = VGA / "STATUSBARPIC.png"
+    if barp.exists():
+        bar = Image.open(barp).convert("RGB")
+        wide = Image.new("RGB", (1120, bar.height), (0, 65, 65))
+        wide.paste(bar, ((1120 - bar.width) // 2, 0))
+        # synthesized top bevel + bottom shade across the full width (the
+        # source art is flat teal; this is the ECWolf widescreen look)
+        for x in range(1120):
+            wide.putpixel((x, 0), (0, 138, 138))
+            wide.putpixel((x, bar.height - 1), (0, 36, 36))
+        wide.save(ASSETS / "graphics" / "STATBAR.png")
+
+    # minimal-HUD pickup sprites: crop to content, trim the ground-shadow
+    # rows (bottom rows whose opaque pixels are all dark)
+    def hud_item(chunk, lump):
+        src = VSWAP / "sprites" / f"SPR{chunk:03d}.png"
+        if not src.exists():
+            return
+        img = Image.open(src).convert("RGBA")
+        bbox = img.getbbox()
+        img = img.crop(bbox)
+        pix = img.load()
+        w, h = img.size
+        while h > 1:
+            dark = True
+            any_opaque = False
+            for x in range(w):
+                r, g, b, a = pix[x, h - 1]
+                if a > 0:
+                    any_opaque = True
+                    if r + g + b > 180:
+                        dark = False
+                        break
+            if any_opaque and dark:
+                img = img.crop((0, 0, w, h - 1))
+                pix = img.load()
+                h -= 1
+            else:
+                break
+        img.save(ASSETS / "graphics" / f"{lump}.png")
+
+    hud_item(35, "HUDLIFE")     # 1-Up (SPR_STAT_33)
+    hud_item(27, "HUDMED")      # first aid kit (SPR_STAT_25)
+    hud_item(28, "HUDAMMO")     # ammo clip (SPR_STAT_26)
+
     # weapon psprites: VSWAP sprites 416-435 (ready + atk1-4 per weapon),
     # prescaled x3 (Wolf draws the 64x64 shape at full view height).
     # grAb offsets place the 192x192 image centered, bottom at the view
