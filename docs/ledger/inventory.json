@@ -1,0 +1,10466 @@
+{
+ "AUDIOSDM.H": [
+  {
+   "kind": "define",
+   "symbol": "NUMSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSNDCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPCSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTADLIBSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTDIGISOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTMUSIC",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "AUDIOSOD.H": [
+  {
+   "kind": "define",
+   "symbol": "NUMSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSNDCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPCSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTADLIBSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTDIGISOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTMUSIC",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "AUDIOWL1.H": [
+  {
+   "kind": "define",
+   "symbol": "NUMSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSNDCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPCSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTADLIBSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTDIGISOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTMUSIC",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "AUDIOWL6.H": [
+  {
+   "kind": "define",
+   "symbol": "NUMSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSNDCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPCSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTADLIBSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTDIGISOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTMUSIC",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "BUDIOSOD.H": [
+  {
+   "kind": "define",
+   "symbol": "NUMSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSNDCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPCSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTADLIBSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTDIGISOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTMUSIC",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "BUDIOWL6.H": [
+  {
+   "kind": "define",
+   "symbol": "NUMSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSNDCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPCSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTADLIBSOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTDIGISOUNDS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTMUSIC",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "C0.ASM": [
+  {
+   "kind": "asmsym",
+   "symbol": "STARTX",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "__cleanup",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "__checknull",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "__terminate",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "ZeroDivision",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "SaveVectors",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "__restorezero",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "StartExit",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "ErrorDisplay",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "_abort",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "__emu",
+   "bucket": "platform"
+  }
+ ],
+ "CONTIGSC.C": [
+  {
+   "kind": "func",
+   "symbol": "BadScale",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "SetupScaling",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "BuildCompScale",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "ScaleLine",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "ScaleShape",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "SimpleScaleShape",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "OP_RETF",
+   "bucket": "platform"
+  }
+ ],
+ "DETECT.C": [],
+ "F_SPEAR.H": [
+  {
+   "kind": "define",
+   "symbol": "ENDSTR1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDSTR2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDSTR3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDSTR4",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDSTR5",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDSTR6",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDSTR7",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDSTR8",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDSTR9",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_ENDGAME1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_ENDGAME2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_ENDGAME3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_ENDGAME4",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY4",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY5",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY6",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY7",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY8",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY9",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY10",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY11",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY12",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY13",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY14",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY15",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY16",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY17",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY18",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY19",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY20",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY21",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPY22",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOPE1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOPE2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOPE3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOPE4",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOPE5",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOPE6",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOPE7",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOPE8",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOPE9",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MISC1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MISC2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MISC3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MISC4",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MISC5",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MISC6",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MISC7",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MISC8",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MISC9",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_STAR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_DEBRIEF",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_ENEMY1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_ENEMY2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CHECKMAN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MAN1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MAN2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MAN3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MAN4",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_ID1",
+   "bucket": "presentation"
+  }
+ ],
+ "FOREIGN.H": [
+  {
+   "kind": "define",
+   "symbol": "QUITSUR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "CURGAME",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "GAMESVD",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDGAMESTR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NG",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SD",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CL",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_LG",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SG",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CV",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_VS",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_EG",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_BD",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_QT",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_LOADING",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SAVING",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_GAME",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_DEMO",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_LGC",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_EMPTY",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CALIB",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_JOYST",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MOVEJOY",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MOVEJOY2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_ESCEXIT",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NONE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_PC",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_ALSB",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_DISNEY",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SB",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MOUSEEN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_JOYEN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_PORT2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_GAMEPAD",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SENS",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CUSTOM",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_DADDY",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_HURTME",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_BRINGEM",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_DEATH",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MOUSEADJ",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SLOW",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_FAST",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CRUN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPEN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CFIRE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CSTRAFE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_LEFT",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RIGHT",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_FRWD",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_BKWD",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_THINK",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SIZE1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SIZE2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SIZE3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_YOUWIN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_TOTALTIME",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RATKILL",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RATSECRET",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RATTREASURE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_BONUS",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_TIME",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_PAR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RAT2KILL",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RAT2SECRET",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RAT2TREASURE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_DEFEATED",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CHEATER1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CHEATER2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CHEATER3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CHEATER4",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CHEATER5",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOSPACE1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOSPACE2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SAVECHT1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SAVECHT2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SAVECHT3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SAVECHT4",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SEEAGAIN",
+   "bucket": "presentation"
+  }
+ ],
+ "GFXE_SOD.EQU": [],
+ "GFXE_SOD.H": [
+  {
+   "kind": "define",
+   "symbol": "NUMCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMEXTERNS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTEXTERNS",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "GFXE_WL1.EQU": [],
+ "GFXE_WL1.H": [
+  {
+   "kind": "define",
+   "symbol": "README_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "README_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CONTROLS_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CONTROLS_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LEVELEND_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LEVELEND_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LATCHPICS_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LATCHPICS_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMEXTERNS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STRUCTPIC",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTEXTERNS",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "GFXE_WL6.EQU": [],
+ "GFXE_WL6.H": [
+  {
+   "kind": "define",
+   "symbol": "NUMCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMEXTERNS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTEXTERNS",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "GFXV_SDM.EQU": [],
+ "GFXV_SDM.H": [
+  {
+   "kind": "define",
+   "symbol": "BACKDROP_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "BACKDROP_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CONTROL_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CONTROL_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "OPTIONS_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "OPTIONS_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "SOUND_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "SOUND_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NEWGAME_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NEWGAME_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LOADSAVE_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LOADSAVE_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "HIGHSCORES_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "HIGHSCORES_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LEVELEND_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LEVELEND_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "TITLESCREEN_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "TITLESCREEN_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LATCHPICS_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LATCHPICS_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMEXTERNS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STRUCTPIC",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTEXTERNS",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "GFXV_SOD.EQU": [],
+ "GFXV_SOD.H": [
+  {
+   "kind": "define",
+   "symbol": "BACKDROP_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "BACKDROP_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CONTROL_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CONTROL_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "OPTIONS_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "OPTIONS_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "SOUND_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "SOUND_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NEWGAME_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NEWGAME_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LOADSAVE_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LOADSAVE_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "HIGHSCORES_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "HIGHSCORES_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDGAME_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDGAME_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LEVELEND_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LEVELEND_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "TITLESCREEN_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "TITLESCREEN_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDGAME1_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDGAME1_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDGAME2_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDGAME2_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "EASTEREGG_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "EASTEREGG_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "COPYPROT_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "COPYPROT_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LATCHPICS_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LATCHPICS_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMEXTERNS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STRUCTPIC",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTEXTERNS",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "GFXV_WL1.EQU": [],
+ "GFXV_WL1.H": [
+  {
+   "kind": "define",
+   "symbol": "README_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "README_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CONTROLS_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CONTROLS_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LEVELEND_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LEVELEND_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LATCHPICS_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LATCHPICS_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMEXTERNS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STRUCTPIC",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTEXTERNS",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "GFXV_WL6.EQU": [],
+ "GFXV_WL6.H": [
+  {
+   "kind": "define",
+   "symbol": "README_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "README_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CONTROLS_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CONTROLS_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LEVELEND_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LEVELEND_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LATCHPICS_LUMP_START",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "LATCHPICS_LUMP_END",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMCHUNKS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMEXTERNS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STRUCTPIC",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONT",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTFONTM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTPICM",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTSPRITES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE8M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE16M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTTILE32M",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTEXTERNS",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "H_LDIV.ASM": [],
+ "ID_CA.C": [
+  {
+   "kind": "func",
+   "symbol": "GRFILEPOS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_OpenDebug",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_CloseDebug",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CAL_GetGrChunkLength",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_FarRead",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_FarWrite",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_ReadFile",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_WriteFile",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_LoadFile",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CAL_OptimizeNodes",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CAL_HuffExpand",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CAL_CarmackExpand",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_RLEWCompress",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_RLEWexpand",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CAL_SetupGrFile",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CAL_SetupMapFile",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CAL_SetupAudioFile",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_Startup",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_Shutdown",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_CacheAudioChunk",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_LoadAllSounds",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CAL_ExpandGrChunk",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_CacheGrChunk",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_CacheScreen",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_CacheMap",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_UpLevel",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_DownLevel",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_ClearMarks",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_ClearAllMarks",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_SetGrPurge",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_SetAllPurge",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_CacheMarks",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "func",
+   "symbol": "CA_CannotOpen",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "THREEBYTEGRSTARTS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "FILEPOSSIZE",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "FILEPOSSIZE",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "GRFILEPOS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "NEARTAG",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "FARTAG",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "BLOCK",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "MASKBLOCK",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXEMPTYREAD",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "ID_CA.H": [
+  {
+   "kind": "define",
+   "symbol": "NUMMAPS",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAPPLANES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "UNCACHEGRCHUNK",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CA_MarkGrChunk",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "ID_HEAD.H": [
+  {
+   "kind": "define",
+   "symbol": "EXTENSION",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "WOLF",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "TEXTGR",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CGAGR",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EGAGR",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VGAGR",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GRMODE",
+   "bucket": "platform"
+  }
+ ],
+ "ID_HEADS.H": [
+  {
+   "kind": "define",
+   "symbol": "__ID_GLOB__",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "introscn",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GREXT",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "nil",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PORTTILESWIDE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PORTTILESHIGH",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "UPDATEWIDE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "UPDATEHIGH",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXTICS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEMOTICS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "UPDATETERMINATE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SETFONTCOLOR",
+   "bucket": "platform"
+  }
+ ],
+ "ID_IN.C": [
+  {
+   "kind": "func",
+   "symbol": "INL_GetJoyDelta",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "IN_StartAck",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "IN_CheckAck",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "IN_Ack",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "IN_UserInput",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "IN_MouseButtons",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "IN_JoyButtons",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "KeyInt",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MReset",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MButtons",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MDelta",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MouseInt",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "Mouse",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "JoyScaleMax",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "JoyScaleShift",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MaxJoyValue",
+   "bucket": "platform"
+  }
+ ],
+ "ID_IN.H": [
+  {
+   "kind": "define",
+   "symbol": "__ID_IN__",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "__DEBUG_InputMgr__",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MaxPlayers",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MaxKbds",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MaxJoys",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "NumCodes",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_None",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Bad",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Return",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Enter",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Escape",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Space",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_BackSpace",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Tab",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Alt",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Control",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_CapsLock",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_LShift",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_RShift",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_UpArrow",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_DownArrow",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_LeftArrow",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_RightArrow",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Insert",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Delete",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Home",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_End",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_PgUp",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_PgDn",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F1",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F2",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F3",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F4",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F5",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F6",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F7",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F8",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F9",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F10",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F11",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F12",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_1",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_2",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_3",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_4",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_5",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_6",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_7",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_8",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_9",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_0",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_A",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_B",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_C",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_D",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_E",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_F",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_G",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_H",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_I",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_J",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_K",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_L",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_M",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_N",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_O",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_P",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Q",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_R",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_S",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_T",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_U",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_V",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_W",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_X",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Y",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Z",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "key_None",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "key_Return",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "key_Enter",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "key_Escape",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "key_Space",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "key_BackSpace",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "key_Tab",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "key_Delete",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MReset",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MButtons",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MDelta",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MouseInt",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "Mouse",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "IN_KeyDown",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "IN_ClearKey",
+   "bucket": "platform"
+  }
+ ],
+ "ID_MM.C": [
+  {
+   "kind": "func",
+   "symbol": "MML_CheckForXMS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MML_SetupXMS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MML_ShutdownXMS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MML_UseSpace",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MML_ClearBlock",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MM_Startup",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MM_Shutdown",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MM_GetPtr",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MM_FreePtr",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MM_SetPurge",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MM_SetLock",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MM_SortMem",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MM_ShowMemory",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MM_DumpData",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MM_UnusedMemory",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MM_TotalFree",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "MM_BombOnError",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "LOCKBIT",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PURGEBITS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PURGEMASK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "BASEATTRIBUTES",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXUMBS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GETNEWBLOCK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "FREEBLOCK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "HEIGHTRATIO",
+   "bucket": "platform"
+  }
+ ],
+ "ID_MM.H": [
+  {
+   "kind": "define",
+   "symbol": "__ID_CA__",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SAVENEARHEAP",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SAVEFARHEAP",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "BUFFERSIZE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXBLOCKS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMS_INT",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMS_STATUS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMS_GETFRAME",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMS_GETPAGES",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMS_ALLOCPAGES",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMS_MAPPAGE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMS_FREEPAGES",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMS_VERSION",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_INT",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_CALL",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_VERSION",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_ALLOCHMA",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_FREEHMA",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_GENABLEA20",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_GDISABLEA20",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_LENABLEA20",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_LDISABLEA20",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_QUERYA20",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_QUERYFREE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_ALLOC",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_FREE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_MOVE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_LOCK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_UNLOCK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_GETINFO",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_RESIZE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_ALLOCUMB",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMS_FREEUMB",
+   "bucket": "platform"
+  }
+ ],
+ "ID_PM.C": [
+  {
+   "kind": "define",
+   "symbol": "PML_CopyToXMS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PML_CopyFromXMS",
+   "bucket": "platform"
+  }
+ ],
+ "ID_PM.H": [
+  {
+   "kind": "define",
+   "symbol": "EMSPageSize",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMSPageSizeSeg",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMSPageSizeKB",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMSFrameCount",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PMPageSize",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PMPageSizeSeg",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PMPageSizeKB",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PMEMSSubPage",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PMMinMainMem",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PMMaxMainMem",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PMThrashThreshold",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PMUnThrashThreshold",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PM_GetSoundPage",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PM_GetSpritePage",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PM_LockMainMem",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PM_UnlockMainMem",
+   "bucket": "platform"
+  }
+ ],
+ "ID_SD.C": [
+  {
+   "kind": "define",
+   "symbol": "nil",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SDL_SoundFinished",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbOut",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbIn",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbWriteDelay",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbReadDelay",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "selreg",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "writereg",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "readstat",
+   "bucket": "platform"
+  }
+ ],
+ "ID_SD.EQU": [],
+ "ID_SD.H": [
+  {
+   "kind": "define",
+   "symbol": "__ID_SD__",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "__DEBUG_SoundMgr__",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "TickBase",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "pcTimer",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "pcTAccess",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "pcSpeaker",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "pcSpkBits",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbReset",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbFMStatus",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbFMAddr",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbFMData",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbReadData",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbWriteCmd",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbWriteData",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbWriteStat",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbDataAvail",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpLFMStatus",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpLFMAddr",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpLFMData",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpRFMStatus",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpRFMAddr",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpRFMData",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpMixerAddr",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpMixerData",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpCDData",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpCDCommand",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpCDStatus",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpCDReset",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpmReset",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpmVoiceVol",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpmMicMix",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpmFilterADC",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpmControl",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpmMasterVol",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpmFMVol",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpmCDVol",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sbpmLineVol",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "alFMStatus",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "alFMAddr",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "alFMData",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "alChar",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "alScale",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "alAttack",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "alSus",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "alWave",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "alFreqL",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "alFreqH",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "alFeedCon",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "alEffects",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sqMaxTracks",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sqMaxMoods",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sev_Null",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sev_NoteOff",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sev_NoteOn",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sev_NotePitch",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sev_NewInst",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sev_NewPerc",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sev_PercOn",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sev_PercOff",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sev_SeqEnd",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sf_Melodic",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sf_Percussive",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sqmode_Normal",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sqmode_FadeIn",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sqmode_FadeOut",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "sqMaxFade",
+   "bucket": "platform"
+  }
+ ],
+ "ID_SD_A.ASM": [],
+ "ID_US.H": [
+  {
+   "kind": "define",
+   "symbol": "__ID_US__",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "__DEBUG_UserMgr__",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MaxX",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MaxY",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MaxHelpLines",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MaxHighName",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MaxScores",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MaxGameName",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MaxSaveGames",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MaxString",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "US_HomeWindow",
+   "bucket": "platform"
+  }
+ ],
+ "ID_US_1.C": [
+  {
+   "kind": "define",
+   "symbol": "ConfigVersion",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "IGNORE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "RETRY",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "ABORT",
+   "bucket": "platform"
+  }
+ ],
+ "ID_US_A.ASM": [
+  {
+   "kind": "asmsym",
+   "symbol": "rndtable",
+   "bucket": "game-behavior"
+  }
+ ],
+ "ID_VH.C": [
+  {
+   "kind": "func",
+   "symbol": "VW_DrawPropString",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VW_DrawColorPropString",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_MungePic",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VWL_MeasureString",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VW_MeasurePropString",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VW_MeasureMPropString",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VW_MarkUpdateBlock",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VWB_DrawTile8",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VWB_DrawTile8M",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VWB_DrawPic",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VWB_DrawPropString",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VWB_Bar",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VWB_Plot",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VWB_Hlin",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VWB_Vlin",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VW_UpdateScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "LatchDrawPic",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "LoadLatchMem",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "FizzleFade",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "SCREENWIDTH",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CHARWIDTH",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "TILEWIDTH",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GRPLANES",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "BYTEPIXELS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SCREENXMASK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SCREENXPLUS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SCREENXDIV",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VIEWWIDTH",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PIXTOBLOCK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "UNCACHEGRCHUNK",
+   "bucket": "platform"
+  }
+ ],
+ "ID_VH.H": [
+  {
+   "kind": "define",
+   "symbol": "WHITE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "BLACK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "FIRSTCOLOR",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SECONDCOLOR",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "F_WHITE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "F_BLACK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "F_FIRSTCOLOR",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "F_SECONDCOLOR",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXSHIFTS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_Startup",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_Shutdown",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_SetCRTC",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_SetScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_Bar",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_Plot",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_Hlin",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_Vlin",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_DrawPic",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_SetSplitScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_SetLineWidth",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_ColorBorder",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_WaitVBL",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_FadeIn",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_FadeOut",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_ScreenToScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VW_SetDefaultColors",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EGAMAPMASK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "EGAWRITEMODE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MS_Quit",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "LatchDrawChar",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "LatchDrawTile",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMLATCHPICS",
+   "bucket": "platform"
+  }
+ ],
+ "ID_VH_A.ASM": [
+  {
+   "kind": "asmsym",
+   "symbol": "VH_UpdateScreen",
+   "bucket": "platform"
+  }
+ ],
+ "ID_VL.C": [
+  {
+   "kind": "func",
+   "symbol": "VL_Startup",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_Startup",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_Shutdown",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_SetVGAPlaneMode",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_SetTextMode",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_ClearVideo",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_DePlaneVGA",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_SetLineWidth",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_SetSplitScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_FillPalette",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_SetColor",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_GetColor",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_SetPalette",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_GetPalette",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_FadeOut",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_FadeIn",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_TestPaletteSet",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_ColorBorder",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_Plot",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_Hlin",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_Vlin",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_Bar",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_MemToLatch",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_MemToScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_MaskedToScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_LatchToScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_ScreenToScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_DrawTile8String",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_DrawLatch8String",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VL_SizeTile8String",
+   "bucket": "platform"
+  }
+ ],
+ "ID_VL.EQU": [],
+ "ID_VL.H": [
+  {
+   "kind": "define",
+   "symbol": "MS_Quit",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SC_INDEX",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SC_RESET",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SC_CLOCK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SC_MAPMASK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SC_CHARMAP",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SC_MEMMODE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_INDEX",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_H_TOTAL",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_H_DISPEND",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_H_BLANK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_H_ENDBLANK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_H_RETRACE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_H_ENDRETRACE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_V_TOTAL",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_OVERFLOW",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_ROWSCAN",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_MAXSCANLINE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_CURSORSTART",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_CURSOREND",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_STARTHIGH",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_STARTLOW",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_CURSORHIGH",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_CURSORLOW",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_V_RETRACE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_V_ENDRETRACE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_V_DISPEND",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_OFFSET",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_UNDERLINE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_V_BLANK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_V_ENDBLANK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_MODE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CRTC_LINECOMPARE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GC_INDEX",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GC_SETRESET",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GC_ENABLESETRESET",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GC_COLORCOMPARE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GC_DATAROTATE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GC_READMAP",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GC_MODE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GC_MISCELLANEOUS",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GC_COLORDONTCARE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "GC_BITMASK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "ATR_INDEX",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "ATR_MODE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "ATR_OVERSCAN",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "ATR_COLORPLANEENABLE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "ATR_PELPAN",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "ATR_COLORSELECT",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "STATUS_REGISTER_1",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PEL_WRITE_ADR",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PEL_READ_ADR",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "PEL_DATA",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SCREENSEG",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "SCREENWIDTH",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXSCANLINES",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "CHARWIDTH",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "TILEWIDTH",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VGAWRITEMODE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VGAMAPMASK",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "VGAREADMAP",
+   "bucket": "platform"
+  }
+ ],
+ "ID_VL_A.ASM": [
+  {
+   "kind": "asmsym",
+   "symbol": "VL_WaitVBL",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "VL_SetCRTC",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "VL_SetScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "VL_ScreenToScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "VL_VideoID",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "VL_VideoID",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "FindPS2",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "FindEGA",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "FindCGA",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "FindMono",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "Find6845",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "FindActive",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "FoundDevice",
+   "bucket": "platform"
+  }
+ ],
+ "JABHACK.ASM": [
+  {
+   "kind": "asmsym",
+   "symbol": "_CheckIs386",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "_jabhack2",
+   "bucket": "platform"
+  }
+ ],
+ "MAPSSDM.H": [],
+ "MAPSSOD.H": [],
+ "MAPSWL1.H": [],
+ "MAPSWL6.H": [],
+ "MAPSWLF.H": [],
+ "MUNGE.C": [
+  {
+   "kind": "func",
+   "symbol": "VL_MungePic",
+   "bucket": "platform"
+  }
+ ],
+ "OLDSCALE.C": [
+  {
+   "kind": "func",
+   "symbol": "BadScale",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "SetupScaling",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "BuildCompScale",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "ScaleLine",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "ScaleShape",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "SimpleScaleShape",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "define",
+   "symbol": "OP_RETF",
+   "bucket": "dead-debug"
+  }
+ ],
+ "PICLIST.H": [],
+ "SDMVER.H": [
+  {
+   "kind": "define",
+   "symbol": "SPEAR",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "SPEARDEMO",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ARTSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEMOSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CARMACIZED",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "SHAREMSG.H": [],
+ "SODVER.H": [
+  {
+   "kind": "define",
+   "symbol": "SPEAR",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ARTSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEMOSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CARMACIZED",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "SPANISH.H": [
+  {
+   "kind": "define",
+   "symbol": "QUITSUR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "CURGAME",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "GAMESVD",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "ENDGAMESTR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NG",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SD",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CL",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_LG",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SG",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CV",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_VS",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_EG",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_BD",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_QT",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_LOADING",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SAVING",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_GAME",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_DEMO",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_LGC",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_EMPTY",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CALIB",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_JOYST",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MOVEJOY",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MOVEJOY2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_ESCEXIT",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NONE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_PC",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_ALSB",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_DISNEY",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SB",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MOUSEEN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_JOYEN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_PORT2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_GAMEPAD",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SENS",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CUSTOM",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_DADDY",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_HURTME",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_BRINGEM",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_DEATH",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_MOUSEADJ",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SLOW",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_FAST",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CRUN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_COPEN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CFIRE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CSTRAFE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_LEFT",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RIGHT",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_FRWD",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_BKWD",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_THINK",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SIZE1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SIZE2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SIZE3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_YOUWIN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_TOTALTIME",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RATKILL",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RATSECRET",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RATTREASURE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_BONUS",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_TIME",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_PAR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RAT2KILL",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RAT2SECRET",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_RAT2TREASURE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_DEFEATED",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CHEATER1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CHEATER2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CHEATER3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CHEATER4",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_CHEATER5",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOSPACE1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_NOSPACE2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SAVECHT1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SAVECHT2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SAVECHT3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SAVECHT4",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STR_SEEAGAIN",
+   "bucket": "presentation"
+  }
+ ],
+ "SPANVER.H": [
+  {
+   "kind": "define",
+   "symbol": "SPANISH",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ARTSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEMOSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CARMACIZED",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "VERSION.H": [
+  {
+   "kind": "define",
+   "symbol": "GOODTIMES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ARTSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEMOSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CARMACIZED",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "WHACK_A.ASM": [
+  {
+   "kind": "asmsym",
+   "symbol": "planepics",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "MapRow",
+   "bucket": "dead-debug"
+  }
+ ],
+ "WL_ACT1.C": [
+  {
+   "kind": "func",
+   "symbol": "InitStaticList",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnStatic",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PlaceItemType",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "RecursiveConnect",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "ConnectAreas",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "InitAreas",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "InitDoorList",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnDoor",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "OpenDoor",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "CloseDoor",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "OperateDoor",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DoorOpen",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DoorOpening",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DoorClosing",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "MoveDoors",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PushWall",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "MovePWalls",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "DOORWIDTH",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "OPENTICS",
+   "bucket": "game-behavior"
+  }
+ ],
+ "WL_ACT2.C": [
+  {
+   "kind": "func",
+   "symbol": "A_Smoke",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "ProjectileTryMove",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Projectile",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnStand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnDeadGuard",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnBoss",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnGretel",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnPatrol",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "A_DeathScream",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnTrans",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnUber",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_UShoot",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnWill",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Will",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnDeath",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Launch",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "A_Slurpie",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "A_Breathing",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnAngel",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "A_Victory",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "A_StartAttack",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "A_Relaunch",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnSpectre",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "A_Dormant",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnGhosts",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnSchabbs",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnGift",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnFat",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_SchabbThrow",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_GiftThrow",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Schabb",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Gift",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Fat",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnFakeHitler",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnHitler",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "A_HitlerMorph",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "A_MechaSound",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "A_Slurpie",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_FakeFire",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Fake",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Stand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Chase",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Ghosts",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_DogChase",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SelectPathDir",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Path",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Shoot",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Bite",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnBJVictory",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_BJRun",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_BJJump",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_BJYell",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_BJDone",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "CheckPosition",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "A_StartDeathCam",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PROJECTILESIZE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "BJRUNSPEED",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "BJJUMPSPEED",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PROJSIZE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_rocket",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_smoke1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_smoke2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_smoke3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_smoke4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_boom1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_boom2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_boom3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hrocket",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hsmoke1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hsmoke2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hsmoke3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hsmoke4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hboom1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hboom2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hboom3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdpath1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdpath1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdpath2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdpath3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdpath3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdpath4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdpain",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdpain1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdshoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grdchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grddie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grddie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grddie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_grddie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_blinkychase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_blinkychase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_inkychase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_inkychase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_pinkychase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_pinkychase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_clydechase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_clydechase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogpath1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogpath1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogpath2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogpath3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogpath3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogpath4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogjump1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogjump2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogjump3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogjump4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogjump5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_dogdead",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcpath1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcpath1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcpath2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcpath3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcpath3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcpath4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcpain",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcpain1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcshoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcdie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ofcdie5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutpath1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutpath1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutpath2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutpath3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutpath3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutpath4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutpain",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutpain1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutshoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutshoot4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutdie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mutdie5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sspath1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sspath1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sspath2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sspath3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sspath3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sspath4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sspain",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sspain1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssshoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssshoot4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssshoot5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssshoot6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssshoot7",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssshoot8",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssshoot9",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sschase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sschase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sschase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sschase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sschase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_sschase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ssdie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bosschase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bosschase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bosschase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bosschase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bosschase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bosschase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossdie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossshoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossshoot4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossshoot5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossshoot6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossshoot7",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bossshoot8",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_greteldie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_greteldie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_greteldie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_greteldie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelshoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelshoot4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelshoot5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelshoot6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelshoot7",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_gretelshoot8",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transdie0",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transdie01",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transdie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transshoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transshoot4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transshoot5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transshoot6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transshoot7",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_transshoot8",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberdie0",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberdie01",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberdie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_uberdie5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ubershoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ubershoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ubershoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ubershoot4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ubershoot5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ubershoot6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_ubershoot7",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willdeathcam",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willdie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willdie5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willdie6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willshoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willshoot4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willshoot5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_willshoot6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathdeathcam",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathdie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathdie5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathdie6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathdie7",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathdie8",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathdie9",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathshoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathshoot4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathshoot5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angelstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angelchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angelchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angelchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angelchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angelchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angelchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeldie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeldie11",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeldie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeldie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeldie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeldie5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeldie6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeldie7",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeldie8",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeldie9",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angelshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angelshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angelshoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeltired",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeltired2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeltired3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeltired4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeltired5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeltired6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_angeltired7",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spark1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spark2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spark3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spark4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectrewait1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectrewait2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectrewait3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectrewait4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectrechase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectrechase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectrechase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectrechase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectredie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectredie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectredie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectredie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_spectrewake",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbdeathcam",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbdie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbdie5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbdie6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_schabbshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_needle1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_needle2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_needle3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_needle4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftdeathcam",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftdie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftdie5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftdie6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_giftshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatstand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatdeathcam",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatdie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatdie5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatdie6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatshoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatshoot4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatshoot5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fatshoot6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakestand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakechase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakechase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakechase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakechase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakechase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakechase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakedie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakedie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakedie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakedie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakedie5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakedie6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakeshoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakeshoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakeshoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakeshoot4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakeshoot5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakeshoot6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakeshoot7",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakeshoot8",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fakeshoot9",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fire1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_fire2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechastand",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechachase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechachase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechachase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechachase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechachase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechachase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechadie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechadie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechadie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechadie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechashoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechashoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechashoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechashoot4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechashoot5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_mechashoot6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerchase1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerchase1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerchase2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerchase3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerchase3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerchase4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerdeathcam",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerdie1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerdie2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerdie3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerdie4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerdie5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerdie6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerdie7",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerdie8",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerdie9",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlerdie10",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlershoot1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlershoot2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlershoot3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlershoot4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlershoot5",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_hitlershoot6",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bjrun1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bjrun1s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bjrun2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bjrun3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bjrun3s",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bjrun4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bjjump1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bjjump2",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bjjump3",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_bjjump4",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_deathcam",
+   "bucket": "game-behavior"
+  }
+ ],
+ "WL_AGENT.C": [
+  {
+   "kind": "func",
+   "symbol": "CheckWeaponChange",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "ControlMovement",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "StatusDrawPic",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawFace",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "UpdateFace",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "LatchNumber",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawHealth",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "TakeDamage",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "HealSelf",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawLevel",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawLives",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "GiveExtraMan",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawScore",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "GivePoints",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawWeapon",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawKeys",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "GiveWeapon",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawAmmo",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "GiveAmmo",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "GiveKey",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "GetBonus",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "TryMove",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "ClipMove",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "VictoryTile",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "Thrust",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "Cmd_Fire",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "Cmd_Use",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SpawnPlayer",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "KnifeAttack",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "GunAttack",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "VictorySpin",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Attack",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "T_Player",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXMOUSETURN",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MOVESCALE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "BACKMOVESCALE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "ANGLESCALE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FACETICS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_player",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "state",
+   "symbol": "s_attack",
+   "bucket": "game-behavior"
+  }
+ ],
+ "WL_ASM.ASM": [
+  {
+   "kind": "asmsym",
+   "symbol": "_CheckIs386",
+   "bucket": "platform"
+  },
+  {
+   "kind": "asmsym",
+   "symbol": "_jabhack2",
+   "bucket": "platform"
+  }
+ ],
+ "WL_DEBUG.C": [
+  {
+   "kind": "func",
+   "symbol": "DebugMemory",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "CountObjects",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "PicturePause",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "ShapeTest",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "DebugKeys",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "OverheadRefresh",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "ViewMap",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "define",
+   "symbol": "VIEWTILEX",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "define",
+   "symbol": "VIEWTILEY",
+   "bucket": "dead-debug"
+  }
+ ],
+ "WL_DEF.H": [
+  {
+   "kind": "define",
+   "symbol": "YEAR",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MONTH",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "DAY",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "COLORBORDER",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAPSPOT",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "SIGN",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "ABS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "LABS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXACTORS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXSTATS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXDOORS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXWALLTILES",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "ICONARROWS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PUSHABLETILE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "EXITTILE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "AREATILE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMAREAS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "ELEVATORTILE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "AMBUSHTILE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "ALTELEVATORTILE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMBERCHARS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "EXTRAPOINTS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PLAYERSPEED",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "RUNSPEED",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "SCREENSEG",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "SCREENBWIDE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "HEIGHTRATIO",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "BORDERCOLOR",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FLASHCOLOR",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FLASHTICS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PLAYERSIZE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MINACTORDIST",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMLATCHPICS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PI",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "GLOBAL1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "TILEGLOBAL",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PIXGLOBAL",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "TILESHIFT",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "UNSIGNEDSHIFT",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "ANGLES",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "ANGLEQUAD",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FINEANGLES",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "ANG90",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "ANG180",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "ANG270",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "ANG360",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "VANG90",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "VANG180",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "VANG270",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "VANG360",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MINDIST",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXSCALEHEIGHT",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXVIEWWIDTH",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAPSIZE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "NORTH",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "EAST",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "SOUTH",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "WEST",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "STATUSLINES",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "SCREENSIZE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PAGE1START",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PAGE2START",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PAGE3START",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FREESTART",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PIXRADIUS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTAMMO",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FL_SHOOTABLE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FL_BONUS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FL_NEVERMARK",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FL_VISABLE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FL_ATTACKMODE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FL_FIRSTATTACK",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FL_AMBUSH",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FL_NONMARK",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMENEMIES",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMBUTTONS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMWEAPONS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PlaySoundLocTile",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PlaySoundLocActor",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "UPDATESIZE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "TURNTICS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "SPDPATROL",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "SPDDOG",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "COMPSCALECODESTART",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "s_nakedbody",
+   "bucket": "game-behavior"
+  }
+ ],
+ "WL_DR_A.ASM": [
+  {
+   "kind": "asmsym",
+   "symbol": "AsmRefresh",
+   "bucket": "platform"
+  }
+ ],
+ "WL_DRAW.C": [
+  {
+   "kind": "func",
+   "symbol": "FixedByFrac",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "TransformActor",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "TransformTile",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "CalcHeight",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "ScalePost",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "FarScalePost",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "HitVertWall",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "HitHorizWall",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "HitHorizDoor",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "HitVertDoor",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "HitHorizPWall",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "HitVertPWall",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "ClearScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "VGAClearScreen",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "CalcRotate",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawScaleds",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawPlayerWeapon",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "CalcTics",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "FixOfs",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "WallRefresh",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "ThreeDRefresh",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "DOORWALL",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "ACTORSIZE",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXVISABLE",
+   "bucket": "platform"
+  }
+ ],
+ "WL_GAME.C": [
+  {
+   "kind": "func",
+   "symbol": "PlaySoundLocGlobal",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "UpdateSoundLoc",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "ClearMemory",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "ScanInfoPlane",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SetupGameLevel",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawPlayBorderSides",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawAllPlayBorderSides",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawAllPlayBorder",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawPlayBorder",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawPlayScreen",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "StartDemoRecord",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "FinishDemoRecord",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "RecordDemo",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PlayDemo",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "Died",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "GameLoop",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "ATABLEMAX",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXDEMOSIZE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEATHROTATE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FROMSECRET1",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FROMSECRET2",
+   "bucket": "game-behavior"
+  }
+ ],
+ "WL_INTER.C": [
+  {
+   "kind": "func",
+   "symbol": "ClearSplitVWB",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "EndScreen",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "EndSpear",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "Victory",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PG13",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "Write",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "BJ_Breathe",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "LevelCompleted",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PreloadUpdate",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PreloadGraphics",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawHighScores",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "CheckHighScore",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "NonShareware",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "BackDoor",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "CopyProtection",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "RATIOX",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "RATIOY",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "TIMEX",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "TIMEY",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "TYPEBOX_Y",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "TYPEBOX_BKGD",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "PRINTCOLOR",
+   "bucket": "game-behavior"
+  }
+ ],
+ "WL_MAIN.C": [
+  {
+   "kind": "func",
+   "symbol": "ReadConfig",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "WriteConfig",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "Patch386",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "NewGame",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DiskFlopAnim",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DoChecksum",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SaveTheGame",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "LoadTheGame",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "ShutdownId",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "BuildTables",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "CalcProjection",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SetupWalls",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SignonScreen",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "FinishSignon",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "MS_CheckParm",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "InitDigiMap",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DoJukebox",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "InitGame",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SetViewSize",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "ShowViewSize",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "NewViewSize",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "Quit",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DemoLoop",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "main",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "FOCALLENGTH",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "VIEWGLOBAL",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "VIEWWIDTH",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "VIEWHEIGHT",
+   "bucket": "game-behavior"
+  }
+ ],
+ "WL_MENU.C": [
+  {
+   "kind": "func",
+   "symbol": "US_ControlPanel",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawMainMenu",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CP_ReadThis",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "BossKey",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CP_CheckQuick",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CP_EndGame",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CP_ViewScores",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CP_NewGame",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawNewEpisode",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawNewGame",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawNewGameDiff",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CP_Sound",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawSoundMenu",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawLSAction",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CP_LoadGame",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "TrackWhichGame",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawLoadSaveScreen",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "PrintLSEntry",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CP_SaveGame",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CalibrateJoystick",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CP_Control",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawMouseSens",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "MouseSensitivity",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawCtlScreen",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CustomControls",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DefineMouseBtns",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DefineJoyBtns",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DefineKeyBtns",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DefineKeyMove",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "EnterCtrlData",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "FixupCustom",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawCustomScreen",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "PrintCustMouse",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawCustMouse",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "PrintCustJoy",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawCustJoy",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "PrintCustKeybd",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawCustKeybd",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "PrintCustKeys",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawCustKeys",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CP_ChangeView",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawChangeView",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CP_Quit",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "IntroScreen",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "ClearMScreen",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CacheLump",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "UnCacheLump",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawWindow",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawOutline",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "SetupControlPanel",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CleanupControlPanel",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "HandleMenu",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "EraseGun",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawHalfStep",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawGun",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "TicDelay",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawMenu",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "SetTextColor",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "WaitKeyUp",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "ReadAnyControl",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "Confirm",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "GetYorN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "Message",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "StartCPMusic",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "FreeMusic",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CheckPause",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawMenuGun",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawStripes",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "ShootSnd",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CheckForEpisodes",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTITEM",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTITEM",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STARTITEM",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAINCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMSCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMSCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAINCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "EMSCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "XMSCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "FILLCOLOR",
+   "bucket": "presentation"
+  }
+ ],
+ "WL_MENU.H": [
+  {
+   "kind": "define",
+   "symbol": "BORDCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "BORD2COLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEACTIVE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "BKGDCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "MenuFadeOut",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "BORDCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "BORD2COLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEACTIVE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "BKGDCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "STRIPE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "MenuFadeOut",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "READCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "READHCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "VIEWCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "TEXTCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "HIGHLIGHT",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "MenuFadeIn",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "MENUSONG",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "INTROSONG",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "INTROSONG",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "SENSITIVE",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "CENTER",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "MENU_X",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "MENU_Y",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "MENU_W",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "MENU_H",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "MENU_H",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "SM_X",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "SM_W",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "SM_Y1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "SM_H1",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "SM_Y2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "SM_H2",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "SM_Y3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "SM_H3",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "CTL_X",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "CTL_Y",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "CTL_W",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "CTL_H",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "LSM_X",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "LSM_Y",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "LSM_W",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "LSM_H",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "NM_X",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "NM_Y",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "NM_W",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "NM_H",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "NE_X",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "NE_Y",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "NE_W",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "NE_H",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "CST_X",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "CST_Y",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "CST_START",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "CST_SPC",
+   "bucket": "presentation"
+  }
+ ],
+ "WL_PLAY.C": [
+  {
+   "kind": "func",
+   "symbol": "PollKeyboardButtons",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PollMouseButtons",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PollJoystickButtons",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PollKeyboardMove",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PollMouseMove",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PollJoystickMove",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PollControls",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "CenterWindow",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "CheckKeys",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "InitActorList",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "GetNewActor",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "RemoveObj",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "StopMusic",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "StartMusic",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "InitRedShifts",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "ClearPaletteShifts",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "StartBonusFlash",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "StartDamageFlash",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "UpdatePaletteShifts",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "FinishPaletteShifts",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DoActor",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "PlayLoop",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "sc_Question",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "BASEMOVE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "RUNMOVE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "BASETURN",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "RUNTURN",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "JOYSCALE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXX",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXY",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMREDSHIFTS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "REDSTEPS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "NUMWHITESHIFTS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "WHITESTEPS",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "WHITETICS",
+   "bucket": "game-behavior"
+  }
+ ],
+ "WL_SCALE.C": [
+  {
+   "kind": "func",
+   "symbol": "BadScale",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "SetupScaling",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "BuildCompScale",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "ScaleLine",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "ScaleShape",
+   "bucket": "platform"
+  },
+  {
+   "kind": "func",
+   "symbol": "SimpleScaleShape",
+   "bucket": "platform"
+  },
+  {
+   "kind": "define",
+   "symbol": "OP_RETF",
+   "bucket": "platform"
+  }
+ ],
+ "WL_STATE.C": [
+  {
+   "kind": "func",
+   "symbol": "SpawnNewObj",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "NewState",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "TryWalk",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SelectDodgeDir",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SelectChaseDir",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SelectRunDir",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "MoveObj",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DropItem",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "KillActor",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "DamageActor",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "CheckLine",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "CheckSight",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "FirstSighting",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "func",
+   "symbol": "SightPlayer",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "CHECKDIAG",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "CHECKSIDE",
+   "bucket": "game-behavior"
+  },
+  {
+   "kind": "define",
+   "symbol": "MINSIGHT",
+   "bucket": "game-behavior"
+  }
+ ],
+ "WL_TEXT.C": [
+  {
+   "kind": "func",
+   "symbol": "RipToEOL",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "ParseNumber",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "ParsePicCommand",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "ParseTimedCommand",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "TimedPicCommand",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "HandleCommand",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "NewLine",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "HandleCtrls",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "HandleWord",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "PageLayout",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "BackPage",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "CacheLayoutGraphics",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "ShowArticle",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "HelpScreens",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "func",
+   "symbol": "EndText",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "BACKCOLOR",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "WORDLIMIT",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "FONTHEIGHT",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "TOPMARGIN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "BOTTOMMARGIN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "LEFTMARGIN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "RIGHTMARGIN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "PICMARGIN",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "TEXTROWS",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "SPACEWIDTH",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "SCREENPIXWIDTH",
+   "bucket": "presentation"
+  },
+  {
+   "kind": "define",
+   "symbol": "SCREENMID",
+   "bucket": "presentation"
+  }
+ ],
+ "WLFJ1VER.H": [
+  {
+   "kind": "define",
+   "symbol": "JAPAN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "JAPDEMO",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "UPLOAD",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ARTSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEMOSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CARMACIZED",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "WOLF1VER.H": [
+  {
+   "kind": "define",
+   "symbol": "ARTSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEMOSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CARMACIZED",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "UPLOAD",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "WOLFGTV.H": [
+  {
+   "kind": "define",
+   "symbol": "GOODTIMES",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ARTSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEMOSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CARMACIZED",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "WOLFHACK.C": [
+  {
+   "kind": "func",
+   "symbol": "FixedMul",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawSpans",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "SetPlaneViewSize",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "func",
+   "symbol": "DrawPlanes",
+   "bucket": "dead-debug"
+  },
+  {
+   "kind": "define",
+   "symbol": "MAXVIEWHEIGHT",
+   "bucket": "dead-debug"
+  }
+ ],
+ "WOLFJVER.H": [
+  {
+   "kind": "define",
+   "symbol": "JAPAN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "ARTSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEMOSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CARMACIZED",
+   "bucket": "data-pipeline"
+  }
+ ],
+ "WOLFVER.H": [
+  {
+   "kind": "define",
+   "symbol": "ARTSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "DEMOSEXTERN",
+   "bucket": "data-pipeline"
+  },
+  {
+   "kind": "define",
+   "symbol": "CARMACIZED",
+   "bucket": "data-pipeline"
+  }
+ ]
+}
