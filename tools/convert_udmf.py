@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
-"""Phase 1: convert extracted levels to UDMF TEXTMAP (v1: geometry + things).
+"""Phase 1: convert extracted levels to UDMF TEXTMAP (v2: polyobject doors).
 
 Scale: 1 Wolf tile = 64 map units. Wolf y grows south; UDMF y grows north:
 tile (tx,ty) spans x [tx*64,(tx+1)*64], y [(63-ty)*64, (64-ty)*64].
 Angles: east=0 north=90 west=180 south=270.
 
 Sectors: one per Wolf AREA CODE (areas are exactly the door-bounded regions —
-plane0 floor codes 107+), plus one small sector per door tile. Sector id ->
-area mapping is emitted in the per-map manifest for the sim's areaconnect.
-Ambush tiles (106) get their area patched from neighbors in source order
-(east, north, south, west — last open neighbor wins; WL_GAME.C:740-749).
+plane0 floor codes 107+), plus one per door tile (pocket channel included),
+plus one stash sector holding all door-slab polyobjects.
 
-Walls: one-sided lines. Wolf shading pairs: wall code w -> VSWAP chunk
-(w-1)*2 on N/S-facing edges (light) and (w-1)*2+1 on E/W-facing (dark).
-[VERIFY orientation against DOSBox in the slice — swap is a one-liner.]
+Walls: one-sided lines. Wall code w -> VSWAP chunk (w-1)*2 on N/S faces and
+(w-1)*2+1 on E/W faces. Door-adjacent wall tiles are jamb-marked (SpawnDoor
+|0x40, WL_ACT1.C:373-384) and render the jamb pages on ALL faces:
+DOORWALL+2 (WALL100) N/S, DOORWALL+3 (WALL101) E/W (WL_DRAW.C:525,597).
 
-Doors (v1): door tile becomes its own sector with no slab yet; everything the
-polyobject pass needs (axis, lock, slide dir, pocket tile) goes to the
-manifest. Slide dir from WL_DRAW.C:625,693: texture = intercept -
-doorposition -> slab moves toward +coord: vertical doors slide SOUTH,
-horizontal doors slide EAST. Pocket = that neighbor wall tile.
+Doors: slab = 8x64 polyobject authored in the stash, spawned at the door
+tile center (anchor 9300 / start spot 9301, po number in the angle field).
+Slide dir from WL_DRAW.C:625,693 (texture = intercept - doorposition):
+vertical doors slide SOUTH, horizontal doors slide EAST, into a carved
+pocket channel in that neighbor wall tile. Door faces: normal WALL098/099,
+locked WALL104/105, elevator WALL102/103 (WL_DRAW.C:658-671, DOORWALL=98).
+A WolfDoor controller thing (DoomEd 21220) carries args [po, vertical, lock].
 
 Things: DoomEd mapping per docs/DOOMED_MAP.md. Skill flags: min_skill 0 ->
 all; 2 (medium+) -> skill3+; 3 (hard+) -> skill4+ (skill5 mirrors 4).
@@ -39,7 +40,6 @@ ANGLES = {"east": 0, "north": 90, "west": 180, "south": 270,
           "northeast": 45, "northwest": 135, "southwest": 225,
           "southeast": 315}
 
-# DoomEd numbers (docs/DOOMED_MAP.md)
 ED_PLAYER1 = 1
 ED_ENEMY = {("guard", "stand"): 21001, ("guard", "patrol"): 21002,
             ("officer", "stand"): 21003, ("officer", "patrol"): 21004,
@@ -51,17 +51,25 @@ ED_BOSS = {"hans": 21020, "gretel": 21021, "gift": 21022, "fat": 21023,
            "spectre": 21030, "angel": 21031, "trans": 21032, "uber": 21033,
            "will": 21034, "death_knight": 21035}
 ED_GHOST = {"blinky": 21040, "clyde": 21041, "pinky": 21042, "inky": 21043}
-ED_STATIC_BASE = 21100          # + statinfo index
-ED_TURN_BASE = 21200            # + DIR8 index (E,NE,N,NW,W,SW,S,SE)
+ED_STATIC_BASE = 21100
+ED_TURN_BASE = 21200
 ED_PUSHWALL = 21210
 ED_VICTORY = 21211
 ED_DEAD_GUARD = 21212
+ED_DOOR = 21220
+ED_POLY_ANCHOR = 9300
+ED_POLY_START = 9301
 DIR8 = ["east", "northeast", "north", "northwest",
         "west", "southwest", "south", "southeast"]
 
+DOOR_FACE = {"normal": (98, 99), "gold": (104, 105), "silver": (104, 105),
+             "lock3": (104, 105), "lock4": (104, 105), "elevator": (102, 103)}
+LOCK_NUM = {"normal": 0, "gold": 1, "silver": 2, "lock3": 3, "lock4": 4,
+            "elevator": 5}
+SLABW = 8          # slab thickness; pocket channel matches
+
 
 def area_grid(level):
-    """Per-tile area number (or None for solid/door), ambush set, door list."""
     dec = level["decoded0"]
     W = H = 64
     area = [[None] * H for _ in range(W)]
@@ -97,10 +105,23 @@ def convert(level, ceiling_color):
     area, ambush, doors = area_grid(level)
     doortile = {(d["x"], d["y"]): i for i, d in enumerate(doors)}
 
-    # sector ids: areas sorted, then door sectors
+    jamb = set()
+    pocket_of = {}          # door-tile -> (pocket tile, edge)
+    for d in doors:
+        x, y = d["x"], d["y"]
+        if d["vertical"]:
+            jamb.add((x, y - 1))
+            jamb.add((x, y + 1))
+            pocket_of[(x, y)] = ((x, y + 1), "south")
+        else:
+            jamb.add((x - 1, y))
+            jamb.add((x + 1, y))
+            pocket_of[(x, y)] = ((x + 1, y), "east")
+
     areas_used = sorted({a for col in area for a in col if a is not None})
     sec_of_area = {a: i for i, a in enumerate(areas_used)}
     sec_of_door = {i: len(areas_used) + i for i in range(len(doors))}
+    stash_sec = len(areas_used) + len(doors)
 
     def tile_sector(x, y):
         if (x, y) in doortile:
@@ -117,46 +138,79 @@ def convert(level, ceiling_color):
             verts[(x, y)] = len(verts)
         return verts[(x, y)]
 
-    def add_line(v1, v2, front_sec, tex=None, back_sec=None):
+    def add_line(v1, v2, front_sec, tex=None, back_sec=None,
+                 special=0, arg0=0):
         sides.append((front_sec, tex))
         if back_sec is None:
-            lines.append((vid(*v1), vid(*v2), len(sides) - 1, -1, True))
+            lines.append((vid(*v1), vid(*v2), len(sides) - 1, -1, True,
+                          special, arg0))
         else:
             sides.append((back_sec, None))
-            lines.append((vid(*v1), vid(*v2), len(sides) - 2, len(sides) - 1, False))
+            lines.append((vid(*v1), vid(*v2), len(sides) - 2, len(sides) - 1,
+                          False, special, arg0))
 
-    def texname(code, horiz_face):
-        chunk = (code - 1) * 2 + (0 if horiz_face else 1)
-        return f"WALL{chunk:03d}"
+    def texname(code, horiz_face, tile):
+        if tile in jamb:
+            return f"WALL{100 if horiz_face else 101:03d}"
+        return f"WALL{(code - 1) * 2 + (0 if horiz_face else 1):03d}"
+
+    def emit_pocket(x, y, s, edge):
+        """Split the door tile's pocket-side edge and carve the channel."""
+        xb, yb = x * T, (63 - y) * T
+        if edge == "south":
+            xm = xb + T // 2
+            # split south edge (dir west, interior north)
+            add_line((xb + T, yb), (xm + SLABW // 2, yb), s, "WALL100")
+            add_line((xm - SLABW // 2, yb), (xb, yb), s, "WALL100")
+            # channel walls in the pocket tile below (UDMF -y)
+            add_line((xm - SLABW // 2, yb - T), (xm - SLABW // 2, yb), s, "WALL101")
+            add_line((xm + SLABW // 2, yb), (xm + SLABW // 2, yb - T), s, "WALL101")
+            add_line((xm + SLABW // 2, yb - T), (xm - SLABW // 2, yb - T), s, "WALL100")
+        else:  # east
+            ym = yb + T // 2
+            # split east edge (dir south, interior west)
+            add_line((xb + T, yb + T), (xb + T, ym + SLABW // 2), s, "WALL101")
+            add_line((xb + T, ym - SLABW // 2), (xb + T, yb), s, "WALL101")
+            # channel walls in the pocket tile to the east
+            add_line((xb + T, ym + SLABW // 2), (xb + 2 * T, ym + SLABW // 2), s, "WALL100")
+            add_line((xb + 2 * T, ym - SLABW // 2), (xb + T, ym - SLABW // 2), s, "WALL100")
+            add_line((xb + 2 * T, ym + SLABW // 2), (xb + 2 * T, ym - SLABW // 2), s, "WALL101")
 
     for y in range(64):
         for x in range(64):
             s = tile_sector(x, y)
             if s is None:
                 continue
-            xb, yb = x * T, (63 - y) * T          # SW corner of tile in UDMF
-            # north edge (faces N/S -> "horizontal" wall face, light pair)
-            for (nx, ny, v1, v2, horiz) in (
-                    (x, y - 1, (xb, yb + T), (xb + T, yb + T), True),    # north
-                    (x, y + 1, (xb + T, yb), (xb, yb), True),            # south
-                    (x - 1, y, (xb, yb), (xb, yb + T), False),           # west
-                    (x + 1, y, (xb + T, yb + T), (xb + T, yb), False)):  # east
+            xb, yb = x * T, (63 - y) * T
+            pocket = pocket_of.get((x, y))
+            for (nx, ny, v1, v2, horiz, edge) in (
+                    (x, y - 1, (xb, yb + T), (xb + T, yb + T), True, "north"),
+                    (x, y + 1, (xb + T, yb), (xb, yb), True, "south"),
+                    (x - 1, y, (xb, yb), (xb, yb + T), False, "west"),
+                    (x + 1, y, (xb + T, yb + T), (xb + T, yb), False, "east")):
+                if pocket and edge == pocket[1]:
+                    emit_pocket(x, y, s, edge)
+                    continue
                 code = wall_code(level, nx, ny)
                 if code is not None:
-                    add_line(v1, v2, s, texname(code, horiz))
+                    add_line(v1, v2, s, texname(code, horiz, (nx, ny)))
                 else:
                     ns = tile_sector(nx, ny)
                     if ns is None:
-                        add_line(v1, v2, s, "WALL000")  # void guard (shouldn't happen)
+                        add_line(v1, v2, s, "WALL000")
                     elif ns != s and (ny > y or (ny == y and nx > x)):
                         add_line(v1, v2, s, None, back_sec=ns)
 
+    # ------------------------------------------------------------------
     # things
+    # ------------------------------------------------------------------
     things = []
 
-    def thing(x, y, ed, angle=0, skills=(1, 2, 3, 4, 5), special=None):
-        things.append({"x": x * T + T // 2, "y": (63 - y) * T + T // 2,
-                       "type": ed, "angle": angle, "skills": skills})
+    def thing(tx, ty, ed, angle=0, skills=(1, 2, 3, 4, 5), args=None,
+              raw=None):
+        pos = raw if raw else (tx * T + T // 2, (63 - ty) * T + T // 2)
+        things.append({"x": pos[0], "y": pos[1], "type": ed, "angle": angle,
+                       "skills": skills, "args": args})
 
     for o in level["objects"]:
         k = o["kind"]
@@ -181,30 +235,78 @@ def convert(level, ceiling_color):
         elif k == "dead_guard":
             thing(o["x"], o["y"], ED_DEAD_GUARD)
 
-    # ambush markers ride as sim data in the manifest (per-tile), not things
+    # ------------------------------------------------------------------
+    # door slabs: stash cells west of the grid, one polyobject per door
+    # ------------------------------------------------------------------
+    for i, d in enumerate(doors):
+        poid = i + 1
+        cx, cy = -160, i * 128 + 64
+        x1, y1, x2, y2 = cx - 16, cy - 48, cx + 16, cy + 48
+        # stash cell walls (interior on the right -> clockwise)
+        add_line((x1, y2), (x2, y2), stash_sec, "WALL000")
+        add_line((x2, y2), (x2, y1), stash_sec, "WALL000")
+        add_line((x2, y1), (x1, y1), stash_sec, "WALL000")
+        add_line((x1, y1), (x1, y2), stash_sec, "WALL000")
+
+        face_v, face_h = DOOR_FACE[d["lock"]]
+        if d["vertical"]:
+            sw, sl = SLABW // 2, T // 2       # thin in x, long in y
+            fx1, fy1, fx2, fy2 = cx - sw, cy - sl, cx + sw, cy + sl
+            long_tex, cap_tex = f"WALL{face_v:03d}", "WALL100"
+        else:
+            sw, sl = T // 2, SLABW // 2       # long in x, thin in y
+            fx1, fy1, fx2, fy2 = cx - sw, cy - sl, cx + sw, cy + sl
+            long_tex, cap_tex = f"WALL{face_h:03d}", "WALL101"
+        # slab lines CCW (front faces outward); first carries Polyobj_StartLine
+        vertical = d["vertical"]
+        top_tex = cap_tex if vertical else long_tex
+        side_tex = long_tex if vertical else cap_tex
+        add_line((fx2, fy2), (fx1, fy2), stash_sec, top_tex,
+                 special=1, arg0=poid)
+        add_line((fx1, fy2), (fx1, fy1), stash_sec, side_tex)
+        add_line((fx1, fy1), (fx2, fy1), stash_sec, top_tex)
+        add_line((fx2, fy1), (fx2, fy2), stash_sec, side_tex)
+
+        dx, dy = d["x"], d["y"]
+        center = (dx * T + T // 2, (63 - dy) * T + T // 2)
+        thing(0, 0, ED_POLY_ANCHOR, angle=poid, raw=(cx, cy))
+        thing(0, 0, ED_POLY_START, angle=poid, raw=center)
+        thing(0, 0, ED_DOOR, raw=center,
+              args=[poid, 1 if d["vertical"] else 0, LOCK_NUM[d["lock"]]])
+        d["polyid"] = poid
+
+    # ------------------------------------------------------------------
     # emit TEXTMAP
+    # ------------------------------------------------------------------
     L = ['namespace = "zdoom";']
     for (vx, vy), _ in sorted(verts.items(), key=lambda kv: kv[1]):
         L.append(f"vertex {{ x = {vx}.0; y = {vy}.0; }}")
-    for v1, v2, sf, sb, blocking in lines:
+    for v1, v2, sf, sb, blocking, special, arg0 in lines:
         parts = [f"v1 = {v1}; v2 = {v2}; sidefront = {sf};"]
         if sb >= 0:
             parts.append(f"sideback = {sb}; twosided = true;")
         if blocking:
             parts.append("blocking = true;")
+        if special:
+            parts.append(f"special = {special}; arg0 = {arg0};")
         L.append("linedef { " + " ".join(parts) + " }")
     for sec, tex in sides:
         t = f' texturemiddle = "{tex}";' if tex else ""
         L.append(f"sidedef {{ sector = {sec};{t} }}")
-    nsec = len(areas_used) + len(doors)
+    nsec = len(areas_used) + len(doors) + 1
     for i in range(nsec):
         L.append(f'sector {{ heightfloor = 0; heightceiling = {T}; '
                  f'texturefloor = "FLOOR19"; textureceiling = "CEIL{ceiling_color:02X}"; '
                  f'lightlevel = 255; }}')
     for t in things:
         sk = " ".join(f"skill{s} = true;" for s in t["skills"])
+        argstr = ""
+        if t["args"]:
+            argstr = " " + " ".join(f"arg{i} = {v};"
+                                    for i, v in enumerate(t["args"]) if v)
         L.append(f'thing {{ x = {t["x"]}.0; y = {t["y"]}.0; type = {t["type"]}; '
-                 f'angle = {t["angle"]}; {sk} single = true; coop = true; dm = true; }}')
+                 f'angle = {t["angle"]}; {sk} single = true; coop = true; '
+                 f'dm = true;{argstr} }}')
 
     manifest = {
         "areas": areas_used,

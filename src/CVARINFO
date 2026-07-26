@@ -1,0 +1,2 @@
+// debug/self-test switches (build.py --check)
+server int wolf_dbg_doortest = 0;

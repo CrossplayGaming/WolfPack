@@ -1,0 +1,6 @@
+// Digitized sounds from the user's VSWAP (extract_vswap.py -> make_assets.py).
+// Index mapping is the source's wolfdigimap (WL_MAIN.C:849+):
+//   OPENDOORSND -> digi 3, CLOSEDOORSND -> digi 2, PUSHWALLSND -> digi 15
+wolf/dooropen   "sounds/dooropen.wav"
+wolf/doorclose  "sounds/doorclose.wav"
+wolf/pushwall   "sounds/pushwall.wav"

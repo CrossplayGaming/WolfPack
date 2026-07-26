@@ -73,4 +73,44 @@ class WolfPlayer : DoomPlayer
     }
 
     bool bIsRunning;
+    int oldButtons;
+
+    // Cmd_Use (WL_AGENT.C:1008-1080): on use press, scan exactly one tile in
+    // the facing cardinal direction (octant test, EXIT-001) and operate any
+    // door there. Pushwalls and the elevator switch join in later passes.
+    override void Tick()
+    {
+        Super.Tick();
+        if (player && (player.cmd.buttons & BT_USE)
+            && !(oldButtons & BT_USE))
+        {
+            WolfUse();
+        }
+        if (player)
+            oldButtons = player.cmd.buttons;
+    }
+
+    void WolfUse()
+    {
+        double a = Angle % 360.0;
+        if (a < 0) a += 360.0;
+        int tx = int(pos.x) / 64;
+        int ty = 63 - (int(pos.y) / 64);
+        int cx = tx, cy = ty;
+        if (a < 45.0 || a >= 315.0)      cx++;          // east
+        else if (a < 135.0)              cy--;          // north
+        else if (a < 225.0)              cx--;          // west
+        else                             cy++;          // south
+
+        ThinkerIterator it = ThinkerIterator.Create("WolfDoor");
+        WolfDoor d;
+        while ((d = WolfDoor(it.Next())) != null)
+        {
+            if (d.tileX == cx && d.tileY == cy)
+            {
+                d.Operate(self);
+                return;
+            }
+        }
+    }
 }

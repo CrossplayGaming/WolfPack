@@ -420,6 +420,17 @@ sight/shots.
 | CHEAT-004 | Spear-only in-game god toggle block with "God mode ON/OFF" message + ENDBONUS2SND | l. 630-652 |
 | CHEAT-005 | Tab-key debug set (DebugOk): inventory in WL_DEBUG.C → enumerate at presentation phase |
 
+### Door presentation + sounds (resolved with the polyobject pass)
+
+| ID | Item | Value |
+|---|---|---|
+| DOOR-012 | Door texture pages: DOORWALL = PMSpriteStart−8 (WL6: 98). Normal 98/99 (vert/horiz), locked (any lock1-4) 104/105, elevator 102/103 | WL_DRAW.C:19,658-671 |
+| DOOR-013 | Jamb marking: SpawnDoor sets `|0x40` on BOTH perpendicular neighbor tiles; marked tiles render jamb pages on ALL faces — DOORWALL+2 (100) N/S faces, +3 (101) E/W | WL_ACT1.C:373-384, WL_DRAW.C:525,597 |
+| SND-001 | wolfdigimap: OPENDOORSND→digi 3, CLOSEDOORSND→digi 2, PUSHWALLSND→digi 15 (full table WL_MAIN.C:849-959; port the rest with the actor pass) |
+
+Harness: build.py --check runs a full door cycle in-engine and asserts
+open=32/autoclose=150/close=32 engine tics (DOOR-001/002 at TIC-001 2:1).
+
 ## Open [VERIFY] items — batch 4 queue
 
 - Ghost movement specifics (T_Ghosts uses SelectChaseDir but which blocking rules? noclip

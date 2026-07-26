@@ -86,14 +86,18 @@ def check():
         LOG.unlink()
     proc = subprocess.Popen([str(UZDOOM), "-iwad", str(PK3), "+logfile",
                              str(LOG), "-nosound", "-noautoload",
+                             "+set", "wolf_dbg_doortest", "1",
                              "+map", "MAP01"], cwd=str(ROOT))
     loaded = False
     for _ in range(60):
         time.sleep(1)
-        if LOG.exists() and "MAP01" in LOG.read_text(errors="replace"):
+        text = LOG.read_text(errors="replace") if LOG.exists() else ""
+        if "DOORTEST closed" in text or "DOORTEST nodoors" in text:
             loaded = True
-            time.sleep(2)          # let post-load spawn warnings flush
+            time.sleep(1)
             break
+        if "MAP01" in text:
+            loaded = True          # keep waiting for the door cycle
     proc.kill()
     proc.wait()
     if not LOG.exists():
@@ -101,6 +105,26 @@ def check():
     errors, warns = [], []
     if not loaded:
         errors.append("map MAP01 never loaded (no map header in log)")
+
+    # door-timing assertions (charter DOOR-001/002; +-1 tic transition slack)
+    text = LOG.read_text(errors="replace")
+    marks = dict(re.findall(r"DOORTEST (\w+) (\d+)", text))
+    if "start" in marks:
+        exp = (("open", "start", 32), ("closing", "open", 150),
+               ("closed", "closing", 32))
+        for a, b, want in exp:
+            if a not in marks or b not in marks:
+                errors.append(f"DOORTEST incomplete: no '{a}' mark")
+                break
+            got = int(marks[a]) - int(marks[b])
+            if abs(got - want) > 1:
+                errors.append(f"DOORTEST {b}->{a} took {got} tics, want {want}")
+        else:
+            print(f"  doortest: open {int(marks['open'])-int(marks['start'])}, "
+                  f"autoclose {int(marks['closing'])-int(marks['open'])}, "
+                  f"close {int(marks['closed'])-int(marks['closing'])} tics — OK")
+    elif loaded and "DOORTEST nodoors" not in text:
+        errors.append("DOORTEST never started (handler not running?)")
     for line in LOG.read_text(errors="replace").splitlines():
         if any(p.search(line) for p in ERROR_PATTERNS):
             errors.append(line)

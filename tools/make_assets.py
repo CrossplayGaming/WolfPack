@@ -63,6 +63,13 @@ def main():
     for c in sorted(set(ceilings["wl6"])):
         solid_flat(pal, c).save(ASSETS / "flats" / f"CEIL{c:02X}.png")
 
+    # digitized sounds referenced by src/SNDINFO (wolfdigimap, WL_MAIN.C:849+)
+    (ASSETS / "sounds").mkdir()
+    for digi, name in ((3, "dooropen"), (2, "doorclose"), (15, "pushwall")):
+        src = VSWAP / "sounds" / f"DIGI{digi:03d}.wav"
+        if src.exists():
+            shutil.copy(src, ASSETS / "sounds" / f"{name}.wav")
+
     nmaps = 0
     for tm in sorted(UDMF.glob("MAP*.textmap")):
         n = int(tm.stem[3:])

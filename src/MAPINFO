@@ -4,6 +4,7 @@
 gameinfo
 {
     playerclasses = "WolfPlayer"
+    EventHandlers = "WolfDebugHandler"
     drawreadthis = false
     quitmessages = "$QUITMSG"
 }
@@ -32,6 +33,11 @@ skill hard
 {
     Name = "I am Death incarnate!"
     SpawnFilter = 4
+}
+
+DoomEdNums
+{
+    21220 = "WolfDoor"
 }
 
 clearepisodes
