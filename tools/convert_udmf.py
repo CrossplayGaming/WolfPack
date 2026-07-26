@@ -105,19 +105,6 @@ def convert(level, ceiling_color):
     area, ambush, doors = area_grid(level)
     doortile = {(d["x"], d["y"]): i for i, d in enumerate(doors)}
 
-    jamb = set()
-    pocket_of = {}          # door-tile -> (pocket tile, edge)
-    for d in doors:
-        x, y = d["x"], d["y"]
-        if d["vertical"]:
-            jamb.add((x, y - 1))
-            jamb.add((x, y + 1))
-            pocket_of[(x, y)] = ((x, y + 1), "south")
-        else:
-            jamb.add((x - 1, y))
-            jamb.add((x + 1, y))
-            pocket_of[(x, y)] = ((x + 1, y), "east")
-
     areas_used = sorted({a for col in area for a in col if a is not None})
     sec_of_area = {a: i for i, a in enumerate(areas_used)}
     sec_of_door = {i: len(areas_used) + i for i in range(len(doors))}
@@ -139,42 +126,42 @@ def convert(level, ceiling_color):
         return verts[(x, y)]
 
     def add_line(v1, v2, front_sec, tex=None, back_sec=None,
-                 special=0, arg0=0):
-        sides.append((front_sec, tex))
+                 special=0, arg0=0, flipx=False):
+        sides.append((front_sec, tex, flipx))
         if back_sec is None:
             lines.append((vid(*v1), vid(*v2), len(sides) - 1, -1, True,
                           special, arg0))
         else:
-            sides.append((back_sec, None))
+            sides.append((back_sec, None, False))
             lines.append((vid(*v1), vid(*v2), len(sides) - 2, len(sides) - 1,
                           False, special, arg0))
 
-    def texname(code, horiz_face, tile):
-        if tile in jamb:
+    def texname(code, horiz_face, front_is_door):
+        # jamb page ONLY on faces looking into the door lane (DOOR-013,
+        # WL_DRAW.C:521-527 — approach tile must be the door tile)
+        if front_is_door:
             return f"WALL{100 if horiz_face else 101:03d}"
         return f"WALL{(code - 1) * 2 + (0 if horiz_face else 1):03d}"
 
-    def emit_pocket(x, y, s, edge):
-        """Split the door tile's pocket-side edge and carve the channel."""
+    def emit_channel(d, s):
+        """Sealed pocket channel behind the wall plane: the slab slides
+        through the (non-blocking-to-polyobjects) boundary wall and hides
+        completely, like the original's flush disappearance."""
+        x, y = d["x"], d["y"]
         xb, yb = x * T, (63 - y) * T
-        if edge == "south":
+        w = SLABW // 2
+        if d["vertical"]:                     # channel in the south tile
             xm = xb + T // 2
-            # split south edge (dir west, interior north)
-            add_line((xb + T, yb), (xm + SLABW // 2, yb), s, "WALL100")
-            add_line((xm - SLABW // 2, yb), (xb, yb), s, "WALL100")
-            # channel walls in the pocket tile below (UDMF -y)
-            add_line((xm - SLABW // 2, yb - T), (xm - SLABW // 2, yb), s, "WALL101")
-            add_line((xm + SLABW // 2, yb), (xm + SLABW // 2, yb - T), s, "WALL101")
-            add_line((xm + SLABW // 2, yb - T), (xm - SLABW // 2, yb - T), s, "WALL100")
-        else:  # east
+            add_line((xm - w, yb), (xm + w, yb), s, "WALL100")
+            add_line((xm + w, yb - T), (xm - w, yb - T), s, "WALL100")
+            add_line((xm - w, yb - T), (xm - w, yb), s, "WALL101")
+            add_line((xm + w, yb), (xm + w, yb - T), s, "WALL101")
+        else:                                 # channel in the east tile
             ym = yb + T // 2
-            # split east edge (dir south, interior west)
-            add_line((xb + T, yb + T), (xb + T, ym + SLABW // 2), s, "WALL101")
-            add_line((xb + T, ym - SLABW // 2), (xb + T, yb), s, "WALL101")
-            # channel walls in the pocket tile to the east
-            add_line((xb + T, ym + SLABW // 2), (xb + 2 * T, ym + SLABW // 2), s, "WALL100")
-            add_line((xb + 2 * T, ym - SLABW // 2), (xb + T, ym - SLABW // 2), s, "WALL100")
-            add_line((xb + 2 * T, ym + SLABW // 2), (xb + 2 * T, ym - SLABW // 2), s, "WALL101")
+            add_line((xb + T, ym - w), (xb + T, ym + w), s, "WALL101")
+            add_line((xb + 2 * T, ym + w), (xb + 2 * T, ym - w), s, "WALL101")
+            add_line((xb + T, ym + w), (xb + 2 * T, ym + w), s, "WALL100")
+            add_line((xb + 2 * T, ym - w), (xb + T, ym - w), s, "WALL100")
 
     for y in range(64):
         for x in range(64):
@@ -182,24 +169,24 @@ def convert(level, ceiling_color):
             if s is None:
                 continue
             xb, yb = x * T, (63 - y) * T
-            pocket = pocket_of.get((x, y))
-            for (nx, ny, v1, v2, horiz, edge) in (
-                    (x, y - 1, (xb, yb + T), (xb + T, yb + T), True, "north"),
-                    (x, y + 1, (xb + T, yb), (xb, yb), True, "south"),
-                    (x - 1, y, (xb, yb), (xb, yb + T), False, "west"),
-                    (x + 1, y, (xb + T, yb + T), (xb + T, yb), False, "east")):
-                if pocket and edge == pocket[1]:
-                    emit_pocket(x, y, s, edge)
-                    continue
+            front_is_door = (x, y) in doortile
+            for (nx, ny, v1, v2, horiz) in (
+                    (x, y - 1, (xb, yb + T), (xb + T, yb + T), True),
+                    (x, y + 1, (xb + T, yb), (xb, yb), True),
+                    (x - 1, y, (xb, yb), (xb, yb + T), False),
+                    (x + 1, y, (xb + T, yb + T), (xb + T, yb), False)):
                 code = wall_code(level, nx, ny)
                 if code is not None:
-                    add_line(v1, v2, s, texname(code, horiz, (nx, ny)))
+                    add_line(v1, v2, s, texname(code, horiz, front_is_door))
                 else:
                     ns = tile_sector(nx, ny)
                     if ns is None:
                         add_line(v1, v2, s, "WALL000")
                     elif ns != s and (ny > y or (ny == y and nx > x)):
                         add_line(v1, v2, s, None, back_sec=ns)
+
+    for i, d in enumerate(doors):
+        emit_channel(d, sec_of_door[i])
 
     # ------------------------------------------------------------------
     # things
@@ -257,13 +244,17 @@ def convert(level, ceiling_color):
             sw, sl = T // 2, SLABW // 2       # long in x, thin in y
             fx1, fy1, fx2, fy2 = cx - sw, cy - sl, cx + sw, cy + sl
             long_tex, cap_tex = f"WALL{face_h:03d}", "WALL101"
-        # slab lines CCW (front faces outward); first carries Polyobj_StartLine
+        # slab lines CCW (front faces outward); first carries Polyobj_StartLine.
+        # One long face is mirrored (scalex -1) so the handle sits at the same
+        # WORLD position from both sides, as the original's world-coordinate
+        # texture mapping does (WL_DRAW.C: texture = intercept - doorposition).
         vertical = d["vertical"]
         top_tex = cap_tex if vertical else long_tex
         side_tex = long_tex if vertical else cap_tex
         add_line((fx2, fy2), (fx1, fy2), stash_sec, top_tex,
-                 special=1, arg0=poid)
-        add_line((fx1, fy2), (fx1, fy1), stash_sec, side_tex)
+                 special=1, arg0=poid, flipx=(not vertical))
+        add_line((fx1, fy2), (fx1, fy1), stash_sec, side_tex,
+                 flipx=vertical)
         add_line((fx1, fy1), (fx2, fy1), stash_sec, top_tex)
         add_line((fx2, fy1), (fx2, fy2), stash_sec, side_tex)
 
@@ -290,8 +281,10 @@ def convert(level, ceiling_color):
         if special:
             parts.append(f"special = {special}; arg0 = {arg0};")
         L.append("linedef { " + " ".join(parts) + " }")
-    for sec, tex in sides:
+    for sec, tex, flipx in sides:
         t = f' texturemiddle = "{tex}";' if tex else ""
+        if flipx:
+            t += " scalex_mid = -1.0;"
         L.append(f"sidedef {{ sector = {sec};{t} }}")
     nsec = len(areas_used) + len(doors) + 1
     for i in range(nsec):

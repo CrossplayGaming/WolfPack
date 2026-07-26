@@ -425,7 +425,7 @@ sight/shots.
 | ID | Item | Value |
 |---|---|---|
 | DOOR-012 | Door texture pages: DOORWALL = PMSpriteStart−8 (WL6: 98). Normal 98/99 (vert/horiz), locked (any lock1-4) 104/105, elevator 102/103 | WL_DRAW.C:19,658-671 |
-| DOOR-013 | Jamb marking: SpawnDoor sets `|0x40` on BOTH perpendicular neighbor tiles; marked tiles render jamb pages on ALL faces — DOORWALL+2 (100) N/S faces, +3 (101) E/W | WL_ACT1.C:373-384, WL_DRAW.C:525,597 |
+| DOOR-013 | Jamb rendering: SpawnDoor sets `|0x40` on both perpendicular neighbors, but the jamb page draws ONLY on faces where the ray's approach tile is the door tile (`tilemap[tile-step]&0x80`) — i.e. only faces looking into the door lane. All other faces of the marked tile show the normal wall texture. DOORWALL+2 (100) N/S faces, +3 (101) E/W | WL_ACT1.C:373-384, WL_DRAW.C:521-527,593-600 — corrected 2026-07-26 after playtest screenshots; first written wrongly as all-faces |
 | SND-001 | wolfdigimap: OPENDOORSND→digi 3, CLOSEDOORSND→digi 2, PUSHWALLSND→digi 15 (full table WL_MAIN.C:849-959; port the rest with the actor pass) |
 
 Harness: build.py --check runs a full door cycle in-engine and asserts

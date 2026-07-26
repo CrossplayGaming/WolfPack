@@ -5,6 +5,7 @@ gameinfo
 {
     playerclasses = "WolfPlayer"
     EventHandlers = "WolfDebugHandler"
+    borderflat = "FLOOR19"
     drawreadthis = false
     quitmessages = "$QUITMSG"
 }

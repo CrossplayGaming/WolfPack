@@ -24,6 +24,7 @@ class WolfDoor : Actor
     bool vertical;
     int lock;           // 0 normal, 1-4 keyed, 5 elevator
     int tileX, tileY;   // Wolf tile coords
+    int homeX, homeY;   // closed-position polyobject origin (start spot)
 
     const OPENTICS = 300;           // WL_ACT1.C:270
     const FULLOPEN = 0xFFFF;
@@ -44,15 +45,19 @@ class WolfDoor : Actor
         lock    = args[2];
         tileX = int(pos.x) / 64;
         tileY = 63 - (int(pos.y) / 64);
+        homeX = int(pos.x);
+        homeY = int(pos.y);
         doorAction = DR_CLOSED;
         position = 0;
         ticcount = 0;
     }
 
-    // slide angle: vertical doors slide SOUTH (270), horizontal EAST (0)
-    // (WL_DRAW.C:625,693 — slab moves toward increasing world coordinate)
-    int SlideAngleByte() { return vertical ? 192 : 0; }
-    int ReturnAngleByte() { return vertical ? 64 : 128; }
+    // slide dir: vertical doors slide SOUTH (UDMF -y), horizontal EAST (+x)
+    // (WL_DRAW.C:625,693 — slab moves toward increasing world coordinate).
+    // Movement uses Polyobj_MoveTo with ABSOLUTE targets so the slab can
+    // never drift from the sim position across interrupted cycles.
+    int OpenX() { return vertical ? homeX : homeX + SLIDEDIST; }
+    int OpenY() { return vertical ? homeY - SLIDEDIST : homeY; }
 
     // OperateDoor (WL_ACT1.C:498-522)
     void Operate(Actor user)
@@ -89,10 +94,8 @@ class WolfDoor : Actor
             return;
         A_StartSound("wolf/dooropen", CHAN_AUTO, attenuation: 1.0);
         Level.ExecuteSpecial(87, self, null, false, polyId);   // Polyobj_Stop
-        int remaining = (FULLOPEN - position) / POSPERTIC;      // map units
-        Level.ExecuteSpecial(4, self, null, false,              // Polyobj_Move
-                             polyId, MOVESPEED, SlideAngleByte(),
-                             Max(remaining, 1));
+        Level.ExecuteSpecial(88, self, null, false,            // Polyobj_MoveTo
+                             polyId, MOVESPEED, OpenX(), OpenY());
         doorAction = DR_OPENING;
     }
 
@@ -131,10 +134,8 @@ class WolfDoor : Actor
         }
         A_StartSound("wolf/doorclose", CHAN_AUTO, attenuation: 1.0);
         Level.ExecuteSpecial(87, self, null, false, polyId);
-        int back = position / POSPERTIC;
-        Level.ExecuteSpecial(4, self, null, false,
-                             polyId, MOVESPEED, ReturnAngleByte(),
-                             Max(back, 1));
+        Level.ExecuteSpecial(88, self, null, false,
+                             polyId, MOVESPEED, homeX, homeY);
         doorAction = DR_CLOSING;
     }
 
