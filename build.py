@@ -45,7 +45,11 @@ WARN_PATTERNS = [
 def build() -> Path:
     DIST.mkdir(exist_ok=True)
     if PK3.exists():
-        PK3.unlink()
+        try:
+            PK3.unlink()
+        except PermissionError:
+            sys.exit("wolf.ipk3 is in use — close the running game first, "
+                     "then run play.bat again")
     asset_files = ({f.relative_to(ASSETS).as_posix(): f
                     for f in ASSETS.rglob("*") if f.is_file()}
                    if ASSETS.is_dir() else {})
