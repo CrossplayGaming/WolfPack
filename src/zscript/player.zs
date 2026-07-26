@@ -26,6 +26,10 @@ class WolfPlayer : DoomPlayer
         Player.ViewHeight 32;
         Height 56;
         Player.ViewBob 0;       // no view bob, no weapon bob (1992 default)
+        // Wolf loadout: knife + pistol, STARTAMMO 8 (WL_DEF.H:140)
+        Player.StartItem "WolfPistol";
+        Player.StartItem "WolfKnife";
+        Player.StartItem "WolfAmmo", 8;
     }
 
     // Wolf has ZERO inertia: no acceleration ramp, no glide — velocity is
@@ -75,6 +79,32 @@ class WolfPlayer : DoomPlayer
     bool bIsRunning;
     int oldButtons;
 
+    // UpdateFace (WL_AGENT.C:307-323): runs in play scope so the look
+    // timer consumes the US_RndT stream exactly like the original.
+    int faceFrame;
+    int faceCount;
+    int grinCount;
+
+    void UpdateFace()
+    {
+        WolfLevel wl = WolfLevel.Get();
+        if (wl == null)
+            return;
+        if (grinCount > 0)
+        {
+            grinCount -= 2;
+            return;
+        }
+        faceCount += 2;
+        if (faceCount > wl.RndT())
+        {
+            faceFrame = wl.RndT() >> 6;
+            if (faceFrame == 3)
+                faceFrame = 1;
+            faceCount = 0;
+        }
+    }
+
     // Cmd_Use (WL_AGENT.C:1008-1080): on use press, scan exactly one tile in
     // the facing cardinal direction (octant test, EXIT-001) and operate any
     // door there. Pushwalls and the elevator switch join in later passes.
@@ -88,6 +118,7 @@ class WolfPlayer : DoomPlayer
         }
         if (player)
             oldButtons = player.cmd.buttons;
+        UpdateFace();
     }
 
     void WolfUse()

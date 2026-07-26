@@ -96,11 +96,54 @@ def main():
                 png_set_grab(src.read_bytes(), 32, 64))
             nspr += 1
 
+    # HUD graphics from VGAGRAPH (extract_vgagraph.py)
+    VGA = ROOT / "build" / "vgagraph" / "wl6"
+    (ASSETS / "graphics").mkdir(exist_ok=True)
+    hud_pics = {"STATUSBARPIC": "STATBAR", "N_BLANKPIC": "N_BLANK",
+                "KNIFEPIC": "KNIFEP", "GUNPIC": "GUNP",
+                "MACHINEGUNPIC": "MGUNP", "GATLINGGUNPIC": "GATLINGP",
+                "NOKEYPIC": "NOKEY", "GOLDKEYPIC": "GOLDKEY",
+                "SILVERKEYPIC": "SILVKEY", "GETPSYCHEDPIC": "PSYCHED"}
+    for i in range(10):
+        hud_pics[f"N_{i}PIC"] = f"N_{i}"
+    for band in range(1, 8):
+        for v in "ABC":
+            hud_pics[f"FACE{band}{v}PIC"] = f"FACE{band}{v}"
+    hud_pics["FACE8APIC"] = "FACE8A"
+    hud_pics["GOTGATLINGPIC"] = "FACEGATL"
+    hud_pics["MUTANTBJPIC"] = "FACEMUTB"
+    nhud = 0
+    for src_name, lump in hud_pics.items():
+        p = VGA / f"{src_name}.png"
+        if p.exists():
+            shutil.copy(p, ASSETS / "graphics" / f"{lump}.png")
+            nhud += 1
+
+    # weapon psprites: VSWAP sprites 416-435 (ready + atk1-4 per weapon),
+    # prescaled x3 (Wolf draws the 64x64 shape at full view height).
+    # grAb offsets place the 192x192 image centered, bottom at the view
+    # bottom in 320x200 psprite space.
+    wnames = {416: "WKNF", 421: "WPIS", 426: "WMGN", 431: "WCHN"}
+    nweap = 0
+    for base, spr in wnames.items():
+        for f in range(5):
+            src = VSWAP / "sprites" / f"SPR{base + f:03d}.png"
+            if not src.exists():
+                continue
+            img = Image.open(src)
+            img = img.resize((192, 192), Image.NEAREST)
+            outp = ASSETS / "sprites" / f"{spr}{chr(65 + f)}0.png"
+            img.save(outp, transparency=255)
+            data = outp.read_bytes()
+            outp.write_bytes(png_set_grab(data, -64, 40))
+            nweap += 1
+
     # digitized sounds referenced by src/SNDINFO (wolfdigimap, WL_MAIN.C:849+)
     (ASSETS / "sounds").mkdir()
     for digi, name in ((3, "dooropen"), (2, "doorclose"), (15, "pushwall"),
                        (0, "halt"), (12, "death1"), (13, "death2"),
-                       (21, "nazifire")):
+                       (21, "nazifire"), (5, "pistol"), (4, "machinegun"),
+                       (6, "gatling")):
         src = VSWAP / "sounds" / f"DIGI{digi:03d}.wav"
         if src.exists():
             shutil.copy(src, ASSETS / "sounds" / f"{name}.wav")
