@@ -143,25 +143,32 @@ def convert(level, ceiling_color):
             return f"WALL{100 if horiz_face else 101:03d}"
         return f"WALL{(code - 1) * 2 + (0 if horiz_face else 1):03d}"
 
-    def emit_channel(d, s):
-        """Sealed pocket channel behind the wall plane: the slab slides
-        through the (non-blocking-to-polyobjects) boundary wall and hides
-        completely, like the original's flush disappearance."""
+    pocket_edge = {}        # door tile -> which edge opens into the pocket
+    for d in doors:
+        pocket_edge[(d["x"], d["y"])] = "south" if d["vertical"] else "east"
+
+    def emit_pocket(d, s):
+        """Pocket-side edge: jamb wall split 28/8/28 with the middle open
+        into a channel carved in the pocket tile. The slab's black end cap
+        fills the 8-unit slot exactly when fully open — the original's
+        'disappears into the black slot' look, with no coplanar surfaces."""
         x, y = d["x"], d["y"]
         xb, yb = x * T, (63 - y) * T
         w = SLABW // 2
         if d["vertical"]:                     # channel in the south tile
             xm = xb + T // 2
-            add_line((xm - w, yb), (xm + w, yb), s, "WALL100")
-            add_line((xm + w, yb - T), (xm - w, yb - T), s, "WALL100")
+            add_line((xb + T, yb), (xm + w, yb), s, "WALL100")
+            add_line((xm - w, yb), (xb, yb), s, "WALL100")
             add_line((xm - w, yb - T), (xm - w, yb), s, "WALL101")
             add_line((xm + w, yb), (xm + w, yb - T), s, "WALL101")
+            add_line((xm + w, yb - T), (xm - w, yb - T), s, "WALL100")
         else:                                 # channel in the east tile
             ym = yb + T // 2
-            add_line((xb + T, ym - w), (xb + T, ym + w), s, "WALL101")
-            add_line((xb + 2 * T, ym + w), (xb + 2 * T, ym - w), s, "WALL101")
+            add_line((xb + T, yb + T), (xb + T, ym + w), s, "WALL101")
+            add_line((xb + T, ym - w), (xb + T, yb), s, "WALL101")
             add_line((xb + T, ym + w), (xb + 2 * T, ym + w), s, "WALL100")
             add_line((xb + 2 * T, ym - w), (xb + T, ym - w), s, "WALL100")
+            add_line((xb + 2 * T, ym + w), (xb + 2 * T, ym - w), s, "WALL101")
 
     for y in range(64):
         for x in range(64):
@@ -170,11 +177,14 @@ def convert(level, ceiling_color):
                 continue
             xb, yb = x * T, (63 - y) * T
             front_is_door = (x, y) in doortile
-            for (nx, ny, v1, v2, horiz) in (
-                    (x, y - 1, (xb, yb + T), (xb + T, yb + T), True),
-                    (x, y + 1, (xb + T, yb), (xb, yb), True),
-                    (x - 1, y, (xb, yb), (xb, yb + T), False),
-                    (x + 1, y, (xb + T, yb + T), (xb + T, yb), False)):
+            pedge = pocket_edge.get((x, y))
+            for (nx, ny, v1, v2, horiz, edge) in (
+                    (x, y - 1, (xb, yb + T), (xb + T, yb + T), True, "north"),
+                    (x, y + 1, (xb + T, yb), (xb, yb), True, "south"),
+                    (x - 1, y, (xb, yb), (xb, yb + T), False, "west"),
+                    (x + 1, y, (xb + T, yb + T), (xb + T, yb), False, "east")):
+                if pedge == edge:
+                    continue        # emitted by emit_pocket below
                 code = wall_code(level, nx, ny)
                 if code is not None:
                     add_line(v1, v2, s, texname(code, horiz, front_is_door))
@@ -186,7 +196,7 @@ def convert(level, ceiling_color):
                         add_line(v1, v2, s, None, back_sec=ns)
 
     for i, d in enumerate(doors):
-        emit_channel(d, sec_of_door[i])
+        emit_pocket(d, sec_of_door[i])
 
     # ------------------------------------------------------------------
     # things
@@ -236,14 +246,16 @@ def convert(level, ceiling_color):
         add_line((x1, y1), (x1, y2), stash_sec, "WALL000")
 
         face_v, face_h = DOOR_FACE[d["lock"]]
+        # end caps are pure black: the pocket-side cap fills the jamb's slot
+        # exactly at full open, reading as the original's empty black slot
         if d["vertical"]:
             sw, sl = SLABW // 2, T // 2       # thin in x, long in y
             fx1, fy1, fx2, fy2 = cx - sw, cy - sl, cx + sw, cy + sl
-            long_tex, cap_tex = f"WALL{face_v:03d}", "WALL100"
+            long_tex, cap_tex = f"WALL{face_v:03d}", "WBLACK"
         else:
             sw, sl = T // 2, SLABW // 2       # long in x, thin in y
             fx1, fy1, fx2, fy2 = cx - sw, cy - sl, cx + sw, cy + sl
-            long_tex, cap_tex = f"WALL{face_h:03d}", "WALL101"
+            long_tex, cap_tex = f"WALL{face_h:03d}", "WBLACK"
         # slab lines CCW (front faces outward); first carries Polyobj_StartLine.
         # One long face is mirrored (scalex -1) so the handle sits at the same
         # WORLD position from both sides, as the original's world-coordinate

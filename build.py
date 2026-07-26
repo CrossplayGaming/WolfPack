@@ -43,6 +43,13 @@ WARN_PATTERNS = [
 
 
 def build() -> Path:
+    # Always refresh build/assets from the converter outputs first — packing
+    # stale maps cost a whole playtest round once. Cheap (<1s).
+    if (ROOT / "build" / "udmf").is_dir():
+        rc = subprocess.run([sys.executable, "tools/make_assets.py"],
+                            cwd=str(ROOT)).returncode
+        if rc:
+            sys.exit("make_assets failed")
     DIST.mkdir(exist_ok=True)
     if PK3.exists():
         try:
