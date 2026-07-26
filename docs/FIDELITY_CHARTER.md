@@ -157,23 +157,196 @@ Denial at caps: health items refused at health==100; ammo refused at ammo==99 (i
 | SCORE-003 | 100% category bonus | 10,000 pts each for kills/secrets/treasure (PERCENT100AMT) | WL_INTER.C:433,714,759 |
 | SCORE-004 | Health/ammo caps | 100 / 99 | WL_AGENT.C:672,709 |
 
-## Open [VERIFY] items — batch 2 queue
+## Constants inventory — RESOLVED (batch 2, 2026-07-26)
 
-- Enemy→player hit chance roll (distance, player-moving modifier) — WL_ACT2.C T_Shoot.
-- starthitpoints table dump (all classes × difficulties) — WL_ACT2.C.
-- Knife attack range/damage — WL_AGENT.C KnifeAttack.
-- Projectile speeds/damage: Schabbs syringe, fake-Hitler fireball, boss rockets — WL_ACT2.C.
-- Remaining spawn codes: mutants, bosses, ghosts, turn-tiles (90–97?), en_* full map.
-- Door blocked-reopen and close-on-obstruction semantics — WL_ACT1.C CloseDoor/DoorOpening.
-- Death/restart semantics (lives, score reset, loadout) — WL_GAME.C Died.
-- Fizzle-fade LFSR constants — WL_DRAW.C or ID_VH/ID_VL FizzleFade.
-- Screen flash (damage/bonus) intensities + durations — WL_PLAY.C palette shifts.
-- Keyboard turn acceleration ramp + run speeds — WL_AGENT.C ControlMovement / WL_PLAY.C.
-- Decoration blocking table — WL_ACT1.C statinfo.
-- US_RndT table itself (ID_US_A.ASM / ID_US.H) — port verbatim for determinism.
-- Area-connect / madenoise propagation details — WL_STATE.C/WL_PLAY.C.
-- End-of-floor time accounting (timeleft units) — WL_INTER.C LevelCompleted.
-- SoD deltas pass.
+### Complete spawn-code map (plane 1) — `WL_GAME.C` ScanInfoPlane (continued)
+
+| ID | Item | Value | Notes |
+|---|---|---|---|
+| MAP-011 | Dog stand / patrol | 134–137 / 138–141 (+36/+72 tiers) | WL_GAME.C:448-497 |
+| MAP-012 | Mutant stand / patrol | 216–219 / 220–223, tiers **+18** (234/252, 238/256) | WL_GAME.C:547-585 — mutants use +18, NOT +36 |
+| MAP-013 | Bosses (WL6) | 214 Hans, 197 Gretel, 215 Gift, 179 Fat, 196 Schabbs, 160 Fake Hitler, 178 Hitler | WL_GAME.C:500-524 — single code, all difficulties |
+| MAP-014 | Ghosts | 224 Blinky, 225 Clyde, 226 Pinky, 227 Inky | WL_GAME.C:589-600 |
+| MAP-015 | SoD specials | 106 Spectre, 107 Angel, 125 Trans, 142 Uber, 143 Will, 161 Death | WL_GAME.C:526-543 (SPEAR) |
+| MAP-016 | Patrol turn-tiles | ICONARROWS = 90; codes 90–97 = 8 directions (`spot = code-90; if (spot<8) dir = spot`) | WL_DEF.H:58, WL_ACT2.C SelectPathDir:3340-3356 |
+
+Turn-tiles are consulted only when a pathing actor reaches tile center with `dir` set; then
+`distance = TILEGLOBAL`, and if `TryWalk` fails → `nodir` (wait). Patrolling enemies stop at
+closed doors and open them via `distance = -(doornum+1)` encoding (T_Path, WL_ACT2.C:3387-3396).
+
+### Enemy starting HP — `WL_ACT2.C` starthitpoints (l. 42-155)
+
+| ID=HP-xxx | Baby | Easy | Medium | Hard |
+|---|---|---|---|---|
+| Guard | 25 | 25 | 25 | 25 |
+| Officer | 50 | 50 | 50 | 50 |
+| SS | 100 | 100 | 100 | 100 |
+| Dog | 1 | 1 | 1 | 1 |
+| Hans | 850 | 950 | 1050 | 1200 |
+| Schabbs | 850 | 950 | 1550 | 2400 |
+| Fake Hitler | 200 | 300 | 400 | 500 |
+| Mecha Hitler | 800 | 950 | 1050 | 1200 |
+| Mutant | 45 | 55 | 55 | 65 |
+| Ghosts (each) | 25 | 25 | 25 | 25 |
+| Gretel / Gift / Fat | 850 | 950 | 1050 | 1200 |
+| Spectre | 5 | 10 | 15 | 25 |
+| Angel | 1450 | 1550 | 1650 | 2000 |
+| Trans | 850 | 950 | 1050 | 1200 |
+| Uber | 1050 | 1150 | 1250 | 1400 |
+| Will | 950 | 1050 | 1150 | 1300 |
+| Death Knight | 1250 | 1350 | 1450 | 1600 |
+
+### Enemy → player combat — `WL_ACT2.C` T_Shoot (l. 3444-3518), T_Bite (l. 3530-3560)
+
+| ID | Item | Value |
+|---|---|---|
+| ECOMBAT-001 | Base gate | no shot unless `areabyplayer` and CheckLine passes |
+| ECOMBAT-002 | Distance | Chebyshev tiles; SS and Hans: `dist = dist*2/3` (better shots) |
+| ECOMBAT-003 | Hit chance, player running (thrustspeed ≥ RUNSPEED 6000) | visible: 160−dist·16; not visible: 160−dist·8 |
+| ECOMBAT-004 | Hit chance, player slow/still | visible: 256−dist·16; not visible: 256−dist·8 |
+| ECOMBAT-005 | Hit if | RndT() < hitchance |
+| ECOMBAT-006 | Damage | dist<2: RndT>>2; dist<4: RndT>>3; else RndT>>4 |
+| ECOMBAT-007 | Dog bite | adjacency: per-axis |Δ|−TILEGLOBAL ≤ MINACTORDIST (0x10000); hit if RndT<180; damage RndT>>4 |
+
+### Sneak attack + pain states — `WL_STATE.C` DamageActor (l. 964-1010)
+
+| ID | Item | Value |
+|---|---|---|
+| ECOMBAT-008 | **Unalerted actors take DOUBLE damage** (`damage <<= 1` if !FL_ATTACKMODE) | l. 969-972 — not in the checklist; major stealth mechanic |
+| ECOMBAT-009 | Pain state chosen by HP parity (hitpoints&1 → variant 1 else 2) for guard/officer/mutant/SS | l. 983-1010 |
+| ECOMBAT-010 | Dogs (1 HP) and all bosses: no pain entries in the switch → never flinch | by absence, same switch |
+
+### Chase-mode speeds — `WL_STATE.C` FirstSighting (l. 1253-1400), spawn speeds `WL_ACT2.C`
+
+Patrol/stand base speed SPDPATROL = 512, dogs SPDDOG = 1500 (WL_ACT2.C:1028-1029).
+
+| ID | Class | Chase speed |
+|---|---|---|
+| SPEED-001 | Guard | ×3 (1536) |
+| SPEED-002 | Officer | ×5 (2560) |
+| SPEED-003 | Mutant | ×3 |
+| SPEED-004 | SS | ×4 (2048) |
+| SPEED-005 | Dog | ×2 (3000) |
+| SPEED-006 | Hans | = SPDPATROL×3 |
+| SPEED-007 | Gretel/Gift/Fat/Schabbs/Fake Hitler/Mecha | ×3 |
+| SPEED-008 | Real Hitler | ×5 |
+| SPEED-009 | Ghosts | ×2 |
+| SPEED-010 | Spectre 800; Angel/Trans 1536 (absolute) | SoD |
+
+### Projectiles — `WL_ACT2.C`
+
+| ID | Item | Value |
+|---|---|---|
+| PROJ-001 | Rocket (Gift/Fat/SoD hrocket) | speed 0x2000, damage RndT>>3 + 30 |
+| PROJ-002 | Schabbs needle | speed 0x2000, damage RndT>>3 + 20 |
+| PROJ-003 | Fake Hitler fire | speed 0x1200, damage RndT>>3 |
+| PROJ-004 | Angel spark (SoD) | speed 0x2000, damage RndT>>3 + 30 |
+| PROJ-005 | Player hit radius | PROJECTILESIZE = 0xC000 per axis (WL_ACT2.C:14,344) |
+| PROJ-006 | Movement | per-tic delta clamped to 0x10000/axis; wall hit → rocket booms, others vanish (T_Projectile l. 302-342) |
+
+### Player knife — `WL_AGENT.C` KnifeAttack (l. 1133-1164)
+
+| ID | Item | Value |
+|---|---|---|
+| KNIFE-001 | Target | same screen-center pick as guns; hit only if view depth ≤ 0x18000 (1.5 tiles) |
+| KNIFE-002 | Damage | RndT>>4 (0–15) |
+
+### Player movement — `WL_AGENT.C` / `WL_PLAY.C`
+
+| ID | Item | Value |
+|---|---|---|
+| MOVE-001 | Keyboard input | BASEMOVE 35, RUNMOVE 70 per tic (WL_PLAY.C:246-249) |
+| MOVE-002 | Forward/strafe scale | MOVESCALE 150; backward BACKMOVESCALE 100 — **backpedal is slower** (WL_AGENT.C:18-19,207-214) |
+| MOVE-003 | Turn rate | controlx/ANGLESCALE(20) angle-units — walk 1.75°/tic, run 3.5°/tic (WL_AGENT.C:20,191-192) |
+| MOVE-004 | **No keyboard turn-acceleration ramp exists** (BASETURN/RUNTURN defined but the keyboard path uses BASEMOVE/RUNMOVE flat) | corrects checklist §3 — verify DOSBox feel anyway |
+| MOVE-005 | RUNSPEED threshold (enemy accuracy) | 6000 (WL_DEF.H:75) |
+| MOVE-006 | PLAYERSIZE/collision MINDIST etc. | batch 3 (ClipMove/TryMove) |
+
+### Doors: operate/close rules — `WL_ACT1.C` (l. 417-540)
+
+| ID | Item | Value |
+|---|---|---|
+| DOOR-004 | Locked doors | lock 1–4 vs `gamestate.keys` bitmask; fail → NOWAYSND (OperateDoor l. 498-510) |
+| DOOR-005 | Use while closing → reopens; while opening → closes | OperateDoor switch l. 512-522 |
+| DOOR-006 | Won't close on: actor on door tile, player on tile, or player/adjacent actor within MINDIST of the door plane | CloseDoor l. 428-448 |
+| DOOR-007 | Sound propagation: open door joins its two areas (areaconnect++ / ConnectAreas flood); alerting flood is `RecursiveConnect` from player area | WL_ACT1.C:293-320 |
+
+`madenoise` is reset every frame (WL_PLAY.C:1404) and set by player gunfire (WL_AGENT.C:1188)
+and by DamageActor (WL_STATE.C:966). Enemies test `madenoise && areabyplayer[their area]`.
+
+### Screen flashes — `WL_PLAY.C` (l. 1054-1215)
+
+| ID | Item | Value |
+|---|---|---|
+| FLASH-001 | Bonus flash | bonuscount = NUMWHITESHIFTS(3)×WHITETICS(6) = 18 tics; index = count/6+1 cap 3; whiteshift ramp delta·i/WHITESTEPS(20) toward 64 |
+| FLASH-002 | Damage flash | damagecount += damage taken (intensity scales with damage!); index = count/10+1 cap NUMREDSHIFTS(6); ramp delta·i/REDSTEPS(8); count −= tics |
+| FLASH-003 | Priority | red overrides white (UpdatePaletteShifts l. 1201-1211) |
+
+### Fizzle-fade — `ID_VH.C` FizzleFade (l. 471-540)
+
+| ID | Item | Value |
+|---|---|---|
+| FIZZ-001 | Generator | 17-bit Fibonacci LFSR, seed rndval=1; per step: 32-bit pair shifted right 1; on carry XOR high word 0x0001, low word 0x2000 |
+| FIZZ-002 | Pixel mapping | y = (low 8 bits)−1; x = next 9 bits; out-of-bounds skipped |
+| FIZZ-003 | Rate | 64000/frames pixels per frame; player-death call uses frames=70 (WL_GAME.C:1197) |
+| FIZZ-004 | Termination | when rndval returns to 1 (full period) |
+
+### Death / lives — `WL_GAME.C` Died (l. 1114-1225), GameLoop
+
+| ID | Item | Value |
+|---|---|---|
+| DEATH-001 | Death cam rotate to killer | DEATHROTATE = 2 angle-units/tic (l. 1112, 1155-1188) |
+| DEATH-002 | Sequence | weapon removed → rotate → red fade → FizzleFade(70) to solid red (color 4) |
+| DEATH-003 | Restart loadout | health 100, pistol only (weapon=bestweapon=chosenweapon), ammo = STARTAMMO 8, keys 0 (l. 1206-1215; WL_DEF.H:140) |
+| DEATH-004 | **Score restored to level-entry value** (`score = oldscore`; oldscore saved on level completion) | WL_GAME.C:1256,1304 |
+| DEATH-005 | Lives decrement unless tedlevel | l. 1203-1204 |
+
+### Tally time — `WL_INTER.C`
+
+| ID | Item | Value |
+|---|---|---|
+| TALLY-001 | Level time = TimeCount/70 seconds, capped display 99:59; par stored as minutes → `time*4200/70` seconds; timeleft in **seconds** | WL_INTER.C:618-624 |
+| TALLY-002 | Par bonus 500/s (SCORE-002); count-up beeps every 50 | WL_INTER.C:663-672 |
+
+### RNG — `ID_US_A.ASM`
+
+| ID | Item | Value |
+|---|---|---|
+| RNG-001 | US_RndT = 256-entry byte table (ID_US_A.ASM:19-37), index advances by 1 per call, seeded from BIOS timer (US_InitRndT) | port the table verbatim; sim determinism depends on it |
+
+### Decoration blocking table — `WL_ACT1.C` statinfo (l. 22-135)
+
+Full table (statics 0–47+): entries are `{sprite}` = walk-through, `{sprite,block}` = solid,
+`{sprite,bo_*}` = pickup. Blocking set (WL6): green barrel, table/chairs, floor lamp, hanged
+man, red pillar, tree, sink, potted plant, urn, bare table, suit of armor, hanging cage,
+skeleton in cage, barrel, well (both), flag, plus SoD gib variants. Non-blocking: puddle,
+chandelier, skeleton flat, ceiling light, kitchen stuff, skeleton relax, junk/stuff, pots.
+Converter ports this table mechanically from the source rows (assertion per row: BLOCK-000…047).
+Blocking statics write `actorat = 1` (SpawnStatic l. 146-152) — they block movement but not
+sight/shots.
+
+## Open [VERIFY] items — batch 3 queue
+
+- Chase pathing: T_Chase direction selection, SelectChaseDir/SelectDodgeDir, dodge logic,
+  enemy door-open in chase — WL_ACT2.C / WL_STATE.C.
+- Door area-join exact bookkeeping (areaconnect increments on open/close edges) — WL_ACT1.C
+  DoorOpen/DoorOpening/DoorClosing.
+- Player collision: ClipMove/TryMove, corner slide, PLAYERSIZE/MINDIST — WL_AGENT.C/WL_PLAY.C.
+- Elevator switch flip, secret-elevator routing (ElevatorBackTo table, WL_GAME.C:39),
+  level-exit flow — WL_AGENT.C Cmd_Use / WL_GAME.C.
+- Boss key drops, Mecha→real Hitler two-phase handoff, A_HitlerMorph — WL_ACT2.C.
+- DeathCam sequence — WL_GAME.C/WL_ACT2.C A_StartDeathCam.
+- Ghost movement (noclip specifics) — T_Ghosts.
+- Treasure point values (cross/chalice/bible/crown) — WL_AGENT.C GetBonus.
+- GiveAmmo/GiveWeapon exact semantics (same-weapon pickup ammo) — WL_AGENT.C.
+- Status-bar face: look interval, blood thresholds, gatling grin trigger, god face — WL_PLAY.C
+  UpdateFace / WL_AGENT.C.
+- Episode-end sequences, BJ victory run (victoryflag path), text screens — WL_TEXT.C/WL_GAME.C.
+- Per-level floor/ceiling color table — WL_GAME.C (or VGAGRAPH data).
+- Menu structure/cheats (MLI etc.) — WL_MENU.C, WL_DEBUG.C.
+- Rndtable 256 values dump into charter data file.
+- Full statinfo row-by-row dump (BLOCK-000…047) incl. SoD variants.
+- SoD deltas pass (par times, ceiling colors, boss flow, 21-floor routing).
 
 ## Decision log (Doom-architecture approximations)
 
