@@ -144,7 +144,11 @@ def wall_meaning(v):
 # dirtype order (WL_DEF.H): east,NE,north,NW,west,SW,south,SE
 # ---------------------------------------------------------------------------
 
-DIR4 = ["north", "east", "south", "west"]         # starts/enemies: tile-base
+DIR4 = ["north", "east", "south", "west"]         # PLAYER starts 19-22 only
+# Enemy spawns use a DIFFERENT encoding: SpawnStand/SpawnPatrol do
+# `new->dir = dir*2` into dirtype {east=0,NE,north,NW,west,SW,south,SE}
+# (WL_ACT2.C:905,1024), so tile-base offsets are 0=E, 1=N, 2=W, 3=S.
+ENEMY_DIR4 = ["east", "north", "west", "south"]
 DIR8 = ["east", "northeast", "north", "northwest",
         "west", "southwest", "south", "southeast"]  # turn arrows 90-97
 
@@ -194,7 +198,7 @@ def object_meaning(v, sod: bool):
             lo = base + tier * step
             if lo <= v <= lo + 3:
                 return {"kind": "enemy", "enemy": enemy, "mode": mode,
-                        "dir": DIR4[v - lo], "min_skill": min_skill}
+                        "dir": ENEMY_DIR4[v - lo], "min_skill": min_skill}
     return {"kind": "unknown", "code": v}
 
 

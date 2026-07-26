@@ -33,7 +33,8 @@ interpolates freely.
 | MAP-007 | Officer stand / patrol | 116–119 / 120–123 (+tiers) | WL_GAME.C:356-400 |
 | MAP-008 | SS stand / patrol | 126–129 / 130–133 (+tiers) | WL_GAME.C:402-446 |
 | MAP-009 | Dog (patrol-only spawn) | 134–137 base (+tiers) | WL_GAME.C:448+ |
-| MAP-010 | Direction encoding | tile−base: 0=N,1=E,2=S,3=W | SpawnStand/SpawnPatrol calls |
+| MAP-010 | Direction encoding — TWO different schemes: player starts 19-22 are 0=N,1=E,2=S,3=W (SpawnPlayer `angle=(1-dir)*90`, WL_AGENT.C:1108); enemy spawns are 0=E,1=N,2=W,3=S (`new->dir = dir*2` into dirtype, WL_ACT2.C:905,1024; SpawnPatrol dest advance 1030-1046 confirms) | corrected 2026-07-26 after playtest: first guard faced 90° off |
+| MAP-018 | Boss fixed facings: Hans south, Gretel north, dogs' spawn east (SpawnBoss/SpawnGretel/etc: WL_ACT2.C:945,968,2017); rockets/projectiles nodir | for the boss pass |
 
 Remaining spawn codes (mutants, bosses, ghosts, treasure-as-plane1, turn-tiles 90–97, secret
 elevator 107 handling, SoD extras) → batch 2, same file.
