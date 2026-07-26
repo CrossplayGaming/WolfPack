@@ -1,0 +1,8 @@
+version 228
+// Wolf has no screen wipe between levels (its fizzle fade is death-only
+// and lands with the death sequence), and no vertical aim. WolfPlayer
+// also enforces pitch, so an existing config can't reintroduce freelook.
+wipetype 0
+freelook 0
+screenblocks 10
+crosshair 0

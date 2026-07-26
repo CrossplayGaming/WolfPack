@@ -45,6 +45,44 @@ class WolfDebugHandler : EventHandler
                            got, before, after);
         }
 
+        // weapon soak: give the MG/chaingun and hold fire for 300 tics,
+        // counting shots (catches refire recursion / cadence regressions)
+        CVar wv = CVar.FindCVar("wolf_dbg_weapon");
+        if (wv != null && wv.GetInt() != 0)
+        {
+            PlayerPawn pm = players[0].mo;
+            if (t == 20)
+            {
+                pm.GiveInventoryType(wv.GetInt() == 2 ? "WolfChaingun"
+                                                      : "WolfMachineGun");
+                pm.GiveInventoryType("WolfAmmo");
+                Inventory a = pm.FindInventory("WolfAmmo");
+                if (a != null) a.Amount = 99;
+                Console.Printf("WOLFDBG weapon soak: armed");
+            }
+            if (t == 80)
+            {
+                // kick the weapon into its Fire sequence; wolf_dbg_forcefire
+                // keeps A_WolfRewind looping as if the button were held.
+                // (Weapon switching takes ~40 tics, hence the delay.)
+                Weapon w = players[0].ReadyWeapon;
+                String rname = "none";
+                if (w != null)
+                    rname = String.Format("%s", w.GetClassName());
+                Console.Printf("WOLFDBG weapon soak: ready=%s", rname);
+                if (w != null)
+                    players[0].SetPSprite(PSP_WEAPON, w.FindState("Fire"));
+            }
+            if (t == 320)
+            {
+                Inventory a = pm.FindInventory("WolfAmmo");
+                int left = -1;
+                if (a != null) { left = a.Amount; a.Amount = 0; }
+                Console.Printf("WOLFDBG weapon soak: shots=%d tics=240",
+                               99 - left);
+            }
+        }
+
         if (phase > 3)
             return;
         CVar cv = CVar.FindCVar("wolf_dbg_doortest");

@@ -94,12 +94,15 @@ def check():
     proc = subprocess.Popen([str(UZDOOM), "-iwad", str(PK3), "+logfile",
                              str(LOG), "-nosound", "-noautoload",
                              "+set", "wolf_dbg_doortest", "1",
+                             "+set", "wolf_dbg_weapon", "1",
+                             "+set", "wolf_dbg_forcefire", "1",
                              "+map", "MAP01"], cwd=str(ROOT))
     loaded = False
     for _ in range(60):
         time.sleep(1)
         text = LOG.read_text(errors="replace") if LOG.exists() else ""
-        if "DOORTEST closed" in text or "DOORTEST nodoors" in text:
+        if ("weapon soak: shots=" in text
+                and ("DOORTEST closed" in text or "DOORTEST nodoors" in text)):
             loaded = True
             time.sleep(1)
             break
@@ -132,6 +135,20 @@ def check():
                   f"close {int(marks['closed'])-int(marks['closing'])} tics — OK")
     elif loaded and "DOORTEST nodoors" not in text:
         errors.append("DOORTEST never started (handler not running?)")
+
+    # machine-gun cadence (WEAP-003): 1 shot per 12 Wolf tics = 6 engine
+    # tics -> 40 shots in the 240-tic soak. Also proves no refire recursion.
+    m = re.search(r"weapon soak: shots=(\d+) tics=(\d+)", text)
+    if m:
+        shots, tics = int(m.group(1)), int(m.group(2))
+        want = tics // 6
+        if abs(shots - want) > 1:
+            errors.append(f"MG cadence: {shots} shots in {tics} tics, "
+                          f"want {want}")
+        else:
+            print(f"  weapon: {shots} MG shots / {tics} tics - OK")
+    elif loaded:
+        errors.append("weapon soak never reported")
     for line in LOG.read_text(errors="replace").splitlines():
         if any(p.search(line) for p in ERROR_PATTERNS):
             errors.append(line)

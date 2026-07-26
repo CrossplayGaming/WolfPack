@@ -111,6 +111,15 @@ class WolfPlayer : DoomPlayer
     override void Tick()
     {
         Super.Tick();
+        // No vertical aim in Wolf (checklist section 3). Enforced here so a
+        // stale config can't reintroduce it; the Modernization toggle
+        // (wolf_freelook) is the sanctioned way to turn it on later.
+        if (player != null)
+        {
+            CVar fl = CVar.GetCVar("wolf_freelook", player);
+            if (fl == null || !fl.GetInt())
+                Pitch = 0;
+        }
         if (player && (player.cmd.buttons & BT_USE)
             && !(oldButtons & BT_USE))
         {

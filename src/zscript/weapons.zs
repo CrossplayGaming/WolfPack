@@ -102,6 +102,27 @@ class WolfWeapon : Weapon abstract
         return best;
     }
 
+    // attackinfo rewind (codes 3 and 4, WL_AGENT.C:1367-1370): at the END
+    // of the frame, if ammo remains and fire is held, step back to the
+    // fire frame. Placed in a 0-tic state so the preceding frame's full
+    // duration elapses first (cadence WEAP-003/004).
+    action state A_WolfRewind(statelabel target)
+    {
+        if (player == null)
+            return ResolveState(null);
+        bool held = (player.cmd.buttons & BT_ATTACK) != 0;
+        CVar ff = CVar.FindCVar("wolf_dbg_forcefire");   // harness only
+        if (ff != null && ff.GetInt() != 0)
+            held = true;
+        if (held && invoker.Ammo1 != null && invoker.Ammo1.Amount > 0)
+        {
+            player.refire++;
+            return ResolveState(target);
+        }
+        player.refire = 0;
+        return ResolveState(null);
+    }
+
     virtual void AttackSnd() {}
 }
 
@@ -190,7 +211,8 @@ class WolfMachineGun : WolfWeapon
         WMGN B 3;
     Hold:
         WMGN C 3 A_WolfGun;
-        WMGN D 3 A_ReFire("Hold");
+        WMGN D 3;
+        WMGN D 0 A_WolfRewind("Hold");
         WMGN E 3;
         Goto Ready;
     }
@@ -221,7 +243,8 @@ class WolfChaingun : WolfWeapon
         WCHN B 3;
     Hold:
         WCHN C 3 A_WolfGun;
-        WCHN D 3 { A_WolfGun(); A_ReFire("Hold"); }
+        WCHN D 3 A_WolfGun;
+        WCHN D 0 A_WolfRewind("Hold");
         WCHN E 3;
         Goto Ready;
     }
