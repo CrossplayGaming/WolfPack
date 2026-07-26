@@ -169,6 +169,7 @@ Denial at caps: health items refused at health==100; ammo refused at ammo==99 (i
 | MAP-014 | Ghosts | 224 Blinky, 225 Clyde, 226 Pinky, 227 Inky | WL_GAME.C:589-600 |
 | MAP-015 | SoD specials | 106 Spectre, 107 Angel, 125 Trans, 142 Uber, 143 Will, 161 Death | WL_GAME.C:526-543 (SPEAR) |
 | MAP-016 | Patrol turn-tiles | ICONARROWS = 90; codes 90–97 = 8 directions (`spot = code-90; if (spot<8) dir = spot`) | WL_DEF.H:58, WL_ACT2.C SelectPathDir:3340-3356 |
+| MAP-017 | **Victory trigger: plane-1 code 99 (EXITTILE)** — player walking onto it fires VictoryTile() → BJ victory sequence (checked every Thrust) | WL_AGENT.C:961-962 — found by extractor loud-fail, not in checklist |
 
 Turn-tiles are consulted only when a pathing actor reaches tile center with `dir` set; then
 `distance = TILEGLOBAL`, and if `TryWalk` fails → `nodir` (wait). Patrolling enemies stop at
