@@ -193,12 +193,13 @@ def main():
             outp.write_bytes(png_set_grab(data, -64, 40))
             nweap += 1
 
-    # music: IMF tracks (short names, <=8 chars)
+    # music: OPL-rendered OGGs (render_adlib.py --music). The engine
+    # accepted raw IMF without error but produced silence, so we ship
+    # pre-rendered audio.
     (ASSETS / "music").mkdir()
     nmus = 0
-    for imf in sorted((ROOT / "build" / "audio" / "wl6" / "music").glob("*.imf")):
-        short = imf.stem.replace("_MUS", "")[:8]
-        shutil.copy(imf, ASSETS / "music" / f"{short}.imf")
+    for f in sorted((ROOT / "build" / "audio" / "wl6" / "music_wav").glob("*.flac")):
+        shutil.copy(f, ASSETS / "music" / f.name)
         nmus += 1
 
     # AdLib SFX (render_adlib.py) referenced by SNDINFO

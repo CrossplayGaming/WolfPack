@@ -49,13 +49,15 @@ class WolfGameState : StaticEventHandler
 class WolfGoldKey : Key {}
 class WolfSilverKey : Key {}
 
-class WolfPickup : Actor abstract
+class WolfPickup : Inventory abstract
 {
     Default
     {
-        +SPECIAL +NOGRAVITY
-        Radius 10;
+        +NOGRAVITY
+        Radius 10;              // + player 22 = the 32/axis center-in-tile box
         Height 64;
+        Inventory.PickupMessage "";
+        Inventory.Amount 0;
     }
 
     virtual int BonusKind() { return 0; }
@@ -70,10 +72,12 @@ class WolfPickup : Actor abstract
         BO_KEY1, BO_KEY2,
     }
 
-    override void Touch(Actor toucher)
+    // engine pickup path: TryPickup returning false leaves the item in
+    // the world (Wolf's denial-at-caps), true consumes it
+    override bool TryPickup(in out Actor toucher)
     {
         if (toucher == null || toucher.player == null)
-            return;
+            return false;
         WolfGameState gs = WolfGameState.Get();
         WolfLevel wl = WolfLevel.Get();
         Inventory am = toucher.FindInventory("WolfAmmo");
@@ -82,37 +86,37 @@ class WolfPickup : Actor abstract
         switch (BonusKind())
         {
         case BO_FIRSTAID:                       // PICK-004
-            if (toucher.health >= 100) return;
+            if (toucher.health >= 100) return false;
             toucher.GiveBody(25, 100);
             toucher.A_StartSound("wolf/health2", CHAN_ITEM);
             break;
         case BO_FOOD:                           // PICK-005
-            if (toucher.health >= 100) return;
+            if (toucher.health >= 100) return false;
             toucher.GiveBody(10, 100);
             toucher.A_StartSound("wolf/health1", CHAN_ITEM);
             break;
         case BO_ALPO:                           // PICK-006
-            if (toucher.health >= 100) return;
+            if (toucher.health >= 100) return false;
             toucher.GiveBody(4, 100);
             toucher.A_StartSound("wolf/health1", CHAN_ITEM);
             break;
         case BO_GIBS:                           // PICK-012: heal 1 at <=10 HP
-            if (toucher.health > 10) return;
+            if (toucher.health > 10) return false;
             toucher.GiveBody(1, 100);
             toucher.A_StartSound("wolf/slurpie", CHAN_ITEM);
             break;
         case BO_CLIP:                           // PICK-001
-            if (ammo >= 99) return;
+            if (ammo >= 99) return false;
             GiveAmmo_(toucher, 8);
             toucher.A_StartSound("wolf/getammo", CHAN_ITEM);
             break;
         case BO_CLIP2:                          // PICK-002
-            if (ammo >= 99) return;
+            if (ammo >= 99) return false;
             GiveAmmo_(toucher, 4);
             toucher.A_StartSound("wolf/getammo", CHAN_ITEM);
             break;
         case BO_25CLIP:                         // PICK-003 (SoD)
-            if (ammo >= 99) return;
+            if (ammo >= 99) return false;
             GiveAmmo_(toucher, 25);
             toucher.A_StartSound("wolf/getammo", CHAN_ITEM);
             break;
@@ -166,9 +170,10 @@ class WolfPickup : Actor abstract
             toucher.A_StartSound("wolf/getkey", CHAN_ITEM);
             break;
         default:
-            return;
+            return false;
         }
-        Destroy();
+        GoAwayAndDie();
+        return true;
     }
 
     static void GiveAmmo_(Actor toucher, int amount)

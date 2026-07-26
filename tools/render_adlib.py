@@ -113,28 +113,33 @@ def render_imf(imf_path, out_path):
         if delay:
             o.render(delay / 700.0, out)
     o.render(0.1, out)
-    with wave.open(str(out_path), "wb") as w:
-        w.setnchannels(1)
-        w.setsampwidth(2)
-        w.setframerate(RATE)
-        w.writeframes(bytes(out))
+    # FLAC via soundfile (this libsndfile's OGG/Vorbis encoder writes
+    # empty containers; FLAC is core and GZDoom plays it)
+    import numpy, soundfile
+    samples = numpy.frombuffer(bytes(out), dtype=numpy.int16)
+    soundfile.write(str(out_path.with_suffix(".flac")), samples, RATE,
+                    format="FLAC")
 
 
 def main():
     names = sound_enum()
     n = 0
     for idx, name in sorted(names.items()):
+        if (AUD / "sfx" / f"{name}.wav").exists():
+            continue
         if render_sfx(idx, name):
             n += 1
-    print(f"rendered {n} AdLib SFX")
+    print(f"rendered {n} AdLib SFX", flush=True)
 
     if "--music" in sys.argv:
         outdir = AUD / "music_wav"
         outdir.mkdir(exist_ok=True)
         for imf in sorted((AUD / "music").glob("*.imf")):
             short = imf.stem.replace("_MUS", "")[:8]
+            if (outdir / f"{short}.flac").exists():
+                continue
             render_imf(imf, outdir / f"{short}.wav")
-            print(f"  music {short}")
+            print(f"  music {short}", flush=True)
 
 
 if __name__ == "__main__":
