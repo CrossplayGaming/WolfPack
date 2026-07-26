@@ -7,6 +7,12 @@ gameinfo
     EventHandlers = "WolfDebugHandler", "WolfLevel"
     borderflat = "FLOOR19"
     statusbarclass = "WolfStatusBar"
+    // standalone IWAD: the engine needs these declared even when
+    // NoIntermission suppresses the tally (the real Wolf
+    // LevelCompleted screen replaces them in the tally pass).
+    statscreen_single = "DoomStatusScreen"
+    statscreen_coop = "CoopStatusScreen"
+    statscreen_dm = "DeathmatchStatusScreen"
     drawreadthis = false
     quitmessages = "$QUITMSG"
 }

@@ -5,359 +5,479 @@ map MAP01 "Wolf1 Map1"
 {
     levelnum = 1
     music = "GETTHEM"
+    next = "MAP02"
+    secretnext = "MAP10"
 }
 
 map MAP02 "Wolf1 Map2"
 {
     levelnum = 2
     music = "SEARCHN"
+    next = "MAP03"
+    secretnext = "MAP10"
 }
 
 map MAP03 "Wolf1 Map3"
 {
     levelnum = 3
     music = "POW"
+    next = "MAP04"
+    secretnext = "MAP10"
 }
 
 map MAP04 "Wolf1 Map4"
 {
     levelnum = 4
     music = "SUSPENSE"
+    next = "MAP05"
+    secretnext = "MAP10"
 }
 
 map MAP05 "Wolf1 Map5"
 {
     levelnum = 5
     music = "GETTHEM"
+    next = "MAP06"
+    secretnext = "MAP10"
 }
 
 map MAP06 "Wolf1 Map6"
 {
     levelnum = 6
     music = "SEARCHN"
+    next = "MAP07"
+    secretnext = "MAP10"
 }
 
 map MAP07 "Wolf1 Map7"
 {
     levelnum = 7
     music = "POW"
+    next = "MAP08"
+    secretnext = "MAP10"
 }
 
 map MAP08 "Wolf1 Map8"
 {
     levelnum = 8
     music = "SUSPENSE"
+    next = "MAP09"
+    secretnext = "MAP10"
 }
 
 map MAP09 "Wolf1 Boss"
 {
     levelnum = 9
     music = "WARMARCH"
+    next = "MAP01"
+    secretnext = "MAP10"
 }
 
 map MAP10 "Wolf1 Secret"
 {
     levelnum = 10
     music = "CORNER"
+    next = "MAP02"
+    secretnext = "MAP10"
 }
 
 map MAP11 "Wolf2 Map1"
 {
     levelnum = 11
     music = "NAZI_OMI"
+    next = "MAP12"
+    secretnext = "MAP20"
 }
 
 map MAP12 "Wolf2 Map2"
 {
     levelnum = 12
     music = "PREGNANT"
+    next = "MAP13"
+    secretnext = "MAP20"
 }
 
 map MAP13 "Wolf2 Map3"
 {
     levelnum = 13
     music = "GOINGAFT"
+    next = "MAP14"
+    secretnext = "MAP20"
 }
 
 map MAP14 "Wolf2 Map4"
 {
     levelnum = 14
     music = "HEADACHE"
+    next = "MAP15"
+    secretnext = "MAP20"
 }
 
 map MAP15 "Wolf2 Map5"
 {
     levelnum = 15
     music = "NAZI_OMI"
+    next = "MAP16"
+    secretnext = "MAP20"
 }
 
 map MAP16 "Wolf2 Map6"
 {
     levelnum = 16
     music = "PREGNANT"
+    next = "MAP17"
+    secretnext = "MAP20"
 }
 
 map MAP17 "Wolf2 Map7"
 {
     levelnum = 17
     music = "HEADACHE"
+    next = "MAP18"
+    secretnext = "MAP20"
 }
 
 map MAP18 "Wolf2 Map8"
 {
     levelnum = 18
     music = "GOINGAFT"
+    next = "MAP19"
+    secretnext = "MAP20"
 }
 
 map MAP19 "Wolf2 Boss"
 {
     levelnum = 19
     music = "WARMARCH"
+    next = "MAP11"
+    secretnext = "MAP20"
 }
 
 map MAP20 "Wolf2 Secret"
 {
     levelnum = 20
     music = "DUNGEON"
+    next = "MAP12"
+    secretnext = "MAP20"
 }
 
 map MAP21 "Wolf3 Map1"
 {
     levelnum = 21
     music = "INTROCW3"
+    next = "MAP22"
+    secretnext = "MAP30"
 }
 
 map MAP22 "Wolf3 Map2"
 {
     levelnum = 22
     music = "NAZI_RAP"
+    next = "MAP23"
+    secretnext = "MAP30"
 }
 
 map MAP23 "Wolf3 Map3"
 {
     levelnum = 23
     music = "TWELFTH"
+    next = "MAP24"
+    secretnext = "MAP30"
 }
 
 map MAP24 "Wolf3 Map4"
 {
     levelnum = 24
     music = "ZEROHOUR"
+    next = "MAP25"
+    secretnext = "MAP30"
 }
 
 map MAP25 "Wolf3 Map5"
 {
     levelnum = 25
     music = "INTROCW3"
+    next = "MAP26"
+    secretnext = "MAP30"
 }
 
 map MAP26 "Wolf3 Map6"
 {
     levelnum = 26
     music = "NAZI_RAP"
+    next = "MAP27"
+    secretnext = "MAP30"
 }
 
 map MAP27 "Wolf3 Map7"
 {
     levelnum = 27
     music = "TWELFTH"
+    next = "MAP28"
+    secretnext = "MAP30"
 }
 
 map MAP28 "Wolf3 Map8"
 {
     levelnum = 28
     music = "ZEROHOUR"
+    next = "MAP29"
+    secretnext = "MAP30"
 }
 
 map MAP29 "Wolf3 Boss"
 {
     levelnum = 29
     music = "ULTIMATE"
+    next = "MAP21"
+    secretnext = "MAP30"
 }
 
 map MAP30 "Wolf3 Secret"
 {
     levelnum = 30
     music = "PACMAN"
+    next = "MAP28"
+    secretnext = "MAP30"
 }
 
 map MAP31 "Wolf4 Map 1"
 {
     levelnum = 31
     music = "GETTHEM"
+    next = "MAP32"
+    secretnext = "MAP40"
 }
 
 map MAP32 "Wolf4 Map 2"
 {
     levelnum = 32
     music = "SEARCHN"
+    next = "MAP33"
+    secretnext = "MAP40"
 }
 
 map MAP33 "Wolf4 Map 3"
 {
     levelnum = 33
     music = "POW"
+    next = "MAP34"
+    secretnext = "MAP40"
 }
 
 map MAP34 "Wolf4 Map 4"
 {
     levelnum = 34
     music = "SUSPENSE"
+    next = "MAP35"
+    secretnext = "MAP40"
 }
 
 map MAP35 "Wolf4 Map 5"
 {
     levelnum = 35
     music = "GETTHEM"
+    next = "MAP36"
+    secretnext = "MAP40"
 }
 
 map MAP36 "Wolf4 Map 6"
 {
     levelnum = 36
     music = "SEARCHN"
+    next = "MAP37"
+    secretnext = "MAP40"
 }
 
 map MAP37 "Wolf4 Map 7"
 {
     levelnum = 37
     music = "POW"
+    next = "MAP38"
+    secretnext = "MAP40"
 }
 
 map MAP38 "Wolf4 Map 8"
 {
     levelnum = 38
     music = "SUSPENSE"
+    next = "MAP39"
+    secretnext = "MAP40"
 }
 
 map MAP39 "Wolf4 Boss"
 {
     levelnum = 39
     music = "WARMARCH"
+    next = "MAP31"
+    secretnext = "MAP40"
 }
 
 map MAP40 "Wolf4 Secret"
 {
     levelnum = 40
     music = "CORNER"
+    next = "MAP34"
+    secretnext = "MAP40"
 }
 
 map MAP41 "Wolf5 Map 1"
 {
     levelnum = 41
     music = "NAZI_OMI"
+    next = "MAP42"
+    secretnext = "MAP50"
 }
 
 map MAP42 "Wolf5 Map 2"
 {
     levelnum = 42
     music = "PREGNANT"
+    next = "MAP43"
+    secretnext = "MAP50"
 }
 
 map MAP43 "Wolf5 Map 3"
 {
     levelnum = 43
     music = "GOINGAFT"
+    next = "MAP44"
+    secretnext = "MAP50"
 }
 
 map MAP44 "Wolf5 Map 4"
 {
     levelnum = 44
     music = "HEADACHE"
+    next = "MAP45"
+    secretnext = "MAP50"
 }
 
 map MAP45 "Wolf5 Map 5"
 {
     levelnum = 45
     music = "NAZI_OMI"
+    next = "MAP46"
+    secretnext = "MAP50"
 }
 
 map MAP46 "Wolf5 Map 6"
 {
     levelnum = 46
     music = "PREGNANT"
+    next = "MAP47"
+    secretnext = "MAP50"
 }
 
 map MAP47 "Wolf5 Map 7"
 {
     levelnum = 47
     music = "HEADACHE"
+    next = "MAP48"
+    secretnext = "MAP50"
 }
 
 map MAP48 "Wolf5 Map 8"
 {
     levelnum = 48
     music = "GOINGAFT"
+    next = "MAP49"
+    secretnext = "MAP50"
 }
 
 map MAP49 "Wolf5 Boss"
 {
     levelnum = 49
     music = "WARMARCH"
+    next = "MAP41"
+    secretnext = "MAP50"
 }
 
 map MAP50 "Wolf5 Secret"
 {
     levelnum = 50
     music = "DUNGEON"
+    next = "MAP46"
+    secretnext = "MAP50"
 }
 
 map MAP51 "Wolf6 Map 1"
 {
     levelnum = 51
     music = "INTROCW3"
+    next = "MAP52"
+    secretnext = "MAP60"
 }
 
 map MAP52 "Wolf6 Map 2"
 {
     levelnum = 52
     music = "NAZI_RAP"
+    next = "MAP53"
+    secretnext = "MAP60"
 }
 
 map MAP53 "Wolf6 Map 3"
 {
     levelnum = 53
     music = "TWELFTH"
+    next = "MAP54"
+    secretnext = "MAP60"
 }
 
 map MAP54 "Wolf6 Map 4"
 {
     levelnum = 54
     music = "ZEROHOUR"
+    next = "MAP55"
+    secretnext = "MAP60"
 }
 
 map MAP55 "Wolf6 Map 5"
 {
     levelnum = 55
     music = "INTROCW3"
+    next = "MAP56"
+    secretnext = "MAP60"
 }
 
 map MAP56 "Wolf6 Map 6"
 {
     levelnum = 56
     music = "NAZI_RAP"
+    next = "MAP57"
+    secretnext = "MAP60"
 }
 
 map MAP57 "Wolf6 Map 7"
 {
     levelnum = 57
     music = "TWELFTH"
+    next = "MAP58"
+    secretnext = "MAP60"
 }
 
 map MAP58 "Wolf6 Map 8"
 {
     levelnum = 58
     music = "ZEROHOUR"
+    next = "MAP59"
+    secretnext = "MAP60"
 }
 
 map MAP59 "Wolf6 Boss"
 {
     levelnum = 59
     music = "ULTIMATE"
+    next = "MAP51"
+    secretnext = "MAP60"
 }
 
 map MAP60 "Wolf6 Secret"
 {
     levelnum = 60
     music = "FUNKYOU"
+    next = "MAP54"
+    secretnext = "MAP60"
 }
 

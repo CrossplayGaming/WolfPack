@@ -11,6 +11,9 @@ import json
 ROOT = Path(__file__).resolve().parent.parent
 
 # songs[] per episode slot (WL_PLAY.C): 10 slots x 6 episodes
+# ElevatorBackTo[] (WL_GAME.C:39): 0-based mapon the secret floor returns to
+ELEVATOR_BACK_TO = [1, 1, 7, 3, 5, 3]
+
 EP_SONGS = [
     ["GETTHEM", "SEARCHN", "POW", "SUSPENSE", "GETTHEM", "SEARCHN", "POW",
      "SUSPENSE", "WARMARCH", "CORNER"],
@@ -38,10 +41,22 @@ def main():
         if f.exists():
             name = json.loads(f.read_text())["name"]
         mapname = f"MAP{n + 1:02d}"
+        # progression (WL_GAME.C:1386-1400): floors 1-8 advance in order;
+        # the secret floor (slot 9) returns to ElevatorBackTo[episode];
+        # the boss floor (slot 8) ends the episode via the victory tile.
+        if slot == 9:
+            nxt = ep * 10 + ELEVATOR_BACK_TO[ep] + 1
+        elif slot == 8:
+            nxt = ep * 10 + 1               # fallback; boss ends via victory
+        else:
+            nxt = n + 2
+        secret = ep * 10 + 10               # slot 9 of this episode
         lines.append(f'map {mapname} "{name}"')
         lines.append("{")
         lines.append(f"    levelnum = {n + 1}")
         lines.append(f'    music = "{EP_SONGS[ep][slot]}"')
+        lines.append(f'    next = "MAP{nxt:02d}"')
+        lines.append(f'    secretnext = "MAP{secret:02d}"')
         lines.append("}")
         lines.append("")
     (ROOT / "src" / "mapinfo_maps.txt").write_text("\n".join(lines) + "\n")

@@ -13,6 +13,7 @@ class WolfLevel : EventHandler
     int solidG[4096];
     int areaG[4096];            // -1 = none
     bool ambushG[4096];         // AMBUSHTILE marks (TILE-003)
+    bool elevG[4096];           // ELEVATORTILE switch walls (EXIT-001)
     WolfDoor doorAt[4096];
     WolfPushwall pwAt[4096];
     Actor enemyAt[4096];        // moving-actor claims (DoActor marks)
@@ -74,6 +75,8 @@ class WolfLevel : EventHandler
                         else if (c == 68) solidG[idx] = 2;   // 'D'
                         else if (c == 80) solidG[idx] = 3;   // 'P'
                         else if (c == 97) ambushG[idx] = true; // 'a'
+                        else if (c == 69) { solidG[idx] = 1;   // 'E'
+                                            elevG[idx] = true; }
                     }
                     else if (c != 45)                       // '-'
                     {
@@ -82,6 +85,15 @@ class WolfLevel : EventHandler
                 }
                 y++;
             }
+        }
+
+        // EXIT-007: keys reset every floor; weapons and ammo carry
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            if (players[i].mo == null)
+                continue;
+            players[i].mo.TakeInventory("WolfGoldKey", 99);
+            players[i].mo.TakeInventory("WolfSilverKey", 99);
         }
 
         // register doors and pushwalls by tile
@@ -131,6 +143,42 @@ class WolfLevel : EventHandler
             {
                 playerArea = a;
                 ConnectAreas();
+            }
+        }
+    }
+
+    bool ElevatorAt(int tx, int ty)
+    {
+        return tx >= 0 && tx <= 63 && ty >= 0 && ty <= 63
+               && elevG[ty * 64 + tx];
+    }
+
+    // EXIT-003: flip the switch to its "used" texture (tilemap[x][y]++ ->
+    // the next wall pair). Code 21 -> 22, i.e. WALL040/041 -> WALL042/043.
+    void FlipSwitch(int tx, int ty)
+    {
+        double x1 = tx * 64, x2 = x1 + 64;
+        double y1 = (63 - ty) * 64, y2 = y1 + 64;
+        for (int i = 0; i < Level.Lines.Size(); i++)
+        {
+            Line l = Level.Lines[i];
+            Vector2 mid = (l.v1.p + l.v2.p) / 2;
+            if (mid.x < x1 - 1 || mid.x > x2 + 1
+                || mid.y < y1 - 1 || mid.y > y2 + 1)
+                continue;
+            for (int sn = 0; sn < 2; sn++)
+            {
+                Side sd = l.sidedef[sn];
+                if (sd == null)
+                    continue;
+                TextureID t = sd.GetTexture(Side.mid);
+                String nm = TexMan.GetName(t);
+                if (nm == "WALL040" || nm == "WALL041")
+                {
+                    String rep = nm == "WALL040" ? "WALL042" : "WALL043";
+                    sd.SetTexture(Side.mid,
+                        TexMan.CheckForTexture(rep, TexMan.Type_Any));
+                }
             }
         }
     }

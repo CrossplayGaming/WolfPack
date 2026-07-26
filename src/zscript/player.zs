@@ -78,6 +78,7 @@ class WolfPlayer : DoomPlayer
 
     bool bIsRunning;
     int oldButtons;
+    bool exiting;
 
     // UpdateFace (WL_AGENT.C:307-323): runs in play scope so the look
     // timer consumes the US_RndT stream exactly like the original.
@@ -153,6 +154,24 @@ class WolfPlayer : DoomPlayer
                 return;
             }
         }
+        // elevator switch (Cmd_Use, WL_AGENT.C:1056-1070). EXIT-002: only
+        // works facing east or west. EXIT-004: standing on floor code 107
+        // (area 0, ALTELEVATORTILE) takes the secret exit instead.
+        WolfLevel wl = WolfLevel.Get();
+        if (wl != null && wl.ElevatorAt(cx, cy) && (dir == 0 || dir == 2)
+            && !exiting)
+        {
+            exiting = true;
+            wl.FlipSwitch(cx, cy);
+            A_StartSound("wolf/leveldone", CHAN_VOICE);
+            bool secret = wl.AreaAt(tx, ty) == 0;
+            if (secret)
+                Level.SecretExitLevel(0);
+            else
+                Level.ExitLevel(0, false);
+            return;
+        }
+
         ThinkerIterator pit = ThinkerIterator.Create("WolfPushwall");
         WolfPushwall p;
         while ((p = WolfPushwall(pit.Next())) != null)

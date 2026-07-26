@@ -392,7 +392,7 @@ def convert(level, ceiling_color):
             elif (gx, gy) in pwtile:
                 row += "P"
             elif wall_code(level, gx, gy) is not None:
-                row += "#"
+                row += "E" if dec[gy * 64 + gx]["kind"] == "elevator_switch"                     else "#"
             elif (gx, gy) in ambush:
                 row += "a"
             else:

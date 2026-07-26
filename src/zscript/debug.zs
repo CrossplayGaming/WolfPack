@@ -7,6 +7,7 @@ class WolfDebugHandler : EventHandler
 {
     int phase;
     int t;
+    bool found;
     WolfDoor door;
 
     override void WorldTick()
@@ -82,6 +83,38 @@ class WolfDebugHandler : EventHandler
                                99 - left);
             }
         }
+
+        // exit self-test: teleport to the level's elevator switch, face it,
+        // and use it; the next map's handler reports arrival.
+        CVar xv = CVar.FindCVar("wolf_dbg_exit");
+        if (xv != null && xv.GetInt() != 0 && t == 30)
+        {
+            WolfLevel wl = WolfLevel.Get();
+            PlayerPawn pm = players[0].mo;
+            if (wl != null && pm != null)
+            {
+                for (int ty = 0; ty < 64 && !found; ty++)
+                for (int tx = 0; tx < 64 && !found; tx++)
+                {
+                    if (!wl.ElevatorAt(tx, ty))
+                        continue;
+                    // stand one tile west of the switch, facing east
+                    if (wl.AreaAt(tx - 1, ty) < 0)
+                        continue;
+                    found = true;
+                    pm.SetOrigin(((tx - 1) * 64 + 32,
+                                  4096.0 - ((ty) * 64 + 32), 0), false);
+                    pm.Angle = 0;
+                    Console.Printf("WOLFDBG exit: at switch %d,%d on %s",
+                                   tx, ty, Level.MapName);
+                    WolfPlayer(pm).WolfUse();
+                }
+                if (!found)
+                    Console.Printf("WOLFDBG exit: no usable switch");
+            }
+        }
+        if (t == 3 || t == 120 || t == 240)
+            Console.Printf("WOLFDBG onmap %s t=%d", Level.MapName, t);
 
         if (phase > 3)
             return;
