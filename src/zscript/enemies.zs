@@ -63,6 +63,8 @@ class WolfEnemySim : Actor abstract
     virtual void AttackSound() {}
     virtual int ReactionTics(WolfLevel wl) { return 1 + wl.RndT() / 4; }
     virtual void DropItem_() {}
+    virtual bool CardinalDiag() { return false; }   // dogs/fake: no doors
+    virtual int KillPoints() { return 100; }
 
     // ------------------------------------------------------------------
     int spawnTX, spawnTY;
@@ -250,6 +252,8 @@ class WolfEnemySim : Actor abstract
         case 2: T_Path(); break;
         case 3: T_Chase(); break;
         case 4: T_Shoot(); break;
+        case 5: T_Bite(); break;
+        case 13: T_DogChase(); break;
         case 10: DeathSound(); break;
         default: break;
         }
@@ -337,6 +341,14 @@ class WolfEnemySim : Actor abstract
             [s, dd] = wl.TileState(tileX + dx, tileY);
             if (s != 0) return 0;
             [s, dd] = wl.TileState(tileX, tileY + dy);
+            if (s != 0) return 0;
+        }
+        else if (CardinalDiag())
+        {
+            // dogs use CHECKDIAG even on cardinals: doors block (CHASE-003)
+            int s;
+            WolfDoor dd;
+            [s, dd] = wl.TileState(tileX + dx, tileY + dy);
             if (s != 0) return 0;
         }
         else
@@ -676,6 +688,74 @@ class WolfEnemySim : Actor abstract
         AttackSound();
     }
 
+    int PlayerWolfX()
+    {
+        return int(players[0].mo.pos.x * 1024);
+    }
+    int PlayerWolfY()
+    {
+        return int((4096.0 - players[0].mo.pos.y) * 1024);
+    }
+
+    // T_DogChase (WL_ACT2.C:3257-3320): dodge-pathing with a bite-range
+    // lookahead check each segment; no attack rolls, no door waits
+    void T_DogChase()
+    {
+        if (dir == NODIR)
+        {
+            SelectDodgeDir();
+            if (dir == NODIR)
+                return;
+        }
+        int move = wolfSpeed * 2;
+        int loopGuard = 0;
+        while (move > 0)
+        {
+            if (++loopGuard > 200)
+                break;
+            int dx = abs(PlayerWolfX() - wolfX) - move;
+            if (dx <= MINACTORDIST)
+            {
+                int dy = abs(PlayerWolfY() - wolfY) - move;
+                if (dy <= MINACTORDIST)
+                {
+                    SetState_(ShootState());    // s_dogjump1
+                    return;
+                }
+            }
+            if (move < distance)
+            {
+                MoveObj(move);
+                break;
+            }
+            wolfX = (tileX << 16) + 0x8000;
+            wolfY = (tileY << 16) + 0x8000;
+            move -= distance;
+            SelectDodgeDir();
+            if (dir == NODIR)
+                return;
+        }
+    }
+
+    // T_Bite (WL_ACT2.C:3530-3560)
+    void T_Bite()
+    {
+        WolfLevel wl = WolfLevel.Get();
+        AttackSound();
+        int dx = abs(PlayerWolfX() - wolfX) - TILEGLOBAL;
+        if (dx <= MINACTORDIST)
+        {
+            int dy = abs(PlayerWolfY() - wolfY) - TILEGLOBAL;
+            if (dy <= MINACTORDIST && wl.RndT() < 180)
+            {
+                int dmg = wl.RndT() >> 4;
+                if (dmg > 0)
+                    players[0].mo.DamageMobj(self, self, dmg, 'Melee',
+                                             DMG_THRUSTLESS);
+            }
+        }
+    }
+
     // ------------------------------------------------------------------
     // DamageActor / KillActor (WL_STATE.C:810-1010)
     // ------------------------------------------------------------------
@@ -710,7 +790,10 @@ class WolfEnemySim : Actor abstract
         bShootable = false;
         bSolid = false;
         DropItem_();
-        // TODO Phase 2 stats: GivePoints, killcount
+        WolfGameState gs = WolfGameState.Get();
+        if (gs != null)
+            gs.GivePoints(KillPoints());
+        wl.killCount++;
         SetState_(DieState());
         SyncPos();
     }
@@ -745,19 +828,6 @@ class WolfGuard : WolfEnemySim abstract
     {
         //$Category Wolf
     }
-    // never entered: registers the sprite names with the engine (sprite
-    // lumps alone don't create sprite entries; GetSpriteIndex needs these)
-    States
-    {
-    SpriteRegistry:
-        GRDS A -1;
-        GRDW ABCD -1;
-        GRDP AB -1;
-        GRDD ABC -1;
-        SDED A -1;
-        GRDA ABC -1;
-        Stop;
-    }
     override int StateRot(int i) { return WolfGuardTable.ROT[i]; }
     override String StateSpr(int i) { return WolfGuardTable.SPR[i]; }
     override int StateFrm(int i) { return WolfGuardTable.FRM[i]; }
@@ -785,6 +855,7 @@ class WolfGuard : WolfEnemySim abstract
     override void AttackSound() { A_StartSound("wolf/nazifire", CHAN_WEAPON); }
     override void DropItem_() { PlaceDrop("WolfStatic48"); }   // bo_clip2
     override int ReactionTics(WolfLevel wl) { return 1 + wl.RndT() / 4; }
+    override int KillPoints() { return 100; }        // KILL-001
 }
 
 class WolfGuardStand : WolfGuard
@@ -805,6 +876,57 @@ class WolfGuardPatrol : WolfGuard
     override void PostBeginPlay()
     {
         wolfSpeed = 512;
+        Super.PostBeginPlay();
+        InitPatrol();
+    }
+}
+
+// ----------------------------------------------------------------------
+// Dog — 1 HP, x2 chase speed, CHECKDIAG pathing (cannot open doors),
+// bite via the jump sequence. No drops; 200 points (KILL-004).
+// ----------------------------------------------------------------------
+class WolfDog : WolfEnemySim abstract
+{
+    override int StateRot(int i) { return WolfDogTable.ROT[i]; }
+    override String StateSpr(int i) { return WolfDogTable.SPR[i]; }
+    override int StateFrm(int i) { return WolfDogTable.FRM[i]; }
+    override int StateTics(int i) { return WolfDogTable.TICS[i]; }
+    override int StateThink(int i) { return WolfDogTable.THINK[i]; }
+    override int StateAction(int i) { return WolfDogTable.ACT[i]; }
+    override int StateNext(int i) { return WolfDogTable.NEXT[i]; }
+    override int StandState() { return WolfDogTable.DOGPATH1; }
+    override int PathState() { return WolfDogTable.DOGPATH1; }
+    override int ChaseState() { return WolfDogTable.DOGCHASE1; }
+    override int PainState(bool alt) { return WolfDogTable.DOGCHASE1; } // 1 HP: unreachable
+    override int ShootState() { return WolfDogTable.DOGJUMP1; }
+    override int DieState() { return WolfDogTable.DOGDIE1; }
+    override int ChaseSpeedMul() { return 2; }       // SPEED-005
+    override int BaseHP(int skill) { return 1; }
+    override bool CardinalDiag() { return true; }    // CHASE-003
+    override int KillPoints() { return 200; }
+    override void SightSound() { A_StartSound("wolf/dogbark", CHAN_VOICE); }
+    override void DeathSound() { A_StartSound("wolf/dogdeath", CHAN_VOICE); }
+    override int ReactionTics(WolfLevel wl) { return 1 + wl.RndT() / 8; } // REACT-005
+}
+
+class WolfDogStand : WolfDog
+{
+    // dog 'stand' spawn codes are dead code in the original (SpawnStand
+    // has no en_dog case; zero uses across all 81 shipped maps) — treat
+    // as patrol.
+    override void PostBeginPlay()
+    {
+        wolfSpeed = 1500;           // SPDDOG
+        Super.PostBeginPlay();
+        InitPatrol();
+    }
+}
+
+class WolfDogPatrol : WolfDog
+{
+    override void PostBeginPlay()
+    {
+        wolfSpeed = 1500;
         Super.PostBeginPlay();
         InitPatrol();
     }

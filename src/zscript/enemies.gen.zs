@@ -34,3 +34,54 @@ class WolfGuardTable
     static const int NEXT[] = { 0, 2, 3, 4, 5, 6, 1, 12, 12, 10, 11, 12, 13, 14, 15, 16, 17, 12, 19, 20, 21, 21 };
 }
 
+class WolfDogTable
+{
+    const DOGPATH1 = 0;
+    const DOGPATH1S = 1;
+    const DOGPATH2 = 2;
+    const DOGPATH3 = 3;
+    const DOGPATH3S = 4;
+    const DOGPATH4 = 5;
+    const DOGJUMP1 = 6;
+    const DOGJUMP2 = 7;
+    const DOGJUMP3 = 8;
+    const DOGJUMP4 = 9;
+    const DOGJUMP5 = 10;
+    const DOGCHASE1 = 11;
+    const DOGCHASE1S = 12;
+    const DOGCHASE2 = 13;
+    const DOGCHASE3 = 14;
+    const DOGCHASE3S = 15;
+    const DOGCHASE4 = 16;
+    const DOGDIE1 = 17;
+    const DOGDIE2 = 18;
+    const DOGDIE3 = 19;
+    const DOGDEAD = 20;
+    static const int ROT[] = { 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 };
+    static const String SPR[] = { "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGJ", "DOGJ", "DOGJ", "DOGJ", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGD", "DOGD", "DOGD", "DOGD" };
+    static const int FRM[] = { 0, 0, 1, 2, 2, 3, 0, 1, 2, 0, 0, 0, 0, 1, 2, 2, 3, 0, 1, 2, 3 };
+    static const int TICS[] = { 20, 5, 15, 20, 5, 15, 10, 10, 10, 10, 10, 10, 3, 8, 10, 3, 8, 15, 15, 15, 15 };
+    static const int THINK[] = { 2, 0, 2, 2, 0, 2, 0, 0, 0, 0, 0, 13, 0, 13, 13, 0, 13, 0, 0, 0, 0 };
+    static const int ACT[] = { 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0 };
+    static const int NEXT[] = { 1, 2, 3, 4, 5, 0, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 11, 18, 19, 20, 20 };
+}
+
+// sprite-name registration only — never entered
+class WolfSpriteRegistry : Actor
+{
+    States
+    {
+    Reg:
+        DOGD ABCD -1;
+        DOGJ ABC -1;
+        DOGW ABCD -1;
+        GRDA ABC -1;
+        GRDD ABC -1;
+        GRDP AB -1;
+        GRDS A -1;
+        GRDW ABCD -1;
+        SDED A -1;
+        Stop;
+    }
+}
+

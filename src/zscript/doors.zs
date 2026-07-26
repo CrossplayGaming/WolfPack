@@ -73,10 +73,16 @@ class WolfDoor : Actor
     {
         if (lock >= 1 && lock <= 4)
         {
-            // DOOR-004: key check lands with the Phase 2 key items
-            if (user && user.player)
-                user.A_Log("This door is locked. (keys arrive in Phase 2)");
-            return;
+            // DOOR-004: gamestate.keys & (1 << (lock-1))
+            String need = lock == 1 ? "WolfGoldKey" : "WolfSilverKey";
+            if (user == null || user.FindInventory(need) == null)
+            {
+                // TODO NOWAYSND (AdLib)
+                if (user && user.player)
+                    user.A_Log(lock == 1 ? "You need a gold key"
+                                         : "You need a silver key");
+                return;
+            }
         }
         switch (doorAction)
         {

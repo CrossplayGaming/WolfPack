@@ -3,4 +3,6 @@ DoomEdNums
 {
     21001 = "WolfGuardStand"
     21002 = "WolfGuardPatrol"
+    21007 = "WolfDogStand"
+    21008 = "WolfDogPatrol"
 }

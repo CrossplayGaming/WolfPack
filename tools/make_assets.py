@@ -198,7 +198,7 @@ def main():
     for digi, name in ((3, "dooropen"), (2, "doorclose"), (15, "pushwall"),
                        (0, "halt"), (12, "death1"), (13, "death2"),
                        (21, "nazifire"), (5, "pistol"), (4, "machinegun"),
-                       (6, "gatling")):
+                       (6, "gatling"), (1, "dogbark"), (16, "dogdeath"), (22, "slurpie")):
         src = VSWAP / "sounds" / f"DIGI{digi:03d}.wav"
         if src.exists():
             shutil.copy(src, ASSETS / "sounds" / f"{name}.wav")

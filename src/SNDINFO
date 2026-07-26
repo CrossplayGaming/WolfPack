@@ -11,3 +11,6 @@ wolf/nazifire   "sounds/nazifire.wav"    // NAZIFIRESND digi 21
 wolf/pistol     "sounds/pistol.wav"      // ATKPISTOLSND digi 5
 wolf/machinegun "sounds/machinegun.wav"  // ATKMACHINEGUNSND digi 4
 wolf/gatling    "sounds/gatling.wav"     // ATKGATLINGSND digi 6
+wolf/dogbark    "sounds/dogbark.wav"     // DOGBARKSND digi 1
+wolf/dogdeath   "sounds/dogdeath.wav"    // DOGDEATHSND digi 16
+wolf/slurpie    "sounds/slurpie.wav"     // SLURPIESND digi 22

@@ -32,8 +32,9 @@ class WolfStatusBar : BaseStatusBar
         // floor number (1-based within episode: levelnum 1..10 per ep)
         int floorNum = ((Level.levelnum - 1) % 10) + 1;
         DrawWolfNumber(floorNum, 2, 2);
-        DrawWolfNumber(0, 6, 6);                    // score: stats pass
-        DrawWolfNumber(3, 14, 1);                   // lives: stats pass
+        WolfGameState gs = WolfGameState.Get();
+        DrawWolfNumber(gs == null ? 0 : gs.score, 6, 6);
+        DrawWolfNumber(gs == null ? 3 : gs.lives, 14, 1);
         int health = CPlayer.mo == null ? 0 : CPlayer.health;
         DrawWolfNumber(health, 21, 3);
         Inventory am = CPlayer.mo.FindInventory("WolfAmmo");
@@ -55,9 +56,11 @@ class WolfStatusBar : BaseStatusBar
         }
         DrawImage(face, (136, 164), DI_ITEM_OFFSETS);
 
-        // keys (items pass will set these; NOKEY until then)
-        DrawImage("NOKEY", (240, 164), DI_ITEM_OFFSETS);
-        DrawImage("NOKEY", (240, 180), DI_ITEM_OFFSETS);
+        // keys (DrawKeys, WL_AGENT.C:558-570)
+        bool gold = CPlayer.mo.FindInventory("WolfGoldKey") != null;
+        bool silver = CPlayer.mo.FindInventory("WolfSilverKey") != null;
+        DrawImage(gold ? "GOLDKEY" : "NOKEY", (240, 164), DI_ITEM_OFFSETS);
+        DrawImage(silver ? "SILVKEY" : "NOKEY", (240, 180), DI_ITEM_OFFSETS);
 
         // weapon icon
         String wico = "KNIFEP";
@@ -73,7 +76,8 @@ class WolfStatusBar : BaseStatusBar
     void DrawMinimal()
     {
         BeginHUD();
-        DrawHudItem("HUDLIFE", 3, 30, false);
+        WolfGameState gs = WolfGameState.Get();
+        DrawHudItem("HUDLIFE", gs == null ? 3 : gs.lives, 30, false);
         DrawHudItem("HUDMED",
                     CPlayer.mo == null ? 0 : CPlayer.health, 92, false);
         Inventory am = CPlayer.mo.FindInventory("WolfAmmo");

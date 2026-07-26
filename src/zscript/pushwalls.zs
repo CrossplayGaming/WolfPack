@@ -99,7 +99,9 @@ class WolfPushwall : Actor
         if (maxTravel[d] == 0 || TileOccupied(tileX + dx, tileY + dy))
             return;                         // NOWAYSND lands with audio pass
 
-        // TODO(Phase 2): gamestate.secretcount++ with the stats system
+        WolfLevel wl = WolfLevel.Get();
+        if (wl != null)
+            wl.secretCount++;           // PWALL-006
         A_StartSound("wolf/pushwall", CHAN_AUTO, attenuation: 1.0);
         dirIdx = d;
         plannedTiles = Min(2, maxTravel[d]);

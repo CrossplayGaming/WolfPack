@@ -24,6 +24,10 @@ class WolfLevel : EventHandler
 
     int rngIndex;
 
+    // per-level stats (tally pass): found counts + totals
+    int killCount, secretCount, treasureCount;
+    int killTotal, secretTotal, treasureTotal;
+
     static WolfLevel Get()
     {
         return WolfLevel(EventHandler.Find("WolfLevel"));
@@ -89,6 +93,20 @@ class WolfLevel : EventHandler
         WolfPushwall p;
         while ((p = WolfPushwall(pit.Next())) != null)
             pwAt[p.tileY * 64 + p.tileX] = p;
+
+        // stat totals (spawn-time counting like the original)
+        ThinkerIterator eit = ThinkerIterator.Create("WolfEnemySim");
+        while (eit.Next() != null)
+            killTotal++;
+        ThinkerIterator sit = ThinkerIterator.Create("WolfPushwall");
+        while (sit.Next() != null)
+            secretTotal++;
+        ThinkerIterator tit = ThinkerIterator.Create("WolfPickup");
+        WolfPickup pk;
+        while ((pk = WolfPickup(tit.Next())) != null)
+            if (pk.BonusKind() >= WolfPickup.BO_CROSS
+                && pk.BonusKind() <= WolfPickup.BO_FULLHEAL)
+                treasureTotal++;
 
         // InitAreas: flood from the player's area
         if (players[0].mo != null)

@@ -474,3 +474,10 @@ Target: zero gameplay-visible entries.
   <180 vs >=180) is approximated by engine 8-rotation buckets (rots 1-4 vs
   5-8) — a 22.5° wedge error at the boundaries. The GRDP B rots 5-8 →
   SHOOT1 art-layout quirk of the original is preserved verbatim.
+
+### Items pass additions (2026-07-26)
+
+| ID | Item | Value |
+|---|---|---|
+| PICK-012 | Gibs (bo_gibs): heal 1 ONLY at health <= 10, SLURPIESND (digi 22) | WL_AGENT.C:770-776 |
+| DEAD-001 | Dog "stand" spawn codes (134-137 + tiers): SpawnStand has no en_dog case — dead/broken path in the original; zero uses across all 81 shipped maps (verified against extracted data). Recreation treats them as patrol spawns | WL_ACT2.C:847-907 |
