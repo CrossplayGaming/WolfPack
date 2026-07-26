@@ -3,6 +3,7 @@
 
 gameinfo
 {
+    playerclasses = "WolfPlayer"
     drawreadthis = false
     quitmessages = "$QUITMSG"
 }
@@ -41,7 +42,6 @@ episode MAP01
 
 defaultmap
 {
-    sky1 = "-NOFLAT-"
     NoIntermission
     NoJump
     NoCrouch
