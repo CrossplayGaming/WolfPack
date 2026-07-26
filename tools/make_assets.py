@@ -84,6 +84,10 @@ def main():
                if r["cond"] in (None, "ifndef SPEAR", "!ifdef SPEAR")]
     copies = [(2 + r["sprite"], f"S{pos:03d}A0") for pos, r in enumerate(wl6rows)]
     copies.append((95, "SDEDA0"))
+    # enemy sprites (gen_enemies.py copy list)
+    sc = ROOT / "docs" / "data" / "sprite_copies.json"
+    if sc.exists():
+        copies += [(c, n) for c, n in json.loads(sc.read_text())["copies"]]
     nspr = 0
     for chunk, name in copies:
         src = VSWAP / "sprites" / f"SPR{chunk:03d}.png"
@@ -94,17 +98,23 @@ def main():
 
     # digitized sounds referenced by src/SNDINFO (wolfdigimap, WL_MAIN.C:849+)
     (ASSETS / "sounds").mkdir()
-    for digi, name in ((3, "dooropen"), (2, "doorclose"), (15, "pushwall")):
+    for digi, name in ((3, "dooropen"), (2, "doorclose"), (15, "pushwall"),
+                       (0, "halt"), (12, "death1"), (13, "death2"),
+                       (21, "nazifire")):
         src = VSWAP / "sounds" / f"DIGI{digi:03d}.wav"
         if src.exists():
             shutil.copy(src, ASSETS / "sounds" / f"{name}.wav")
 
     nmaps = 0
+    (ASSETS / "wolfdata").mkdir()
     for tm in sorted(UDMF.glob("MAP*.textmap")):
         n = int(tm.stem[3:])
         mapname = f"MAP{n + 1:02d}"
         (ASSETS / "maps" / f"map{n + 1:02d}.wad").write_bytes(
             wrap_wad(mapname, tm.read_bytes()))
+        grid = UDMF / f"{tm.stem}.grid.txt"
+        if grid.exists():
+            shutil.copy(grid, ASSETS / "wolfdata" / f"{mapname}.txt")
         nmaps += 1
 
     print(f"assets: {nwalls} wall textures, "

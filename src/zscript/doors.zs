@@ -25,6 +25,7 @@ class WolfDoor : Actor
     int lock;           // 0 normal, 1-4 keyed, 5 elevator
     int tileX, tileY;   // Wolf tile coords
     int homeX, homeY;   // closed-position polyobject origin (start spot)
+    bool areasJoined;   // DOOR-008/009 bookkeeping
 
     const OPENTICS = 300;           // WL_ACT1.C:270
     const FULLOPEN = 0xFFFF;
@@ -58,6 +59,14 @@ class WolfDoor : Actor
     // never drift from the sim position across interrupted cycles.
     int OpenX() { return vertical ? homeX : homeX + SLIDEDIST; }
     int OpenY() { return vertical ? homeY - SLIDEDIST : homeY; }
+
+    // areas on both sides (DOOR-011: vertical x+-1, horizontal y+-1)
+    int, int SideAreas(WolfLevel wl)
+    {
+        if (vertical)
+            return wl.AreaAt(tileX - 1, tileY), wl.AreaAt(tileX + 1, tileY);
+        return wl.AreaAt(tileX, tileY - 1), wl.AreaAt(tileX, tileY + 1);
+    }
 
     // OperateDoor (WL_ACT1.C:498-522)
     void Operate(Actor user)
@@ -97,6 +106,17 @@ class WolfDoor : Actor
         Level.ExecuteSpecial(88, self, null, false,            // Polyobj_MoveTo
                              polyId, MOVESPEED, OpenX(), OpenY());
         doorAction = DR_OPENING;
+        if (!areasJoined)          // just left fully closed: join areas
+        {
+            WolfLevel wl = WolfLevel.Get();
+            if (wl != null)
+            {
+                int a1, a2;
+                [a1, a2] = SideAreas(wl);
+                wl.DoorConnect(a1, a2, 1);
+            }
+            areasJoined = true;
+        }
     }
 
     // CloseDoor checks (WL_ACT1.C:417-460): refuse if blocked
@@ -176,6 +196,17 @@ class WolfDoor : Actor
             {
                 position = 0;
                 doorAction = DR_CLOSED;
+                if (areasJoined)   // fully closed: disconnect areas
+                {
+                    WolfLevel wl = WolfLevel.Get();
+                    if (wl != null)
+                    {
+                        int a1, a2;
+                        [a1, a2] = SideAreas(wl);
+                        wl.DoorConnect(a1, a2, -1);
+                    }
+                    areasJoined = false;
+                }
             }
             break;
         default:

@@ -455,4 +455,21 @@ open=32/autoclose=150/close=32 engine tics (DOOR-001/002 at TIC-001 2:1).
 Format: ID, what Wolf does, what we do instead, why, gameplay-visibility argument.
 Target: zero gameplay-visible entries.
 
-*(empty)*
+- **TIC-002 (cadence):** Wolf runs think functions once per rendered frame with
+  elapsed `tics` (1 at 70 fps, 2 at 35, up to 10). We run DoActor once per
+  engine tic with tics=2 — the canonical 35 fps DOS cadence, fixed. Rolls
+  that scale with tics (e.g. T_Chase `(tics<<4)/dist`) use tics=2.
+  Visibility: identical to the original on period-typical hardware;
+  deterministic, which the replay harness requires.
+- **DEC-001 (CheckLine/CheckSight):** source traces tiles and treats doors
+  with `doorposition < 0x9000` as blocking. We use engine LOS, which the
+  polyobject slabs occlude physically at the matching position.
+  Visibility: near-equivalent; edge = sight through an almost-open door's
+  last 9/16 sliver. Revisit if DOSBox side-by-side shows behavior diffs.
+- **DEC-002 (FL_VISABLE):** source marks actors rendered on screen last
+  frame (renderer coupling). We use player-LOS + 33° half-FOV test.
+  Affects dodge-vs-chase choice and enemy accuracy modifier only.
+- **DEC-003 (pain rotate=2):** CalcRotate's 2-rotation pain split (angle
+  <180 vs >=180) is approximated by engine 8-rotation buckets (rots 1-4 vs
+  5-8) — a 22.5° wedge error at the boundaries. The GRDP B rots 5-8 →
+  SHOOT1 art-layout quirk of the original is preserved verbatim.

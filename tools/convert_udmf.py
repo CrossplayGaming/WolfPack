@@ -381,6 +381,32 @@ def convert(level, ceiling_color):
                  f'angle = {t["angle"]}; {sk} single = true; coop = true; '
                  f'dm = true;{argstr} }}')
 
+    # sim grid lump: solid/door/pushwall map + area codes, parsed by the
+    # ZScript WolfLevel handler (actorat/areaconnect foundation)
+    grid_lines = []
+    for gy in range(64):
+        row = ""
+        for gx in range(64):
+            if (gx, gy) in doortile:
+                row += "D"
+            elif (gx, gy) in pwtile:
+                row += "P"
+            elif wall_code(level, gx, gy) is not None:
+                row += "#"
+            elif (gx, gy) in ambush:
+                row += "a"
+            else:
+                row += "."
+        grid_lines.append(row)
+    grid_lines.append("")  # separator
+    for gy in range(64):
+        row = ""
+        for gx in range(64):
+            a = area[gx][gy]
+            row += "-" if a is None else chr(65 + a)
+        grid_lines.append(row)
+    gridtext = "\n".join(grid_lines) + "\n"
+
     manifest = {
         "areas": areas_used,
         "sector_of_area": sec_of_area,
@@ -395,7 +421,7 @@ def convert(level, ceiling_color):
         "area_grid": [[area[x][y] for y in range(64)] for x in range(64)],
         "ceiling_color": ceiling_color,
     }
-    return "\n".join(L) + "\n", manifest
+    return "\n".join(L) + "\n", manifest, gridtext
 
 
 def main():
@@ -410,10 +436,11 @@ def main():
         for f in sorted(src.glob("MAP*.json")):
             level = json.loads(f.read_text())
             ceiling = ceilings[setname][level["map"]]
-            textmap, manifest = convert(level, ceiling)
+            textmap, manifest, gridtext = convert(level, ceiling)
             stem = f.stem
             (out / f"{stem}.textmap").write_text(textmap)
             (out / f"{stem}.manifest.json").write_text(json.dumps(manifest))
+            (out / f"{stem}.grid.txt").write_text(gridtext)
             total += 1
         print(f"{setname}: converted {len(list(src.glob('MAP*.json')))} maps")
     if not total:

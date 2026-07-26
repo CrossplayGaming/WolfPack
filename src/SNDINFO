@@ -4,3 +4,7 @@
 wolf/dooropen   "sounds/dooropen.wav"
 wolf/doorclose  "sounds/doorclose.wav"
 wolf/pushwall   "sounds/pushwall.wav"
+wolf/halt       "sounds/halt.wav"        // HALTSND digi 0
+wolf/death1     "sounds/death1.wav"      // DEATHSCREAM1 digi 12
+wolf/death2     "sounds/death2.wav"      // DEATHSCREAM2/3 digi 13
+wolf/nazifire   "sounds/nazifire.wav"    // NAZIFIRESND digi 21
