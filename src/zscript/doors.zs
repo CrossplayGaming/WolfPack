@@ -77,7 +77,8 @@ class WolfDoor : Actor
             String need = lock == 1 ? "WolfGoldKey" : "WolfSilverKey";
             if (user == null || user.FindInventory(need) == null)
             {
-                // TODO NOWAYSND (AdLib)
+                if (user != null)
+                    user.A_StartSound("wolf/noway", CHAN_VOICE);
                 if (user && user.player)
                     user.A_Log(lock == 1 ? "You need a gold key"
                                          : "You need a silver key");

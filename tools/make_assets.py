@@ -193,8 +193,30 @@ def main():
             outp.write_bytes(png_set_grab(data, -64, 40))
             nweap += 1
 
+    # music: IMF tracks (short names, <=8 chars)
+    (ASSETS / "music").mkdir()
+    nmus = 0
+    for imf in sorted((ROOT / "build" / "audio" / "wl6" / "music").glob("*.imf")):
+        short = imf.stem.replace("_MUS", "")[:8]
+        shutil.copy(imf, ASSETS / "music" / f"{short}.imf")
+        nmus += 1
+
+    # AdLib SFX (render_adlib.py) referenced by SNDINFO
+    ADLIB = ROOT / "build" / "audio" / "wl6" / "sfx"
+    (ASSETS / "sounds").mkdir(exist_ok=True)
+    adlib_sfx = ["HEALTH1SND", "HEALTH2SND", "GETAMMOSND", "BONUS1SND",
+                 "BONUS2SND", "BONUS3SND", "BONUS4SND", "BONUS1UPSND",
+                 "GETKEYSND", "GETMACHINESND", "GETGATLINGSND", "NOWAYSND",
+                 "ATKKNIFESND", "DOGATTACKSND", "DONOTHINGSND",
+                 "LEVELDONESND", "ENDBONUS1SND", "ENDBONUS2SND",
+                 "PERCENT100SND", "NOBONUSSND", "HITWALLSND"]
+    for n in adlib_sfx:
+        src = ADLIB / f"{n}.wav"
+        if src.exists():
+            shutil.copy(src, ASSETS / "sounds" / f"{n.lower()}.wav")
+
     # digitized sounds referenced by src/SNDINFO (wolfdigimap, WL_MAIN.C:849+)
-    (ASSETS / "sounds").mkdir()
+    (ASSETS / "sounds").mkdir(exist_ok=True)
     for digi, name in ((3, "dooropen"), (2, "doorclose"), (15, "pushwall"),
                        (0, "halt"), (12, "death1"), (13, "death2"),
                        (21, "nazifire"), (5, "pistol"), (4, "machinegun"),

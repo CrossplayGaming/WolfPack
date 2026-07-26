@@ -97,7 +97,11 @@ class WolfPushwall : Actor
         int dx, dy;
         [dx, dy] = DirDelta(d);
         if (maxTravel[d] == 0 || TileOccupied(tileX + dx, tileY + dy))
-            return;                         // NOWAYSND lands with audio pass
+        {
+            if (user != null)
+                user.A_StartSound("wolf/noway", CHAN_VOICE);
+            return;
+        }
 
         WolfLevel wl = WolfLevel.Get();
         if (wl != null)

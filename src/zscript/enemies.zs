@@ -906,6 +906,7 @@ class WolfDog : WolfEnemySim abstract
     override int KillPoints() { return 200; }
     override void SightSound() { A_StartSound("wolf/dogbark", CHAN_VOICE); }
     override void DeathSound() { A_StartSound("wolf/dogdeath", CHAN_VOICE); }
+    override void AttackSound() { A_StartSound("wolf/dogattack", CHAN_WEAPON); }
     override int ReactionTics(WolfLevel wl) { return 1 + wl.RndT() / 8; } // REACT-005
 }
 

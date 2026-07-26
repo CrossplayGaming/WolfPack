@@ -14,3 +14,22 @@ wolf/gatling    "sounds/gatling.wav"     // ATKGATLINGSND digi 6
 wolf/dogbark    "sounds/dogbark.wav"     // DOGBARKSND digi 1
 wolf/dogdeath   "sounds/dogdeath.wav"    // DOGDEATHSND digi 16
 wolf/slurpie    "sounds/slurpie.wav"     // SLURPIESND digi 22
+
+// AdLib SFX rendered offline via OPL2 emulation (tools/render_adlib.py)
+wolf/health1    "sounds/health1snd.wav"
+wolf/health2    "sounds/health2snd.wav"
+wolf/getammo    "sounds/getammosnd.wav"
+wolf/bonus1     "sounds/bonus1snd.wav"
+wolf/bonus2     "sounds/bonus2snd.wav"
+wolf/bonus3     "sounds/bonus3snd.wav"
+wolf/bonus4     "sounds/bonus4snd.wav"
+wolf/bonus1up   "sounds/bonus1upsnd.wav"
+wolf/getkey     "sounds/getkeysnd.wav"
+wolf/getmachine "sounds/getmachinesnd.wav"
+wolf/getgatling "sounds/getgatlingsnd.wav"
+wolf/noway      "sounds/nowaysnd.wav"
+wolf/knife      "sounds/atkknifesnd.wav"
+wolf/dogattack  "sounds/dogattacksnd.wav"
+wolf/donothing  "sounds/donothingsnd.wav"
+wolf/leveldone  "sounds/leveldonesnd.wav"
+wolf/hitwall    "sounds/hitwallsnd.wav"

@@ -70,13 +70,4 @@ defaultmap
     NoFreelook
 }
 
-map MAP01 "Wolf1 Map1"  { levelnum = 1 }
-map MAP02 "Wolf1 Map2"  { levelnum = 2 }
-map MAP03 "Wolf1 Map3"  { levelnum = 3 }
-map MAP04 "Wolf1 Map4"  { levelnum = 4 }
-map MAP05 "Wolf1 Map5"  { levelnum = 5 }
-map MAP06 "Wolf1 Map6"  { levelnum = 6 }
-map MAP07 "Wolf1 Map7"  { levelnum = 7 }
-map MAP08 "Wolf1 Map8"  { levelnum = 8 }
-map MAP09 "Wolf1 Boss"  { levelnum = 9 }
-map MAP10 "Wolf1 Secret" { levelnum = 10 }
+include "mapinfo_maps.txt"

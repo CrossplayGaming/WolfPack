@@ -107,6 +107,7 @@ class WolfWeapon : Weapon abstract
 
 class WolfKnife : WolfWeapon
 {
+    override void AttackSnd() { Owner.A_StartSound("wolf/knife", CHAN_WEAPON); }
     Default
     {
         Weapon.SelectionOrder 4;
