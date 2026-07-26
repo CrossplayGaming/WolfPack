@@ -286,6 +286,34 @@ class WolfEnemySim : Actor abstract
         return d <= 33.0;
     }
 
+    // CheckSight (WL_STATE.C:1187-1240) — NOT plain LOS: area gate, a
+    // 1.5-tile proximity auto-see, a cardinal FACING test (an enemy does
+    // not see the player behind it), then the line trace. The attack code
+    // uses CheckLine instead, which ignores facing.
+    const MINSIGHT = 0x18000;
+
+    bool CheckSight_()
+    {
+        WolfLevel wl = WolfLevel.Get();
+        if (wl == null || !wl.AreaByPlayer(areanumber))
+            return false;
+        if (players[0].mo == null)
+            return false;
+        int dx = PlayerWolfX() - wolfX;
+        int dy = PlayerWolfY() - wolfY;
+        if (dx > -MINSIGHT && dx < MINSIGHT
+            && dy > -MINSIGHT && dy < MINSIGHT)
+            return true;                    // real close: automatic
+        switch (dir)                        // cardinals only, as in source
+        {
+        case 2: if (dy > 0) return false; break;    // north
+        case 0: if (dx < 0) return false; break;    // east
+        case 6: if (dy < 0) return false; break;    // south
+        case 4: if (dx > 0) return false; break;    // west
+        }
+        return CheckLine_();
+    }
+
     bool CheckLine_()
     {
         // CheckLine approximation (DEC-001): engine LOS incl. door slabs
@@ -309,11 +337,11 @@ class WolfEnemySim : Actor abstract
                 return false;
             if (ambushFlag)
             {
-                if (!CheckLine_())
+                if (!CheckSight_())
                     return false;
                 ambushFlag = false;
             }
-            else if (!wl.madenoise && !CheckLine_())
+            else if (!wl.madenoise && !CheckSight_())
                 return false;
             temp2 = ReactionTics(wl);
             return false;
@@ -327,6 +355,9 @@ class WolfEnemySim : Actor abstract
         SightSound();
         SetState_(ChaseState());
         wolfSpeed *= ChaseSpeedMul();
+        if (distance < 0)
+            distance = 0;           // ignore the door opening command
+        waitDoor = null;
         attackMode = true;
         firstAttack = true;
         activeFlag = true;

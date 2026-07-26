@@ -481,3 +481,22 @@ Target: zero gameplay-visible entries.
 |---|---|---|
 | PICK-012 | Gibs (bo_gibs): heal 1 ONLY at health <= 10, SLURPIESND (digi 22) | WL_AGENT.C:770-776 |
 | DEAD-001 | Dog "stand" spawn codes (134-137 + tiers): SpawnStand has no en_dog case â€” dead/broken path in the original; zero uses across all 81 shipped maps (verified against extracted data). Recreation treats them as patrol spawns | WL_ACT2.C:847-907 |
+
+### Sight & alerting (audited 2026-07-26 after a playtest question)
+
+| ID | Item | Value |
+|---|---|---|
+| SIGHT-001 | CheckSight is NOT plain LOS (WL_STATE.C:1187-1240): (a) area must be connected to the player's, (b) within MINSIGHT 0x18000 (1.5 tiles) on BOTH axes sight is automatic regardless of facing, (c) cardinal FACING test — north rejects deltay>0, east deltax<0, south deltay<0, west deltax>0; diagonal facings skip the test entirely, (d) then CheckLine. Used for waking only |
+| SIGHT-002 | CheckLine (no facing test) is what the ATTACK code uses — T_Shoot and T_Chase's fire decision. An awake enemy shoots at a player it is not "facing" per SIGHT-001 |
+| SIGHT-003 | FirstSighting also zeroes a negative `distance` (cancels a pending door-open wait) before setting FL_ATTACKMODE|FL_FIRSTATTACK | WL_STATE.C:1382-1385 |
+
+Wake paths, in full (SightPlayer, WL_STATE.C:1404-1478):
+1. `areabyplayer[areanumber]` gate — no wake through unconnected areas, ever.
+2. FL_AMBUSH actors: sight ONLY (CheckSight), never noise; flag clears on first sight.
+3. Non-ambush actors: `madenoise || CheckSight` — gunfire (player firing, or any
+   DamageActor) wakes anything in the connected area, even facing away.
+4. On the wake tic the actor only STARTS its reaction countdown (REACT-001..006);
+   FirstSighting runs on a later tic when temp2 expires.
+
+Harness: build.py --check asserts an enemy facing away stays asleep with clear LOS and
+wakes once turned toward the player.

@@ -8,3 +8,4 @@ user bool wolf_freelook = false;
 server int wolf_dbg_weapon = 0;
 server int wolf_dbg_forcefire = 0;
 server int wolf_dbg_exit = 0;
+server int wolf_dbg_sight = 0;

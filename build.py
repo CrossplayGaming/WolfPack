@@ -96,13 +96,14 @@ def check():
                              "+set", "wolf_dbg_doortest", "1",
                              "+set", "wolf_dbg_weapon", "1",
                              "+set", "wolf_dbg_forcefire", "1",
+                             "+set", "wolf_dbg_sight", "1",
                              "+map", "MAP01"], cwd=str(ROOT))
     loaded = False
-    for _ in range(60):
+    for _ in range(75):
         time.sleep(1)
         text = LOG.read_text(errors="replace") if LOG.exists() else ""
-        if ("weapon soak: shots=" in text
-                and ("DOORTEST closed" in text or "DOORTEST nodoors" in text)):
+        if ("sight: facing-player" in text
+                and "weapon soak: shots=" in text):
             loaded = True
             time.sleep(1)
             break
@@ -149,6 +150,20 @@ def check():
             print(f"  weapon: {shots} MG shots / {tics} tics - OK")
     elif loaded:
         errors.append("weapon soak never reported")
+
+    # CheckSight facing rule (WL_STATE.C:1210-1231): an enemy must not see
+    # the player behind it, and must wake once turned toward them.
+    away = re.search(r"sight: facing-away attack=(\d)", text)
+    toward = re.search(r"sight: facing-player attack=(\d)", text)
+    if away and toward:
+        if away.group(1) != "0":
+            errors.append("sight: enemy facing AWAY woke (facing test broken)")
+        elif toward.group(1) != "1":
+            errors.append("sight: enemy facing the player did not wake")
+        else:
+            print("  sight: blind behind, wakes when facing - OK")
+    elif loaded and "sight: no usable guard" not in text:
+        errors.append("sight test never reported")
     for line in LOG.read_text(errors="replace").splitlines():
         if any(p.search(line) for p in ERROR_PATTERNS):
             errors.append(line)

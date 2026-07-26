@@ -8,6 +8,7 @@ class WolfDebugHandler : EventHandler
     int phase;
     int t;
     bool found;
+    WolfEnemySim sightEnemy;
     WolfDoor door;
 
     override void WorldTick()
@@ -115,6 +116,60 @@ class WolfDebugHandler : EventHandler
         }
         if (t == 3 || t == 120 || t == 240)
             Console.Printf("WOLFDBG onmap %s t=%d", Level.MapName, t);
+
+        // sight self-test (CheckSight facing rule): park the player 3 tiles
+        // east of a standing guard in the same area. Facing away => must NOT
+        // wake; turned toward the player => must wake.
+        CVar sv = CVar.FindCVar("wolf_dbg_sight");
+        if (sv != null && sv.GetInt() != 0)
+        {
+            if (t == 400 && sightEnemy == null)
+            {
+                WolfLevel wl = WolfLevel.Get();
+                ThinkerIterator it = ThinkerIterator.Create("WolfGuardStand");
+                WolfEnemySim e;
+                while ((e = WolfEnemySim(it.Next())) != null)
+                {
+                    int px = e.tileX + 3, py = e.tileY;
+                    int st; WolfDoor dd;
+                    [st, dd] = wl.TileState(px, py);
+                    if (st != 0 || wl.AreaAt(px, py) != e.areanumber)
+                        continue;
+                    sightEnemy = e;
+                    players[0].mo.SetOrigin((px * 64 + 32,
+                        4096.0 - (py * 64 + 32), 0), false);
+                    e.dir = 4;              // face WEST, player is east
+                    e.temp2 = 0;
+                    e.ambushFlag = false;
+                    e.attackMode = false;   // baseline: asleep
+                    e.activeFlag = false;
+                    e.SetState_(e.StandState());
+                    Console.Printf("WOLFDBG sight: armed at %d,%d "
+                                   "(enemy %d,%d dir=%d atk=%d)",
+                                   px, py, e.tileX, e.tileY, e.dir,
+                                   e.attackMode);
+                    break;
+                }
+                if (sightEnemy == null)
+                    Console.Printf("WOLFDBG sight: no usable guard");
+            }
+            if (t == 405 && sightEnemy != null)
+                Console.Printf("WOLFDBG sight: t45 dir=%d atk=%d sight=%d "
+                               "noise=%d",
+                               sightEnemy.dir, sightEnemy.attackMode,
+                               sightEnemy.CheckSight_(),
+                               WolfLevel.Get().madenoise);
+            if (t == 520 && sightEnemy != null)
+            {
+                Console.Printf("WOLFDBG sight: facing-away attack=%d dir=%d",
+                               sightEnemy.attackMode, sightEnemy.dir);
+                sightEnemy.dir = 0;         // now face EAST, toward player
+                sightEnemy.temp2 = 0;
+            }
+            if (t == 660 && sightEnemy != null)
+                Console.Printf("WOLFDBG sight: facing-player attack=%d",
+                               sightEnemy.attackMode);
+        }
 
         if (phase > 3)
             return;
