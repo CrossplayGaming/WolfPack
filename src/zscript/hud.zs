@@ -73,30 +73,28 @@ class WolfStatusBar : BaseStatusBar
     void DrawMinimal()
     {
         BeginHUD();
-        DrawHudItem("HUDLIFE", 3, 14, false);
+        DrawHudItem("HUDLIFE", 3, 30, false);
         DrawHudItem("HUDMED",
-                    CPlayer.mo == null ? 0 : CPlayer.health, 52, false);
+                    CPlayer.mo == null ? 0 : CPlayer.health, 92, false);
         Inventory am = CPlayer.mo.FindInventory("WolfAmmo");
-        DrawHudItem("HUDAMMO", am == null ? 0 : am.Amount, -14, true);
+        DrawHudItem("HUDAMMO", am == null ? 0 : am.Amount, -30, true);
     }
 
-    void DrawHudItem(String tex, int value, double x, bool fromRight)
+    // one minimal-HUD element: 2x pickup sprite with a 2x keyed-font count
+    // centered beneath, both bottom-anchored. cx = element center x
+    // (negative = from the right edge).
+    void DrawHudItem(String tex, int value, double cx, bool fromRight)
     {
-        TextureID t = TexMan.CheckForTexture(tex, TexMan.Type_Any);
-        Vector2 sz = (24, 24);
-        if (t.IsValid())
-            sz = TexMan.GetScaledSize(t);
         int anchor = fromRight ? DI_SCREEN_RIGHT_BOTTOM : DI_SCREEN_LEFT_BOTTOM;
-        double cx = fromRight ? x - sz.X / 2 : x + sz.X / 2;
-        DrawImage(tex, (fromRight ? x - sz.X : x, -14 - sz.Y),
-                  anchor | DI_ITEM_OFFSETS, 0.72);
+        DrawImage(tex, (cx, -44), anchor | DI_ITEM_CENTER_BOTTOM, 0.72,
+                  scale: (2, 2));
         String s = String.Format("%d", Max(0, value));
-        double tx = cx - s.Length() * 4.0;
+        double tx = cx - s.Length() * 8.0;
         for (int i = 0; i < s.Length(); i++)
         {
-            DrawImage(String.Format("N_%c", s.ByteAt(i)), (tx, -12),
-                      anchor | DI_ITEM_OFFSETS);
-            tx += 8;
+            DrawImage(String.Format("HN_%c", s.ByteAt(i)), (tx, -40),
+                      anchor | DI_ITEM_LEFT_TOP, scale: (2, 2));
+            tx += 16;
         }
     }
 

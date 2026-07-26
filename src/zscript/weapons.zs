@@ -25,6 +25,7 @@ class WolfWeapon : Weapon abstract
     Default
     {
         Weapon.KickBack 0;
+        Weapon.YAdjust 16;          // rest on the screen bottom in fullscreen
         +WEAPON.NOALERT             // sim's madenoise handles alerting
         +WEAPON.DONTBOB
     }

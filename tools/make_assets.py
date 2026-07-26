@@ -140,31 +140,39 @@ def main():
         if not src.exists():
             return
         img = Image.open(src).convert("RGBA")
-        bbox = img.getbbox()
-        img = img.crop(bbox)
+        # shadow/shine removal, pixel-wise: the ground shadows and floating
+        # shine wisps are NEUTRAL mid-grey; item art pixels are colored
+        # (sat > 14) or bright white (sum >= 500). Verified against the
+        # 1-Up / medkit / clip art at 10x.
         pix = img.load()
-        w, h = img.size
-        while h > 1:
-            dark = True
-            any_opaque = False
-            for x in range(w):
-                r, g, b, a = pix[x, h - 1]
-                if a > 0:
-                    any_opaque = True
-                    if r + g + b > 180:
-                        dark = False
-                        break
-            if any_opaque and dark:
-                img = img.crop((0, 0, w, h - 1))
-                pix = img.load()
-                h -= 1
-            else:
-                break
+        for y in range(img.height):
+            for x in range(img.width):
+                r, g, b, a = pix[x, y]
+                if a > 0 and (max(r, g, b) - min(r, g, b)) <= 14 \
+                        and r + g + b < 500:
+                    pix[x, y] = (0, 0, 0, 0)
+        img = img.crop(img.getbbox())
         img.save(ASSETS / "graphics" / f"{lump}.png")
 
     hud_item(35, "HUDLIFE")     # 1-Up (SPR_STAT_33)
     hud_item(27, "HUDMED")      # first aid kit (SPR_STAT_25)
     hud_item(28, "HUDAMMO")     # ammo clip (SPR_STAT_26)
+
+    # minimal-HUD number font: N_ digits with the blue panel keyed out
+    # (digits are white/periwinkle -> r+g high; panel/border blues and
+    # black -> r+g near zero)
+    for i in range(10):
+        p = VGA / f"N_{i}PIC.png"
+        if not p.exists():
+            continue
+        img = Image.open(p).convert("RGBA")
+        pix = img.load()
+        for y in range(img.height):
+            for x in range(img.width):
+                r, g, b, a = pix[x, y]
+                if r + g < 60:
+                    pix[x, y] = (0, 0, 0, 0)
+        img.save(ASSETS / "graphics" / f"HN_{i}.png")
 
     # weapon psprites: VSWAP sprites 416-435 (ready + atk1-4 per weapon),
     # prescaled x3 (Wolf draws the 64x64 shape at full view height).
