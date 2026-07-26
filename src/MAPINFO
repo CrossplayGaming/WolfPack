@@ -38,9 +38,21 @@ skill hard
 
 DoomEdNums
 {
+    // converter turn-arrow order: E,NE,N,NW,W,SW,S,SE (DIR8)
+    21200 = "WolfTurnE"
+    21201 = "WolfTurnNE"
+    21202 = "WolfTurnN"
+    21203 = "WolfTurnNW"
+    21204 = "WolfTurnW"
+    21205 = "WolfTurnSW"
+    21206 = "WolfTurnS"
+    21207 = "WolfTurnSE"
     21210 = "WolfPushwall"
+    21211 = "WolfVictoryTrigger"
     21220 = "WolfDoor"
 }
+
+include "mapinfo_statics.txt"
 
 clearepisodes
 episode MAP01

@@ -22,6 +22,17 @@ VSWAP = ROOT / "build" / "vswap" / "wl6"
 UDMF = ROOT / "build" / "udmf" / "wl6"
 
 
+def png_set_grab(data: bytes, xoff: int, yoff: int) -> bytes:
+    """Insert (or replace) a grAb chunk right after IHDR."""
+    import zlib as _z
+    assert data[:8] == b"\x89PNG\r\n\x1a\n"
+    ihdr_end = 8 + 8 + struct.unpack(">I", data[8:12])[0] + 4
+    payload = struct.pack(">ii", xoff, yoff)
+    grab = (struct.pack(">I", 8) + b"grAb" + payload
+            + struct.pack(">I", _z.crc32(b"grAb" + payload)))
+    return data[:ihdr_end] + grab + data[ihdr_end:]
+
+
 def wrap_wad(mapname: str, textmap: bytes) -> bytes:
     lumps = [(mapname, b""), ("TEXTMAP", textmap), ("ENDMAP", b"")]
     body = b"".join(d for _, d in lumps)
@@ -62,6 +73,24 @@ def main():
     solid_flat(pal, 0x19).save(ASSETS / "flats" / "FLOOR19.png")
     for c in sorted(set(ceilings["wl6"])):
         solid_flat(pal, c).save(ASSETS / "flats" / f"CEIL{c:02X}.png")
+
+    # sprites: statics S000..S0nn (chunk 2 + row sprite, SPR_STAT_0=2 in the
+    # WL6 enum) and the dead guard SDED (chunk 95). grAb origin (32,64):
+    # center-bottom, so the 64x64 canvas spans floor to ceiling like the
+    # original renderer. These override the committed placeholders.
+    (ASSETS / "sprites").mkdir()
+    statrows = json.loads((ROOT / "docs" / "data" / "statinfo.json").read_text())["rows"]
+    wl6rows = [r for r in statrows
+               if r["cond"] in (None, "ifndef SPEAR", "!ifdef SPEAR")]
+    copies = [(2 + r["sprite"], f"S{pos:03d}A0") for pos, r in enumerate(wl6rows)]
+    copies.append((95, "SDEDA0"))
+    nspr = 0
+    for chunk, name in copies:
+        src = VSWAP / "sprites" / f"SPR{chunk:03d}.png"
+        if src.exists():
+            (ASSETS / "sprites" / f"{name}.png").write_bytes(
+                png_set_grab(src.read_bytes(), 32, 64))
+            nspr += 1
 
     # digitized sounds referenced by src/SNDINFO (wolfdigimap, WL_MAIN.C:849+)
     (ASSETS / "sounds").mkdir()
