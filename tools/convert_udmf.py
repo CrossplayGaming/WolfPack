@@ -94,9 +94,11 @@ def area_grid(level):
     return area, ambush, doors
 
 
-def wall_code(level, x, y):
+def wall_code(level, x, y, pwtile=None):
     if not (0 <= x < 64 and 0 <= y < 64):
         return 1
+    if pwtile and (x, y) in pwtile:
+        return None            # pushwall tiles are dynamic (polyobject cube)
     m = level["decoded0"][y * 64 + x]
     return m["code"] if m["kind"] in ("wall", "elevator_switch", "exit_rail") else None
 
@@ -105,14 +107,46 @@ def convert(level, ceiling_color):
     area, ambush, doors = area_grid(level)
     doortile = {(d["x"], d["y"]): i for i, d in enumerate(doors)}
 
+    # pushwalls: plane-1 code 98 on a solid tile. The cube is a 64x64
+    # polyobject parked on its own sector; travel tiles are open floor in
+    # the map data (MovePWalls stops on any nonzero actorat — walls block).
+    dec = level["decoded0"]
+    pushwalls = [{"x": o["x"], "y": o["y"],
+                  "code": dec[o["y"] * 64 + o["x"]]["code"]}
+                 for o in level["objects"] if o["kind"] == "pushwall"]
+    pwset = {(p["x"], p["y"]) for p in pushwalls}
+    for p in pushwalls:
+        # static max travel per push dir (E,N,W,S), capped at 2 (PWALL-001);
+        # parked pushwalls counted solid (they block unless already moved)
+        maxt = []
+        for dx, dy in ((1, 0), (0, -1), (-1, 0), (0, 1)):
+            n = 0
+            for step in (1, 2):
+                tx, ty = p["x"] + dx * step, p["y"] + dy * step
+                if not (0 <= tx < 64 and 0 <= ty < 64):
+                    break
+                m = dec[ty * 64 + tx]
+                if m["kind"] not in ("floor", "ambush_floor"):
+                    break
+                if (tx, ty) in doortile or (tx, ty) in pwset:
+                    break
+                n = step
+            maxt.append(n)
+        p["maxtravel"] = maxt
+    pwtile = {(p["x"], p["y"]): i for i, p in enumerate(pushwalls)}
+
     areas_used = sorted({a for col in area for a in col if a is not None})
     sec_of_area = {a: i for i, a in enumerate(areas_used)}
     sec_of_door = {i: len(areas_used) + i for i in range(len(doors))}
-    stash_sec = len(areas_used) + len(doors)
+    sec_of_pw = {i: len(areas_used) + len(doors) + i
+                 for i in range(len(pushwalls))}
+    stash_sec = len(areas_used) + len(doors) + len(pushwalls)
 
     def tile_sector(x, y):
         if (x, y) in doortile:
             return sec_of_door[doortile[(x, y)]]
+        if (x, y) in pwtile:
+            return sec_of_pw[pwtile[(x, y)]]
         a = area[x][y]
         return None if a is None else sec_of_area[a]
 
@@ -185,7 +219,7 @@ def convert(level, ceiling_color):
                     (x + 1, y, (xb + T, yb + T), (xb + T, yb), False, "east")):
                 if pedge == edge:
                     continue        # emitted by emit_pocket below
-                code = wall_code(level, nx, ny)
+                code = wall_code(level, nx, ny, pwtile)
                 if code is not None:
                     add_line(v1, v2, s, texname(code, horiz, front_is_door))
                 else:
@@ -226,7 +260,7 @@ def convert(level, ceiling_color):
         elif k == "turn":
             thing(o["x"], o["y"], ED_TURN_BASE + DIR8.index(o["dir"]))
         elif k == "pushwall":
-            thing(o["x"], o["y"], ED_PUSHWALL)
+            pass                # emitted with its polyobject below
         elif k == "victory_trigger":
             thing(o["x"], o["y"], ED_VICTORY)
         elif k == "dead_guard":
@@ -283,6 +317,36 @@ def convert(level, ceiling_color):
         d["polyid"] = poid
 
     # ------------------------------------------------------------------
+    # pushwall cubes: 64x64 polyobjects with the tile's own wall pair.
+    # Face ordering matches normal walls (as-authored from every side —
+    # walls have the per-side reversal, DOOR-014 note).
+    # ------------------------------------------------------------------
+    for j, p in enumerate(pushwalls):
+        poid = len(doors) + 1 + j
+        cx, cy = -160, (len(doors) + j) * 128 + 64
+        x1, y1, x2, y2 = cx - 48, cy - 48, cx + 48, cy + 48
+        add_line((x1, y2), (x2, y2), stash_sec, "WALL000")
+        add_line((x2, y2), (x2, y1), stash_sec, "WALL000")
+        add_line((x2, y1), (x1, y1), stash_sec, "WALL000")
+        add_line((x1, y1), (x1, y2), stash_sec, "WALL000")
+
+        h_tex = f"WALL{(p['code'] - 1) * 2:03d}"        # N/S faces
+        v_tex = f"WALL{(p['code'] - 1) * 2 + 1:03d}"    # E/W faces
+        fx1, fy1, fx2, fy2 = cx - 32, cy - 32, cx + 32, cy + 32
+        add_line((fx2, fy2), (fx1, fy2), stash_sec, h_tex,
+                 special=1, arg0=poid)
+        add_line((fx1, fy2), (fx1, fy1), stash_sec, v_tex)
+        add_line((fx1, fy1), (fx2, fy1), stash_sec, h_tex)
+        add_line((fx2, fy1), (fx2, fy2), stash_sec, v_tex)
+
+        center = (p["x"] * T + T // 2, (63 - p["y"]) * T + T // 2)
+        thing(0, 0, ED_POLY_ANCHOR, angle=poid, raw=(cx, cy))
+        thing(0, 0, ED_POLY_START, angle=poid, raw=center)
+        thing(0, 0, ED_PUSHWALL, raw=center,
+              args=[poid] + p["maxtravel"])
+        p["polyid"] = poid
+
+    # ------------------------------------------------------------------
     # emit TEXTMAP
     # ------------------------------------------------------------------
     L = ['namespace = "zdoom";']
@@ -302,7 +366,7 @@ def convert(level, ceiling_color):
         if flipx:
             t += " scalex_mid = -1.0;"
         L.append(f"sidedef {{ sector = {sec};{t} }}")
-    nsec = len(areas_used) + len(doors) + 1
+    nsec = len(areas_used) + len(doors) + len(pushwalls) + 1
     for i in range(nsec):
         L.append(f'sector {{ heightfloor = 0; heightceiling = {T}; '
                  f'texturefloor = "FLOOR19"; textureceiling = "CEIL{ceiling_color:02X}"; '
@@ -325,6 +389,8 @@ def convert(level, ceiling_color):
                        pocket=[d["x"], d["y"] + 1] if d["vertical"]
                               else [d["x"] + 1, d["y"]])
                   for i, d in enumerate(doors)],
+        "pushwalls": [dict(p, sector=sec_of_pw[i])
+                      for i, p in enumerate(pushwalls)],
         "ambush_tiles": sorted(ambush),
         "area_grid": [[area[x][y] for y in range(64)] for x in range(64)],
         "ceiling_color": ceiling_color,

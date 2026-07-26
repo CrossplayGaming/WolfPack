@@ -89,6 +89,8 @@ Blocked-reopen / close-interrupt semantics → batch 2 (read CloseDoor/DoorOpeni
 | PWALL-003 | Concurrency | only one pushwall may move at a time (`if (pwallstate) return`, l. 736) |
 | PWALL-004 | Render position | pwallpos = (state/2) & 63 — 64 sub-tile positions (l. 897) |
 | PWALL-005 | Push start | tile info removed from plane 1; tilemap flagged 0xC0 (l. 788-794) |
+| PWALL-006 | Push refusal: NOWAYSND + no move if the tile beyond the wall (in push dir) has nonzero actorat — walls, doors, parked pushwalls, and actors all block; push dir = player's facing cardinal from Cmd_Use; on success secretcount++, PUSHWALLSND | PushWall l. 732-797 |
+| PWALL-007 | Speed: pwallpos = (state/2)&63 → 0.5 map units per Wolf tic = 1 unit/engine tic; full 2-tile travel = 256 Wolf tics (~3.66 s) | l. 897 |
 
 ### Player combat — `WL_AGENT.C`
 

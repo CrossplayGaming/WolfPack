@@ -97,10 +97,11 @@ class WolfPlayer : DoomPlayer
         int tx = int(pos.x) / 64;
         int ty = 63 - (int(pos.y) / 64);
         int cx = tx, cy = ty;
-        if (a < 45.0 || a >= 315.0)      cx++;          // east
-        else if (a < 135.0)              cy--;          // north
-        else if (a < 225.0)              cx--;          // west
-        else                             cy++;          // south
+        int dir;                                        // 0=E 1=N 2=W 3=S
+        if (a < 45.0 || a >= 315.0)      { cx++; dir = 0; }
+        else if (a < 135.0)              { cy--; dir = 1; }
+        else if (a < 225.0)              { cx--; dir = 2; }
+        else                             { cy++; dir = 3; }
 
         ThinkerIterator it = ThinkerIterator.Create("WolfDoor");
         WolfDoor d;
@@ -109,6 +110,16 @@ class WolfPlayer : DoomPlayer
             if (d.tileX == cx && d.tileY == cy)
             {
                 d.Operate(self);
+                return;
+            }
+        }
+        ThinkerIterator pit = ThinkerIterator.Create("WolfPushwall");
+        WolfPushwall p;
+        while ((p = WolfPushwall(pit.Next())) != null)
+        {
+            if (p.tileX == cx && p.tileY == cy && p.state_ == 0)
+            {
+                p.Push(dir, self);
                 return;
             }
         }

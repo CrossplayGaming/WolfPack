@@ -38,6 +38,7 @@ skill hard
 
 DoomEdNums
 {
+    21210 = "WolfPushwall"
     21220 = "WolfDoor"
 }
 
