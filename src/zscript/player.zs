@@ -9,10 +9,68 @@
 // (knife/pistol/machine gun/chaingun with WEAP-001..005 cadences) lands.
 class WolfPlayer : DoomPlayer
 {
+    // Movement constants, converted per the charter's zero-rounding policy.
+    // Wolf global units: 0x10000/tile; our scale 64 units/tile -> divide 1024.
+    // Per engine tic = 2 Wolf tics (TIC-001).
+    //   walk fwd/strafe: BASEMOVE(35) * MOVESCALE(150) * 2 / 1024   (MOVE-001/002)
+    //   run:             RUNMOVE(70)  * MOVESCALE(150) * 2 / 1024
+    //   backpedal uses BACKMOVESCALE(100): slower going backward.
+    // Wolf adds the forward and strafe thrusts vectorially with NO
+    // normalization — diagonals are faster, as in the original.
+    const WALKMOVE = 10500.0 / 1024.0;   // 10.2539...
+    const RUNMOVE  = 21000.0 / 1024.0;   // 20.5078...
+    const BACKSCALE = 100.0 / 150.0;
+
     Default
     {
         Player.ViewHeight 32;
         Height 56;
         Player.ViewBob 0;       // no view bob, no weapon bob (1992 default)
     }
+
+    // Wolf has ZERO inertia: no acceleration ramp, no glide — velocity is
+    // rebuilt from held input every tic and dropped to zero the moment keys
+    // are released (ControlMovement/Thrust, WL_AGENT.C). Replaces Doom's
+    // momentum physics wholesale.
+    override void MovePlayer()
+    {
+        UserCmd cmd = player.cmd;
+
+        // turning (mouse yaw and keyboard turn arrive premerged in cmd.yaw)
+        if (reactiontime)
+        {
+            reactiontime--;
+        }
+        else
+        {
+            Angle += cmd.yaw * (360.0 / 65536.0);
+        }
+
+        bool running = (cmd.buttons & BT_SPEED);
+        double base = running ? RUNMOVE : WALKMOVE;
+
+        double fwd = 0;
+        if (cmd.forwardmove > 0)      fwd = base;
+        else if (cmd.forwardmove < 0) fwd = -base * BACKSCALE;
+        double side = 0;
+        if (cmd.sidemove > 0)         side = base;
+        else if (cmd.sidemove < 0)    side = -base;
+
+        Vel.XY = (0, 0);
+        if (fwd != 0)  Vel.XY += AngleToVector(Angle, fwd);
+        if (side != 0) Vel.XY += AngleToVector(Angle - 90, side);
+
+        // thrustspeed bookkeeping for enemy accuracy (ECOMBAT-003: player
+        // counts as "running" when thrust >= RUNSPEED 6000 global/Wolf-tic;
+        // walk thrust is 5250, run 10500). Exposed for the Phase 2 sim.
+        bIsRunning = running && (fwd != 0 || side != 0);
+
+        if (fwd != 0 || side != 0)
+        {
+            if (player.playerstate == PST_LIVE)
+                PlayRunning();
+        }
+    }
+
+    bool bIsRunning;
 }
