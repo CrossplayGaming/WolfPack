@@ -33,3 +33,18 @@ wolf/dogattack  "sounds/dogattacksnd.wav"
 wolf/donothing  "sounds/donothingsnd.wav"
 wolf/leveldone  "sounds/leveldonesnd.wav"
 wolf/hitwall    "sounds/hitwallsnd.wav"
+
+// enemy voices (wolfdigimap): guard death cries 1-9, officer, SS, mutant
+wolf/death3     "sounds/death3.wav"      // DEATHSCREAM3 digi 13
+wolf/death4     "sounds/death4.wav"      // DEATHSCREAM4 digi 34
+wolf/death5     "sounds/death5.wav"      // DEATHSCREAM5 digi 35
+wolf/death6     "sounds/death6.wav"      // DEATHSCREAM6 digi 39 (secret gag)
+wolf/death7     "sounds/death7.wav"      // DEATHSCREAM7 digi 40
+wolf/death8     "sounds/death8.wav"      // DEATHSCREAM8 digi 41
+wolf/death9     "sounds/death9.wav"      // DEATHSCREAM9 digi 42
+wolf/spion      "sounds/spion.wav"       // SPIONSND digi 27
+wolf/neinsovas  "sounds/neinsovas.wav"   // NEINSOVASSND digi 28
+wolf/schutzad   "sounds/schutzad.wav"    // SCHUTZADSND digi 7
+wolf/leben      "sounds/leben.wav"       // LEBENSND digi 20
+wolf/ahhhg      "sounds/ahhhg.wav"       // AHHHGSND digi 17
+wolf/ssfire     "sounds/ssfire.wav"      // SSFIRESND digi 11

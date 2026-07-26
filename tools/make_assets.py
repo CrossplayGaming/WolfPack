@@ -221,7 +221,12 @@ def main():
     for digi, name in ((3, "dooropen"), (2, "doorclose"), (15, "pushwall"),
                        (0, "halt"), (12, "death1"), (13, "death2"),
                        (21, "nazifire"), (5, "pistol"), (4, "machinegun"),
-                       (6, "gatling"), (1, "dogbark"), (16, "dogdeath"), (22, "slurpie")):
+                       (6, "gatling"), (1, "dogbark"), (16, "dogdeath"), (22, "slurpie"),
+                       (13, "death3"), (34, "death4"), (35, "death5"),
+                       (39, "death6"), (40, "death7"), (41, "death8"),
+                       (42, "death9"), (27, "spion"), (28, "neinsovas"),
+                       (7, "schutzad"), (20, "leben"), (17, "ahhhg"),
+                       (11, "ssfire")):
         src = VSWAP / "sounds" / f"DIGI{digi:03d}.wav"
         if src.exists():
             shutil.copy(src, ASSETS / "sounds" / f"{name}.wav")

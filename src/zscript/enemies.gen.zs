@@ -5,65 +5,173 @@ class WolfGuardTable
 {
     const GRDSTAND = 0;
     const GRDPATH1 = 1;
-    const GRDPATH1S = 2;
-    const GRDPATH2 = 3;
-    const GRDPATH3 = 4;
-    const GRDPATH3S = 5;
-    const GRDPATH4 = 6;
+    const GRDPATH2 = 2;
+    const GRDPATH3 = 3;
+    const GRDPATH4 = 4;
+    const GRDPATH1S = 5;
+    const GRDPATH3S = 6;
     const GRDPAIN = 7;
     const GRDPAIN1 = 8;
     const GRDSHOOT1 = 9;
     const GRDSHOOT2 = 10;
     const GRDSHOOT3 = 11;
     const GRDCHASE1 = 12;
-    const GRDCHASE1S = 13;
-    const GRDCHASE2 = 14;
-    const GRDCHASE3 = 15;
-    const GRDCHASE3S = 16;
-    const GRDCHASE4 = 17;
+    const GRDCHASE2 = 13;
+    const GRDCHASE3 = 14;
+    const GRDCHASE4 = 15;
+    const GRDCHASE1S = 16;
+    const GRDCHASE3S = 17;
     const GRDDIE1 = 18;
     const GRDDIE2 = 19;
     const GRDDIE3 = 20;
     const GRDDIE4 = 21;
     static const int ROT[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 };
-    static const String SPR[] = { "GRDS", "GRDW", "GRDW", "GRDW", "GRDW", "GRDW", "GRDW", "GRDP", "GRDP", "GRDA", "GRDA", "GRDA", "GRDW", "GRDW", "GRDW", "GRDW", "GRDW", "GRDW", "GRDD", "GRDD", "GRDD", "SDED" };
-    static const int FRM[] = { 0, 0, 0, 1, 2, 2, 3, 0, 1, 0, 1, 2, 0, 0, 1, 2, 2, 3, 0, 1, 2, 0 };
-    static const int TICS[] = { 0, 20, 5, 15, 20, 5, 15, 10, 10, 20, 20, 20, 10, 3, 8, 10, 3, 8, 15, 15, 15, 0 };
-    static const int THINK[] = { 1, 2, 0, 2, 2, 0, 2, 0, 0, 0, 0, 0, 3, 0, 3, 3, 0, 3, 0, 0, 0, 0 };
+    static const String SPR[] = { "GRDS", "GRDW", "GRDW", "GRDW", "GRDW", "GRDW", "GRDW", "GRDP", "GRDP", "GRDA", "GRDA", "GRDA", "GRDW", "GRDW", "GRDW", "GRDW", "GRDW", "GRDW", "GRDD", "GRDD", "GRDD", "GRDD" };
+    static const int FRM[] = { 0, 0, 1, 2, 3, 0, 2, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 2, 0, 1, 2, 3 };
+    static const int TICS[] = { 0, 20, 15, 20, 15, 5, 5, 10, 10, 20, 20, 20, 10, 8, 10, 8, 3, 3, 15, 15, 15, 0 };
+    static const int THINK[] = { 1, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0 };
     static const int ACT[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0 };
-    static const int NEXT[] = { 0, 2, 3, 4, 5, 6, 1, 12, 12, 10, 11, 12, 13, 14, 15, 16, 17, 12, 19, 20, 21, 21 };
+    static const int NEXT[] = { 0, 5, 3, 6, 1, 2, 4, 12, 12, 10, 11, 12, 16, 14, 17, 12, 13, 15, 19, 20, 21, 21 };
 }
 
 class WolfDogTable
 {
     const DOGPATH1 = 0;
-    const DOGPATH1S = 1;
-    const DOGPATH2 = 2;
-    const DOGPATH3 = 3;
-    const DOGPATH3S = 4;
-    const DOGPATH4 = 5;
-    const DOGJUMP1 = 6;
-    const DOGJUMP2 = 7;
-    const DOGJUMP3 = 8;
-    const DOGJUMP4 = 9;
-    const DOGJUMP5 = 10;
-    const DOGCHASE1 = 11;
-    const DOGCHASE1S = 12;
-    const DOGCHASE2 = 13;
-    const DOGCHASE3 = 14;
-    const DOGCHASE3S = 15;
-    const DOGCHASE4 = 16;
-    const DOGDIE1 = 17;
-    const DOGDIE2 = 18;
-    const DOGDIE3 = 19;
-    const DOGDEAD = 20;
-    static const int ROT[] = { 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 };
-    static const String SPR[] = { "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGJ", "DOGJ", "DOGJ", "DOGJ", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGD", "DOGD", "DOGD", "DOGD" };
-    static const int FRM[] = { 0, 0, 1, 2, 2, 3, 0, 1, 2, 0, 0, 0, 0, 1, 2, 2, 3, 0, 1, 2, 3 };
-    static const int TICS[] = { 20, 5, 15, 20, 5, 15, 10, 10, 10, 10, 10, 10, 3, 8, 10, 3, 8, 15, 15, 15, 15 };
-    static const int THINK[] = { 2, 0, 2, 2, 0, 2, 0, 0, 0, 0, 0, 13, 0, 13, 13, 0, 13, 0, 0, 0, 0 };
-    static const int ACT[] = { 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0 };
-    static const int NEXT[] = { 1, 2, 3, 4, 5, 0, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 11, 18, 19, 20, 20 };
+    const DOGPATH2 = 1;
+    const DOGPATH3 = 2;
+    const DOGPATH4 = 3;
+    const DOGPATH1S = 4;
+    const DOGPATH3S = 5;
+    const DOGCHASE1 = 6;
+    const DOGCHASE2 = 7;
+    const DOGCHASE3 = 8;
+    const DOGCHASE4 = 9;
+    const DOGCHASE1S = 10;
+    const DOGCHASE3S = 11;
+    const DOGDIE1 = 12;
+    const DOGDIE2 = 13;
+    const DOGDIE3 = 14;
+    const DOGDEAD = 15;
+    const DOGJUMP1 = 16;
+    const DOGJUMP2 = 17;
+    const DOGJUMP3 = 18;
+    const DOGJUMP4 = 19;
+    const DOGJUMP5 = 20;
+    static const int ROT[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const String SPR[] = { "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGW", "DOGD", "DOGD", "DOGD", "DOGD", "DOGJ", "DOGJ", "DOGJ", "DOGJ", "DOGW" };
+    static const int FRM[] = { 0, 1, 2, 3, 0, 2, 0, 1, 2, 3, 0, 2, 0, 1, 2, 3, 0, 1, 2, 0, 0 };
+    static const int TICS[] = { 20, 15, 20, 15, 5, 5, 10, 8, 10, 8, 3, 3, 15, 15, 15, 15, 10, 10, 10, 10, 10 };
+    static const int THINK[] = { 2, 2, 2, 2, 0, 0, 13, 13, 13, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const int ACT[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 5, 0, 0, 0 };
+    static const int NEXT[] = { 4, 2, 5, 0, 1, 3, 10, 8, 11, 6, 7, 9, 13, 14, 15, 15, 17, 18, 19, 20, 6 };
+}
+
+class WolfOfficerTable
+{
+    const OFCSTAND = 0;
+    const OFCPATH1 = 1;
+    const OFCPATH2 = 2;
+    const OFCPATH3 = 3;
+    const OFCPATH4 = 4;
+    const OFCPATH1S = 5;
+    const OFCPATH3S = 6;
+    const OFCPAIN = 7;
+    const OFCPAIN1 = 8;
+    const OFCSHOOT1 = 9;
+    const OFCSHOOT2 = 10;
+    const OFCSHOOT3 = 11;
+    const OFCCHASE1 = 12;
+    const OFCCHASE2 = 13;
+    const OFCCHASE3 = 14;
+    const OFCCHASE4 = 15;
+    const OFCCHASE1S = 16;
+    const OFCCHASE3S = 17;
+    const OFCDIE1 = 18;
+    const OFCDIE2 = 19;
+    const OFCDIE3 = 20;
+    const OFCDIE4 = 21;
+    const OFCDIE5 = 22;
+    static const int ROT[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
+    static const String SPR[] = { "OFCS", "OFCW", "OFCW", "OFCW", "OFCW", "OFCW", "OFCW", "OFCP", "OFCP", "OFCA", "OFCA", "OFCA", "OFCW", "OFCW", "OFCW", "OFCW", "OFCW", "OFCW", "OFCD", "OFCD", "OFCD", "OFCD", "OFCD" };
+    static const int FRM[] = { 0, 0, 1, 2, 3, 0, 2, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 2, 0, 1, 2, 3, 4 };
+    static const int TICS[] = { 0, 20, 15, 20, 15, 5, 5, 10, 10, 6, 20, 10, 10, 8, 10, 8, 3, 3, 11, 11, 11, 11, 0 };
+    static const int THINK[] = { 1, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0 };
+    static const int ACT[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0 };
+    static const int NEXT[] = { 0, 5, 3, 6, 1, 2, 4, 12, 12, 10, 11, 12, 16, 14, 17, 12, 13, 15, 19, 20, 21, 22, 22 };
+}
+
+class WolfSSTable
+{
+    const SSSTAND = 0;
+    const SSPATH1 = 1;
+    const SSPATH2 = 2;
+    const SSPATH3 = 3;
+    const SSPATH4 = 4;
+    const SSPATH1S = 5;
+    const SSPATH3S = 6;
+    const SSPAIN = 7;
+    const SSPAIN1 = 8;
+    const SSSHOOT1 = 9;
+    const SSSHOOT2 = 10;
+    const SSSHOOT3 = 11;
+    const SSSHOOT4 = 12;
+    const SSSHOOT5 = 13;
+    const SSSHOOT6 = 14;
+    const SSSHOOT7 = 15;
+    const SSSHOOT8 = 16;
+    const SSSHOOT9 = 17;
+    const SSCHASE1 = 18;
+    const SSCHASE2 = 19;
+    const SSCHASE3 = 20;
+    const SSCHASE4 = 21;
+    const SSCHASE1S = 22;
+    const SSCHASE3S = 23;
+    const SSDIE1 = 24;
+    const SSDIE2 = 25;
+    const SSDIE3 = 26;
+    const SSDIE4 = 27;
+    static const int ROT[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 };
+    static const String SPR[] = { "SSGS", "SSGW", "SSGW", "SSGW", "SSGW", "SSGW", "SSGW", "SSGP", "SSGP", "SSGA", "SSGA", "SSGA", "SSGA", "SSGA", "SSGA", "SSGA", "SSGA", "SSGA", "SSGW", "SSGW", "SSGW", "SSGW", "SSGW", "SSGW", "SSGD", "SSGD", "SSGD", "SSGD" };
+    static const int FRM[] = { 0, 0, 1, 2, 3, 0, 2, 0, 1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 0, 1, 2, 3, 0, 2, 0, 1, 2, 3 };
+    static const int TICS[] = { 0, 20, 15, 20, 15, 5, 5, 10, 10, 20, 20, 10, 10, 10, 10, 10, 10, 10, 10, 8, 10, 8, 3, 3, 15, 15, 15, 0 };
+    static const int THINK[] = { 1, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0 };
+    static const int ACT[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 4, 0, 4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0 };
+    static const int NEXT[] = { 0, 5, 3, 6, 1, 2, 4, 18, 18, 10, 11, 12, 13, 14, 15, 16, 17, 18, 22, 20, 23, 18, 19, 21, 25, 26, 27, 27 };
+}
+
+class WolfMutantTable
+{
+    const MUTSTAND = 0;
+    const MUTPATH1 = 1;
+    const MUTPATH2 = 2;
+    const MUTPATH3 = 3;
+    const MUTPATH4 = 4;
+    const MUTPATH1S = 5;
+    const MUTPATH3S = 6;
+    const MUTPAIN = 7;
+    const MUTPAIN1 = 8;
+    const MUTSHOOT1 = 9;
+    const MUTSHOOT2 = 10;
+    const MUTSHOOT3 = 11;
+    const MUTSHOOT4 = 12;
+    const MUTCHASE1 = 13;
+    const MUTCHASE2 = 14;
+    const MUTCHASE3 = 15;
+    const MUTCHASE4 = 16;
+    const MUTCHASE1S = 17;
+    const MUTCHASE3S = 18;
+    const MUTDIE1 = 19;
+    const MUTDIE2 = 20;
+    const MUTDIE3 = 21;
+    const MUTDIE4 = 22;
+    const MUTDIE5 = 23;
+    static const int ROT[] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
+    static const String SPR[] = { "MUTS", "MUTW", "MUTW", "MUTW", "MUTW", "MUTW", "MUTW", "MUTP", "MUTP", "MUTA", "MUTA", "MUTA", "MUTA", "MUTW", "MUTW", "MUTW", "MUTW", "MUTW", "MUTW", "MUTD", "MUTD", "MUTD", "MUTD", "MUTD" };
+    static const int FRM[] = { 0, 0, 1, 2, 3, 0, 2, 0, 1, 0, 1, 2, 3, 0, 1, 2, 3, 0, 2, 0, 1, 2, 3, 4 };
+    static const int TICS[] = { 0, 20, 15, 20, 15, 5, 5, 10, 10, 6, 20, 10, 20, 10, 8, 10, 8, 3, 3, 7, 7, 7, 7, 0 };
+    static const int THINK[] = { 1, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0 };
+    static const int ACT[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0 };
+    static const int NEXT[] = { 0, 5, 3, 6, 1, 2, 4, 13, 13, 10, 11, 12, 13, 17, 15, 18, 13, 14, 16, 20, 21, 22, 23, 23 };
 }
 
 // sprite-name registration only — never entered
@@ -76,11 +184,25 @@ class WolfSpriteRegistry : Actor
         DOGJ ABC -1;
         DOGW ABCD -1;
         GRDA ABC -1;
-        GRDD ABC -1;
+        GRDD ABCD -1;
         GRDP AB -1;
         GRDS A -1;
         GRDW ABCD -1;
-        SDED A -1;
+        MUTA ABCD -1;
+        MUTD ABCDE -1;
+        MUTP AB -1;
+        MUTS A -1;
+        MUTW ABCD -1;
+        OFCA ABC -1;
+        OFCD ABCDE -1;
+        OFCP AB -1;
+        OFCS A -1;
+        OFCW ABCD -1;
+        SSGA ABC -1;
+        SSGD ABCD -1;
+        SSGP AB -1;
+        SSGS A -1;
+        SSGW ABCD -1;
         Stop;
     }
 }

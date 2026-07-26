@@ -65,6 +65,20 @@ class WolfEnemySim : Actor abstract
     virtual void DropItem_() {}
     virtual bool CardinalDiag() { return false; }   // dogs/fake: no doors
     virtual int KillPoints() { return 100; }
+    virtual bool BetterShot() { return false; }     // SS/Hans: dist*2/3
+
+    // A_DeathScream's secret-floor gag (WL_ACT2.C:1063-1080): on the
+    // secret floor a 1-in-256 roll replaces any humanoid death cry.
+    bool SecretScream()
+    {
+        WolfLevel wl = WolfLevel.Get();
+        if (wl == null || ((Level.levelnum - 1) % 10) != 9)
+            return false;
+        if (wl.RndT() != 0)
+            return false;
+        A_StartSound("wolf/death6", CHAN_VOICE);
+        return true;
+    }
 
     // ------------------------------------------------------------------
     int spawnTX, spawnTY;
@@ -668,7 +682,8 @@ class WolfEnemySim : Actor abstract
         int ptx = int(pm.pos.x) / 64;
         int pty = 63 - (int(pm.pos.y) / 64);
         int dist = Max(abs(tileX - ptx), abs(tileY - pty));
-        // SS/Hans dist*2/3 handled by subclass override later
+        if (BetterShot())
+            dist = dist * 2 / 3;            // ECOMBAT-002
         bool running = WolfPlayer(pm) != null && WolfPlayer(pm).bIsRunning;
         bool visible = VisibleToPlayer();
         int hitchance;
@@ -848,9 +863,14 @@ class WolfGuard : WolfEnemySim abstract
     override void SightSound() { A_StartSound("wolf/halt", CHAN_VOICE); }
     override void DeathSound()
     {
+        if (SecretScream())
+            return;
+        // sounds[US_RndT()%8] (WL_ACT2.C:1088-1105)
         WolfLevel wl = WolfLevel.Get();
-        A_StartSound(wl.RndT() < 128 ? "wolf/death1" : "wolf/death2",
-                     CHAN_VOICE);
+        static const String CRIES[] = { "wolf/death1", "wolf/death2",
+            "wolf/death3", "wolf/death4", "wolf/death5", "wolf/death7",
+            "wolf/death8", "wolf/death9" };
+        A_StartSound(CRIES[wl.RndT() % 8], CHAN_VOICE);
     }
     override void AttackSound() { A_StartSound("wolf/nazifire", CHAN_WEAPON); }
     override void DropItem_() { PlaceDrop("WolfStatic48"); }   // bo_clip2
@@ -905,7 +925,11 @@ class WolfDog : WolfEnemySim abstract
     override bool CardinalDiag() { return true; }    // CHASE-003
     override int KillPoints() { return 200; }
     override void SightSound() { A_StartSound("wolf/dogbark", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("wolf/dogdeath", CHAN_VOICE); }
+    override void DeathSound()
+    {
+        if (!SecretScream())
+            A_StartSound("wolf/dogdeath", CHAN_VOICE);
+    }
     override void AttackSound() { A_StartSound("wolf/dogattack", CHAN_WEAPON); }
     override int ReactionTics(WolfLevel wl) { return 1 + wl.RndT() / 8; } // REACT-005
 }

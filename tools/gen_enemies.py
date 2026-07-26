@@ -27,64 +27,83 @@ THINKS = {"None": 0, "T_Stand": 1, "T_Path": 2, "T_Chase": 3, "T_Shoot": 4,
           "T_Bite": 5, "A_DeathScream": 10, "A_StartDeathCam": 11,
           "T_Ghosts": 12, "T_DogChase": 13, "A_HitlerMorph": 14}
 
+# Sprite naming is mechanical across every enemy: the source's SPR_<X>_<suffix>
+# suffixes map to a 3-char base + category letter (S stand, W walk, P pain,
+# A attack, D die/dead, J jump) with frames in suffix order.
 ENEMIES = {
-    "Guard": {
-        "table": "WolfGuardTable",
-        # SPR_* -> (doom sprite, frame char, kind: rot8|flat|pain)
-        "sprites": {
-            "SPR_GRD_S_1":    ("GRDS", "A", "rot8"),
-            "SPR_GRD_W1_1":   ("GRDW", "A", "rot8"),
-            "SPR_GRD_W2_1":   ("GRDW", "B", "rot8"),
-            "SPR_GRD_W3_1":   ("GRDW", "C", "rot8"),
-            "SPR_GRD_W4_1":   ("GRDW", "D", "rot8"),
-            "SPR_GRD_PAIN_1": ("GRDP", "A", "pain"),
-            "SPR_GRD_PAIN_2": ("GRDP", "B", "pain"),
-            "SPR_GRD_DIE_1":  ("GRDD", "A", "flat"),
-            "SPR_GRD_DIE_2":  ("GRDD", "B", "flat"),
-            "SPR_GRD_DIE_3":  ("GRDD", "C", "flat"),
-            "SPR_GRD_DEAD":   ("SDED", "A", "flat"),
-            "SPR_GRD_SHOOT1": ("GRDA", "A", "flat"),
-            "SPR_GRD_SHOOT2": ("GRDA", "B", "flat"),
-            "SPR_GRD_SHOOT3": ("GRDA", "C", "flat"),
-        },
-        "states": ["s_grdstand",
-                   "s_grdpath1", "s_grdpath1s", "s_grdpath2", "s_grdpath3",
-                   "s_grdpath3s", "s_grdpath4",
-                   "s_grdpain", "s_grdpain1",
-                   "s_grdshoot1", "s_grdshoot2", "s_grdshoot3",
-                   "s_grdchase1", "s_grdchase1s", "s_grdchase2",
-                   "s_grdchase3", "s_grdchase3s", "s_grdchase4",
-                   "s_grddie1", "s_grddie2", "s_grddie3", "s_grddie4"],
-    },
-    "Dog": {
-        "table": "WolfDogTable",
-        "sprites": {
-            "SPR_DOG_W1_1":  ("DOGW", "A", "rot8"),
-            "SPR_DOG_W2_1":  ("DOGW", "B", "rot8"),
-            "SPR_DOG_W3_1":  ("DOGW", "C", "rot8"),
-            "SPR_DOG_W4_1":  ("DOGW", "D", "rot8"),
-            "SPR_DOG_JUMP1": ("DOGJ", "A", "flat"),
-            "SPR_DOG_JUMP2": ("DOGJ", "B", "flat"),
-            "SPR_DOG_JUMP3": ("DOGJ", "C", "flat"),
-            "SPR_DOG_DIE_1": ("DOGD", "A", "flat"),
-            "SPR_DOG_DIE_2": ("DOGD", "B", "flat"),
-            "SPR_DOG_DIE_3": ("DOGD", "C", "flat"),
-            "SPR_DOG_DEAD":  ("DOGD", "D", "flat"),
-        },
-        "states": ["s_dogpath1", "s_dogpath1s", "s_dogpath2", "s_dogpath3",
-                   "s_dogpath3s", "s_dogpath4",
-                   "s_dogjump1", "s_dogjump2", "s_dogjump3", "s_dogjump4",
-                   "s_dogjump5",
-                   "s_dogchase1", "s_dogchase1s", "s_dogchase2",
-                   "s_dogchase3", "s_dogchase3s", "s_dogchase4",
-                   "s_dogdie1", "s_dogdie2", "s_dogdie3", "s_dogdead"],
-    },
+    "Guard":   {"table": "WolfGuardTable", "prefix": "SPR_GRD_", "base": "GRD"},
+    "Dog":     {"table": "WolfDogTable",   "prefix": "SPR_DOG_", "base": "DOG"},
+    "Officer": {"table": "WolfOfficerTable", "prefix": "SPR_OFC_", "base": "OFC"},
+    "SS":      {"table": "WolfSSTable",    "prefix": "SPR_SS_",  "base": "SSG"},
+    "Mutant":  {"table": "WolfMutantTable", "prefix": "SPR_MUT_", "base": "MUT"},
 }
+STATE_PREFIX = {"Guard": "s_grd", "Dog": "s_dog", "Officer": "s_ofc",
+                "SS": "s_ss", "Mutant": "s_mut"}
+# state order per enemy: stand, path, pain, shoot, chase, die (source order)
+# NOTE: "dead" is its own group - the dog's final state is s_dogdead,
+# not s_dogdie4, and omitting it truncated the death chain.
+STATE_ORDER = ["stand", "path", "pain", "shoot", "chase", "die",
+               "dead", "jump"]
+
+
+def classify(suffix, seen):
+    """SPR suffix -> (category letter, frame index). seen tracks per-category
+    ordering so frames follow the source's numbering."""
+    if suffix == "S_1":
+        return "S", 0, "rot8"
+    m = re.match(r"W(\d)_1$", suffix)
+    if m:
+        return "W", int(m.group(1)) - 1, "rot8"
+    m = re.match(r"PAIN_(\d)$", suffix)
+    if m:
+        return "P", int(m.group(1)) - 1, "pain"
+    m = re.match(r"SHOOT(\d)$", suffix)
+    if m:
+        return "A", int(m.group(1)) - 1, "flat"
+    m = re.match(r"JUMP(\d)$", suffix)
+    if m:
+        return "J", int(m.group(1)) - 1, "flat"
+    m = re.match(r"DIE_(\d)$", suffix)
+    if m:
+        return "D", int(m.group(1)) - 1, "flat"
+    if suffix == "DEAD":
+        return "D", seen.get("D", 0), "flat"
+    raise SystemExit(f"unclassified sprite suffix: {suffix}")
+
+
+def build_enemy_cfg(name, cfg, states):
+    """Derive the state list (source order) and sprite map for one enemy."""
+    pre = STATE_PREFIX[name]
+    ordered = []
+    for group in STATE_ORDER:
+        g = sorted([n for n in states
+                    if n.startswith(pre + group)],
+                   key=lambda n: (len(n), n))
+        ordered += g
+    if not ordered:
+        raise SystemExit(f"no states for {name}")
+    sprites, seen = {}, {}
+    for n in ordered:
+        spr = states[n]["sprite"]
+        if spr in sprites:
+            continue
+        suffix = spr[len(cfg["prefix"]):]
+        cat, idx, kind = classify(suffix, seen)
+        seen[cat] = max(seen.get(cat, 0), idx + 1)
+        sprites[spr] = (cfg["base"] + cat, chr(65 + idx), kind)
+    return ordered, sprites
+
 
 DOOMEDS = ['    21001 = "WolfGuardStand"',
            '    21002 = "WolfGuardPatrol"',
+           '    21003 = "WolfOfficerStand"',
+           '    21004 = "WolfOfficerPatrol"',
+           '    21005 = "WolfSSStand"',
+           '    21006 = "WolfSSPatrol"',
            '    21007 = "WolfDogStand"',
-           '    21008 = "WolfDogPatrol"']
+           '    21008 = "WolfDogPatrol"',
+           '    21009 = "WolfMutantStand"',
+           '    21010 = "WolfMutantPatrol"']
 
 
 def sprite_enum():
@@ -137,7 +156,8 @@ def main():
     regs = {}       # per enemy: sprite name -> set of frame chars (for zs regs)
 
     for ename, cfg in ENEMIES.items():
-        state_list = cfg["states"]
+        state_list, cfg_sprites = build_enemy_cfg(ename, cfg, states)
+        cfg = dict(cfg, sprites=cfg_sprites, states=state_list)
         idx_of = {n: i for i, n in enumerate(state_list)}
         rot_l, spr_l, frm_l, tic_l, thk_l, act_l, nxt_l = ([] for _ in range(7))
         consts = []

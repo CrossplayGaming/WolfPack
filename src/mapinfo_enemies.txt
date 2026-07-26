@@ -3,6 +3,12 @@ DoomEdNums
 {
     21001 = "WolfGuardStand"
     21002 = "WolfGuardPatrol"
+    21003 = "WolfOfficerStand"
+    21004 = "WolfOfficerPatrol"
+    21005 = "WolfSSStand"
+    21006 = "WolfSSPatrol"
     21007 = "WolfDogStand"
     21008 = "WolfDogPatrol"
+    21009 = "WolfMutantStand"
+    21010 = "WolfMutantPatrol"
 }
