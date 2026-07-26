@@ -1,0 +1,397 @@
+{
+ "rows": [
+  {
+   "index": 0,
+   "sprite": 0,
+   "class": "dressing",
+   "comment": "puddle          spr1v",
+   "cond": null
+  },
+  {
+   "index": 1,
+   "sprite": 1,
+   "class": "block",
+   "comment": "Green Barrel    \"",
+   "cond": null
+  },
+  {
+   "index": 2,
+   "sprite": 2,
+   "class": "block",
+   "comment": "Table/chairs    \"",
+   "cond": null
+  },
+  {
+   "index": 3,
+   "sprite": 3,
+   "class": "block",
+   "comment": "Floor lamp      \"",
+   "cond": null
+  },
+  {
+   "index": 4,
+   "sprite": 4,
+   "class": "dressing",
+   "comment": "Chandelier      \"",
+   "cond": null
+  },
+  {
+   "index": 5,
+   "sprite": 5,
+   "class": "block",
+   "comment": "Hanged man      \"",
+   "cond": null
+  },
+  {
+   "index": 6,
+   "sprite": 6,
+   "class": "bo_alpo",
+   "comment": "Bad food        \"",
+   "cond": null
+  },
+  {
+   "index": 7,
+   "sprite": 7,
+   "class": "block",
+   "comment": "Red pillar      \"",
+   "cond": null
+  },
+  {
+   "index": 8,
+   "sprite": 8,
+   "class": "block",
+   "comment": "Tree            spr2v",
+   "cond": null
+  },
+  {
+   "index": 9,
+   "sprite": 9,
+   "class": "dressing",
+   "comment": "Skeleton flat   \"",
+   "cond": null
+  },
+  {
+   "index": 10,
+   "sprite": 10,
+   "class": "block",
+   "comment": "Sink            \" (SOD:gibs)",
+   "cond": null
+  },
+  {
+   "index": 11,
+   "sprite": 11,
+   "class": "block",
+   "comment": "Potted plant    \"",
+   "cond": null
+  },
+  {
+   "index": 12,
+   "sprite": 12,
+   "class": "block",
+   "comment": "Urn             \"",
+   "cond": null
+  },
+  {
+   "index": 13,
+   "sprite": 13,
+   "class": "block",
+   "comment": "Bare table      \"",
+   "cond": null
+  },
+  {
+   "index": 14,
+   "sprite": 14,
+   "class": "dressing",
+   "comment": "Ceiling light   \"",
+   "cond": null
+  },
+  {
+   "index": 15,
+   "sprite": 15,
+   "class": "dressing",
+   "comment": "Kitchen stuff   \"",
+   "cond": "ifndef SPEAR"
+  },
+  {
+   "index": 16,
+   "sprite": 15,
+   "class": "block",
+   "comment": "Gibs!",
+   "cond": "!ifndef SPEAR"
+  },
+  {
+   "index": 17,
+   "sprite": 16,
+   "class": "block",
+   "comment": "suit of armor   spr3v",
+   "cond": null
+  },
+  {
+   "index": 18,
+   "sprite": 17,
+   "class": "block",
+   "comment": "Hanging cage    \"",
+   "cond": null
+  },
+  {
+   "index": 19,
+   "sprite": 18,
+   "class": "block",
+   "comment": "SkeletoninCage  \"",
+   "cond": null
+  },
+  {
+   "index": 20,
+   "sprite": 19,
+   "class": "dressing",
+   "comment": "Skeleton relax  \"",
+   "cond": null
+  },
+  {
+   "index": 21,
+   "sprite": 20,
+   "class": "bo_key1",
+   "comment": "Key 1           \"",
+   "cond": null
+  },
+  {
+   "index": 22,
+   "sprite": 21,
+   "class": "bo_key2",
+   "comment": "Key 2           \"",
+   "cond": null
+  },
+  {
+   "index": 23,
+   "sprite": 22,
+   "class": "block",
+   "comment": "stuff\t\t\t\t(SOD:gibs)",
+   "cond": null
+  },
+  {
+   "index": 24,
+   "sprite": 23,
+   "class": "dressing",
+   "comment": "stuff",
+   "cond": null
+  },
+  {
+   "index": 25,
+   "sprite": 24,
+   "class": "bo_food",
+   "comment": "Good food       spr4v",
+   "cond": null
+  },
+  {
+   "index": 26,
+   "sprite": 25,
+   "class": "bo_firstaid",
+   "comment": "First aid       \"",
+   "cond": null
+  },
+  {
+   "index": 27,
+   "sprite": 26,
+   "class": "bo_clip",
+   "comment": "Clip            \"",
+   "cond": null
+  },
+  {
+   "index": 28,
+   "sprite": 27,
+   "class": "bo_machinegun",
+   "comment": "Machine gun     \"",
+   "cond": null
+  },
+  {
+   "index": 29,
+   "sprite": 28,
+   "class": "bo_chaingun",
+   "comment": "Gatling gun     \"",
+   "cond": null
+  },
+  {
+   "index": 30,
+   "sprite": 29,
+   "class": "bo_cross",
+   "comment": "Cross           \"",
+   "cond": null
+  },
+  {
+   "index": 31,
+   "sprite": 30,
+   "class": "bo_chalice",
+   "comment": "Chalice         \"",
+   "cond": null
+  },
+  {
+   "index": 32,
+   "sprite": 31,
+   "class": "bo_bible",
+   "comment": "Bible           \"",
+   "cond": null
+  },
+  {
+   "index": 33,
+   "sprite": 32,
+   "class": "bo_crown",
+   "comment": "crown           spr5v",
+   "cond": null
+  },
+  {
+   "index": 34,
+   "sprite": 33,
+   "class": "bo_fullheal",
+   "comment": "one up          \"",
+   "cond": null
+  },
+  {
+   "index": 35,
+   "sprite": 34,
+   "class": "bo_gibs",
+   "comment": "gibs            \"",
+   "cond": null
+  },
+  {
+   "index": 36,
+   "sprite": 35,
+   "class": "block",
+   "comment": "barrel          \"",
+   "cond": null
+  },
+  {
+   "index": 37,
+   "sprite": 36,
+   "class": "block",
+   "comment": "well            \"",
+   "cond": null
+  },
+  {
+   "index": 38,
+   "sprite": 37,
+   "class": "block",
+   "comment": "Empty well      \"",
+   "cond": null
+  },
+  {
+   "index": 39,
+   "sprite": 38,
+   "class": "bo_gibs",
+   "comment": "Gibs 2          \"",
+   "cond": null
+  },
+  {
+   "index": 40,
+   "sprite": 39,
+   "class": "block",
+   "comment": "flag\t\t\t\t\"",
+   "cond": null
+  },
+  {
+   "index": 41,
+   "sprite": 40,
+   "class": "block",
+   "comment": "Call Apogee\t\tspr7v",
+   "cond": "ifndef SPEAR"
+  },
+  {
+   "index": 42,
+   "sprite": 40,
+   "class": "dressing",
+   "comment": "Red light",
+   "cond": "!ifndef SPEAR"
+  },
+  {
+   "index": 43,
+   "sprite": 41,
+   "class": "dressing",
+   "comment": "junk            \"",
+   "cond": null
+  },
+  {
+   "index": 44,
+   "sprite": 42,
+   "class": "dressing",
+   "comment": "junk \t\t   \"",
+   "cond": null
+  },
+  {
+   "index": 45,
+   "sprite": 43,
+   "class": "dressing",
+   "comment": "junk            \"",
+   "cond": null
+  },
+  {
+   "index": 46,
+   "sprite": 44,
+   "class": "dressing",
+   "comment": "pots            \"",
+   "cond": "ifndef SPEAR"
+  },
+  {
+   "index": 47,
+   "sprite": 44,
+   "class": "block",
+   "comment": "Gibs!",
+   "cond": "!ifndef SPEAR"
+  },
+  {
+   "index": 48,
+   "sprite": 45,
+   "class": "block",
+   "comment": "stove           \" (SOD:gibs)",
+   "cond": null
+  },
+  {
+   "index": 49,
+   "sprite": 46,
+   "class": "block",
+   "comment": "spears          \" (SOD:gibs)",
+   "cond": null
+  },
+  {
+   "index": 50,
+   "sprite": 47,
+   "class": "dressing",
+   "comment": "vines\t\t\t\"",
+   "cond": null
+  },
+  {
+   "index": 51,
+   "sprite": 48,
+   "class": "block",
+   "comment": "marble pillar",
+   "cond": "ifdef SPEAR"
+  },
+  {
+   "index": 52,
+   "sprite": 49,
+   "class": "bo_25clip",
+   "comment": "bonus 25 clip",
+   "cond": "ifdef SPEAR"
+  },
+  {
+   "index": 53,
+   "sprite": 50,
+   "class": "block",
+   "comment": "truck",
+   "cond": "ifdef SPEAR"
+  },
+  {
+   "index": 54,
+   "sprite": 51,
+   "class": "bo_spear",
+   "comment": "SPEAR OF DESTINY!",
+   "cond": "ifdef SPEAR"
+  },
+  {
+   "index": 55,
+   "sprite": 26,
+   "class": "bo_clip2",
+   "comment": "Clip            \"",
+   "cond": null
+  }
+ ],
+ "note": "class: dressing=walk-through, block=solid (actorat=1; blocks movement not sight/shots), bo_*=pickup. Map object code = 23+index (MAP-002). Conditional rows share an index across builds."
+}

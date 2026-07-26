@@ -325,28 +325,102 @@ Converter ports this table mechanically from the source rows (assertion per row:
 Blocking statics write `actorat = 1` (SpawnStatic l. 146-152) — they block movement but not
 sight/shots.
 
-## Open [VERIFY] items — batch 3 queue
+## Constants inventory — RESOLVED (batch 3, 2026-07-26)
 
-- Chase pathing: T_Chase direction selection, SelectChaseDir/SelectDodgeDir, dodge logic,
-  enemy door-open in chase — WL_ACT2.C / WL_STATE.C.
-- Door area-join exact bookkeeping (areaconnect increments on open/close edges) — WL_ACT1.C
-  DoorOpen/DoorOpening/DoorClosing.
-- Player collision: ClipMove/TryMove, corner slide, PLAYERSIZE/MINDIST — WL_AGENT.C/WL_PLAY.C.
-- Elevator switch flip, secret-elevator routing (ElevatorBackTo table, WL_GAME.C:39),
-  level-exit flow — WL_AGENT.C Cmd_Use / WL_GAME.C.
-- Boss key drops, Mecha→real Hitler two-phase handoff, A_HitlerMorph — WL_ACT2.C.
-- DeathCam sequence — WL_GAME.C/WL_ACT2.C A_StartDeathCam.
-- Ghost movement (noclip specifics) — T_Ghosts.
-- Treasure point values (cross/chalice/bible/crown) — WL_AGENT.C GetBonus.
-- GiveAmmo/GiveWeapon exact semantics (same-weapon pickup ammo) — WL_AGENT.C.
-- Status-bar face: look interval, blood thresholds, gatling grin trigger, god face — WL_PLAY.C
-  UpdateFace / WL_AGENT.C.
-- Episode-end sequences, BJ victory run (victoryflag path), text screens — WL_TEXT.C/WL_GAME.C.
-- Per-level floor/ceiling color table — WL_GAME.C (or VGAGRAPH data).
-- Menu structure/cheats (MLI etc.) — WL_MENU.C, WL_DEBUG.C.
-- Rndtable 256 values dump into charter data file.
-- Full statinfo row-by-row dump (BLOCK-000…047) incl. SoD variants.
-- SoD deltas pass (par times, ceiling colors, boss flow, 21-floor routing).
+### Chase pathing — `WL_STATE.C` TryWalk (l. 181-333), SelectChaseDir (l. 475-570), SelectDodgeDir (l. 359-443); `WL_ACT2.C` T_Chase (l. 3069-3195)
+
+| ID | Item | Value |
+|---|---|---|
+| CHASE-001 | actorat encoding | <128 wall, 128–255 door (`doornum = value&63`), ≥256 actor ptr (blocks if FL_SHOOTABLE) |
+| CHASE-002 | Cardinal moves may pass doors (CHECKSIDE); diagonals never (CHECKDIAG) | WL_STATE.C:153-177 |
+| CHASE-003 | **Dogs and Fake Hitler use CHECKDIAG on cardinals too → cannot open doors** | WL_STATE.C:233,253,273,293 |
+| CHASE-004 | Door in path: OpenDoor + `distance = -doornum-1`; actor waits until dr_open | TryWalk l. 318-323, T_Chase l. 3158-3166 |
+| CHASE-005 | Attack roll per think: point-blank (dist 0, or dist 1 closing <0x4000) chance=300 (certain, RndT max 255); else chance=(tics<<4)/dist | T_Chase l. 3084-3089 |
+| CHASE-006 | Dodge: when player visible but attack not rolled → SelectDodgeDir (5 prefs: diagonal-toward-player first, randomized axes), else SelectChaseDir (Pac-Man-style: primary axis toward player, secondary, old dir, random sweep, turnaround last) | l. 3140-3152; WL_STATE.C |
+| CHASE-007 | Turnaround forbidden except: dodge first-attack (FL_FIRSTATTACK) or last resort | SelectDodgeDir l. 366-376 |
+| CHASE-008 | On reaching tile: position snapped to tile center (round-off fix) | T_Chase l. 3179-3183 |
+| CHASE-009 | Spawn ticcount randomized `US_RndT() % tictime` (desyncs animations) | SpawnNewObj WL_STATE.C:85-88 |
+
+### Door area bookkeeping — `WL_ACT1.C` DoorOpening (l. 554-600), DoorClosing (l. 617-672)
+
+| ID | Item | Value |
+|---|---|---|
+| DOOR-008 | On open start (position 0): both `areaconnect[a][b]++` directions, then ConnectAreas flood | l. 560-585 |
+| DOOR-009 | On fully closed: both decremented, ConnectAreas re-flood | l. 640-668 |
+| DOOR-010 | Closing aborts → reopen if anything inside door tile or player on it | l. 627-632 |
+| DOOR-011 | Areas read from map plane 0 on both sides of door (vertical: x±1; horizontal: y±1) | l. 566-580 |
+
+### Player collision — `WL_AGENT.C` TryMove (l. 801-854), ClipMove (l. 866-897)
+
+| ID | Item | Value |
+|---|---|---|
+| COLL-001 | Player radius PLAYERSIZE = MINDIST = 0x5800 | WL_DEF.H:88,115 |
+| COLL-002 | Wall test: all tiles overlapped by the PLAYERSIZE box; wall = actorat value below objlist ptr range | TryMove l. 807-822 |
+| COLL-003 | Actor test: 1-tile-expanded box; blocked if within MINACTORDIST (0x10000) per axis of any FL_SHOOTABLE actor | l. 826-851 |
+| COLL-004 | Corner slide: try (x+y), then x-only, then y-only, else stay; HITWALLSND on first block | ClipMove l. 872-897 |
+
+### Level exit / elevators — `WL_AGENT.C` Cmd_Use (l. 1008-1080)
+
+| ID | Item | Value |
+|---|---|---|
+| EXIT-001 | Use scans one tile in facing cardinal (angle octant test) | l. 1018-1044 |
+| EXIT-002 | **Elevator switch only works facing east or west** (elevatorok) | l. 1023,1037 |
+| EXIT-003 | Switch flip = `tilemap[x][y]++` (next wall texture) | l. 1062 |
+| EXIT-004 | Secret exit: player standing on floor code 107 (ALTELEVATORTILE) → ex_secretlevel, else ex_completed | l. 1063-1066 |
+| EXIT-005 | Secret-floor return map: ElevatorBackTo[] = {1,1,7,3,5,3} per episode | WL_GAME.C:39 |
+| EXIT-006 | Pushwall trigger: Use on tile whose plane-1 code is 98 | l. 1047-1054 |
+
+### Bosses — `WL_STATE.C` KillActor (l. 855-940), `WL_ACT2.C`
+
+| ID | Item | Value |
+|---|---|---|
+| BOSS-001 | Points: all bosses 5000 except Fake Hitler 2000, Spectre 200 | KillActor |
+| BOSS-002 | Key drops (bo_key1): Hans, Gretel; SoD: Trans, Uber, Will, Death Knight | KillActor |
+| BOSS-003 | DeathCam bosses record killx/killy = player position at kill: Gift, Fat, Schabbs, Real Hitler | KillActor |
+| BOSS-004 | Mecha→Hitler: A_HitlerMorph spawns realhitlerobj at same tile, HP {500,700,800,900} by difficulty, speed SPDPATROL×5, inherits dir/distance/flags | WL_ACT2.C:2886-2903 |
+| BOSS-005 | DeathCam: fizzle to color 127, "let's see that again", camera at killx/killy aimed at boss, backed off 0x14000 stepping until clear, replays death anim; second call (victoryflag) → ex_victorious | A_StartDeathCam WL_ACT2.C:3765-3860 |
+
+### Pickups: treasure/weapons/keys — `WL_AGENT.C` GetBonus (l. 679-744), GiveWeapon (l. 581-590)
+
+| ID | Item | Value |
+|---|---|---|
+| PICK-008 | Treasure: cross 100, chalice 500, bible 1000, crown 5000 (all treasurecount++) |
+| PICK-009 | Weapon pickup: **GiveWeapon = +6 ammo** + upgrade if better; same/lesser weapon → just the 6 ammo |
+| PICK-010 | Chaingun pickup: gatling grin (StatusDrawPic slot, facecount=0, gotgatgun=1) | l. 737-744 |
+| PICK-011 | Keys: bo_key1..4 → bit in gamestate.keys | l. 679-685 |
+
+### Status face — `WL_AGENT.C` UpdateFace (l. 307-323), DrawFace (l. 270-290)
+
+| ID | Item | Value |
+|---|---|---|
+| FACE-001 | Look-around: facecount += tics; when facecount > US_RndT() → faceframe = RndT>>6 (0-3; 3 remapped to 1), reset |
+| FACE-002 | Health bands: pic = FACE1APIC + 3·((100−health)/16) + frame → 7 blood stages |
+| FACE-003 | Dead: FACE8APIC; killed by Schabbs needle → MUTANTBJPIC; SoD god mode → GODMODEFACE |
+| FACE-004 | Suppressed while chaingun-pickup sound playing | UpdateFace l. 310-311 |
+
+### Data tables — extracted verbatim to `docs/data/` (tools/dump_charter_tables.py)
+
+| ID | Table | File |
+|---|---|---|
+| DATA-001 | rndtable, 256 entries | rndtable.json |
+| DATA-002 | vgaCeiling: 60 WL6 + 21 SoD per-level ceiling colors; floor fixed 0x19 | ceiling_colors.json |
+| DATA-003 | parTimes: 60 WL6 + 20 SoD (bosses/secrets par 0 = "??:??", no par bonus) | par_times.json |
+| DATA-004 | statinfo: 56 rows (incl. SoD conditionals) with block/dressing/pickup class | statinfo.json |
+
+## Open [VERIFY] items — batch 4 queue
+
+- Ghost movement specifics (T_Ghosts uses SelectChaseDir but which blocking rules? noclip
+  claim needs verification against CHECKDIAG path) — WL_ACT2.C:3200-3260.
+- T_Stand / T_DogChase deltas from T_Chase (dog must be adjacent to bite) — WL_ACT2.C.
+- Episode-end sequences, BJ victory run (victoryflag path, SpawnBJVictory), text screens —
+  WL_TEXT.C / WL_AGENT.C VictoryTile / WL_GAME.C.
+- Menu structure + cheat codes (MLI, ILM debug keys) — WL_MENU.C, WL_DEBUG.C. (Presentation
+  phase; cheats pending user decision.)
+- Thrust speed clamp / thrustspeed accumulation details — WL_AGENT.C Thrust.
+- SoD routing pass: 21-floor progression, secret floor returns, demo/mission-pack variants
+  (m1 data present; check SDMVER/SODVER differences matter only for data detection).
+- Save-state field inventory (what must serialize: door timers/positions, pwall state, areaconnect,
+  alert/temp2, madenoise is per-frame) — cross-file sweep at Phase 2 start.
 
 ## Decision log (Doom-architecture approximations)
 

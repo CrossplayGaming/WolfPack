@@ -1,0 +1,327 @@
+{
+ "wl6": [
+  {
+   "minutes": 1.5,
+   "display": "01:30"
+  },
+  {
+   "minutes": 2.0,
+   "display": "02:00"
+  },
+  {
+   "minutes": 2.0,
+   "display": "02:00"
+  },
+  {
+   "minutes": 3.5,
+   "display": "03:30"
+  },
+  {
+   "minutes": 3.0,
+   "display": "03:00"
+  },
+  {
+   "minutes": 3.0,
+   "display": "03:00"
+  },
+  {
+   "minutes": 2.5,
+   "display": "02:30"
+  },
+  {
+   "minutes": 2.5,
+   "display": "02:30"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 1.5,
+   "display": "01:30"
+  },
+  {
+   "minutes": 3.5,
+   "display": "03:30"
+  },
+  {
+   "minutes": 3.0,
+   "display": "03:00"
+  },
+  {
+   "minutes": 2.0,
+   "display": "02:00"
+  },
+  {
+   "minutes": 4.0,
+   "display": "04:00"
+  },
+  {
+   "minutes": 6.0,
+   "display": "06:00"
+  },
+  {
+   "minutes": 1.0,
+   "display": "01:00"
+  },
+  {
+   "minutes": 3.0,
+   "display": "03:00"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 1.5,
+   "display": "01:30"
+  },
+  {
+   "minutes": 1.5,
+   "display": "01:30"
+  },
+  {
+   "minutes": 2.5,
+   "display": "02:30"
+  },
+  {
+   "minutes": 2.5,
+   "display": "02:30"
+  },
+  {
+   "minutes": 3.5,
+   "display": "03:30"
+  },
+  {
+   "minutes": 2.5,
+   "display": "02:30"
+  },
+  {
+   "minutes": 2.0,
+   "display": "02:00"
+  },
+  {
+   "minutes": 6.0,
+   "display": "06:00"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 2.0,
+   "display": "02:00"
+  },
+  {
+   "minutes": 2.0,
+   "display": "02:00"
+  },
+  {
+   "minutes": 1.5,
+   "display": "01:30"
+  },
+  {
+   "minutes": 1.0,
+   "display": "01:00"
+  },
+  {
+   "minutes": 4.5,
+   "display": "04:30"
+  },
+  {
+   "minutes": 3.5,
+   "display": "03:30"
+  },
+  {
+   "minutes": 2.0,
+   "display": "02:00"
+  },
+  {
+   "minutes": 4.5,
+   "display": "04:30"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 2.5,
+   "display": "02:30"
+  },
+  {
+   "minutes": 1.5,
+   "display": "01:30"
+  },
+  {
+   "minutes": 2.5,
+   "display": "02:30"
+  },
+  {
+   "minutes": 2.5,
+   "display": "02:30"
+  },
+  {
+   "minutes": 4.0,
+   "display": "04:00"
+  },
+  {
+   "minutes": 3.0,
+   "display": "03:00"
+  },
+  {
+   "minutes": 4.5,
+   "display": "04:30"
+  },
+  {
+   "minutes": 3.5,
+   "display": "03:30"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 6.5,
+   "display": "06:30"
+  },
+  {
+   "minutes": 4.0,
+   "display": "04:00"
+  },
+  {
+   "minutes": 4.5,
+   "display": "04:30"
+  },
+  {
+   "minutes": 6.0,
+   "display": "06:00"
+  },
+  {
+   "minutes": 5.0,
+   "display": "05:00"
+  },
+  {
+   "minutes": 5.5,
+   "display": "05:30"
+  },
+  {
+   "minutes": 5.5,
+   "display": "05:30"
+  },
+  {
+   "minutes": 8.5,
+   "display": "08:30"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  }
+ ],
+ "sod": [
+  {
+   "minutes": 1.5,
+   "display": "01:30"
+  },
+  {
+   "minutes": 3.5,
+   "display": "03:30"
+  },
+  {
+   "minutes": 2.75,
+   "display": "02:45"
+  },
+  {
+   "minutes": 3.5,
+   "display": "03:30"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 4.5,
+   "display": "04:30"
+  },
+  {
+   "minutes": 3.25,
+   "display": "03:15"
+  },
+  {
+   "minutes": 2.75,
+   "display": "02:45"
+  },
+  {
+   "minutes": 4.75,
+   "display": "04:45"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 6.5,
+   "display": "06:30"
+  },
+  {
+   "minutes": 4.5,
+   "display": "04:30"
+  },
+  {
+   "minutes": 2.75,
+   "display": "02:45"
+  },
+  {
+   "minutes": 4.5,
+   "display": "04:30"
+  },
+  {
+   "minutes": 6.0,
+   "display": "06:00"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 6.0,
+   "display": "06:00"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  },
+  {
+   "minutes": 0.0,
+   "display": "??:??"
+  }
+ ],
+ "note": "bonus = max(0, par_seconds - time_seconds) * 500 (WL_INTER.C:624,663)"
+}
