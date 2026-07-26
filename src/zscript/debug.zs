@@ -11,12 +11,47 @@ class WolfDebugHandler : EventHandler
 
     override void WorldTick()
     {
+        t++;
+        // forced-alert soak: wolf_dbg_alert 1 puts every enemy in chase
+        CVar av = CVar.FindCVar("wolf_dbg_alert");
+        if (av != null && av.GetInt() != 0 && t == 40)
+        {
+            ThinkerIterator ait = ThinkerIterator.Create("WolfEnemySim");
+            WolfEnemySim ae;
+            int na = 0;
+            while ((ae = WolfEnemySim(ait.Next())) != null)
+            {
+                if (!ae.attackMode) { ae.FirstSighting(); na++; }
+            }
+            Console.Printf("WOLFDBG alerted %d enemies", na);
+        }
+        if (av != null && av.GetInt() != 0 && t == 200)
+            Console.Printf("WOLFDBG alert soak survived to tic 200");
+
         if (phase > 3)
             return;
         CVar cv = CVar.FindCVar("wolf_dbg_doortest");
         if (cv == null || cv.GetInt() == 0)
             return;
-        t++;
+        if (phase == 0 && t == 5)
+        {
+            // enemy census + sprite sanity
+            int n = 0, vis = 0;
+            ThinkerIterator eit = ThinkerIterator.Create("WolfEnemySim");
+            WolfEnemySim en;
+            WolfEnemySim first = null;
+            while ((en = WolfEnemySim(eit.Next())) != null)
+            {
+                n++;
+                if (first == null) first = en;
+            }
+            Console.Printf("WOLFDBG census: skill=%d enemies=%d",
+                           G_SkillPropertyInt(SKILLP_ACSReturn), n);
+            if (first != null)
+                Console.Printf("WOLFDBG first: spr=%d frm=%d pos=(%d,%d) st=%d",
+                               first.sprite, first.frame, int(first.pos.x),
+                               int(first.pos.y), first.stateIdx);
+        }
         if (phase == 0 && t >= 10)
         {
             ThinkerIterator it = ThinkerIterator.Create("WolfDoor");

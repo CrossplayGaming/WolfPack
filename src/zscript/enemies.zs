@@ -186,8 +186,14 @@ class WolfEnemySim : Actor abstract
             return;
         }
         ticcount -= 2;
+        int pumpGuard = 0;
         while (ticcount <= 0)
         {
+            if (++pumpGuard > 100)
+            {
+                Console.Printf("WOLFDBG pump loop: st=%d tc=%d", stateIdx, ticcount);
+                break;
+            }
             DoThink(StateAction(stateIdx));
             if (dead) return;
             int nxt = StateNext(stateIdx);
@@ -433,8 +439,15 @@ class WolfEnemySim : Actor abstract
                 return;
         }
         int move = wolfSpeed * 2;
+        int loopGuard = 0;
         while (move > 0)
         {
+            if (++loopGuard > 200)
+            {
+                Console.Printf("WOLFDBG T_Path loop: move=%d dist=%d dir=%d tile=%d,%d st=%d",
+                               move, distance, dir, tileX, tileY, stateIdx);
+                break;
+            }
             if (distance < 0)
             {
                 // waiting for a door
@@ -491,8 +504,15 @@ class WolfEnemySim : Actor abstract
                 return;
         }
         int move = wolfSpeed * 2;
+        int loopGuard = 0;
         while (move > 0)
         {
+            if (++loopGuard > 200)
+            {
+                Console.Printf("WOLFDBG T_Chase loop: move=%d dist=%d dir=%d tile=%d,%d st=%d",
+                               move, distance, dir, tileX, tileY, stateIdx);
+                break;
+            }
             if (distance < 0)
             {
                 if (waitDoor == null || waitDoor.doorAction != WolfDoor.DR_OPEN)
@@ -724,6 +744,19 @@ class WolfGuard : WolfEnemySim abstract
     Default
     {
         //$Category Wolf
+    }
+    // never entered: registers the sprite names with the engine (sprite
+    // lumps alone don't create sprite entries; GetSpriteIndex needs these)
+    States
+    {
+    SpriteRegistry:
+        GRDS A -1;
+        GRDW ABCD -1;
+        GRDP AB -1;
+        GRDD ABC -1;
+        SDED A -1;
+        GRDA ABC -1;
+        Stop;
     }
     override int StateRot(int i) { return WolfGuardTable.ROT[i]; }
     override String StateSpr(int i) { return WolfGuardTable.SPR[i]; }
