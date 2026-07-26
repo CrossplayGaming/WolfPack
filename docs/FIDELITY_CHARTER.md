@@ -428,6 +428,8 @@ sight/shots.
 | DOOR-013 | Jamb rendering: SpawnDoor sets `|0x40` on both perpendicular neighbors, but the jamb page draws ONLY on faces where the ray's approach tile is the door tile (`tilemap[tile-step]&0x80`) — i.e. only faces looking into the door lane. All other faces of the marked tile show the normal wall texture. DOORWALL+2 (100) N/S faces, +3 (101) E/W | WL_ACT1.C:373-384, WL_DRAW.C:521-527,593-600 — corrected 2026-07-26 after playtest screenshots; first written wrongly as all-faces |
 | SND-001 | wolfdigimap: OPENDOORSND→digi 3, CLOSEDOORSND→digi 2, PUSHWALLSND→digi 15 (full table WL_MAIN.C:849-959; port the rest with the actor pass) |
 
+| DOOR-014 | Door texture orientation: doors are WORLD-anchored — HitVertDoor/HitHorizDoor index texture purely by intercept (no per-side reversal), so column 0 sits at the north end (vertical) / west end (horizontal) and the two sides show mirror images of each other. Normal walls DO reverse per side (`texture = 0xfc0-texture` by step direction) and read as-authored from both sides. Converter rule: unflipped face = the one with v1 at the column-0 end (vertical: west face; horizontal: south face); opposite face carries scalex −1 | WL_DRAW.C:625,693 vs 460-466,556-559 |
+
 Harness: build.py --check runs a full door cycle in-engine and asserts
 open=32/autoclose=150/close=32 engine tics (DOOR-001/002 at TIC-001 2:1).
 

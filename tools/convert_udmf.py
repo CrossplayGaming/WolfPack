@@ -257,18 +257,22 @@ def convert(level, ceiling_color):
             fx1, fy1, fx2, fy2 = cx - sw, cy - sl, cx + sw, cy + sl
             long_tex, cap_tex = f"WALL{face_h:03d}", "WBLACK"
         # slab lines CCW (front faces outward); first carries Polyobj_StartLine.
-        # One long face is mirrored (scalex -1) so the handle sits at the same
-        # WORLD position from both sides, as the original's world-coordinate
-        # texture mapping does (WL_DRAW.C: texture = intercept - doorposition).
+        # Orientation rule (charter DOOR-014): door textures are WORLD-anchored
+        # (WL_DRAW.C HitVert/HorizDoor have no per-side reversal, unlike
+        # walls): column 0 at the NORTH end (vertical) / WEST end (horizontal).
+        # GZDoom puts image-left at v1, so the face whose v1 is the column-0
+        # end renders unflipped and the OPPOSITE face carries the mirror:
+        #   vertical:   west face (v1 north) plain, EAST face flipped
+        #   horizontal: south face (v1 west) plain, NORTH face flipped
         vertical = d["vertical"]
         top_tex = cap_tex if vertical else long_tex
         side_tex = long_tex if vertical else cap_tex
         add_line((fx2, fy2), (fx1, fy2), stash_sec, top_tex,
                  special=1, arg0=poid, flipx=(not vertical))
-        add_line((fx1, fy2), (fx1, fy1), stash_sec, side_tex,
-                 flipx=vertical)
+        add_line((fx1, fy2), (fx1, fy1), stash_sec, side_tex)
         add_line((fx1, fy1), (fx2, fy1), stash_sec, top_tex)
-        add_line((fx2, fy1), (fx2, fy2), stash_sec, side_tex)
+        add_line((fx2, fy1), (fx2, fy2), stash_sec, side_tex,
+                 flipx=vertical)
 
         dx, dy = d["x"], d["y"]
         center = (dx * T + T // 2, (63 - dy) * T + T // 2)
