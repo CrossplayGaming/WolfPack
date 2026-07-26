@@ -59,29 +59,42 @@ def main():
     spr_dir.mkdir(exist_ok=True)
     ph = placeholder_png()
 
+    BO_KINDS = {"bo_firstaid": "BO_FIRSTAID", "bo_food": "BO_FOOD",
+                "bo_alpo": "BO_ALPO", "bo_gibs": "BO_GIBS",
+                "bo_clip": "BO_CLIP", "bo_clip2": "BO_CLIP2",
+                "bo_25clip": "BO_25CLIP", "bo_machinegun": "BO_MACHINEGUN",
+                "bo_chaingun": "BO_CHAINGUN", "bo_cross": "BO_CROSS",
+                "bo_chalice": "BO_CHALICE", "bo_bible": "BO_BIBLE",
+                "bo_crown": "BO_CROWN", "bo_fullheal": "BO_FULLHEAL",
+                "bo_key1": "BO_KEY1", "bo_key2": "BO_KEY2"}
     for pos, r in enumerate(rows):
         cls = f"WolfStatic{pos:02d}"
         spr = f"S{pos:03d}"
         comment = r["comment"] or "?"
-        flags = []
-        if r["class"] == "block":
-            body = ("        +SOLID\n        Radius 32;\n        Height 64;"
-                    "\n        +NOGRAVITY")
+        zs.append(f"// statinfo[{pos}] sprite SPR_STAT_{r['sprite']}: {comment}")
+        if r["class"] in BO_KINDS:
+            # pickup: GetBonus semantics live in WolfPickup (items.zs)
+            zs.append(f"class {cls} : WolfPickup")
+            zs.append("{")
+            zs.append("    States\n    {\n    Spawn:")
+            zs.append(f"        {spr} A -1;\n        Stop;\n    }}")
+            zs.append("    override int BonusKind() "
+                      f"{{ return WolfPickup.{BO_KINDS[r['class']]}; }}")
+            zs.append("}")
         else:
-            body = "        +NOBLOCKMAP\n        +NOGRAVITY"
-        todo = ""
-        if r["class"].startswith("bo_"):
-            todo = f"  // TODO Phase 2 pickup: {r['class']}"
-        zs.append(f"// statinfo[{pos}] sprite SPR_STAT_{r['sprite']}: "
-                  f"{comment}{todo}")
-        zs.append(f"class {cls} : Actor")
-        zs.append("{")
-        zs.append("    Default\n    {")
-        zs.append(body)
-        zs.append("    }")
-        zs.append("    States\n    {\n    Spawn:")
-        zs.append(f"        {spr} A -1;\n        Stop;\n    }}")
-        zs.append("}")
+            if r["class"] == "block":
+                body = ("        +SOLID\n        Radius 32;\n        Height 64;"
+                        "\n        +NOGRAVITY")
+            else:
+                body = "        +NOBLOCKMAP\n        +NOGRAVITY"
+            zs.append(f"class {cls} : Actor")
+            zs.append("{")
+            zs.append("    Default\n    {")
+            zs.append(body)
+            zs.append("    }")
+            zs.append("    States\n    {\n    Spawn:")
+            zs.append(f"        {spr} A -1;\n        Stop;\n    }}")
+            zs.append("}")
         zs.append("")
         eds.append(f"    {21100 + pos} = \"{cls}\"")
         (spr_dir / f"{spr}A0.png").write_bytes(ph)

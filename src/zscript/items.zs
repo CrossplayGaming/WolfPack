@@ -53,11 +53,11 @@ class WolfPickup : Inventory abstract
 {
     Default
     {
+        +SPECIAL                // Inventory does NOT default this flag
         +NOGRAVITY
         Radius 10;              // + player 22 = the 32/axis center-in-tile box
         Height 64;
         Inventory.PickupMessage "";
-        Inventory.Amount 0;
     }
 
     virtual int BonusKind() { return 0; }

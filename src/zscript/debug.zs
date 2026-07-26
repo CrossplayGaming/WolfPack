@@ -28,6 +28,23 @@ class WolfDebugHandler : EventHandler
         if (av != null && av.GetInt() != 0 && t == 200)
             Console.Printf("WOLFDBG alert soak survived to tic 200");
 
+        // pickup self-test: spawn a clip on the player, verify ammo + flags
+        CVar pv = CVar.FindCVar("wolf_dbg_pickup");
+        if (pv != null && pv.GetInt() != 0 && t == 30)
+        {
+            PlayerPawn pm = players[0].mo;
+            Inventory am = pm.FindInventory("WolfAmmo");
+            int before = am == null ? 0 : am.Amount;
+            Actor it = Actor.Spawn("WolfStatic26", pm.pos);
+            Console.Printf("WOLFDBG pickup: special=%d radius=%d",
+                           it.bSpecial, int(it.radius));
+            bool got = Inventory(it).CallTryPickup(pm);
+            am = pm.FindInventory("WolfAmmo");
+            int after = am == null ? 0 : am.Amount;
+            Console.Printf("WOLFDBG pickup: got=%d ammo %d -> %d",
+                           got, before, after);
+        }
+
         if (phase > 3)
             return;
         CVar cv = CVar.FindCVar("wolf_dbg_doortest");

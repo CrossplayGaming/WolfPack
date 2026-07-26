@@ -105,20 +105,16 @@ class WolfStatic05 : Actor
     }
 }
 
-// statinfo[6] sprite SPR_STAT_6: Bad food        "  // TODO Phase 2 pickup: bo_alpo
-class WolfStatic06 : Actor
+// statinfo[6] sprite SPR_STAT_6: Bad food        "
+class WolfStatic06 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S006 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_ALPO; }
 }
 
 // statinfo[7] sprite SPR_STAT_7: Red pillar      "
@@ -347,36 +343,28 @@ class WolfStatic19 : Actor
     }
 }
 
-// statinfo[20] sprite SPR_STAT_20: Key 1           "  // TODO Phase 2 pickup: bo_key1
-class WolfStatic20 : Actor
+// statinfo[20] sprite SPR_STAT_20: Key 1           "
+class WolfStatic20 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S020 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_KEY1; }
 }
 
-// statinfo[21] sprite SPR_STAT_21: Key 2           "  // TODO Phase 2 pickup: bo_key2
-class WolfStatic21 : Actor
+// statinfo[21] sprite SPR_STAT_21: Key 2           "
+class WolfStatic21 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S021 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_KEY2; }
 }
 
 // statinfo[22] sprite SPR_STAT_22: stuff				(SOD:gibs)
@@ -413,180 +401,136 @@ class WolfStatic23 : Actor
     }
 }
 
-// statinfo[24] sprite SPR_STAT_24: Good food       spr4v  // TODO Phase 2 pickup: bo_food
-class WolfStatic24 : Actor
+// statinfo[24] sprite SPR_STAT_24: Good food       spr4v
+class WolfStatic24 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S024 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_FOOD; }
 }
 
-// statinfo[25] sprite SPR_STAT_25: First aid       "  // TODO Phase 2 pickup: bo_firstaid
-class WolfStatic25 : Actor
+// statinfo[25] sprite SPR_STAT_25: First aid       "
+class WolfStatic25 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S025 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_FIRSTAID; }
 }
 
-// statinfo[26] sprite SPR_STAT_26: Clip            "  // TODO Phase 2 pickup: bo_clip
-class WolfStatic26 : Actor
+// statinfo[26] sprite SPR_STAT_26: Clip            "
+class WolfStatic26 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S026 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_CLIP; }
 }
 
-// statinfo[27] sprite SPR_STAT_27: Machine gun     "  // TODO Phase 2 pickup: bo_machinegun
-class WolfStatic27 : Actor
+// statinfo[27] sprite SPR_STAT_27: Machine gun     "
+class WolfStatic27 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S027 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_MACHINEGUN; }
 }
 
-// statinfo[28] sprite SPR_STAT_28: Gatling gun     "  // TODO Phase 2 pickup: bo_chaingun
-class WolfStatic28 : Actor
+// statinfo[28] sprite SPR_STAT_28: Gatling gun     "
+class WolfStatic28 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S028 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_CHAINGUN; }
 }
 
-// statinfo[29] sprite SPR_STAT_29: Cross           "  // TODO Phase 2 pickup: bo_cross
-class WolfStatic29 : Actor
+// statinfo[29] sprite SPR_STAT_29: Cross           "
+class WolfStatic29 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S029 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_CROSS; }
 }
 
-// statinfo[30] sprite SPR_STAT_30: Chalice         "  // TODO Phase 2 pickup: bo_chalice
-class WolfStatic30 : Actor
+// statinfo[30] sprite SPR_STAT_30: Chalice         "
+class WolfStatic30 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S030 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_CHALICE; }
 }
 
-// statinfo[31] sprite SPR_STAT_31: Bible           "  // TODO Phase 2 pickup: bo_bible
-class WolfStatic31 : Actor
+// statinfo[31] sprite SPR_STAT_31: Bible           "
+class WolfStatic31 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S031 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_BIBLE; }
 }
 
-// statinfo[32] sprite SPR_STAT_32: crown           spr5v  // TODO Phase 2 pickup: bo_crown
-class WolfStatic32 : Actor
+// statinfo[32] sprite SPR_STAT_32: crown           spr5v
+class WolfStatic32 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S032 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_CROWN; }
 }
 
-// statinfo[33] sprite SPR_STAT_33: one up          "  // TODO Phase 2 pickup: bo_fullheal
-class WolfStatic33 : Actor
+// statinfo[33] sprite SPR_STAT_33: one up          "
+class WolfStatic33 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S033 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_FULLHEAL; }
 }
 
-// statinfo[34] sprite SPR_STAT_34: gibs            "  // TODO Phase 2 pickup: bo_gibs
-class WolfStatic34 : Actor
+// statinfo[34] sprite SPR_STAT_34: gibs            "
+class WolfStatic34 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S034 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_GIBS; }
 }
 
 // statinfo[35] sprite SPR_STAT_35: barrel          "
@@ -643,20 +587,16 @@ class WolfStatic37 : Actor
     }
 }
 
-// statinfo[38] sprite SPR_STAT_38: Gibs 2          "  // TODO Phase 2 pickup: bo_gibs
-class WolfStatic38 : Actor
+// statinfo[38] sprite SPR_STAT_38: Gibs 2          "
+class WolfStatic38 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S038 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_GIBS; }
 }
 
 // statinfo[39] sprite SPR_STAT_39: flag				"
@@ -811,20 +751,16 @@ class WolfStatic47 : Actor
     }
 }
 
-// statinfo[48] sprite SPR_STAT_26: Clip            "  // TODO Phase 2 pickup: bo_clip2
-class WolfStatic48 : Actor
+// statinfo[48] sprite SPR_STAT_26: Clip            "
+class WolfStatic48 : WolfPickup
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:
         S048 A -1;
         Stop;
     }
+    override int BonusKind() { return WolfPickup.BO_CLIP2; }
 }
 
 // dead guard (map code 124, MAP-004): SPR_GRD_DEAD, inert

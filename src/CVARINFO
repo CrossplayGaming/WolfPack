@@ -1,3 +1,4 @@
 // debug/self-test switches (build.py --check)
 server int wolf_dbg_doortest = 0;
 server int wolf_dbg_alert = 0;
+server int wolf_dbg_pickup = 0;
