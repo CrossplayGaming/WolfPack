@@ -11,3 +11,9 @@ build/
 # Tooling noise
 __pycache__/
 *.pyc
+
+# Engine binaries (copied from CatacombDoom install)
+engine/
+
+# Build outputs
+dist/

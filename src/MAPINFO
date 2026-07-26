@@ -1,0 +1,60 @@
+// WolfDoom — MAPINFO (Phase 1 bootstrap)
+// Standalone IPK3: gameinfo defines the base game so no Doom IWAD is needed.
+
+gameinfo
+{
+    drawreadthis = false
+    quitmessages = "$QUITMSG"
+}
+
+// Wolf3D difficulty (WL_DEF.H gd_baby..gd_hard). SpawnFilter is positional:
+// converter emits skill1 (all), skill3+ (medium+36 codes), skill4+ (hard+72).
+clearskills
+skill baby
+{
+    Name = "Can I play, Daddy?"
+    SpawnFilter = 1
+    DamageFactor = 0.25   // TakeDamage points>>=2 (charter DIFF-001)
+}
+skill easy
+{
+    Name = "Don't hurt me."
+    SpawnFilter = 2
+}
+skill medium
+{
+    Name = "Bring 'em on!"
+    SpawnFilter = 3
+    DefaultSkill
+}
+skill hard
+{
+    Name = "I am Death incarnate!"
+    SpawnFilter = 4
+}
+
+clearepisodes
+episode MAP01
+{
+    name = "Escape from Wolfenstein"
+}
+
+defaultmap
+{
+    sky1 = "-NOFLAT-"
+    NoIntermission
+    NoJump
+    NoCrouch
+    NoFreelook
+}
+
+map MAP01 "Wolf1 Map1"  { levelnum = 1 }
+map MAP02 "Wolf1 Map2"  { levelnum = 2 }
+map MAP03 "Wolf1 Map3"  { levelnum = 3 }
+map MAP04 "Wolf1 Map4"  { levelnum = 4 }
+map MAP05 "Wolf1 Map5"  { levelnum = 5 }
+map MAP06 "Wolf1 Map6"  { levelnum = 6 }
+map MAP07 "Wolf1 Map7"  { levelnum = 7 }
+map MAP08 "Wolf1 Map8"  { levelnum = 8 }
+map MAP09 "Wolf1 Boss"  { levelnum = 9 }
+map MAP10 "Wolf1 Secret" { levelnum = 10 }

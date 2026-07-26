@@ -1,0 +1,36 @@
+// Phase 1 bootstrap menus: plain text, no Doom menu patches needed.
+// The one-for-one recreated Wolf3D menu system (Architecture #6 / D-001)
+// replaces all of this in Phase 2 — this exists so the standalone IPK3
+// boots clean today.
+
+LISTMENU "MainMenu"
+{
+    Font "NewSmallFont", "Red"
+    StaticTextCentered 160, 40, "WOLFDOOM (working title)"
+    Selector "WSEL", -13, 1
+    Position 124, 70
+    Linespacing 11
+    TextItem "New Game",  "n", "EpisodeMenu"
+    TextItem "Load Game", "l", "LoadGameMenu"
+    TextItem "Save Game", "s", "SaveGameMenu"
+    TextItem "Options",   "o", "OptionsMenu"
+    TextItem "Quit",      "q", "QuitMenu"
+}
+
+LISTMENU "EpisodeMenu"
+{
+    Font "NewSmallFont", "Red"
+    StaticTextCentered 160, 50, "WHICH EPISODE TO PLAY?"
+    Selector "WSEL", -13, 1
+    Position 124, 80
+    Linespacing 12
+}
+
+LISTMENU "SkillMenu"
+{
+    Font "NewSmallFont", "Red"
+    StaticTextCentered 160, 50, "HOW TOUGH ARE YOU?"
+    Selector "WSEL", -13, 1
+    Position 124, 80
+    Linespacing 12
+}
