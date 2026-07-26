@@ -7,6 +7,7 @@ map MAP01 "Wolf1 Map1"
     music = "GETTHEM"
     next = "MAP02"
     secretnext = "MAP10"
+    par = 90
 }
 
 map MAP02 "Wolf1 Map2"
@@ -15,6 +16,7 @@ map MAP02 "Wolf1 Map2"
     music = "SEARCHN"
     next = "MAP03"
     secretnext = "MAP10"
+    par = 120
 }
 
 map MAP03 "Wolf1 Map3"
@@ -23,6 +25,7 @@ map MAP03 "Wolf1 Map3"
     music = "POW"
     next = "MAP04"
     secretnext = "MAP10"
+    par = 120
 }
 
 map MAP04 "Wolf1 Map4"
@@ -31,6 +34,7 @@ map MAP04 "Wolf1 Map4"
     music = "SUSPENSE"
     next = "MAP05"
     secretnext = "MAP10"
+    par = 210
 }
 
 map MAP05 "Wolf1 Map5"
@@ -39,6 +43,7 @@ map MAP05 "Wolf1 Map5"
     music = "GETTHEM"
     next = "MAP06"
     secretnext = "MAP10"
+    par = 180
 }
 
 map MAP06 "Wolf1 Map6"
@@ -47,6 +52,7 @@ map MAP06 "Wolf1 Map6"
     music = "SEARCHN"
     next = "MAP07"
     secretnext = "MAP10"
+    par = 180
 }
 
 map MAP07 "Wolf1 Map7"
@@ -55,6 +61,7 @@ map MAP07 "Wolf1 Map7"
     music = "POW"
     next = "MAP08"
     secretnext = "MAP10"
+    par = 150
 }
 
 map MAP08 "Wolf1 Map8"
@@ -63,6 +70,7 @@ map MAP08 "Wolf1 Map8"
     music = "SUSPENSE"
     next = "MAP09"
     secretnext = "MAP10"
+    par = 150
 }
 
 map MAP09 "Wolf1 Boss"
@@ -71,6 +79,7 @@ map MAP09 "Wolf1 Boss"
     music = "WARMARCH"
     next = "MAP01"
     secretnext = "MAP10"
+    par = 0
 }
 
 map MAP10 "Wolf1 Secret"
@@ -79,6 +88,7 @@ map MAP10 "Wolf1 Secret"
     music = "CORNER"
     next = "MAP02"
     secretnext = "MAP10"
+    par = 0
 }
 
 map MAP11 "Wolf2 Map1"
@@ -87,6 +97,7 @@ map MAP11 "Wolf2 Map1"
     music = "NAZI_OMI"
     next = "MAP12"
     secretnext = "MAP20"
+    par = 90
 }
 
 map MAP12 "Wolf2 Map2"
@@ -95,6 +106,7 @@ map MAP12 "Wolf2 Map2"
     music = "PREGNANT"
     next = "MAP13"
     secretnext = "MAP20"
+    par = 210
 }
 
 map MAP13 "Wolf2 Map3"
@@ -103,6 +115,7 @@ map MAP13 "Wolf2 Map3"
     music = "GOINGAFT"
     next = "MAP14"
     secretnext = "MAP20"
+    par = 180
 }
 
 map MAP14 "Wolf2 Map4"
@@ -111,6 +124,7 @@ map MAP14 "Wolf2 Map4"
     music = "HEADACHE"
     next = "MAP15"
     secretnext = "MAP20"
+    par = 120
 }
 
 map MAP15 "Wolf2 Map5"
@@ -119,6 +133,7 @@ map MAP15 "Wolf2 Map5"
     music = "NAZI_OMI"
     next = "MAP16"
     secretnext = "MAP20"
+    par = 240
 }
 
 map MAP16 "Wolf2 Map6"
@@ -127,6 +142,7 @@ map MAP16 "Wolf2 Map6"
     music = "PREGNANT"
     next = "MAP17"
     secretnext = "MAP20"
+    par = 360
 }
 
 map MAP17 "Wolf2 Map7"
@@ -135,6 +151,7 @@ map MAP17 "Wolf2 Map7"
     music = "HEADACHE"
     next = "MAP18"
     secretnext = "MAP20"
+    par = 60
 }
 
 map MAP18 "Wolf2 Map8"
@@ -143,6 +160,7 @@ map MAP18 "Wolf2 Map8"
     music = "GOINGAFT"
     next = "MAP19"
     secretnext = "MAP20"
+    par = 180
 }
 
 map MAP19 "Wolf2 Boss"
@@ -151,6 +169,7 @@ map MAP19 "Wolf2 Boss"
     music = "WARMARCH"
     next = "MAP11"
     secretnext = "MAP20"
+    par = 0
 }
 
 map MAP20 "Wolf2 Secret"
@@ -159,6 +178,7 @@ map MAP20 "Wolf2 Secret"
     music = "DUNGEON"
     next = "MAP12"
     secretnext = "MAP20"
+    par = 0
 }
 
 map MAP21 "Wolf3 Map1"
@@ -167,6 +187,7 @@ map MAP21 "Wolf3 Map1"
     music = "INTROCW3"
     next = "MAP22"
     secretnext = "MAP30"
+    par = 90
 }
 
 map MAP22 "Wolf3 Map2"
@@ -175,6 +196,7 @@ map MAP22 "Wolf3 Map2"
     music = "NAZI_RAP"
     next = "MAP23"
     secretnext = "MAP30"
+    par = 90
 }
 
 map MAP23 "Wolf3 Map3"
@@ -183,6 +205,7 @@ map MAP23 "Wolf3 Map3"
     music = "TWELFTH"
     next = "MAP24"
     secretnext = "MAP30"
+    par = 150
 }
 
 map MAP24 "Wolf3 Map4"
@@ -191,6 +214,7 @@ map MAP24 "Wolf3 Map4"
     music = "ZEROHOUR"
     next = "MAP25"
     secretnext = "MAP30"
+    par = 150
 }
 
 map MAP25 "Wolf3 Map5"
@@ -199,6 +223,7 @@ map MAP25 "Wolf3 Map5"
     music = "INTROCW3"
     next = "MAP26"
     secretnext = "MAP30"
+    par = 210
 }
 
 map MAP26 "Wolf3 Map6"
@@ -207,6 +232,7 @@ map MAP26 "Wolf3 Map6"
     music = "NAZI_RAP"
     next = "MAP27"
     secretnext = "MAP30"
+    par = 150
 }
 
 map MAP27 "Wolf3 Map7"
@@ -215,6 +241,7 @@ map MAP27 "Wolf3 Map7"
     music = "TWELFTH"
     next = "MAP28"
     secretnext = "MAP30"
+    par = 120
 }
 
 map MAP28 "Wolf3 Map8"
@@ -223,6 +250,7 @@ map MAP28 "Wolf3 Map8"
     music = "ZEROHOUR"
     next = "MAP29"
     secretnext = "MAP30"
+    par = 360
 }
 
 map MAP29 "Wolf3 Boss"
@@ -231,6 +259,7 @@ map MAP29 "Wolf3 Boss"
     music = "ULTIMATE"
     next = "MAP21"
     secretnext = "MAP30"
+    par = 0
 }
 
 map MAP30 "Wolf3 Secret"
@@ -239,6 +268,7 @@ map MAP30 "Wolf3 Secret"
     music = "PACMAN"
     next = "MAP28"
     secretnext = "MAP30"
+    par = 0
 }
 
 map MAP31 "Wolf4 Map 1"
@@ -247,6 +277,7 @@ map MAP31 "Wolf4 Map 1"
     music = "GETTHEM"
     next = "MAP32"
     secretnext = "MAP40"
+    par = 120
 }
 
 map MAP32 "Wolf4 Map 2"
@@ -255,6 +286,7 @@ map MAP32 "Wolf4 Map 2"
     music = "SEARCHN"
     next = "MAP33"
     secretnext = "MAP40"
+    par = 120
 }
 
 map MAP33 "Wolf4 Map 3"
@@ -263,6 +295,7 @@ map MAP33 "Wolf4 Map 3"
     music = "POW"
     next = "MAP34"
     secretnext = "MAP40"
+    par = 90
 }
 
 map MAP34 "Wolf4 Map 4"
@@ -271,6 +304,7 @@ map MAP34 "Wolf4 Map 4"
     music = "SUSPENSE"
     next = "MAP35"
     secretnext = "MAP40"
+    par = 60
 }
 
 map MAP35 "Wolf4 Map 5"
@@ -279,6 +313,7 @@ map MAP35 "Wolf4 Map 5"
     music = "GETTHEM"
     next = "MAP36"
     secretnext = "MAP40"
+    par = 270
 }
 
 map MAP36 "Wolf4 Map 6"
@@ -287,6 +322,7 @@ map MAP36 "Wolf4 Map 6"
     music = "SEARCHN"
     next = "MAP37"
     secretnext = "MAP40"
+    par = 210
 }
 
 map MAP37 "Wolf4 Map 7"
@@ -295,6 +331,7 @@ map MAP37 "Wolf4 Map 7"
     music = "POW"
     next = "MAP38"
     secretnext = "MAP40"
+    par = 120
 }
 
 map MAP38 "Wolf4 Map 8"
@@ -303,6 +340,7 @@ map MAP38 "Wolf4 Map 8"
     music = "SUSPENSE"
     next = "MAP39"
     secretnext = "MAP40"
+    par = 270
 }
 
 map MAP39 "Wolf4 Boss"
@@ -311,6 +349,7 @@ map MAP39 "Wolf4 Boss"
     music = "WARMARCH"
     next = "MAP31"
     secretnext = "MAP40"
+    par = 0
 }
 
 map MAP40 "Wolf4 Secret"
@@ -319,6 +358,7 @@ map MAP40 "Wolf4 Secret"
     music = "CORNER"
     next = "MAP34"
     secretnext = "MAP40"
+    par = 0
 }
 
 map MAP41 "Wolf5 Map 1"
@@ -327,6 +367,7 @@ map MAP41 "Wolf5 Map 1"
     music = "NAZI_OMI"
     next = "MAP42"
     secretnext = "MAP50"
+    par = 150
 }
 
 map MAP42 "Wolf5 Map 2"
@@ -335,6 +376,7 @@ map MAP42 "Wolf5 Map 2"
     music = "PREGNANT"
     next = "MAP43"
     secretnext = "MAP50"
+    par = 90
 }
 
 map MAP43 "Wolf5 Map 3"
@@ -343,6 +385,7 @@ map MAP43 "Wolf5 Map 3"
     music = "GOINGAFT"
     next = "MAP44"
     secretnext = "MAP50"
+    par = 150
 }
 
 map MAP44 "Wolf5 Map 4"
@@ -351,6 +394,7 @@ map MAP44 "Wolf5 Map 4"
     music = "HEADACHE"
     next = "MAP45"
     secretnext = "MAP50"
+    par = 150
 }
 
 map MAP45 "Wolf5 Map 5"
@@ -359,6 +403,7 @@ map MAP45 "Wolf5 Map 5"
     music = "NAZI_OMI"
     next = "MAP46"
     secretnext = "MAP50"
+    par = 240
 }
 
 map MAP46 "Wolf5 Map 6"
@@ -367,6 +412,7 @@ map MAP46 "Wolf5 Map 6"
     music = "PREGNANT"
     next = "MAP47"
     secretnext = "MAP50"
+    par = 180
 }
 
 map MAP47 "Wolf5 Map 7"
@@ -375,6 +421,7 @@ map MAP47 "Wolf5 Map 7"
     music = "HEADACHE"
     next = "MAP48"
     secretnext = "MAP50"
+    par = 270
 }
 
 map MAP48 "Wolf5 Map 8"
@@ -383,6 +430,7 @@ map MAP48 "Wolf5 Map 8"
     music = "GOINGAFT"
     next = "MAP49"
     secretnext = "MAP50"
+    par = 210
 }
 
 map MAP49 "Wolf5 Boss"
@@ -391,6 +439,7 @@ map MAP49 "Wolf5 Boss"
     music = "WARMARCH"
     next = "MAP41"
     secretnext = "MAP50"
+    par = 0
 }
 
 map MAP50 "Wolf5 Secret"
@@ -399,6 +448,7 @@ map MAP50 "Wolf5 Secret"
     music = "DUNGEON"
     next = "MAP46"
     secretnext = "MAP50"
+    par = 0
 }
 
 map MAP51 "Wolf6 Map 1"
@@ -407,6 +457,7 @@ map MAP51 "Wolf6 Map 1"
     music = "INTROCW3"
     next = "MAP52"
     secretnext = "MAP60"
+    par = 390
 }
 
 map MAP52 "Wolf6 Map 2"
@@ -415,6 +466,7 @@ map MAP52 "Wolf6 Map 2"
     music = "NAZI_RAP"
     next = "MAP53"
     secretnext = "MAP60"
+    par = 240
 }
 
 map MAP53 "Wolf6 Map 3"
@@ -423,6 +475,7 @@ map MAP53 "Wolf6 Map 3"
     music = "TWELFTH"
     next = "MAP54"
     secretnext = "MAP60"
+    par = 270
 }
 
 map MAP54 "Wolf6 Map 4"
@@ -431,6 +484,7 @@ map MAP54 "Wolf6 Map 4"
     music = "ZEROHOUR"
     next = "MAP55"
     secretnext = "MAP60"
+    par = 360
 }
 
 map MAP55 "Wolf6 Map 5"
@@ -439,6 +493,7 @@ map MAP55 "Wolf6 Map 5"
     music = "INTROCW3"
     next = "MAP56"
     secretnext = "MAP60"
+    par = 300
 }
 
 map MAP56 "Wolf6 Map 6"
@@ -447,6 +502,7 @@ map MAP56 "Wolf6 Map 6"
     music = "NAZI_RAP"
     next = "MAP57"
     secretnext = "MAP60"
+    par = 330
 }
 
 map MAP57 "Wolf6 Map 7"
@@ -455,6 +511,7 @@ map MAP57 "Wolf6 Map 7"
     music = "TWELFTH"
     next = "MAP58"
     secretnext = "MAP60"
+    par = 330
 }
 
 map MAP58 "Wolf6 Map 8"
@@ -463,6 +520,7 @@ map MAP58 "Wolf6 Map 8"
     music = "ZEROHOUR"
     next = "MAP59"
     secretnext = "MAP60"
+    par = 510
 }
 
 map MAP59 "Wolf6 Boss"
@@ -471,6 +529,7 @@ map MAP59 "Wolf6 Boss"
     music = "ULTIMATE"
     next = "MAP51"
     secretnext = "MAP60"
+    par = 0
 }
 
 map MAP60 "Wolf6 Secret"
@@ -479,5 +538,6 @@ map MAP60 "Wolf6 Secret"
     music = "FUNKYOU"
     next = "MAP54"
     secretnext = "MAP60"
+    par = 0
 }
 

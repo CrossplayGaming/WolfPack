@@ -27,9 +27,10 @@ class WolfLevel : EventHandler
 
     // per-level stats (tally pass): found counts + totals
     int killCount, secretCount, treasureCount;
+    int floorNum;
     int killTotal, secretTotal, treasureTotal;
 
-    static WolfLevel Get()
+    clearscope static WolfLevel Get()
     {
         return WolfLevel(EventHandler.Find("WolfLevel"));
     }
@@ -44,6 +45,7 @@ class WolfLevel : EventHandler
     override void WorldLoaded(WorldEvent e)
     {
         rngIndex = Random(0, 255);      // US_InitRndT(true)
+        floorNum = ((Level.levelnum - 1) % 10) + 1;
         for (int i = 0; i < 4096; i++)
         {
             solidG[i] = 0;
@@ -128,6 +130,27 @@ class WolfLevel : EventHandler
             playerArea = AreaAt(tx, ty);
         }
         ConnectAreas();
+    }
+
+    // Bonus award happens in play scope at level exit; the intermission
+    // only animates the count-up (it is UI scope and cannot score).
+    override void WorldUnloaded(WorldEvent e)
+    {
+        WolfGameState gs = WolfGameState.Get();
+        if (gs == null)
+            return;
+        int levelSec = Level.time / TICRATE;
+        int parSec = Level.partime;
+        int timeLeft = parSec > levelSec ? parSec - levelSec : 0;
+        int bonus = timeLeft * 500;                 // SCORE-002
+        if (killTotal > 0 && killCount * 100 / killTotal == 100)
+            bonus += 10000;                         // SCORE-003
+        if (secretTotal > 0 && secretCount * 100 / secretTotal == 100)
+            bonus += 10000;
+        if (treasureTotal > 0 && treasureCount * 100 / treasureTotal == 100)
+            bonus += 10000;
+        if (bonus > 0)
+            gs.GivePoints(bonus);
     }
 
     override void WorldTick()

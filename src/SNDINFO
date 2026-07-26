@@ -48,3 +48,9 @@ wolf/schutzad   "sounds/schutzad.wav"    // SCHUTZADSND digi 7
 wolf/leben      "sounds/leben.wav"       // LEBENSND digi 20
 wolf/ahhhg      "sounds/ahhhg.wav"       // AHHHGSND digi 17
 wolf/ssfire     "sounds/ssfire.wav"      // SSFIRESND digi 11
+
+// intermission tally (AdLib, rendered by tools/render_adlib.py)
+wolf/endbonus1  "sounds/endbonus1snd.wav"
+wolf/endbonus2  "sounds/endbonus2snd.wav"
+wolf/percent100 "sounds/percent100snd.wav"
+wolf/nobonus    "sounds/nobonussnd.wav"

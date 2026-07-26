@@ -10,7 +10,7 @@ gameinfo
     // standalone IWAD: the engine needs these declared even when
     // NoIntermission suppresses the tally (the real Wolf
     // LevelCompleted screen replaces them in the tally pass).
-    statscreen_single = "DoomStatusScreen"
+    statscreen_single = "WolfIntermission"
     statscreen_coop = "CoopStatusScreen"
     statscreen_dm = "DeathmatchStatusScreen"
     drawreadthis = false
@@ -70,7 +70,6 @@ episode MAP01
 
 defaultmap
 {
-    NoIntermission
     NoJump
     NoCrouch
     NoFreelook

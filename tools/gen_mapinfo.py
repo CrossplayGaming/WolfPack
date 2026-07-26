@@ -14,6 +14,9 @@ ROOT = Path(__file__).resolve().parent.parent
 # ElevatorBackTo[] (WL_GAME.C:39): 0-based mapon the secret floor returns to
 ELEVATOR_BACK_TO = [1, 1, 7, 3, 5, 3]
 
+# par times (TALLY-001): the source stores minutes; MAPINFO wants seconds
+PAR = json.loads((ROOT / "docs" / "data" / "par_times.json").read_text())["wl6"]
+
 EP_SONGS = [
     ["GETTHEM", "SEARCHN", "POW", "SUSPENSE", "GETTHEM", "SEARCHN", "POW",
      "SUSPENSE", "WARMARCH", "CORNER"],
@@ -57,6 +60,7 @@ def main():
         lines.append(f'    music = "{EP_SONGS[ep][slot]}"')
         lines.append(f'    next = "MAP{nxt:02d}"')
         lines.append(f'    secretnext = "MAP{secret:02d}"')
+        lines.append(f"    par = {int(round(PAR[n]['minutes'] * 60))}")
         lines.append("}")
         lines.append("")
     (ROOT / "src" / "mapinfo_maps.txt").write_text("\n".join(lines) + "\n")

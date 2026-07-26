@@ -112,6 +112,19 @@ def main():
     hud_pics["FACE8APIC"] = "FACE8A"
     hud_pics["GOTGATLINGPIC"] = "FACEGATL"
     hud_pics["MUTANTBJPIC"] = "FACEMUTB"
+    # intermission letter/number pics (Write(), WL_INTER.C:331-385)
+    for ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+        hud_pics[f"L_{ch}PIC"] = f"L_{ch}"
+    for i in range(10):
+        hud_pics[f"L_NUM{i}PIC"] = f"L_NUM{i}"
+    hud_pics["L_COLONPIC"] = "L_COLON"
+    hud_pics["L_PERCENTPIC"] = "L_PCT"      # 8-char lump limit
+    hud_pics["L_EXPOINTPIC"] = "L_EXCL"
+    hud_pics["L_APOSTROPHEPIC"] = "L_APOS"
+    hud_pics["L_GUYPIC"] = "L_GUY"
+    hud_pics["L_GUY2PIC"] = "L_GUY2"
+    hud_pics["L_BJWINSPIC"] = "L_BJWINS"
+
     nhud = 0
     for src_name, lump in hud_pics.items():
         p = VGA / f"{src_name}.png"
@@ -205,7 +218,7 @@ def main():
     # AdLib SFX (render_adlib.py) referenced by SNDINFO
     ADLIB = ROOT / "build" / "audio" / "wl6" / "sfx"
     (ASSETS / "sounds").mkdir(exist_ok=True)
-    adlib_sfx = ["HEALTH1SND", "HEALTH2SND", "GETAMMOSND", "BONUS1SND",
+    adlib_sfx = ["PERCENT100SND", "HEALTH1SND", "HEALTH2SND", "GETAMMOSND", "BONUS1SND",
                  "BONUS2SND", "BONUS3SND", "BONUS4SND", "BONUS1UPSND",
                  "GETKEYSND", "GETMACHINESND", "GETGATLINGSND", "NOWAYSND",
                  "ATKKNIFESND", "DOGATTACKSND", "DONOTHINGSND",
