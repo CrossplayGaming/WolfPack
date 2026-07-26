@@ -1,0 +1,13 @@
+# Reference material — cloned/acquired locally, never committed
+reference/
+
+# User-supplied game data — never committed, never shipped
+gamedata/
+
+# Build outputs
+build/
+*.pk3
+
+# Tooling noise
+__pycache__/
+*.pyc
