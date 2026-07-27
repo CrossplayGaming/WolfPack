@@ -52,13 +52,21 @@ class WolfMenu : ListMenu
 
     // ---- shared drawing --------------------------------------------------
 
+    // plain menu screen: ClearMScreen + the mouse bar. The stripe and
+    // "Options" plaque belong ONLY to the main/options pages — the
+    // episode and skill screens draw without them (DrawNewEpisode /
+    // DrawNewGame), which is also what keeps their titles clear.
     void DrawBackground()
     {
         WolfDraw.WideBar(0, 200, C_BORDER);      // ClearMScreen
+        WolfDraw.Pic(112, 184, "C_MLBACK");
+    }
+
+    void DrawBanner()
+    {
         WolfDraw.WideBar(10, 24, 0);             // DrawStripes(10)
         WolfDraw.WideBar(32, 1, C_STRIPE);
         WolfDraw.Pic(84, 0, "C_OPTS");
-        WolfDraw.Pic(112, 184, "C_MLBACK");
     }
 
     // DrawWindow + DrawOutline (WL_MENU.C:3419-3434)
@@ -220,6 +228,7 @@ class WolfMainMenu : WolfMenu
     override void Drawer()
     {
         DrawBackground();
+        DrawBanner();
         DrawWindowBox(MENU_X - 8, MENU_Y - 3, MENU_W, MENU_H);
         DrawItems(MENU_X, MENU_Y, 24, 13);
         DrawGun(MENU_X, MENU_Y, 13);
@@ -260,6 +269,7 @@ class WolfOptionsMenu : WolfMenu
     override void Drawer()
     {
         DrawBackground();
+        DrawBanner();
         DrawWindowBox(MENU_X - 8, MENU_Y - 3, MENU_W + 30, 13 * 4 + 6);
         DrawItems(MENU_X, MENU_Y, 24, 13);
         DrawGun(MENU_X, MENU_Y, 13);
@@ -363,7 +373,14 @@ class WolfSkillMenu : WolfMenu
     {
         // hand off to the play side: ui code cannot start a game itself
         EventHandler.SendNetworkEvent("wolf_newgame", episode, index);
-        Close();
+        // close the WHOLE stack, not just this menu — otherwise the
+        // episode menu stays up over the freshly started game
+        Menu cur = Menu.GetCurrentMenu();
+        while (cur != null)
+        {
+            cur.Close();
+            cur = Menu.GetCurrentMenu();
+        }
     }
 }
 
@@ -429,10 +446,13 @@ class WolfMessageBox : MessageBoxMenu
 {
     Font big;
 
+    // the full base signature: dropping cmd/native_handler is what broke
+    // Quit->Yes (the handler that actually exits lives in those params)
     override void Init(Menu parent, String message, int messagemode,
-                       bool playsound)
+                       bool playsound, Name cmd, voidptr native_handler)
     {
-        Super.Init(parent, message, messagemode, playsound);
+        Super.Init(parent, message, messagemode, playsound, cmd,
+                   native_handler);
         big = Font.GetFont("wolfbig");
     }
 
