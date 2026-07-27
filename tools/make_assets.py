@@ -69,6 +69,25 @@ def main():
         shutil.copy(png, ASSETS / "textures" / png.name)
         nwalls += 1
 
+    # View border (DrawPlayBorder, WL_GAME.C:841). The surround is palette
+    # 127 and the view sits in an inset bevel: top and left in 0, bottom
+    # and right in 125, and the bottom-left corner pixel in 124. Ordering
+    # in the original decides the other corners - the top Hlin is drawn
+    # first and then overwritten at its right end by the 125 Vlin, so
+    # top-left is 0 and top-right is 125.
+    (ASSETS / "graphics").mkdir(exist_ok=True)
+    solid_flat(pal, 127).save(ASSETS / "flats" / "FLOOR7F.png")
+    for name, idx in (("BRDR_T", 0), ("BRDR_L", 0),
+                      ("BRDR_B", 125), ("BRDR_R", 125),
+                      ("BRDR_TL", 0), ("BRDR_TR", 125),
+                      ("BRDR_BL", 124), ("BRDR_BR", 125)):
+        img = Image.new("P", (1, 1), idx)
+        flatpal = []
+        for r, g, b in pal:
+            flatpal += [r, g, b]
+        img.putpalette(flatpal)
+        img.save(ASSETS / "graphics" / f"{name}.png")
+
     ceilings = json.loads((ROOT / "docs" / "data" / "ceiling_colors.json").read_text())
     solid_flat(pal, 0x19).save(ASSETS / "flats" / "FLOOR19.png")
     for c in sorted(set(ceilings["wl6"])):

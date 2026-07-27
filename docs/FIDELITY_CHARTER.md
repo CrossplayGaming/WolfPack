@@ -590,3 +590,19 @@ display, 320 units across the 4:3 area — which is the only form both
 accept identically. A `StaticEventHandler`'s `RenderOverlay` is also
 unusable on a title level: `Dim` works there but `DrawTexture` never
 reaches the screen, which is why the attract sequence is a `Menu`.
+
+### View border and widescreen policy (2026-07-27)
+
+| ID | Item | Value |
+|---|---|---|
+| BORD-001 | DrawPlayBorder: surround is a full bar in palette 127 over 320x(200-STATUSLINES); the view area is filled with 0; the view sits in an inset bevel | WL_GAME.C:841-860 |
+| BORD-002 | Bevel: top and left Hlin/Vlin in 0, bottom and right in 125, plus a single plotted pixel at the bottom-left corner in 124. Draw order decides the other corners - the top line is laid first and overwritten at its right end by the 125 right line, so top-left reads 0 and top-right 125 | WL_GAME.C:851-857 |
+| BORD-003 | Border palette entries are teal: 127 = (0,65,65), 125 = (0,113,113), 124 = (0,134,134) | GAMEPAL |
+
+**Widescreen policy.** The 320x200 art is drawn into a 4:3 area of full
+height (correct VGA pixel aspect, 1.2:1). Screens whose background is a
+flat colour - the PG13 advisory, the high-score table and its stripe -
+extend that fill across the whole display instead, so nothing is
+pillarboxed where the original had nothing to lose. Screens that are a
+single full-frame picture (title, credits) cannot be widened this way and
+need a surround treatment instead.

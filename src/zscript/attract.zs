@@ -61,7 +61,7 @@ class WolfAttractMenu : GenericMenu
         if (page == PG_ADVISORY)
         {
             // PG13 (WL_INTER.C:310): bar colour 0x82, pic at (216,110)
-            WolfDraw.Bar(0, 0, 320, 200, 0x82);
+            WolfDraw.WideBar(0, 200, 0x82);
             WolfDraw.Pic(216, 110, "PG13");
         }
         else if (page == PG_TITLE)
@@ -145,6 +145,16 @@ class WolfDraw
     static double OrgX()
     {
         return (screen.GetWidth() - screen.GetHeight() * (4.0 / 3.0)) / 2;
+    }
+
+    // Background fills span the whole display rather than stopping at the
+    // 4:3 box: the original's flat-coloured screens extend to 16:9 with no
+    // loss of fidelity, and pillarboxing them just wastes the panel.
+    static void WideBar(int y, int h, int palIndex)
+    {
+        double sy = ScaleY();
+        screen.Dim(WolfPal.Get(palIndex), 1.0, 0, int(y * sy),
+                   screen.GetWidth(), int(h * sy + 1));
     }
 
     static void Bar(int x, int y, int w, int h, int palIndex)

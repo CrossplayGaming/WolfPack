@@ -18,7 +18,7 @@ class WolfHighScores
         if (fnt == null)
             return;
 
-        WolfDraw.Bar(0, 0, 320, 200, BORDCOLOR);        // ClearMScreen
+        WolfDraw.WideBar(0, 200, BORDCOLOR);            // ClearMScreen
         DrawStripes(10);
         WolfDraw.Pic(48, 0, "HISCORES");
         WolfDraw.Pic(4 * 8, 68, "C_NAME");
@@ -49,8 +49,8 @@ class WolfHighScores
 
     static void DrawStripes(int y)
     {
-        WolfDraw.Bar(0, y, 320, 24, 0);
-        WolfDraw.Bar(0, y + 22, 320, 1, STRIPE);        // VWB_Hlin
+        WolfDraw.WideBar(y, 24, 0);
+        WolfDraw.WideBar(y + 22, 1, STRIPE);            // VWB_Hlin
     }
 
     // '0'-'9' -> 129-138, the font's fixed-width digit block
