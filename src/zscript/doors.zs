@@ -35,9 +35,7 @@ class WolfDoor : Actor
 
     Default
     {
-        +SOLID +NOGRAVITY +DONTSPLASH +NOTAUTOAIMED
-        Radius 42;          // 42 + PLAYERSIZE 22 = 64: stops the player
-        Height 64;          // flush with the walls flanking the door
+        +NOBLOCKMAP +NOSECTOR +NOINTERACTION +NOGRAVITY +DONTSPLASH
     }
 
     override void PostBeginPlay()
@@ -53,6 +51,9 @@ class WolfDoor : Actor
         doorAction = DR_CLOSED;
         position = 0;
         ticcount = 0;
+        FindGateLines();
+        A_SetSolid(true);           // closed doors block the tile
+
     }
 
     // slide dir: vertical doors slide SOUTH (UDMF -y), horizontal EAST (+x)
@@ -62,9 +63,48 @@ class WolfDoor : Actor
     int OpenX() { return vertical ? homeX : homeX + SLIDEDIST; }
     int OpenY() { return vertical ? homeY - SLIDEDIST : homeY; }
 
+    // The door tile is solid until fully open (actorat, WL_ACT1.C:599-602).
+    // Blocking is done with the tile's two entrance lines rather than a
+    // solid actor: an actor at the tile centre stands in the sliding
+    // slab's path and stalls the polyobject until it is cleared.
+    Array<Line> gateLines;
+
+    void FindGateLines()
+    {
+        double cx = tileX * 64 + 32, cy = (63 - tileY) * 64 + 32;
+        for (int i = 0; i < Level.Lines.Size(); i++)
+        {
+            Line l = Level.Lines[i];
+            if (l.sidedef[1] == null)
+                continue;                   // one-sided: already a wall
+            Vector2 mid = (l.v1.p + l.v2.p) / 2;
+            // the two edges perpendicular to the slide axis
+            if (vertical)
+            {
+                if (abs(mid.y - cy) < 1
+                    && (abs(mid.x - (cx - 32)) < 1
+                        || abs(mid.x - (cx + 32)) < 1))
+                    gateLines.Push(l);
+            }
+            else
+            {
+                if (abs(mid.x - cx) < 1
+                    && (abs(mid.y - (cy - 32)) < 1
+                        || abs(mid.y - (cy + 32)) < 1))
+                    gateLines.Push(l);
+            }
+        }
+    }
+
     void A_SetSolid(bool on)
     {
-        bSolid = on;
+        for (int i = 0; i < gateLines.Size(); i++)
+        {
+            if (on)
+                gateLines[i].flags |= Line.ML_BLOCKING;
+            else
+                gateLines[i].flags &= ~Line.ML_BLOCKING;
+        }
     }
 
     // areas on both sides (DOOR-011: vertical x+-1, horizontal y+-1)
