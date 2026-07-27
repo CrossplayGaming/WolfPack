@@ -243,9 +243,11 @@ class WolfDraw
         double aw = ah * (4.0 / 3.0);        // art keeps its 4:3 box
         double ax = (sw - aw) / 2, ay = 16 * px;
 
-        Color dark  = WolfPal.Get(0x1D);     // (56,56,56)
-        Color light = WolfPal.Get(0x12);     // (211,211,211)
-        Color face  = WolfPal.Get(0x17);     // (142,142,142)
+        // a few steps down the grey ramp from the first pass, so the frame
+        // sits closer to the darkened stone instead of popping off it
+        Color dark  = WolfPal.Get(0x1F);     // (32,32,32)
+        Color light = WolfPal.Get(0x17);     // (142,142,142)
+        Color face  = WolfPal.Get(0x1B);     // (85,85,85)
         Color black = WolfPal.Get(0);
 
         double x = ax, y = ay, w = aw, h = ah;
