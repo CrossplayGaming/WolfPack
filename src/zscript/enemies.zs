@@ -66,6 +66,8 @@ class WolfEnemySim : Actor abstract
     virtual bool CardinalDiag() { return false; }   // dogs/fake: no doors
     virtual int KillPoints() { return 100; }
     virtual bool BetterShot() { return false; }     // SS/Hans: dist*2/3
+    virtual bool DeathCamBoss() { return false; }   // BOSS-003
+    virtual class<Actor> ProjectileType() { return null; }
 
     // A_DeathScream's secret-floor gag (WL_ACT2.C:1063-1080): on the
     // secret floor a 1-in-256 roll replaces any humanoid death cry.
@@ -102,7 +104,7 @@ class WolfEnemySim : Actor abstract
 
     // grid-dependent init deferred until WolfLevel has loaded (WorldLoaded
     // runs after PostBeginPlay)
-    void LazyInit(WolfLevel wl)
+    virtual void LazyInit(WolfLevel wl)
     {
         simInit = true;
         areanumber = wl.AreaAt(spawnTX, spawnTY);
@@ -268,6 +270,16 @@ class WolfEnemySim : Actor abstract
         case 4: T_Shoot(); break;
         case 5: T_Bite(); break;
         case 13: T_DogChase(); break;
+        case 20: BossChase(3); break;   // T_Schabb
+        case 21: BossChase(3); break;   // T_Gift
+        case 22: BossChase(3); break;   // T_Fat
+        case 23: BossChase(1); break;   // T_Fake
+        case 24: ThrowProjectile("WolfNeedle", 0x2000); break;
+        case 25: ThrowProjectile("WolfRocket", 0x2000); break;
+        case 26: ThrowProjectile("WolfFire", 0x1200); break;
+        case 14: HitlerMorph(); break;  // A_HitlerMorph
+        case 29: A_StartSound("wolf/mechstep", CHAN_BODY); break;
+        case 30: A_StartSound("wolf/slurpie", CHAN_VOICE); break;
         case 10: DeathSound(); break;
         default: break;
         }
@@ -553,6 +565,11 @@ class WolfEnemySim : Actor abstract
             }
             dodge = true;
         }
+        ChaseMove(dodge);
+    }
+
+    void ChaseMove(bool dodge)
+    {
         if (dir == NODIR)
         {
             if (dodge) SelectDodgeDir();
@@ -565,11 +582,7 @@ class WolfEnemySim : Actor abstract
         while (move > 0)
         {
             if (++loopGuard > 200)
-            {
-                Console.Printf("WOLFDBG T_Chase loop: move=%d dist=%d dir=%d tile=%d,%d st=%d",
-                               move, distance, dir, tileX, tileY, stateIdx);
                 break;
-            }
             if (distance < 0)
             {
                 if (waitDoor == null || waitDoor.doorAction != WolfDoor.DR_OPEN)
@@ -781,6 +794,58 @@ class WolfEnemySim : Actor abstract
             if (dir == NODIR)
                 return;
         }
+    }
+
+    // T_Schabb / T_Gift / T_Fat / T_Fake (WL_ACT2.C:2380+): T_Chase with
+    // a flat attack roll — US_RndT() < (tics<<shift) — instead of the
+    // distance formula. tics = 2 (TIC-002).
+    void BossChase(int shift)
+    {
+        WolfLevel wl = WolfLevel.Get();
+        bool dodge = false;
+        if (CheckLine_())
+        {
+            if (wl.RndT() < (2 << shift))
+            {
+                SetState_(ShootState());
+                return;
+            }
+            dodge = true;
+        }
+        ChaseMove(dodge);
+    }
+
+    // spawn a projectile aimed at the player (T_SchabbThrow / T_GiftThrow
+    // / T_FakeFire: atan2 to the player, speed per PROJ-001..003)
+    void ThrowProjectile(class<Actor> cls, int speed)
+    {
+        Actor p = Spawn(cls, pos);
+        WolfProjectile wp = WolfProjectile(p);
+        if (wp != null)
+            wp.InitProjectile(self, speed);
+        AttackSound();
+    }
+
+    // A_HitlerMorph (WL_ACT2.C:2886-2903): the mech suit dies and the
+    // real Hitler steps out with his own HP table, inheriting position.
+    void HitlerMorph()
+    {
+        Actor h = Spawn("WolfHitler", pos);
+        WolfEnemySim e = WolfEnemySim(h);
+        if (e == null)
+            return;
+        e.wolfX = wolfX;
+        e.wolfY = wolfY;
+        e.tileX = tileX;
+        e.tileY = tileY;
+        e.dir = dir;
+        e.distance = distance;
+        e.areanumber = areanumber;
+        e.attackMode = true;
+        e.activeFlag = true;
+        e.ambushFlag = false;
+        e.simInit = true;
+        e.SetState_(e.ChaseState());
     }
 
     // T_Bite (WL_ACT2.C:3530-3560)

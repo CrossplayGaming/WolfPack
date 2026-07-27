@@ -11,4 +11,11 @@ DoomEdNums
     21008 = "WolfDogPatrol"
     21009 = "WolfMutantStand"
     21010 = "WolfMutantPatrol"
+    21020 = "WolfHans"
+    21021 = "WolfGretel"
+    21022 = "WolfGift"
+    21023 = "WolfFat"
+    21024 = "WolfSchabbs"
+    21025 = "WolfFakeHitler"
+    21026 = "WolfMechaHitler"
 }

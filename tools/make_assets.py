@@ -235,7 +235,7 @@ def main():
     # AdLib SFX (render_adlib.py) referenced by SNDINFO
     ADLIB = ROOT / "build" / "audio" / "wl6" / "sfx"
     (ASSETS / "sounds").mkdir(exist_ok=True)
-    adlib_sfx = ["PLAYERDEATHSND", "PERCENT100SND", "HEALTH1SND", "HEALTH2SND", "GETAMMOSND", "BONUS1SND",
+    adlib_sfx = ["MISSILEHITSND", "PLAYERDEATHSND", "PERCENT100SND", "HEALTH1SND", "HEALTH2SND", "GETAMMOSND", "BONUS1SND",
                  "BONUS2SND", "BONUS3SND", "BONUS4SND", "BONUS1UPSND",
                  "GETKEYSND", "GETMACHINESND", "GETGATLINGSND", "NOWAYSND",
                  "ATKKNIFESND", "DOGATTACKSND", "DONOTHINGSND",
@@ -256,7 +256,12 @@ def main():
                        (39, "death6"), (40, "death7"), (41, "death8"),
                        (42, "death9"), (27, "spion"), (28, "neinsovas"),
                        (7, "schutzad"), (20, "leben"), (17, "ahhhg"),
-                       (11, "ssfire")):
+                       (11, "ssfire"), (8, "gutentag"), (9, "mutti"),
+                       (10, "bossfire"), (25, "schabbsha"), (24, "meingott"),
+                       (23, "tothund"), (26, "hitlerha"), (33, "scheist"),
+                       (18, "die"), (19, "eva"), (37, "eine"),
+                       (38, "erlauben"), (43, "kein"), (44, "mein"),
+                       (36, "donner"), (31, "mechstep")):
         src = VSWAP / "sounds" / f"DIGI{digi:03d}.wav"
         if src.exists():
             shutil.copy(src, ASSETS / "sounds" / f"{name}.wav")

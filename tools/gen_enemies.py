@@ -25,7 +25,11 @@ SRC = ROOT / "reference" / "wolfsrc" / "WOLFSRC"
 
 THINKS = {"None": 0, "T_Stand": 1, "T_Path": 2, "T_Chase": 3, "T_Shoot": 4,
           "T_Bite": 5, "A_DeathScream": 10, "A_StartDeathCam": 11,
-          "T_Ghosts": 12, "T_DogChase": 13, "A_HitlerMorph": 14}
+          "T_Ghosts": 12, "T_DogChase": 13, "A_HitlerMorph": 14,
+          "T_Schabb": 20, "T_Gift": 21, "T_Fat": 22, "T_Fake": 23,
+          "T_SchabbThrow": 24, "T_GiftThrow": 25, "T_FakeFire": 26,
+          "T_Projectile": 27, "A_Smoke": 28, "A_MechaSound": 29,
+          "A_Slurpie": 30, "T_Launch": 31, "A_Relaunch": 32}
 
 # Sprite naming is mechanical across every enemy: the source's SPR_<X>_<suffix>
 # suffixes map to a 3-char base + category letter (S stand, W walk, P pain,
@@ -36,14 +40,26 @@ ENEMIES = {
     "Officer": {"table": "WolfOfficerTable", "prefix": "SPR_OFC_", "base": "OFC"},
     "SS":      {"table": "WolfSSTable",    "prefix": "SPR_SS_",  "base": "SSG"},
     "Mutant":  {"table": "WolfMutantTable", "prefix": "SPR_MUT_", "base": "MUT"},
+    # bosses: single-view (rotate=false), suffixes W1/DIE1/SHOOT1 style
+    "Hans":    {"table": "WolfHansTable",    "prefix": "SPR_BOSS_",   "base": "BOS"},
+    "Gretel":  {"table": "WolfGretelTable",  "prefix": "SPR_GRETEL_", "base": "GRE"},
+    "Schabbs": {"table": "WolfSchabbsTable", "prefix": "SPR_SCHABB_", "base": "SCH"},
+    "Gift":    {"table": "WolfGiftTable",    "prefix": "SPR_GIFT_",   "base": "GIF"},
+    "Fat":     {"table": "WolfFatTable",     "prefix": "SPR_FAT_",    "base": "FTB"},
+    "Fake":    {"table": "WolfFakeTable",    "prefix": "SPR_FAKE_",   "base": "FAK"},
+    "Mecha":   {"table": "WolfMechaTable",   "prefix": "SPR_MECHA_",  "base": "MEC"},
+    "Hitler":  {"table": "WolfHitlerTable",  "prefix": "SPR_HITLER_", "base": "HIT"},
 }
 STATE_PREFIX = {"Guard": "s_grd", "Dog": "s_dog", "Officer": "s_ofc",
-                "SS": "s_ss", "Mutant": "s_mut"}
+                "SS": "s_ss", "Mutant": "s_mut",
+                "Hans": "s_boss", "Gretel": "s_gretel", "Schabbs": "s_schabb",
+                "Gift": "s_gift", "Fat": "s_fat", "Fake": "s_fake",
+                "Mecha": "s_mecha", "Hitler": "s_hitler"}
 # state order per enemy: stand, path, pain, shoot, chase, die (source order)
 # NOTE: "dead" is its own group - the dog's final state is s_dogdead,
 # not s_dogdie4, and omitting it truncated the death chain.
 STATE_ORDER = ["stand", "path", "pain", "shoot", "chase", "die",
-               "dead", "jump"]
+               "dead", "jump", "deathcam"]
 
 
 def classify(suffix, seen):
@@ -63,9 +79,14 @@ def classify(suffix, seen):
     m = re.match(r"JUMP(\d)$", suffix)
     if m:
         return "J", int(m.group(1)) - 1, "flat"
-    m = re.match(r"DIE_(\d)$", suffix)
+    m = re.match(r"DIE_?(\d)$", suffix)
     if m:
         return "D", int(m.group(1)) - 1, "flat"
+    m = re.match(r"W(\d)$", suffix)          # boss walk (no rotations)
+    if m:
+        return "W", int(m.group(1)) - 1, "flat"
+    if suffix == "SHOOT":                    # fake Hitler: single frame
+        return "A", 0, "flat"
     if suffix == "DEAD":
         return "D", seen.get("D", 0), "flat"
     raise SystemExit(f"unclassified sprite suffix: {suffix}")
@@ -103,7 +124,14 @@ DOOMEDS = ['    21001 = "WolfGuardStand"',
            '    21007 = "WolfDogStand"',
            '    21008 = "WolfDogPatrol"',
            '    21009 = "WolfMutantStand"',
-           '    21010 = "WolfMutantPatrol"']
+           '    21010 = "WolfMutantPatrol"',
+           '    21020 = "WolfHans"',
+           '    21021 = "WolfGretel"',
+           '    21022 = "WolfGift"',
+           '    21023 = "WolfFat"',
+           '    21024 = "WolfSchabbs"',
+           '    21025 = "WolfFakeHitler"',
+           '    21026 = "WolfMechaHitler"']
 
 
 def sprite_enum():
@@ -228,6 +256,14 @@ def main():
     (ROOT / "docs" / "data" / "sprite_copies.json").write_text(
         json.dumps({"note": "chunk -> sprite lump (gen_enemies.py)",
                     "copies": dedup}, indent=1))
+    # projectile sprites (their actors use plain ZScript states)
+    for chunk, lump in ((317, "HYPOA0"), (318, "HYPOB0"), (319, "HYPOC0"),
+                        (320, "HYPOD0"), (370, "MISLA0"),
+                        (326, "FIREA0"), (327, "FIREB0")):
+        if lump not in seen_lumps:
+            seen_lumps.add(lump)
+            dedup.append([chunk, lump])
+
     ph = placeholder_png()
     for _, lump in dedup:
         (ROOT / "src" / "sprites" / f"{lump}.png").write_bytes(ph)

@@ -55,3 +55,22 @@ wolf/endbonus2  "sounds/endbonus2snd.wav"
 wolf/percent100 "sounds/percent100snd.wav"
 wolf/nobonus    "sounds/nobonussnd.wav"
 wolf/playerdeath "sounds/playerdeathsnd.wav"
+
+// boss voices + projectiles (wolfdigimap)
+wolf/gutentag   "sounds/gutentag.wav"    // GUTENTAGSND digi 8
+wolf/mutti      "sounds/mutti.wav"       // MUTTISND digi 9
+wolf/bossfire   "sounds/bossfire.wav"    // BOSSFIRESND digi 10
+wolf/schabbsha  "sounds/schabbsha.wav"   // SCHABBSHASND digi 25
+wolf/meingott   "sounds/meingott.wav"    // MEINGOTTSND digi 24
+wolf/tothund    "sounds/tothund.wav"     // TOT_HUNDSND digi 23
+wolf/hitlerha   "sounds/hitlerha.wav"    // HITLERHASND digi 26
+wolf/scheist    "sounds/scheist.wav"     // SCHEISTSND digi 33
+wolf/die        "sounds/die.wav"         // DIESND digi 18
+wolf/eva        "sounds/eva.wav"         // EVASND digi 19
+wolf/eine       "sounds/eine.wav"        // EINESND digi 37
+wolf/erlauben   "sounds/erlauben.wav"    // ERLAUBENSND digi 38
+wolf/kein       "sounds/kein.wav"        // KEINSND digi 43
+wolf/mein       "sounds/mein.wav"        // MEINSND digi 44
+wolf/donner     "sounds/donner.wav"      // DONNERSND digi 36
+wolf/mechstep   "sounds/mechstep.wav"    // MECHSTEPSND digi 31
+wolf/missilehit "sounds/missilehit.wav"  // MISSILEHITSND (AdLib)
