@@ -8,6 +8,7 @@
 
 Same loop as the Catacomb/Hovertank projects. Assets extracted from the
 user's own data (tools/extract_*.py -> tools/make_assets.py) live under
+    subprocess.run([sys.executable, str(ROOT / "tools" / "patch_engine.py")], check=False)
 build/assets (gitignored) and are merged into the IPK3 at build time.
 """
 import argparse
