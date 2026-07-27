@@ -219,6 +219,23 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
         if src.exists():
             shutil.copy(src, ASSETS / "sounds" / f"{wav.lower()}.wav")
 
+    # menu mouse cursor: a keyed classic arrow (user: the gun pic sits in
+    # an opaque box; a pointer should point). White fill, black outline,
+    # hotspot at the top-left tip where the engine anchors CursorPic.
+    ARROW = ["X          ", "XX         ", "XWX        ", "XWWX       ",
+             "XWWWX      ", "XWWWWX     ", "XWWWWWX    ", "XWWWWWWX   ",
+             "XWWWWWWWX  ", "XWWWWWWWWX ", "XWWWWWXXXXX", "XWWXWWX    ",
+             "XWX XWWX   ", "XX  XWWX   ", "     XWWX  ", "      XX   "]
+    cur = Image.new("RGBA", (11, 16), (0, 0, 0, 0))
+    cpx = cur.load()
+    for cy, row in enumerate(ARROW):
+        for cx, ch in enumerate(row):
+            if ch == "X":
+                cpx[cx, cy] = (0, 0, 0, 255)
+            elif ch == "W":
+                cpx[cx, cy] = (211, 211, 211, 255)      # palette 0x12 grey
+    cur.save(ASSETS / "graphics" / "M_CURSOR.png")
+
     # end-of-episode articles and the proportional font (extract_text.py)
     TXT = ROOT / "build" / "text"
     if TXT.exists():
