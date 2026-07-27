@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""Generate the multiplayer BJ sprite set from the guard rotations.
+"""Generate the multiplayer player sprites from the MUTANT set (user
+insight: no helmet, no strap, and a flat-top that is already BJ's
+haircut - far less surgery than the guard).
 
-The guard's complete 8-rotation set (stand/walk/pain/shoot/death) is
-re-ramped onto BJ's OWN colors, learned from the victory-run frames:
-uniform browns -> his grey ramp (luminance-matched), helmet -> his hair
-ramp with the stahlhelm brim clamped to the crown width, strap/belt/
-collar dissolved into the cloth (index pass + thin-line filter). Output
-is build/playersprite/BJP*.png, packed when the multiplayer phase lands.
-User-approved look (bj_preview5): decent placeholder-plus; boots stay
-guard-blue pending a real art pass.
+Per frame: dark flat-top -> BJ's hair ramp (sampled from his victory-run
+art), pale face/hands -> his flesh ramp, red eyes cleared, the green
+tunic rank-normalized onto a clothing ramp, and the chest-embedded gun
+filled with neighbouring cloth (the held gun stays - players carry
+guns). Four clothing variants for player customization: grey, blue,
+red, tan. Output build/playersprite/BJ<v><frame>.png for all 65 mutant
+frames (stand/walk/attack/pain/death), packed when multiplayer lands.
+Approved look: dist/bjm_v3.png.
 """
+import json
 import sys
 from collections import Counter
 from pathlib import Path
@@ -20,7 +23,6 @@ from wolf_common import ROOT, load_palette
 
 D = ROOT / "build" / "vswap" / "wl6" / "sprites"
 OUT = ROOT / "build" / "playersprite"
-
 pal = load_palette()
 rgb2idx = {tuple(pal[i]): i for i in range(256)}
 
@@ -34,124 +36,134 @@ def plum(p):
     return 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]
 
 
-def hair_colors():
-    hair = Counter()
+def sample_bj():
+    face, hairc = Counter(), Counter()
     for ch in range(408, 412):
         im = Image.open(D / f"SPR{ch:03d}.png").convert("RGBA")
         px = im.load()
-        bbox = im.split()[3].getbbox()
-        for y in range(bbox[1], bbox[1] + 6):
+        bb = im.split()[3].getbbox()
+        for y in range(bb[1], bb[1] + 12):
             for x in range(im.width):
                 r, g, b, a = px[x, y]
                 if a > 0:
-                    hair[rgb2idx.get((r, g, b), 0)] += 1
-    return sorted([i for i, n in hair.most_common(6) if n > 5], key=lum)
+                    i = rgb2idx.get((r, g, b), 0)
+                    if y < bb[1] + 6:
+                        hairc[i] += 1
+                    elif r > 140 and g > 90 and b < 140:
+                        face[i] += 1
+    hair = sorted([i for i, n in hairc.most_common(6) if n > 5], key=lum)
+    flesh = sorted([i for i, n in face.most_common(6) if n > 3], key=lum)
+    return hair, flesh
 
 
-HAIR = None
-GREYS = list(range(16, 32))
-UNIFORM = {}
-for i in range(192, 224):
-    t = min(GREYS, key=lambda g: abs(lum(g) - lum(i) * 0.92))
-    UNIFORM[tuple(pal[i])] = tuple(pal[t])
-DARKMID = pal[0x1C]
-STRAPSRC = {tuple(pal[223]), tuple(pal[222]), (0, 0, 0)}
+HAIR, FLESH = None, None
 
 
-def convert(ch, recolor_head=True):
+def ramp(lo, hi):
+    return sorted(range(lo, hi), key=lum)
+
+
+RAMPS = {
+    "1": ramp(0x13, 0x1D),      # grey (BJ classic)
+    "2": ramp(0x98, 0xA0),      # blue
+    "3": ramp(0x24, 0x2C),      # red
+    "4": ramp(0xD4, 0xDC),      # tan
+}
+
+
+def green_span():
+    gl = []
+    im = Image.open(D / "SPR187.png").convert("RGBA")
+    px = im.load()
+    for y in range(64):
+        for x in range(64):
+            r, g, b, a = px[x, y]
+            if a > 0 and g > r + 20 and g > b + 20:
+                gl.append(plum((r, g, b)))
+    return min(gl), max(gl)
+
+
+GMIN = GMAX = 0
+
+
+def convert(ch, cloth_ramp):
     im = Image.open(D / f"SPR{ch:03d}.png").convert("RGBA")
     px = im.load()
-    bbox = im.split()[3].getbbox()
-    if bbox is None:
+    bb = im.split()[3].getbbox()
+    if not bb:
         return im
-    top, bot = bbox[1], bbox[3]
+    top, bot = bb[1], bb[3]
     h = bot - top
-    helmet_bottom = top + h // 5
-    band_bot = top + 3 * h // 4
+    head_bot = top + h // 6
+    face_bot = top + h // 4
+    chest_top, chest_bot = top + h // 4, top + h // 2
+    cloth_set = {pal[c] for c in cloth_ramp}
 
-    for y in range(helmet_bottom, band_bot):
-        for x in range(im.width):
-            r, g, b, a = px[x, y]
-            if a > 0 and (r, g, b) in STRAPSRC:
-                px[x, y] = (DARKMID[0], DARKMID[1], DARKMID[2], a)
+    def cloth_for(v):
+        t = (v - GMIN) / max(1, GMAX - GMIN)
+        return pal[cloth_ramp[min(len(cloth_ramp) - 1,
+                                  int(t * len(cloth_ramp)))]]
+
     for y in range(im.height):
         for x in range(im.width):
             r, g, b, a = px[x, y]
             if a == 0:
                 continue
-            if r > 180 and b > 180 and g < 120:      # stray magenta
-                px[x, y] = (DARKMID[0], DARKMID[1], DARKMID[2], a)
-            elif (r, g, b) in UNIFORM:
-                nr, ng, nb = UNIFORM[(r, g, b)]
-                px[x, y] = (nr, ng, nb, a)
-    for _ in range(2):
-        for y in range(helmet_bottom, band_bot):
-            for x in range(1, im.width - 1):
+            mx, mn = max(r, g, b), min(r, g, b)
+            if y < head_bot and plum((r, g, b)) < 95:
+                c = min(HAIR,
+                        key=lambda hh: abs(lum(hh) - plum((r, g, b)) - 90))
+                px[x, y] = pal[c] + (a,)
+            elif y < face_bot and mx > 150 and mx - mn < 40:
+                c = FLESH[min(len(FLESH) - 1,
+                              int(plum((r, g, b)) / 300 * len(FLESH)))]
+                px[x, y] = pal[c] + (a,)
+            elif y < face_bot and r > 150 and g < 90:
+                px[x, y] = pal[FLESH[len(FLESH) // 2]] + (a,)
+            elif y >= face_bot and mx > 130 and mx - mn < 35:
+                c = FLESH[min(len(FLESH) - 1,
+                              int(plum((r, g, b)) / 300 * len(FLESH)))]
+                px[x, y] = pal[c] + (a,)
+            elif g > r + 20 and g > b + 20:
+                px[x, y] = cloth_for(plum((r, g, b))) + (a,)
+
+    for _ in range(3):
+        for y in range(chest_top, chest_bot):
+            for x in range(3, im.width - 3):
                 p = px[x, y]
-                if p[3] == 0 or plum(p) > 62:
+                if p[3] == 0 or plum(p) > 55:
                     continue
-                lft, rgt = px[x - 1, y], px[x + 1, y]
-                up, dn = px[x, y - 1], px[x, y + 1]
-                if (lft[3] and rgt[3] and plum(lft) > plum(p) + 22
-                        and plum(rgt) > plum(p) + 22):
-                    px[x, y] = lft
-                elif (up[3] and dn[3] and plum(up) > plum(p) + 22
-                        and plum(dn) > plum(p) + 22):
-                    px[x, y] = up
-    if recolor_head:
-        rows = {}
-        for y in range(top, helmet_bottom):
-            xs = [x for x in range(im.width) if px[x, y][3] > 0]
-            if xs:
-                rows[y] = (min(xs), max(xs))
-        keys = list(rows.keys())
-        crown = keys[:max(1, len(keys) * 2 // 5)]
-        if crown:
-            cw = max(rows[y][1] - rows[y][0] for y in crown) - 1
-            for n, y in enumerate(keys):
-                x0, x1 = rows[y]
-                limit = cw + (1 if n == len(keys) - 1 else 0)
-                over = (x1 - x0) - limit
-                if over > 0:
-                    for k in range(over // 2 + over % 2):
-                        px[x0 + k, y] = (0, 0, 0, 0)
-                    for k in range(over // 2):
-                        px[x1 - k, y] = (0, 0, 0, 0)
-        for y in range(top, helmet_bottom):
-            for x in range(im.width):
-                r, g, b, a = px[x, y]
-                if a > 0:
-                    c = min(HAIR,
-                            key=lambda hh: abs(lum(hh) - plum((r, g, b))))
-                    nr, ng, nb = pal[c]
-                    px[x, y] = (nr, ng, nb, a)
+                lc = rc = None
+                for k in (1, 2, 3):
+                    if lc is None and tuple(px[x - k, y][:3]) in cloth_set:
+                        lc = px[x - k, y]
+                    if rc is None and tuple(px[x + k, y][:3]) in cloth_set:
+                        rc = px[x + k, y]
+                if lc and rc:
+                    px[x, y] = (lc[0], lc[1], lc[2], 255)
     return im
 
 
 def main():
-    global HAIR
-    HAIR = hair_colors()
+    global HAIR, FLESH, GMIN, GMAX
+    HAIR, FLESH = sample_bj()
+    GMIN, GMAX = green_span()
     OUT.mkdir(parents=True, exist_ok=True)
+    j = json.loads((ROOT / "docs" / "data"
+                    / "sprite_copies.json").read_text())
+    mut = [(c, n) for c, n in j["copies"] if n.startswith("MUT")]
     n = 0
-    # guard chunk map: stand 50-57(8 rot), walk A-D 58-89, pain 90?,
-    # shoot 96-98, die 91-95 - non-rotated frames get suffix 0
-    jobs = []
-    for r in range(8):
-        jobs.append((50 + r, f"BJPA{r + 1}"))            # stand
-    for f in range(4):
-        for r in range(8):
-            jobs.append((58 + f * 8 + r, f"BJP{chr(66 + f)}{r + 1}"))
-    for i, ch in enumerate((90, 91, 92, 93, 95)):        # die + dead
-        jobs.append((ch, f"BJP{chr(70 + i)}0"))
-    for i, ch in enumerate((96, 97, 98)):                # shoot
-        jobs.append((ch, f"BJP{chr(75 + i)}0"))
-    for ch, name in jobs:
-        src = D / f"SPR{ch:03d}.png"
-        if not src.exists():
-            continue
-        convert(ch).save(OUT / f"{name}.png")
-        n += 1
-    print(f"playersprite: {n} frames generated")
+    for var, rr in RAMPS.items():
+        for ch, name in mut:
+            if not (D / f"SPR{ch:03d}.png").exists():
+                continue
+            # MUTSA1 -> BJ1SA1 is too long for sprite naming; frames keep
+            # the mutant's own frame letter + rotation: BJ<v><frame><rot>
+            suffix = name[4:]           # e.g. "A1" from MUTSA1
+            kind = name[3]              # S/W/A/D...
+            convert(ch, rr).save(OUT / f"BJ{var}{kind}{suffix}.png")
+            n += 1
+    print(f"playersprite: {n} frames across {len(RAMPS)} variants")
 
 
 if __name__ == "__main__":
