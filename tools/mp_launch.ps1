@@ -46,5 +46,5 @@ if ($Mode -eq "host") {
 elseif ($Mode -eq "join") {
     if (-not $Code) { $Code = (Get-Clipboard -Raw).Trim() }
     Write-Host "  Joining $Code ..."
-    & "$root\engine\uzdoom.exe" -join $Code -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0
+    & "$root\engine\uzdoom.exe" -join $Code -iwad "$root\dist\wolf.ipk3" -config "$root\dist\join.ini" +set wolf_dbg_arm 0
 }

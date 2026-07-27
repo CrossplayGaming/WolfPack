@@ -1,7 +1,6 @@
 @echo off
 REM WolfDoom multiplayer - host or join with zero manual setup.
 cd /d "%~dp0"
-python build.py || (echo Build failed & pause & exit /b 1)
 echo.
 echo   === WOLFDOOM MULTIPLAYER ===
 echo.
@@ -10,6 +9,9 @@ echo   2 - Join a game  (invite code on your clipboard, or type it)
 echo.
 choice /c 12 /n /m "  Choose: "
 if errorlevel 2 goto join
+REM host rebuilds (fresh build for the session); joiners must NOT -
+REM they need to match the host, and the running host locks the pk3
+python build.py || (echo Build failed & pause & exit /b 1)
 set /p NUM="  How many players total (2-8)? "
 powershell -ExecutionPolicy Bypass -File tools\mp_launch.ps1 -Mode host -Players %NUM%
 exit /b 0
