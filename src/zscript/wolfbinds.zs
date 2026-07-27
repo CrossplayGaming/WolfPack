@@ -7,6 +7,7 @@
 class WolfBindGrid : WolfMenu
 {
     Array<String> cmds;
+    Font sm;
     bool waiting;
     int pendingKey;
 
@@ -17,6 +18,7 @@ class WolfBindGrid : WolfMenu
     override void Init(Menu parent, ListMenuDescriptor desc)
     {
         Super.Init(parent, desc);
+        sm = Font.GetFont("wolfprop");
         labels.Clear(); itemStates.Clear(); cmds.Clear();
         AddBind("Forward",      "+forward");
         AddBind("Backward",     "+back");
@@ -58,7 +60,7 @@ class WolfBindGrid : WolfMenu
         nm.Replace("Joy", "JY");
         nm.Replace("Axis", "AX");
         nm.Replace("Arrow", "");
-        int cap = KeyClass(k) == 0 ? 4 : 3;
+        int cap = KeyClass(k) == 0 ? 6 : 4;
         if (nm.Length() > cap)
             nm = nm.Left(cap);
         return nm;
@@ -95,28 +97,28 @@ class WolfBindGrid : WolfMenu
         WolfDraw.Text(big, COL_JOY, 48, "Joy", WolfPal.Get(C_READH));
 
         int wy = 62;
-        DrawWindowBox(28, wy - 3, 320 - 56, 13 * labels.Size() + 6);
-        hitX = 36; hitY = wy; hitPitch = 13;
+        DrawWindowBox(28, wy - 3, 320 - 56, 12 * labels.Size() + 6);
+        hitX = 36; hitY = wy; hitPitch = 12;
 
         for (int i = 0; i < labels.Size(); i++)
         {
-            int y = wy + i * 13;
+            int y = wy + i * 12;
             int pal = i == sel ? (waiting ? 0x10 : C_HILITE) : C_TEXT;
-            WolfDraw.Text(big, 40, y, labels[i], WolfPal.Get(pal));
+            WolfDraw.Text(sm, 40, y + 1, labels[i], WolfPal.Get(pal));
 
             if (i == sel && waiting)
             {
-                WolfDraw.Text(big, COL_KEY, y, "???",
+                WolfDraw.Text(sm, COL_KEY, y + 1, "???",
                               WolfPal.Get(C_READH));
                 continue;
             }
             String kb, ms, jy;
             [kb, ms, jy] = KeyCols(cmds[i]);
-            WolfDraw.Text(big, COL_KEY, y, kb, WolfPal.Get(pal));
-            WolfDraw.Text(big, COL_MSE, y, ms, WolfPal.Get(pal));
-            WolfDraw.Text(big, COL_JOY, y, jy, WolfPal.Get(pal));
+            WolfDraw.Text(sm, COL_KEY, y + 1, kb, WolfPal.Get(pal));
+            WolfDraw.Text(sm, COL_MSE, y + 1, ms, WolfPal.Get(pal));
+            WolfDraw.Text(sm, COL_JOY, y + 1, jy, WolfPal.Get(pal));
         }
-        DrawGun(6, wy, 13);
+        DrawGun(6, wy, 12);
     }
 
     override void OnChoose(int index)
