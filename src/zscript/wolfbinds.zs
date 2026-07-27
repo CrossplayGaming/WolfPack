@@ -89,12 +89,12 @@ class WolfBindGrid : WolfMenu
         WolfDraw.Pic(84, 0, "C_CUSTOM");
 
         // yellow column headers (ECWolf layout)
-        WolfDraw.Text(big, 40, 40, "Control", WolfPal.Get(C_READH));
-        WolfDraw.Text(big, COL_KEY - 4, 40, "Key", WolfPal.Get(C_READH));
-        WolfDraw.Text(big, COL_MSE, 40, "Mse", WolfPal.Get(C_READH));
-        WolfDraw.Text(big, COL_JOY, 40, "Joy", WolfPal.Get(C_READH));
+        WolfDraw.Text(big, 40, 48, "Control", WolfPal.Get(C_READH));
+        WolfDraw.Text(big, COL_KEY - 4, 48, "Key", WolfPal.Get(C_READH));
+        WolfDraw.Text(big, COL_MSE, 48, "Mse", WolfPal.Get(C_READH));
+        WolfDraw.Text(big, COL_JOY, 48, "Joy", WolfPal.Get(C_READH));
 
-        int wy = 56;
+        int wy = 62;
         DrawWindowBox(28, wy - 3, 320 - 56, 13 * labels.Size() + 6);
         hitX = 36; hitY = wy; hitPitch = 13;
 
