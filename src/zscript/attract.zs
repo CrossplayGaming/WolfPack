@@ -240,6 +240,30 @@ class WolfDraw
         screen.Dim(tl, 1.0, int(x), int(y), int(t + 1), int(h + 1));
     }
 
+    // the five-layer bevel around an arbitrary real-pixel rect
+    static void BevelRing(double ax, double ay, double aw, double ah)
+    {
+        double px = Px();
+        Color dark  = WolfPal.Get(0x1F);     // (32,32,32)
+        Color light = WolfPal.Get(0x17);     // (142,142,142)
+        Color face  = WolfPal.Get(0x1B);     // (85,85,85)
+        Color black = WolfPal.Get(0);
+
+        double x = ax, y = ay, w = aw, h = ah;
+        // grow outward, drawing each ring
+        x -= px;     y -= px;     w += 2*px;   h += 2*px;
+        Edges(x, y, w, h, px, black, black);          // seam
+        x -= 2*px;   y -= 2*px;   w += 4*px;   h += 4*px;
+        Edges(x, y, w, h, 2*px, dark, light);         // inset bevel
+        x -= 4*px;   y -= 4*px;   w += 8*px;   h += 8*px;
+        Edges(x, y, w, h, 4*px, face, face);          // flat face
+        x -= 2*px;   y -= 2*px;   w += 4*px;   h += 4*px;
+        Edges(x, y, w, h, 2*px, light, dark);         // raised bevel
+        x -= px;     y -= px;     w += 2*px;   h += 2*px;
+        Edges(x, y, w, h, px, black, black);          // outline
+
+    }
+
     // Full-frame art sunk into a chunky five-layer bevel over the tiled
     // stone — the Keen 4-6 letterbox treatment (k13_present_frame), with
     // the EGA browns swapped for the Wolf palette's grey ramp. Layers from
@@ -260,23 +284,7 @@ class WolfDraw
 
         // a few steps down the grey ramp from the first pass, so the frame
         // sits closer to the darkened stone instead of popping off it
-        Color dark  = WolfPal.Get(0x1F);     // (32,32,32)
-        Color light = WolfPal.Get(0x17);     // (142,142,142)
-        Color face  = WolfPal.Get(0x1B);     // (85,85,85)
-        Color black = WolfPal.Get(0);
-
-        double x = ax, y = ay, w = aw, h = ah;
-        // grow outward, drawing each ring
-        x -= px;     y -= px;     w += 2*px;   h += 2*px;
-        Edges(x, y, w, h, px, black, black);          // seam
-        x -= 2*px;   y -= 2*px;   w += 4*px;   h += 4*px;
-        Edges(x, y, w, h, 2*px, dark, light);         // inset bevel
-        x -= 4*px;   y -= 4*px;   w += 8*px;   h += 8*px;
-        Edges(x, y, w, h, 4*px, face, face);          // flat face
-        x -= 2*px;   y -= 2*px;   w += 4*px;   h += 4*px;
-        Edges(x, y, w, h, 2*px, light, dark);         // raised bevel
-        x -= px;     y -= px;     w += 2*px;   h += 2*px;
-        Edges(x, y, w, h, px, black, black);          // outline
+        BevelRing(ax, ay, aw, ah);
 
         screen.DrawTexture(t, true, ax, ay,
                            DTA_DestWidthF, aw, DTA_DestHeightF, ah);

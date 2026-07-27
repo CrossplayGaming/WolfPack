@@ -409,8 +409,14 @@ class WolfReadMenu : WolfMenu
             Close();
             return;
         }
-        screen.Dim(Color(0, 0, 0), 1.0, 0, 0,
-                   screen.GetWidth(), screen.GetHeight());
+        // the letterbox treatment: stone backdrop, page in the bevel
+        WolfDraw.Backdrop();
+        double px = WolfDraw.Px();
+        double sh = screen.GetHeight(), sw = screen.GetWidth();
+        double ah = sh - 32 * px, aw = ah * (4.0 / 3.0);
+        double ax = (sw - aw) / 2, ay = 16 * px;
+        WolfDraw.BevelRing(ax, ay, aw, ah);
+        article.SetRect(ax, ay, aw, ah);
         article.Draw();
     }
 

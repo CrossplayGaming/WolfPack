@@ -121,32 +121,64 @@ class WolfArticle ui
 
     // ---- drawing ---------------------------------------------------------
 
+    // View rect in real pixels. Default: the centred full-height 4:3 box.
+    // WolfReadMenu insets it to sit inside the letterbox bevel frame.
+    double vx, vy, vsx, vsy;
+    bool rectSet;
+
+    void SetRect(double x, double y, double w, double h)
+    {
+        vx = x; vy = y; vsx = w / 320.0; vsy = h / 200.0;
+        rectSet = true;
+    }
+
+    void DefaultRect()
+    {
+        if (rectSet)
+            return;
+        double h = screen.GetHeight();
+        SetRect((screen.GetWidth() - h * (4.0 / 3.0)) / 2, 0,
+                h * (4.0 / 3.0), h);
+        rectSet = false;
+    }
+
     void Bar(int x, int y, int w, int h, int palIndex)
     {
-        // Ask the engine for the same rectangle DTA_320x200 draws into,
-        // rather than reproducing its scaling by hand � the two disagree,
-        // and the bar has to land exactly under the window frame.
-        Vector2 rpos, rsize;
-        [rpos, rsize] = Screen.VirtualToRealCoords((x, y), (w, h),
-                                                   (320, 200), false, true);
-        screen.Dim(WolfPal.Get(palIndex), 1.0, int(rpos.X), int(rpos.Y),
-                   int(rsize.X + 1), int(rsize.Y + 1));
+        screen.Dim(WolfPal.Get(palIndex), 1.0, int(vx + x * vsx),
+                   int(vy + y * vsy), int(w * vsx + 1), int(h * vsy + 1));
     }
 
-    // Everything on this screen has to share ONE 320x200 transform, or the
-    // background bar and the window frame land on different rectangles.
     void Pic(int x, int y, String lump)
     {
-        screen.DrawTexture(TexMan.CheckForTexture(lump,
-            TexMan.Type_MiscPatch), true, x, y,
-            DTA_320x200, true);
+        TextureID t = TexMan.CheckForTexture(lump, TexMan.Type_MiscPatch);
+        if (!t.IsValid())
+            return;
+        int tw, th;
+        [tw, th] = TexMan.GetSize(t);
+        screen.DrawTexture(t, true, vx + x * vsx, vy + y * vsy,
+                           DTA_DestWidthF, tw * vsx, DTA_DestHeightF,
+                           th * vsy);
     }
 
+    // glyph by glyph via the calibrated DestWidth path: DrawText cannot
+    // target an arbitrary rect (it ignores scale tags, and its virtual
+    // screens map only onto the full 4:3 box)
     void DrawWord(String word)
     {
-        screen.DrawText(fnt, Font.CR_UNTRANSLATED, px, py, word,
-                        DTA_320x200, true,
-                        DTA_ColorOverlay, 0xFF000000 | fontColor);
+        double gx = vx + px * vsx;
+        for (int i = 0; i < word.Length(); i++)
+        {
+            int c = word.ByteAt(i);
+            TextureID t = fnt.GetChar(c);
+            int cw = fnt.GetCharWidth(c);
+            if (t.IsValid())
+                screen.DrawTexture(t, true, gx, vy + py * vsy,
+                                   DTA_DestWidthF, cw * vsx,
+                                   DTA_DestHeightF, fnt.GetHeight() * vsy,
+                                   DTA_ColorOverlay,
+                                   0xFF000000 | fontColor);
+            gx += cw * vsx;
+        }
     }
 
     void NewLine()
@@ -274,6 +306,7 @@ class WolfArticle ui
     {
         if (pageNum >= pageStart.Size())
             return;
+        DefaultRect();
 
         Bar(0, 0, 320, 200, BACKCOLOR);
         Pic(0, 0, "H_TOPWIN");
