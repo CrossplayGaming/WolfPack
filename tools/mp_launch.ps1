@@ -44,7 +44,15 @@ if ($Mode -eq "host") {
     & "$root\engine\uzdoom.exe" -host $Players -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0
 }
 elseif ($Mode -eq "join") {
-    if (-not $Code) { $Code = (Get-Clipboard -Raw).Trim() }
+    if (-not $Code) {
+        try { $Code = ([string](Get-Clipboard -Raw)).Trim() } catch {}
+    }
+    # a code must look like an address; anything else re-prompts
+    while (-not ($Code -match "^[A-Za-z0-9\.\-:]+$") -or $Code.Length -lt 2) {
+        Write-Host ""
+        Write-Host "  No usable invite code on the clipboard."
+        $Code = (Read-Host "  Type the code (or 'localhost' to join a host on THIS pc)").Trim()
+    }
     Write-Host "  Joining $Code ..."
     & "$root\engine\uzdoom.exe" -join $Code -iwad "$root\dist\wolf.ipk3" -config "$root\dist\join.ini" +set wolf_dbg_arm 0
 }
