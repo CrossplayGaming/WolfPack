@@ -17,7 +17,10 @@ REM No screen wipe (Wolf has none between levels), and mouse is
 REM horizontal only: no vertical aim (freelook 0), no mouse-Y move
 REM (m_forward 0) -> horizontal turn only, per D-004. Forced at launch
 REM because an archived config value overrides the DEFCVARS default.
-start "" "engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" +set freelook 0 +set m_forward 0 +set wipetype 0 %*
+REM The wolf_dbg_ switches are forced off the same way: even declared
+REM nosave, a stale archived value still LOADS if the ini has the line,
+REM so one boss.bat session could leak the full arsenal into normal play.
+start "" "engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" +set freelook 0 +set m_forward 0 +set wipetype 0+set wolf_dbg_arm 0 +set wolf_dbg_doortest 0 +set wolf_dbg_alert 0 +set wolf_dbg_forcefire 0 +set wolf_dbg_victory 0 +set wolf_dbg_boss 0 %*
 exit /b 0
 
 :fail

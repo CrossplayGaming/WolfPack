@@ -457,6 +457,9 @@ class WolfMessageBox : MessageBoxMenu
         Super.Init(parent, message, messagemode, playsound, cmd,
                    native_handler);
         big = Font.GetFont("wolfbig");
+        // no engine dim (the purple wash): the original never confirms
+        // over live gameplay — Confirm() runs on the red menu screen
+        DontDim = true;
     }
 
     override void Drawer()
@@ -466,6 +469,13 @@ class WolfMessageBox : MessageBoxMenu
             Super.Drawer();
             return;
         }
+        // the red menu screen behind the box (GZDoom draws only the top
+        // menu, so the parent's screen must be repainted here)
+        WolfDraw.WideBar(0, 200, 0x29);
+        WolfDraw.WideBar(10, 24, 0);
+        WolfDraw.WideBar(32, 1, 0x2c);
+        WolfDraw.Pic(84, 0, "C_OPTS");
+
         // measure the block in font units
         int h = 0, mw = 0;
         int n = mMessage.Count();
