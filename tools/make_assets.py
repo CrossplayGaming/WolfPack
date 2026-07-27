@@ -249,6 +249,20 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
         strip.paste(img, ((1366 - 263) // 2, 0))
         strip.save(ASSETS / "widgets" / "banner.png")
 
+    # the menu gun cursor pics carry a solid background box: key it out
+    # by the corner color so the gun floats over any page
+    for lump in ("C_CURS1", "C_CURS2"):
+        cp = ASSETS / "graphics" / f"{lump}.png"
+        if cp.exists():
+            img = Image.open(cp).convert("RGBA")
+            cpx = img.load()
+            key = cpx[0, 0]
+            for yy in range(img.height):
+                for xx in range(img.width):
+                    if cpx[xx, yy] == key:
+                        cpx[xx, yy] = (0, 0, 0, 0)
+            img.save(cp)
+
     # end-of-episode articles and the proportional font (extract_text.py)
     TXT = ROOT / "build" / "text"
     if TXT.exists():

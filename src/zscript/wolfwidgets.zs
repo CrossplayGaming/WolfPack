@@ -23,8 +23,9 @@ class WolfWidgetMenu : WolfMenu
         labels.Clear(); itemStates.Clear();
         wKind.Clear(); wCVar.Clear();
         wMin.Clear(); wMax.Clear(); wStep.Clear(); wChoices.Clear();
-        winX = MENU_X - 22; winY = MENU_Y;
-        winW = MENU_W + 60; winH = 13 * 4 + 6;
+        // wide enough that the slider column never touches the labels
+        winX = 24; winY = MENU_Y;
+        winW = 320 - 48; winH = 13 * 4 + 6;
     }
 
     // ---- builders --------------------------------------------------------
@@ -115,10 +116,20 @@ class WolfWidgetMenu : WolfMenu
                 double v = cv == null ? wMin[i] : cv.GetFloat();
                 double frac = clamp((v - wMin[i]) / (wMax[i] - wMin[i]),
                                     0, 1);
-                int bx = winX + winW - 110, bw = 100;
-                WolfDraw.Bar(bx, y + 3, bw, 7, C_TEXT);       // track
-                WolfDraw.Bar(bx + int(frac * (bw - 12)), y + 2, 12, 9,
-                             C_READH);                        // block
+                int bx = winX + winW - 112, bw = 100;
+                // sunken track: dark top/left, light bottom/right
+                WolfDraw.Bar(bx, y + 3, bw, 7, 0x1B);
+                WolfDraw.Bar(bx, y + 3, bw, 1, 0x1F);
+                WolfDraw.Bar(bx, y + 3, 1, 7, 0x1F);
+                WolfDraw.Bar(bx, y + 9, bw, 1, C_HILITE);
+                WolfDraw.Bar(bx + bw - 1, y + 3, 1, 7, C_HILITE);
+                // raised block: light top/left, gold shadow bottom/right
+                int kx = bx + int(frac * (bw - 12));
+                WolfDraw.Bar(kx, y + 2, 12, 9, C_READH);
+                WolfDraw.Bar(kx, y + 2, 12, 1, 0x10);
+                WolfDraw.Bar(kx, y + 2, 1, 9, 0x10);
+                WolfDraw.Bar(kx, y + 10, 12, 1, C_READ);
+                WolfDraw.Bar(kx + 11, y + 2, 1, 9, C_READ);
             }
             else if (wKind[i] == W_MULTI)
             {
@@ -211,8 +222,8 @@ class WolfMouseMenu : WolfWidgetMenu
     {
         Super.Init(parent, desc);
         title = "Adjust Mouse Sensitivity";
-        AddSlider("Sensitivity", "mouse_sensitivity", 0.25, 3.0, 0.25);
-        AddSlider("Turn Speed", "m_yaw", 0.5, 2.5, 0.25);
+        // this engine has no mouse_sensitivity cvar; m_yaw is the knob
+        AddSlider("Sensitivity", "m_yaw", 0.25, 3.0, 0.25);
         winH = 13 * labels.Size() + 6;
         sel = 0;
     }
