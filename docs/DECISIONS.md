@@ -36,3 +36,18 @@ Reiterated fidelity target, now explicit scope:
 - **ECWolf-style automap capabilities and style** (overlay + full-page modes per ECWolf's
   feature set), **off by default**, enabled via menu toggle. Supersedes the "Doom-style
   overlay" wording in the handoff's Doomify list.
+
+## D-004 - Mouse defaults: horizontal turn only (2026-07-26, user)
+
+Default mouse behaviour is **horizontal turn only**: `freelook 0` (no
+vertical aim, as the original) *and* `m_forward 0` (mouse Y does nothing).
+
+Note this is a deliberate deviation from the handoff's "everything OFF
+except strafing" rule: the original's mouse Y moved the player
+forward/back, so strict 1992 behaviour would leave `m_forward` at its
+default. The user prefers the modern feel here.
+
+The classic Y-axis-moves-you behaviour becomes a **Modernization menu
+toggle** ("Classic mouse") when that menu is built - it restores
+`m_forward`. Revisit whether the shipping fidelity-first default should
+flip back at that point.

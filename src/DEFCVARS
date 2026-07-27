@@ -1,8 +1,10 @@
 version 228
 // Wolf has no screen wipe between levels (its fizzle fade is death-only
-// and lands with the death sequence), and no vertical aim. WolfPlayer
-// also enforces pitch, so an existing config can't reintroduce freelook.
+// and lands with the death sequence). Mouse is horizontal turn only per
+// D-004: no vertical aim and no mouse-Y movement. play.bat also forces
+// both at launch, because an archived config value beats a default.
 wipetype 0
 freelook 0
+m_forward 0
 screenblocks 10
 crosshair 0

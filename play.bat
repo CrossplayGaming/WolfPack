@@ -13,9 +13,10 @@ if not exist "build\assets\PLAYPAL" (
 )
 
 python build.py || goto :fail
-REM freelook is forced off at launch: Wolf has no vertical aim, and a
-REM value archived in the config otherwise overrides the DEFCVARS default.
-start "" "engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" +set freelook 0 %*
+REM Mouse: no vertical aim (freelook 0) and no mouse-Y movement
+REM (m_forward 0) -> horizontal turn only, per D-004. Forced at launch
+REM because an archived config value overrides the DEFCVARS default.
+start "" "engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" +set freelook 0 +set m_forward 0 %*
 exit /b 0
 
 :fail
