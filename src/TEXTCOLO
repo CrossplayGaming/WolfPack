@@ -1,0 +1,8 @@
+// Wolf-palette text colors (GAMEPAL indices noted). These are what the
+// OptionMenuSettings block maps the engine option pages onto, per the
+// "recolor what we can't replace" rule.
+"WolfGrey"      { #8E8E8E #8E8E8E  Flat: #8E8E8E }   // TEXTCOLOR 0x17
+"WolfWhite"     { #C3C3C3 #C3C3C3  Flat: #C3C3C3 }   // HIGHLIGHT 0x13
+"WolfYellow"    { #FFF700 #FFF700  Flat: #FFF700 }   // READHCOLOR 0x47
+"WolfGold"      { #B6AE00 #B6AE00  Flat: #B6AE00 }   // READCOLOR 0x4a
+"WolfDarkRed"   { #710000 #710000  Flat: #710000 }   // DEACTIVE 0x2b

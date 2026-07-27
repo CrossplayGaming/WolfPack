@@ -21,6 +21,18 @@ gameinfo
     statscreen_dm = "DeathmatchStatusScreen"
     drawreadthis = false
     messageboxclass = "WolfMessageBox"
+    // the engine's menu dim: BORDCOLOR red at high strength instead of
+    // GZDoom's purple, so engine pages sit on a Wolf-red field
+    dimcolor = "8a 00 00"
+    dimamount = 0.9
+    // engine option pages recolored to the Wolf scheme (TEXTCOLO lump
+    // defines the Wolf* colors from GAMEPAL entries)
+    menufontcolor_title = "WolfYellow"
+    menufontcolor_label = "WolfGrey"
+    menufontcolor_value = "WolfYellow"
+    menufontcolor_action = "WolfGold"
+    menufontcolor_highlight = "WolfWhite"
+    menufontcolor_selection = "WolfWhite"
     // endStrings (WL_MENU.C:27-38)
     quitmessages = "Dost thou wish to
 leave with such hasty

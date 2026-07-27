@@ -210,6 +210,15 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
     (ASSETS / "maps" / "titlemap.wad").write_bytes(
         wrap_wad("TITLEMAP", title_udmf))
 
+    # AdLib menu blips (render_adlib.py output): cursor, toggle, select,
+    # escape - these replace the engine's Doom menu sounds via SNDINFO
+    (ASSETS / "sounds").mkdir(exist_ok=True)
+    SFX = ROOT / "build" / "audio" / "wl6" / "sfx"
+    for wav in ("MOVEGUN1SND", "MOVEGUN2SND", "SHOOTSND", "ESCPRESSEDSND"):
+        src = SFX / f"{wav}.wav"
+        if src.exists():
+            shutil.copy(src, ASSETS / "sounds" / f"{wav.lower()}.wav")
+
     # end-of-episode articles and the proportional font (extract_text.py)
     TXT = ROOT / "build" / "text"
     if TXT.exists():
