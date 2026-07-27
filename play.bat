@@ -13,7 +13,9 @@ if not exist "build\assets\PLAYPAL" (
 )
 
 python build.py || goto :fail
-start "" "engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" %*
+REM freelook is forced off at launch: Wolf has no vertical aim, and a
+REM value archived in the config otherwise overrides the DEFCVARS default.
+start "" "engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" +set freelook 0 %*
 exit /b 0
 
 :fail
