@@ -371,10 +371,13 @@ class WolfSkillMenu : WolfMenu
 
     override void OnChoose(int index)
     {
-        // hand off to the play side: ui code cannot start a game itself
+        // Reset score/lives play-side, then start through the engine's own
+        // new-game path. ChangeLevel from the titlemap is NOT that: it
+        // carries GS_TITLELEVEL into the new map — no status bar, any key
+        // reopening the menu, the works.
         EventHandler.SendNetworkEvent("wolf_newgame", episode, index);
-        // close the WHOLE stack, not just this menu — otherwise the
-        // episode menu stays up over the freshly started game
+        Menu.StartGameDirect(false, false, null, episode, index);
+        // belt and braces: make sure nothing of the stack survives
         Menu cur = Menu.GetCurrentMenu();
         while (cur != null)
         {

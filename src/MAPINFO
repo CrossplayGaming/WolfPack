@@ -87,10 +87,32 @@ DoomEdNums
 include "mapinfo_statics.txt"
 include "mapinfo_enemies.txt"
 
+// All six episodes, in menu order: StartGameDirect() starts games by
+// EPISODE INDEX into this list, so it must match the episode menu.
 clearepisodes
 episode MAP01
 {
     name = "Escape from Wolfenstein"
+}
+episode MAP11
+{
+    name = "Operation: Eisenfaust"
+}
+episode MAP21
+{
+    name = "Die, Fuhrer, Die!"
+}
+episode MAP31
+{
+    name = "A Dark Secret"
+}
+episode MAP41
+{
+    name = "Trail of the Madman"
+}
+episode MAP51
+{
+    name = "Confrontation"
 }
 
 defaultmap
