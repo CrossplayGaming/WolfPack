@@ -137,8 +137,8 @@ class WolfLevel : EventHandler
     override void WorldUnloaded(WorldEvent e)
     {
         WolfGameState gs = WolfGameState.Get();
-        if (gs == null)
-            return;
+        if (gs == null || gs.deathRestart)
+            return;                 // died: no tally, no bonus
         int levelSec = Level.time / TICRATE;
         int parSec = Level.partime;
         int timeLeft = parSec > levelSec ? parSec - levelSec : 0;

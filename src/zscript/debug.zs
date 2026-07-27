@@ -171,6 +171,42 @@ class WolfDebugHandler : EventHandler
                                sightEnemy.attackMode);
         }
 
+        // death self-test: damage the player to death, then watch the
+        // sequence run and the floor restart with the pistol loadout.
+        CVar dv = CVar.FindCVar("wolf_dbg_death");
+        if (dv != null && dv.GetInt() != 0)
+        {
+            PlayerPawn pm = players[0].mo;
+            if (t == 40 && pm != null)
+            {
+                WolfGameState gs = WolfGameState.Get();
+                if (gs != null)
+                    gs.score = 12345;       // must roll back on restart
+                pm.A_GiveInventory("WolfMachineGun");
+                Console.Printf("WOLFDBG death: killing player (lives=%d)",
+                               gs == null ? -99 : gs.lives);
+                pm.DamageMobj(null, null, 500, 'Bullet', DMG_THRUSTLESS);
+            }
+            if ((t == 60 || t == 130 || t == 200) && pm != null)
+                Console.Printf("WOLFDBG death: t=%d phase=%d timer=%d",
+                               t, WolfPlayer(pm).deathPhase,
+                               WolfPlayer(pm).deathTimer);
+            if (t == 6)
+            {
+                WolfGameState gs = WolfGameState.Get();
+                PlayerPawn p2 = players[0].mo;
+                bool mg = p2 != null
+                    && p2.FindInventory("WolfMachineGun") != null;
+                Inventory am = p2 == null ? null
+                                          : p2.FindInventory("WolfAmmo");
+                Console.Printf("WOLFDBG death: onload lives=%d score=%d "
+                               "mg=%d ammo=%d",
+                               gs == null ? -99 : gs.lives,
+                               gs == null ? -99 : gs.score,
+                               mg, am == null ? -1 : am.Amount);
+            }
+        }
+
         if (phase > 3)
             return;
         CVar cv = CVar.FindCVar("wolf_dbg_doortest");

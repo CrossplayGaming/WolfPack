@@ -80,6 +80,104 @@ class WolfPlayer : DoomPlayer
     int oldButtons;
     bool exiting;
 
+    // --- death sequence (Died, WL_GAME.C:1114-1225) ---
+    int deathPhase;         // 0 alive, 1 rotating, 2 fizzling, 3 done
+    int deathTimer;
+    Actor killerActor;
+
+    const DEATHROTATE = 2;  // angle units per Wolf tic (x2 per engine tic)
+
+    override void Die(Actor source, Actor inflictor, int dmgflags,
+                      Name MeansOfDeath)
+    {
+        Super.Die(source, inflictor, dmgflags, MeansOfDeath);
+        killerActor = source;
+        deathPhase = 1;
+        deathTimer = 0;
+        A_StartSound("wolf/playerdeath", CHAN_VOICE);
+        // gamestate.weapon = -1: the weapon is taken away immediately
+        if (player != null)
+        {
+            player.ReadyWeapon = null;
+            player.PendingWeapon = WP_NOCHANGE;
+        }
+    }
+
+    // Wolf's death has no view drop and no press-use-to-respawn: the view
+    // swings to the killer, then the screen dissolves to red.
+    override void DeathThink()
+    {
+        if (player == null)
+            return;
+        player.Uncrouch();
+        ViewHeight = 32;            // camera stays at eye level
+
+        if (deathPhase == 1)
+        {
+            bool aligned = true;
+            if (killerActor != null)
+            {
+                double want = AngleTo(killerActor);
+                double diff = deltaangle(Angle, want);
+                double step = DEATHROTATE * 2;      // 2 Wolf tics
+                if (abs(diff) > step)
+                {
+                    Angle += diff > 0 ? step : -step;
+                    aligned = false;
+                }
+                else
+                    Angle = want;
+            }
+            if (aligned)
+            {
+                deathPhase = 2;
+                deathTimer = 0;
+                WolfDeathHandler dh = WolfDeathHandler.Get();
+                if (dh != null)
+                    dh.Begin();
+            }
+            return;
+        }
+
+        if (deathPhase == 2)
+        {
+            deathTimer++;
+            if (deathTimer >= 35 + 40)      // dissolve + IN_UserInput pause
+            {
+                deathPhase = 3;
+                RestartFloor();
+            }
+        }
+    }
+
+    // lives--, then restart the floor with the pistol loadout and the
+    // score rolled back to its level-entry value (DEATH-003/004/005).
+    void RestartFloor()
+    {
+        WolfGameState gs = WolfGameState.Get();
+        WolfDeathHandler dh = WolfDeathHandler.Get();
+        if (dh != null)
+            dh.Finish();
+        if (gs != null)
+        {
+            gs.lives--;
+            gs.deathRestart = true;
+            if (gs.lives < 0)
+            {
+                // TODO: game over -> menu/high scores. Until that flow
+                // exists, start a fresh run on the same floor.
+                gs.lives = 3;
+                gs.score = 0;
+                gs.oldScore = 0;
+                gs.nextExtra = WolfGameState.EXTRAPOINTS;
+            }
+        }
+        // no tally when you die (the source goes straight back in)
+        Level.ChangeLevel(Level.MapName, 0,
+                          CHANGELEVEL_RESETINVENTORY
+                          | CHANGELEVEL_NOINTERMISSION, -1);
+    }
+
     // UpdateFace (WL_AGENT.C:307-323): runs in play scope so the look
     // timer consumes the US_RndT stream exactly like the original.
     int faceFrame;
@@ -121,6 +219,8 @@ class WolfPlayer : DoomPlayer
             if (fl == null || !fl.GetInt())
                 Pitch = 0;
         }
+        if (deathPhase != 0)
+            return;
         if (player && (player.cmd.buttons & BT_USE)
             && !(oldButtons & BT_USE))
         {

@@ -13,6 +13,8 @@ class WolfGameState : StaticEventHandler
     int score;
     int lives;
     int nextExtra;
+    int oldScore;       // score at floor entry (DEATH-004)
+    bool deathRestart;
     bool initialized;
 
     const EXTRAPOINTS = 40000;      // WL_DEF.H:72
@@ -29,8 +31,20 @@ class WolfGameState : StaticEventHandler
             initialized = true;
             score = 0;
             lives = 3;
+            oldScore = 0;
             nextExtra = EXTRAPOINTS;
         }
+    }
+
+    override void WorldUnloaded(WorldEvent e)
+    {
+        if (deathRestart)
+        {
+            score = oldScore;       // DEATH-004: roll back to floor entry
+            deathRestart = false;
+        }
+        else
+            oldScore = score;       // banked on a completed floor
     }
 
     void GivePoints(int pts)        // WL_AGENT.C:520-530

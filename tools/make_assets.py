@@ -218,7 +218,7 @@ def main():
     # AdLib SFX (render_adlib.py) referenced by SNDINFO
     ADLIB = ROOT / "build" / "audio" / "wl6" / "sfx"
     (ASSETS / "sounds").mkdir(exist_ok=True)
-    adlib_sfx = ["PERCENT100SND", "HEALTH1SND", "HEALTH2SND", "GETAMMOSND", "BONUS1SND",
+    adlib_sfx = ["PLAYERDEATHSND", "PERCENT100SND", "HEALTH1SND", "HEALTH2SND", "GETAMMOSND", "BONUS1SND",
                  "BONUS2SND", "BONUS3SND", "BONUS4SND", "BONUS1UPSND",
                  "GETKEYSND", "GETMACHINESND", "GETGATLINGSND", "NOWAYSND",
                  "ATKKNIFESND", "DOGATTACKSND", "DONOTHINGSND",
