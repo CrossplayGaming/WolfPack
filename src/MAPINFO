@@ -6,7 +6,7 @@ gameinfo
     playerclasses = "WolfPlayer"
     EventHandlers = "WolfDebugHandler", "WolfLevel",
                     "WolfGameState", "WolfDeathHandler",
-                    "WolfScreenFX", "WolfDeathCam"
+                    "WolfScreenFX", "WolfDeathCam", "WolfAttract"
     borderflat = "FLOOR19"
     statusbarclass = "WolfStatusBar"
     // standalone IWAD: the engine needs these declared even when

@@ -131,6 +131,33 @@ def main():
     hud_pics["H_RIGHTWINDOWPIC"] = "H_RIGHTW"
     hud_pics["H_BOTTOMINFOPIC"] = "H_BOTINF"
     hud_pics["H_BLAZEPIC"] = "H_BLAZE"
+    # attract sequence + menu art (WL_MAIN.C DemoLoop, WL_MENU.C)
+    hud_pics["HIGHSCORESPIC"] = "HISCORES"
+    hud_pics["TITLEPIC"] = "TITLEPIC"
+    hud_pics["CREDITSPIC"] = "CREDITS"
+    hud_pics["PG13PIC"] = "PG13"
+    for src, lump in (("C_OPTIONSPIC", "C_OPTS"),
+                      ("C_CURSOR1PIC", "C_CURS1"),
+                      ("C_CURSOR2PIC", "C_CURS2"),
+                      ("C_SELECTEDPIC", "C_SEL"),
+                      ("C_NOTSELECTEDPIC", "C_NOTSEL"),
+                      ("C_MOUSELBACKPIC", "C_MLBACK"),
+                      ("C_BABYMODEPIC", "C_BABY"),
+                      ("C_EASYPIC", "C_EASY"),
+                      ("C_NORMALPIC", "C_NORMAL"),
+                      ("C_HARDPIC", "C_HARD"),
+                      ("C_LOADGAMEPIC", "C_LOADG"),
+                      ("C_SAVEGAMEPIC", "C_SAVEG"),
+                      ("C_CONTROLPIC", "C_CTRL"),
+                      ("C_CUSTOMIZEPIC", "C_CUSTOM"),
+                      ("C_SCOREPIC", "C_SCORE"),
+                      ("C_LEVELPIC", "C_LEVEL"),
+                      ("C_NAMEPIC", "C_NAME"),
+                      ("C_DISKLOADING1PIC", "C_DISK1"),
+                      ("C_DISKLOADING2PIC", "C_DISK2")):
+        hud_pics[src] = lump
+    for ep in range(1, 7):
+        hud_pics[f"C_EPISODE{ep}PIC"] = f"C_EPIS{ep}"
 
     nhud = 0
     for src_name, lump in hud_pics.items():
@@ -138,6 +165,31 @@ def main():
         if p.exists():
             shutil.copy(p, ASSETS / "graphics" / f"{lump}.png")
             nhud += 1
+
+    # TITLEMAP: ZDoom uses a map of this name as the title screen, which is
+    # what gives the attract sequence (PG13 -> title -> credits -> high
+    # scores) a place to draw and take input. It is a sealed black box; the
+    # player never sees the geometry, only the overlay.
+    title_udmf = b"""namespace = "zdoom";
+thing { x = 32.0; y = 32.0; angle = 90; type = 1; }
+vertex { x = 0.0; y = 0.0; }
+vertex { x = 64.0; y = 0.0; }
+vertex { x = 64.0; y = 64.0; }
+vertex { x = 0.0; y = 64.0; }
+sidedef { sector = 0; texturemiddle = "WALL022"; }
+sidedef { sector = 0; texturemiddle = "WALL022"; }
+sidedef { sector = 0; texturemiddle = "WALL022"; }
+sidedef { sector = 0; texturemiddle = "WALL022"; }
+linedef { v1 = 0; v2 = 1; sidefront = 0; blocking = true; }
+linedef { v1 = 1; v2 = 2; sidefront = 1; blocking = true; }
+linedef { v1 = 2; v2 = 3; sidefront = 2; blocking = true; }
+linedef { v1 = 3; v2 = 0; sidefront = 3; blocking = true; }
+sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
+         textureceiling = "CEIL1D"; lightlevel = 0; }
+"""
+    (ASSETS / "maps").mkdir(exist_ok=True)
+    (ASSETS / "maps" / "titlemap.wad").write_bytes(
+        wrap_wad("TITLEMAP", title_udmf))
 
     # end-of-episode articles and the proportional font (extract_text.py)
     TXT = ROOT / "build" / "text"

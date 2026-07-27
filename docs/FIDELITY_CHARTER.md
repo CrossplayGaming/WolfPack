@@ -562,3 +562,31 @@ transform. `DTA_320x200` and hand-rolled scaling disagree, and
 `DTA_KeepRatio` stretches rather than pillarboxing, so the background bar
 takes its rectangle from `Screen.VirtualToRealCoords` with the same
 virtual size the pictures use.
+
+### Attract sequence and high scores (2026-07-27)
+
+| ID | Item | Value |
+|---|---|---|
+| ATTR-001 | DemoLoop order: PG13 advisory once at startup, then forever title (15 s) -> credits (10 s) -> high scores (10 s) -> a recorded demo. Any key breaks into the main menu | WL_MAIN.C:1411-1545 |
+| ATTR-002 | Timings are `IN_UserInput(TickBase * n)` with TickBase 70 Hz, i.e. plain seconds; advisory is 7 s | WL_MAIN.C:1481-1530 |
+| ATTR-003 | PG13: bar colour 0x82 over the full 320x200, pic at (216,110) | WL_INTER.C:310-320 |
+| ATTR-004 | INTROSONG = NAZI_NOR | WL_MENU.H:37 |
+| HISC-001 | MaxScores 7; the table ships pre-filled with id's own names, all at 10,000 / floor 1 | ID_US_1.C:57-65, ID_US.H:23 |
+| HISC-002 | Layout: ClearMScreen in BORDCOLOR 0x29, DrawStripes(10) = black bar y10 h24 plus a STRIPE 0x2c hline at y+22; HIGHSCORESPIC at (48,0); NAME/LEVEL/SCORE pics at x 32/160/224, y 68; rows at y = 76 + 16i | WL_INTER.C:1030-1090 |
+| HISC-003 | Menu colours (non-SPEAR): BORDCOLOR 0x29, BORD2COLOR 0x23, DEACTIVE 0x2b, BKGDCOLOR 0x2d, STRIPE 0x2c | WL_MENU.H:16-20 |
+| HISC-004 | The level and score numbers use the font's FIXED-WIDTH digits — `*str + (129 - '0')` remaps '0'-'9' to codepoints 129-138. That remap is why the columns align; the proportional digits would not | WL_INTER.C:1063, 1084 |
+
+**Deviation:** demo playback is not implemented. The recorded demos replay
+player input through the original's exact simulation and belong with the
+DOSBox determinism work, so the cycle currently runs high scores -> title.
+
+**Engine note (drawing transforms).** The front end draws through one
+shared transform in `WolfDraw`, and it had to be found by measurement:
+`DTA_320x200` scales differently inside a `StatusScreen` than inside a
+`Menu`; `DTA_KeepRatio` stretches rather than pillarboxing; and
+`DrawText` silently ignores `DTA_ScaleX`/`DTA_ScaleY`. Pictures and text
+therefore both use an explicit virtual screen — wide enough to span the
+display, 320 units across the 4:3 area — which is the only form both
+accept identically. A `StaticEventHandler`'s `RenderOverlay` is also
+unusable on a title level: `Dim` works there but `DrawTexture` never
+reaches the screen, which is why the attract sequence is a `Menu`.
