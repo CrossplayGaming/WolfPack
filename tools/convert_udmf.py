@@ -243,10 +243,62 @@ def convert(level, ceiling_color):
         things.append({"x": pos[0], "y": pos[1], "type": ed, "angle": angle,
                        "skills": skills, "args": args})
 
+    # netgame starts (MP audit): co-op players 2-8 on the free floor
+    # tiles BFS-nearest the player 1 start, deathmatch starts on eight
+    # max-spread free tiles. Original maps have exactly one start.
+    dec = level["decoded0"]
+    occupied = {(o["x"], o["y"]) for o in level["objects"]
+                if o["kind"] != "player_start"}
+
+    def freetile(tx, ty):
+        if not (0 <= tx < 64 and 0 <= ty < 64):
+            return False
+        t = dec[ty * 64 + tx]
+        return t["kind"] == "floor" and (tx, ty) not in occupied
+
+    def coop_spots(sx, sy, n):
+        seen = {(sx, sy)}
+        queue = [(sx, sy)]
+        out = []
+        while queue and len(out) < n:
+            cx, cy = queue.pop(0)
+            for dx, dy in ((1,0), (-1,0), (0,1), (0,-1)):
+                nx, ny = cx + dx, cy + dy
+                if (nx, ny) in seen or not freetile(nx, ny):
+                    continue
+                seen.add((nx, ny))
+                queue.append((nx, ny))
+                out.append((nx, ny))
+        return out
+
+    def dm_spots(n):
+        cand = [(x, y) for y in range(64) for x in range(64)
+                if freetile(x, y)]
+        if not cand:
+            return []
+        picks = [cand[0]]
+        while len(picks) < n and cand:
+            best, bd = None, -1
+            for c in cand:
+                d = min((c[0]-q[0])**2 + (c[1]-q[1])**2 for q in picks)
+                if d > bd:
+                    bd, best = d, c
+            if best is None or bd <= 8:
+                break
+            picks.append(best)
+        return picks
+
     for o in level["objects"]:
         k = o["kind"]
         if k == "player_start":
             thing(o["x"], o["y"], ED_PLAYER1, ANGLES[o["dir"]])
+            spots = coop_spots(o["x"], o["y"], 7)
+            for i, (cx, cy) in enumerate(spots):
+                # players 2-4: doomednums 2-4; players 5-8: 4001-4004
+                ed = 2 + i if i < 3 else 4001 + (i - 3)
+                thing(cx, cy, ed, ANGLES[o["dir"]])
+            for dx, dy in dm_spots(8):
+                thing(dx, dy, 11, 0)
         elif k == "enemy":
             skills = {0: (1, 2, 3, 4, 5), 2: (3, 4, 5), 3: (4, 5)}[o["min_skill"]]
             thing(o["x"], o["y"], ED_ENEMY[(o["enemy"], o["mode"])],

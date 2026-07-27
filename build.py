@@ -101,7 +101,9 @@ def check():
     import time
     if LOG.exists():
         LOG.unlink()
-    proc = subprocess.Popen([str(UZDOOM), "-iwad", str(PK3), "+logfile",
+    proc = subprocess.Popen([str(UZDOOM), "-iwad", str(PK3),
+                             "-config", str(ROOT / "dist" / "check.ini"),
+                             "+logfile",
                              str(LOG), "-nosound", "-noautoload",
                              "+set", "wolf_dbg_check", "1",
                              "+set", "wolf_dbg_doortest", "1",
