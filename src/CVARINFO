@@ -8,3 +8,4 @@ server int wolf_dbg_exit = 0;
 server int wolf_dbg_sight = 0;
 server int wolf_dbg_death = 0;
 server int wolf_dbg_arm = 0;
+server int wolf_dbg_boss = 0;

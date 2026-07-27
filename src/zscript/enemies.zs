@@ -281,6 +281,7 @@ class WolfEnemySim : Actor abstract
         case 29: A_StartSound("wolf/mechstep", CHAN_BODY); break;
         case 30: A_StartSound("wolf/slurpie", CHAN_VOICE); break;
         case 10: DeathSound(); break;
+        case 11: StartDeathCam(); break;    // A_StartDeathCam
         default: break;
         }
     }
@@ -796,6 +797,33 @@ class WolfEnemySim : Actor abstract
         }
     }
 
+    // A_StartDeathCam (WL_ACT2.C:3765-3868). First call starts the
+    // replay; the replay ends on this same frame, so the SECOND call is
+    // what ends the level victorious.
+    virtual int DeathCamState() { return -1; }
+
+    void StartDeathCam()
+    {
+        WolfDeathCam cam = WolfDeathCam.Get();
+        PlayerPawn pm = players[0].mo;
+        if (cam != null && pm != null
+            && cam.Begin(self, killPos))
+            return;                     // replay started
+        // second call (or no cam): the boss floor is over
+        // TODO: episode-end sequence (BJ victory run + text screens)
+        Level.ExitLevel(0, false);
+    }
+
+    void StartDeathCamReplay()
+    {
+        int st = DeathCamState();
+        if (st >= 0)
+        {
+            dead = true;
+            SetState_(st);
+        }
+    }
+
     // T_Schabb / T_Gift / T_Fat / T_Fake (WL_ACT2.C:2380+): T_Chase with
     // a flat attack roll — US_RndT() < (tics<<shift) — instead of the
     // distance formula. tics = 2 (TIC-002).
@@ -893,8 +921,12 @@ class WolfEnemySim : Actor abstract
         return 0;                   // engine health untouched
     }
 
+    Vector3 killPos;
+
     void KillActor_()
     {
+        if (players[0].mo != null)
+            killPos = players[0].mo.pos;    // BOSS-003 killx/killy
         WolfLevel wl = WolfLevel.Get();
         wl.ReleaseTile(tileX, tileY, self);
         dead = true;

@@ -226,6 +226,34 @@ class WolfDebugHandler : EventHandler
             }
         }
 
+        // boss self-test: kill the boss outright and watch the DeathCam
+        CVar bv = CVar.FindCVar("wolf_dbg_boss");
+        if (bv != null && bv.GetInt() != 0)
+        {
+            if (t == 40)
+            {
+                ThinkerIterator bit = ThinkerIterator.Create("WolfBoss");
+                WolfEnemySim b = WolfEnemySim(bit.Next());
+                if (b != null)
+                {
+                    Console.Printf("WOLFDBG boss: %s hp=%d -> killing",
+                                   b.GetClassName(), b.hitpoints);
+                    b.DamageMobj(players[0].mo, players[0].mo, 9999,
+                                 'Bullet', DMG_THRUSTLESS);
+                }
+                else
+                    Console.Printf("WOLFDBG boss: none found");
+            }
+            if (t == 70 || t == 200 || t == 330)
+            {
+                WolfDeathCam cam = WolfDeathCam.Get();
+                WolfGameState gs = WolfGameState.Get();
+                Console.Printf("WOLFDBG boss: t=%d camphase=%d victory=%d",
+                               t, cam == null ? -1 : cam.phase,
+                               gs == null ? -1 : gs.victoryFlag);
+            }
+        }
+
         if (phase > 4)
             return;
         CVar cv = CVar.FindCVar("wolf_dbg_doortest");

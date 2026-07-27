@@ -16,6 +16,7 @@ class WolfGameState : StaticEventHandler
     int oldScore;       // score at floor entry (DEATH-004)
     bool deathRestart;
     bool skipPsyched;
+    bool victoryFlag;
     bool initialized;
 
     const EXTRAPOINTS = 40000;      // WL_DEF.H:72
