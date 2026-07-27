@@ -620,3 +620,16 @@ in-frame reference rect (full-window magenta Dim). Two earlier rounds of
 contradictory aspect readings were capture artifacts - a fixed-region
 grab reading desktop around a moved/refocused window, and the NVIDIA
 overlay registering as content. The reference rect makes both visible.
+
+### Letterbox frame for full-frame art (2026-07-27)
+
+Full-frame pictures (title, credits) get the Keen 4-6 letterbox
+treatment, ported from the Keen launcher's k13_present_frame: the game's
+OWN wall stone (WALL000) tiled across the display at game-pixel zoom and
+darkened 70%, with the art sunk into a five-layer bevel drawn in whole
+game pixels - black seam (1px), inset bevel (2px), flat face (4px),
+raised outer bevel (2px), black outline (1px). The EGA browns are
+swapped for the Wolf grey ramp: face 0x17, highlight 0x12, shadow 0x1D.
+The art keeps its exact 4:3 box, shrunk by 16 game px per side to make
+room for the frame. This is presentation around the original frame, not
+a change to it (D-002).

@@ -65,9 +65,9 @@ class WolfAttractMenu : GenericMenu
             WolfDraw.Pic(216, 110, "PG13");
         }
         else if (page == PG_TITLE)
-            WolfDraw.Pic(0, 0, "TITLEPIC");
+            WolfDraw.FramedPic("TITLEPIC");
         else if (page == PG_CREDITS)
-            WolfDraw.Pic(0, 0, "CREDITS");
+            WolfDraw.FramedPic("CREDITS");
         else
             WolfHighScores.Draw();
     }
@@ -189,5 +189,79 @@ class WolfDraw
         screen.DrawText(fnt, Font.CR_UNTRANSLATED, x, y, s,
                         DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
                         DTA_ColorOverlay, 0xFF000000 | c);
+    }
+
+    // ---- the Keen letterbox treatment --------------------------------
+
+    // one on-screen "game pixel": whole pixels so the bevel reads as
+    // deliberate pixel art rather than an anti-aliased border
+    static int Px()
+    {
+        return max(1, int(screen.GetHeight() / 200.0));
+    }
+
+    // the game's own stone tiled across the window at game-pixel zoom,
+    // darkened so the framed art stays the focus
+    static void Backdrop()
+    {
+        TextureID t = TexMan.CheckForTexture("WALL000", TexMan.Type_Any);
+        if (!t.IsValid())
+            return;
+        double step = 64.0 * Px();
+        for (double y = 0; y < screen.GetHeight(); y += step)
+            for (double x = 0; x < screen.GetWidth(); x += step)
+                screen.DrawTexture(t, true, x, y,
+                                   DTA_DestWidthF, step, DTA_DestHeightF, step,
+                                   DTA_ColorOverlay, Color(178, 0, 0, 0));
+    }
+
+    // one bevel layer: bottom/right first, top/left over the corners
+    static void Edges(double x, double y, double w, double h, double t,
+                      Color tl, Color br)
+    {
+        screen.Dim(br, 1.0, int(x + w - t), int(y), int(t + 1), int(h + 1));
+        screen.Dim(br, 1.0, int(x), int(y + h - t), int(w + 1), int(t + 1));
+        screen.Dim(tl, 1.0, int(x), int(y), int(w + 1), int(t + 1));
+        screen.Dim(tl, 1.0, int(x), int(y), int(t + 1), int(h + 1));
+    }
+
+    // Full-frame art sunk into a chunky five-layer bevel over the tiled
+    // stone — the Keen 4-6 letterbox treatment (k13_present_frame), with
+    // the EGA browns swapped for the Wolf palette's grey ramp. Layers from
+    // the art outward: black seam, inset bevel (art sits sunken), flat
+    // face, raised outer bevel, black outline.
+    static void FramedPic(String lump)
+    {
+        TextureID t = TexMan.CheckForTexture(lump, TexMan.Type_MiscPatch);
+        if (!t.IsValid())
+            return;
+        Backdrop();
+
+        double px = Px();
+        double sh = screen.GetHeight(), sw = screen.GetWidth();
+        double ah = sh - 32 * px;            // reserve 16 game px per side
+        double aw = ah * (4.0 / 3.0);        // art keeps its 4:3 box
+        double ax = (sw - aw) / 2, ay = 16 * px;
+
+        Color dark  = WolfPal.Get(0x1D);     // (56,56,56)
+        Color light = WolfPal.Get(0x12);     // (211,211,211)
+        Color face  = WolfPal.Get(0x17);     // (142,142,142)
+        Color black = WolfPal.Get(0);
+
+        double x = ax, y = ay, w = aw, h = ah;
+        // grow outward, drawing each ring
+        x -= px;     y -= px;     w += 2*px;   h += 2*px;
+        Edges(x, y, w, h, px, black, black);          // seam
+        x -= 2*px;   y -= 2*px;   w += 4*px;   h += 4*px;
+        Edges(x, y, w, h, 2*px, dark, light);         // inset bevel
+        x -= 4*px;   y -= 4*px;   w += 8*px;   h += 8*px;
+        Edges(x, y, w, h, 4*px, face, face);          // flat face
+        x -= 2*px;   y -= 2*px;   w += 4*px;   h += 4*px;
+        Edges(x, y, w, h, 2*px, light, dark);         // raised bevel
+        x -= px;     y -= px;     w += 2*px;   h += 2*px;
+        Edges(x, y, w, h, px, black, black);          // outline
+
+        screen.DrawTexture(t, true, ax, ay,
+                           DTA_DestWidthF, aw, DTA_DestHeightF, ah);
     }
 }
