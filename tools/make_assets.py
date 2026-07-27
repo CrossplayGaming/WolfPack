@@ -132,6 +132,21 @@ def main():
             shutil.copy(p, ASSETS / "graphics" / f"{lump}.png")
             nhud += 1
 
+    # BJ breathing (D-005): the WL6 release stores the SAME picture for
+    # both intermission frames (verified byte-identical across three
+    # separate copies), so BJ cannot breathe from WL6 data alone. Spear
+    # kept the proper pair, and its SECOND frame is exactly the WL6
+    # picture - meaning its FIRST frame is the pose WL6 is missing. Use
+    # it when the user's own Spear data is present.
+    sod_guy = ROOT / "build" / "vgagraph" / "sod" / "L_GUYPIC.png"
+    wl6_g1, wl6_g2 = VGA / "L_GUYPIC.png", VGA / "L_GUY2PIC.png"
+    if wl6_g1.exists() and wl6_g2.exists() and sod_guy.exists():
+        a = Image.open(wl6_g1).convert("RGB").tobytes()
+        b = Image.open(wl6_g2).convert("RGB").tobytes()
+        if a == b:
+            shutil.copy(sod_guy, ASSETS / "graphics" / "L_GUY2.png")
+            print("  BJ: WL6 frames identical -> second frame from Spear data")
+
     # widescreen status bar: extend by tiling an interior edge column so
     # the frame + top bevel continue to the screen edges (ECWolf look)
     barp = VGA / "STATUSBARPIC.png"

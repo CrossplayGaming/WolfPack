@@ -52,11 +52,23 @@ toggle** ("Classic mouse") when that menu is built - it restores
 `m_forward`. Revisit whether the shipping fidelity-first default should
 flip back at that point.
 
-## D-005 - Intermission BJ does not breathe (2026-07-26, measured)
+## D-005 - Intermission BJ breathing: second frame sourced from Spear
 
-BJ_Breathe (WL_INTER.C) alternates L_GUYPIC and L_GUY2PIC, and the
-alternation is implemented. But in the user's WL6 data those two chunks
-decode byte-identically (9152 bytes each, 104x88, identical compressed
-length), and no other 104x88 picture exists in VGAGRAPH. So the
-breathing is a no-op with this data - not a bug in the recreation.
-If a data version with differing frames turns up, it animates already.
+BJ_Breathe (WL_INTER.C) alternates L_GUYPIC and L_GUY2PIC. Measured in
+the user's data:
+
+- WL6 chunk 43 and chunk 84 are BYTE-IDENTICAL (hash ce8d15f5af, 9152
+  bytes each). Verified across three separate WL6 copies (Steam, and two
+  other local installs) - it is the release, not the extractor. Only two
+  104x88 pictures exist in the whole WL6 VGAGRAPH.
+- Spear's pair DOES differ, and its SECOND frame hashes to exactly the
+  WL6 picture (ce8d15f5af). So Spear's FIRST frame (fdcdc8aa16) is the
+  pose the WL6 release lost - the same BJ with the chest and arm shifted
+  (2140 of 9152 pixels differ).
+
+Decision: when the WL6 frames are identical AND the user's own Spear
+data is present, make_assets uses the Spear frame as the second
+intermission frame so BJ breathes. With WL6 data alone the animation
+runs but shows no change, which is faithful to that release.
+
+No assets ship either way - both come from the user's own files.
