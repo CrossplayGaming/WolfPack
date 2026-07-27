@@ -307,10 +307,10 @@ class WolfOptionsMenu : WolfMenu
         // engine pages for now: interiors are the next reskin pass
         switch (index)
         {
-        case 0: Menu.SetMenu("CustomizeControls"); break;
-        case 1: Menu.SetMenu("SoundOptions");      break;
-        case 2: Menu.SetMenu("VideoOptions");      break;
-        case 3: Menu.SetMenu("AutomapOptions");    break;
+        case 0: Menu.SetMenu("WolfControlMenu"); break;
+        case 1: Menu.SetMenu("WolfSoundMenu");   break;
+        case 2: Menu.SetMenu("WolfDisplayMenu"); break;
+        case 3: Menu.SetMenu("WolfAutomapMenu"); break;
         }
     }
 }

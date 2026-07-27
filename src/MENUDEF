@@ -30,3 +30,28 @@ LISTMENU "WolfReadMenu"
     Class "WolfReadMenu"
 }
 
+
+LISTMENU "WolfControlMenu"
+{
+    Class "WolfControlMenu"
+}
+
+LISTMENU "WolfMouseMenu"
+{
+    Class "WolfMouseMenu"
+}
+
+LISTMENU "WolfSoundMenu"
+{
+    Class "WolfSoundMenu"
+}
+
+LISTMENU "WolfDisplayMenu"
+{
+    Class "WolfDisplayMenu"
+}
+
+LISTMENU "WolfAutomapMenu"
+{
+    Class "WolfAutomapMenu"
+}
