@@ -1,36 +1,31 @@
-// Phase 1 bootstrap menus: plain text, no Doom menu patches needed.
-// The one-for-one recreated Wolf3D menu system (Architecture #6 / D-001)
-// replaces all of this in Phase 2 â€” this exists so the standalone IPK3
-// boots clean today.
+// WolfDoom MENUDEF — every entry point routes to the Wolf menu stack.
+//
+// "MainMenu" is the engine's own front door (Esc in game, key at title),
+// so overriding its descriptor is what buries the Doom menu. The other
+// descriptors exist so Menu.SetMenu() finds a ListMenuDescriptor to hand
+// our classes; the items live in ZScript, not here.
 
 LISTMENU "MainMenu"
 {
-    Font "NewSmallFont", "Red"
-    StaticTextCentered 160, 40, "WOLFDOOM (working title)"
-    Selector "WSEL", -13, 1
-    Position 124, 70
-    Linespacing 11
-    TextItem "New Game",  "n", "EpisodeMenu"
-    TextItem "Load Game", "l", "LoadGameMenu"
-    TextItem "Save Game", "s", "SaveGameMenu"
-    TextItem "Options",   "o", "OptionsMenu"
-    TextItem "Quit",      "q", "QuitMenu"
+    Class "WolfMainMenu"
 }
 
-LISTMENU "EpisodeMenu"
+LISTMENU "WolfOptionsMenu"
 {
-    Font "NewSmallFont", "Red"
-    StaticTextCentered 160, 50, "WHICH EPISODE TO PLAY?"
-    Selector "WSEL", -13, 1
-    Position 124, 80
-    Linespacing 12
+    Class "WolfOptionsMenu"
 }
 
-LISTMENU "SkillMenu"
+LISTMENU "WolfEpisodeMenu"
 {
-    Font "NewSmallFont", "Red"
-    StaticTextCentered 160, 50, "HOW TOUGH ARE YOU?"
-    Selector "WSEL", -13, 1
-    Position 124, 80
-    Linespacing 12
+    Class "WolfEpisodeMenu"
+}
+
+LISTMENU "WolfSkillMenu"
+{
+    Class "WolfSkillMenu"
+}
+
+LISTMENU "WolfReadMenu"
+{
+    Class "WolfReadMenu"
 }

@@ -72,3 +72,13 @@ intermission frame so BJ breathes. With WL6 data alone the animation
 runs but shows no change, which is faithful to that release.
 
 No assets ship either way - both come from the user's own files.
+
+## D-006: Menu structure — ECWolf-style (2026-07-27)
+User decision: the menu tree follows ECWolf (New Game / Options / Load /
+Save / Read This! / End Game / Back to / Quit; Options gathers Control,
+Sound, Display, Automap), not the original's flat list. Geometry,
+colours, fonts, window/outline styling and the gun cursor stay
+one-for-one with WL_MENU.C. Unlike Doom, entering the menu REPLACES the
+attract screens entirely and switches to MENUSONG (WONDERIN); backing
+out returns to the attract loop's title page — the original's
+US_ControlPanel semantics, which our menu-based attract makes free.

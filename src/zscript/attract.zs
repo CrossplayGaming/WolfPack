@@ -27,9 +27,23 @@ class WolfAttractMenu : GenericMenu
     override void Init(Menu parent)
     {
         Super.Init(parent);
-        page = PG_ADVISORY;
-        timer = ADVISORY_TICS;
+        // the advisory runs once per boot; "Back to Demo" lands on the
+        // title page, as US_ControlPanel's exit does
+        WolfAttract h = WolfAttract(StaticEventHandler.Find("WolfAttract"));
+        if (h != null && h.seenAdvisory)
+        {
+            page = PG_TITLE;
+            timer = TITLE_TICS;
+        }
+        else
+        {
+            page = PG_ADVISORY;
+            timer = ADVISORY_TICS;
+        }
+        if (h != null)
+            h.seenAdvisory = true;
         DontDim = true;
+        S_ChangeMusic("NAZI_NOR", 0, true);  // INTROSONG
     }
 
     override void Ticker()
@@ -94,6 +108,7 @@ class WolfAttractMenu : GenericMenu
 class WolfAttract : StaticEventHandler
 {
     ui bool opened;
+    ui bool seenAdvisory;
 
     clearscope static bool IsTitle()
     {

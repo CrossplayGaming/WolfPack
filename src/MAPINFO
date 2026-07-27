@@ -20,7 +20,26 @@ gameinfo
     statscreen_coop = "CoopStatusScreen"
     statscreen_dm = "DeathmatchStatusScreen"
     drawreadthis = false
-    quitmessages = "$QUITMSG"
+    messageboxclass = "WolfMessageBox"
+    // endStrings (WL_MENU.C:27-38)
+    quitmessages = "Dost thou wish to
+leave with such hasty
+abandon?",
+        "Chickening out...
+already?",
+        "Press N for more carnage.
+Press Y to be a weenie.",
+        "So, you think you can
+quit this easily, huh?",
+        "Press N to save the world.
+Press Y to abandon it in
+its hour of need.",
+        "Press N if you are brave.
+Press Y to cower in shame.",
+        "Heroes, press N.
+Wimps, press Y.",
+        "For guns and glory, press N.
+For work and worry, press Y."
 }
 
 // Wolf3D difficulty (WL_DEF.H gd_baby..gd_hard). SpawnFilter is positional:

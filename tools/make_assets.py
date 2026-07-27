@@ -217,12 +217,16 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
             src = TXT / f"endart{ep}.txt"
             if src.exists():
                 shutil.copy(src, ASSETS / f"ENDART{ep}.txt")
-        fsrc = TXT / "font"
-        if fsrc.exists():
-            fdst = ASSETS / "fonts" / "wolfprop"
-            fdst.mkdir(parents=True, exist_ok=True)
-            for g in fsrc.glob("*.png"):
-                shutil.copy(g, fdst / g.name)
+        if (TXT / "helpart.txt").exists():
+            shutil.copy(TXT / "helpart.txt", ASSETS / "HELPART.txt")
+        for srcname, fontname in (("font", "wolfprop"),
+                                  ("fontbig", "wolfbig")):
+            fsrc = TXT / srcname
+            if fsrc.exists():
+                fdst = ASSETS / "fonts" / fontname
+                fdst.mkdir(parents=True, exist_ok=True)
+                for g in fsrc.glob("*.png"):
+                    shutil.copy(g, fdst / g.name)
 
     # BJ breathing (D-005): the WL6 release stores the SAME picture for
     # both intermission frames (verified byte-identical across three

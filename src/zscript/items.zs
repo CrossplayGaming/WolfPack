@@ -73,6 +73,23 @@ class WolfGameState : StaticEventHandler
         }
     }
 
+    // the menus are ui scope and cannot start a game; they send this
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if (e.Name == "wolf_newgame")
+        {
+            int ep = clamp(e.Args[0], 0, 5);
+            int skill = clamp(e.Args[1], 0, 3);
+            initialized = false;             // fresh score/lives on load
+            deathRestart = false;
+            ClearRatios();
+            level.ChangeLevel(String.Format("MAP%02d", ep * 10 + 1), 0,
+                              CHANGELEVEL_NOINTERMISSION
+                              | CHANGELEVEL_RESETINVENTORY
+                              | CHANGELEVEL_RESETHEALTH, skill);
+        }
+    }
+
     override void WorldUnloaded(WorldEvent e)
     {
         if (deathRestart)

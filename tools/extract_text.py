@@ -21,7 +21,8 @@ from wolf_common import ROOT, find_data, huff_expand
 
 OUT = ROOT / "build" / "text"
 ENDART = {i: 143 + i for i in range(6)}      # episode 1-6 -> chunk
-FONT_CHUNK = 1                               # STARTFONT
+HELPART = 138                                # T_HELPART (Read This!)
+FONT_CHUNKS = {"font": 1, "fontbig": 2}      # STARTFONT, STARTFONT+1
 
 
 def open_graph(ext):
@@ -52,14 +53,14 @@ def open_graph(ext):
     return chunk
 
 
-def extract_font(chunk, outdir):
+def extract_font(chunk, outdir, name="font", chunknum=1):
     """fontstruct: height, location[256] words, width[256] bytes, masks."""
-    data = chunk(FONT_CHUNK)
+    data = chunk(chunknum)
     (height,) = struct.unpack_from("<H", data, 0)
     locs = struct.unpack_from("<256H", data, 2)
     widths = struct.unpack_from("<256B", data, 2 + 512)
 
-    gdir = outdir / "font"
+    gdir = outdir / name
     gdir.mkdir(parents=True, exist_ok=True)
     meta = {"height": height, "widths": {}}
     n = 0
@@ -78,8 +79,8 @@ def extract_font(chunk, outdir):
         img.save(gdir / f"{c:04x}.png")
         meta["widths"][str(c)] = w
         n += 1
-    (outdir / "font.json").write_text(json.dumps(meta))
-    print(f"font: {n} glyphs, height {height}")
+    (outdir / f"{name}.json").write_text(json.dumps(meta))
+    print(f"{name}: {n} glyphs, height {height}")
 
 
 def main():
@@ -107,10 +108,14 @@ def main():
             except (IndexError, ValueError):
                 pass
             i += 2
-    print(f"articles: {len(ENDART)} extracted, ^G pics referenced: "
+    raw = chunk(HELPART)
+    if raw is not None:
+        (OUT / "helpart.txt").write_bytes(raw)
+    print(f"articles: {len(ENDART)}+help extracted, ^G pics referenced: "
           f"{sorted(pics)}")
 
-    extract_font(chunk, OUT)
+    for nm, ch in FONT_CHUNKS.items():
+        extract_font(chunk, OUT, nm, ch)
 
 
 if __name__ == "__main__":
