@@ -129,7 +129,7 @@ class WolfMPMenu : WolfMenu
         DrawWindowBox(MENU_X - 8, MENU_Y - 3, MENU_W + 20,
                       13 * labels.Size() + 6);
         DrawItems(MENU_X, MENU_Y, 24, 13);
-        String note = "Co-op and PvP arrive in a later update";
+        String note = "To play online: run multiplayer.bat";
         WolfDraw.Text(big, 160 - big.StringWidth(note) / 2, 150, note,
                       WolfPal.Get(C_READ));
         DrawGun(MENU_X, MENU_Y, 13);
