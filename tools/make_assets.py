@@ -261,7 +261,7 @@ def main():
                        (23, "tothund"), (26, "hitlerha"), (33, "scheist"),
                        (18, "die"), (19, "eva"), (37, "eine"),
                        (38, "erlauben"), (43, "kein"), (44, "mein"),
-                       (36, "donner"), (31, "mechstep")):
+                       (36, "donner"), (31, "mechstep"), (32, "yeah")):
         src = VSWAP / "sounds" / f"DIGI{digi:03d}.wav"
         if src.exists():
             shutil.copy(src, ASSETS / "sounds" / f"{name}.wav")

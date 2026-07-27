@@ -259,7 +259,11 @@ def main():
     # projectile sprites (their actors use plain ZScript states)
     for chunk, lump in ((317, "HYPOA0"), (318, "HYPOB0"), (319, "HYPOC0"),
                         (320, "HYPOD0"), (370, "MISLA0"),
-                        (326, "FIREA0"), (327, "FIREB0")):
+                        (326, "FIREA0"), (327, "FIREB0"),
+                        (408, "BJRNA0"), (409, "BJRNB0"),
+                        (410, "BJRNC0"), (411, "BJRND0"),
+                        (412, "BJJPA0"), (413, "BJJPB0"),
+                        (414, "BJJPC0"), (415, "BJJPD0")):
         if lump not in seen_lumps:
             seen_lumps.add(lump)
             dedup.append([chunk, lump])

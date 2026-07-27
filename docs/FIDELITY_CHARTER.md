@@ -506,3 +506,41 @@ Wake paths, in full (SightPlayer, WL_STATE.C:1404-1478):
 
 Harness: build.py --check asserts an enemy facing away stays asleep with clear LOS and
 wakes once turned toward the player.
+
+### Episode endings (2026-07-26)
+
+The two endings are complementary, and this is a property of the map data,
+not a stylistic choice — confirmed by counting plane-1 victory-trigger tiles
+across all six boss floors:
+
+| Floor | Boss | Victory tiles | Ending |
+|---|---|---|---|
+| E1F9 | Hans | 3 | BJ victory run |
+| E2F9 | Schabbs | 0 | DeathCam |
+| E3F9 | Fake Hitler / Hitler | 0 | DeathCam |
+| E4F9 | Gift | 0 | DeathCam |
+| E5F9 | Gretel | 6 | BJ victory run |
+| E6F9 | Fat Face | 0 | DeathCam |
+
+| ID | Item | Value |
+|---|---|---|
+| VICT-001 | Only the two non-DeathCam bosses' floors carry victory tiles; the four DeathCam floors carry none. A floor never has both endings | measured from GAMEMAPS plane 1 |
+| VICT-002 | SpawnBJVictory: BJ spawns at (player.tilex, player.tiley+1) — one tile SOUTH — dir=north, temp1=6 tiles to run | WL_ACT2.C:3596-3604 |
+| VICT-003 | BJRUNSPEED 2048, BJJUMPSPEED 680 (per Wolf tic, TILEGLOBAL 0x10000) | WL_ACT2.C:3590-3592 |
+| VICT-004 | s_bjrun1..4 tics 12/3/8/12/3/8; s_bjjump1..4 tics 14/14/14/300; YEAHSND (digi 32) on s_bjjump2; s_bjjump4's think T_BJDone fires on entry, so the 300 never elapses | WL_ACT2.C:3606-3620 |
+| VICT-005 | ex_victorious order: fade out -> Victory() -> EndText() -> CheckHighScore. The boss floor shows NO per-level tally | WL_GAME.C:1452-1470, WL_INTER.C:290 |
+| VICT-006 | Victory(): averages LevelRatios[0..7] and divides by 8 (floors 1-8 only — the boss floor's own run is never counted) | WL_INTER.C:192-207 |
+| VICT-007 | Victory layout: L_BJWINSPIC at px (8,4); "you win!" cell (18,2); "total time" (14,6); "averages" (12,12); kill (14,14), secret (10,16), treasure (6,18); ratios right-justified at cell 30; time digits from px x=113,y=64 stepping 16 with a ':' at 8 | WL_INTER.C:170-235 |
+
+**Deliberate non-replications**
+
+- **VICT-008:** `LevelRatios[8]` is indexed by `mapon`, so finishing the
+  secret floor (mapon 9) writes past the end of the array in the original.
+  The recreation clamps to floors 1-8 instead of reproducing that
+  out-of-bounds write.
+- **VICT-009 (engine deviation):** MAPINFO cannot express this ending.
+  `next = "EndTitle"` skips the intermission — which is exactly where
+  Victory() lives — and an `endgame { }` block is rejected by the parser.
+  So a boss floor keeps a placeholder `next` and `WolfIntermission` takes
+  over in `victoryMode`. The real chain out of that screen (EndText ->
+  high scores -> title) is still to be built and lands in the same place.

@@ -27,6 +27,11 @@ class WolfIntermission : StatusScreen
     int floorNum;
     int breatheTics, breatheFrame;
 
+    // Victory() (WL_INTER.C:170-300) replaces the tally on a boss floor:
+    // no count-up, just the episode averages and a keypress to leave.
+    bool victoryMode;
+    int avgKill, avgSecret, avgTreasure, totalSec;
+
     const PAR_AMOUNT = 500;         // WL_INTER.C:432
     const PERCENT100AMT = 10000;    // WL_INTER.C:433
 
@@ -55,7 +60,29 @@ class WolfIntermission : StatusScreen
         parSec = wbs.partime / GameTicRate;
         timeLeft = parSec > levelSec ? parSec - levelSec : 0;
 
-        phase = PH_BONUS;
+        // the boss floor ends the episode (ex_victorious), so it shows
+        // Victory() instead of the tally and records nothing
+        victoryMode = (floorNum == 9);
+
+        // (the per-floor ratios themselves are recorded play-side, in
+        // WolfGameState.WorldUnloaded — a ui screen may read play data but
+        // not write it)
+        WolfGameState gs = WolfGameState.Get();
+        if (gs != null && victoryMode)
+        {
+            int kr, sr, tr, sec;
+            for (int i = 0; i < 8 && i < int(gs.lrKill.Size()); i++)
+            {
+                kr += gs.lrKill[i];     sr += gs.lrSecret[i];
+                tr += gs.lrTreasure[i]; sec += gs.lrTime[i];
+            }
+            avgKill = kr / 8; avgSecret = sr / 8; avgTreasure = tr / 8;
+            totalSec = sec;
+            if (totalSec / 60 > 99)
+                totalSec = 99 * 60 + 99;
+        }
+
+        phase = victoryMode ? PH_DONE : PH_BONUS;
         counter = 0;
         target = timeLeft;
         bonus = 0;
@@ -65,7 +92,7 @@ class WolfIntermission : StatusScreen
 
     override void StartMusic()
     {
-        S_ChangeMusic("ENDLEVEL", 0, true);
+        S_ChangeMusic(victoryMode ? "URAHERO" : "ENDLEVEL", 0, true);
     }
 
     // Input: any key accelerates the count-up, and once the tally has
@@ -204,8 +231,48 @@ class WolfIntermission : StatusScreen
         WolfWrite(cellRight - text.Length() * 2, cy, text);
     }
 
+    // VWB_DrawPic takes pixel coordinates, not the Write() cell grid
+    void DrawPicPx(double x, double y, String pic)
+    {
+        screen.DrawTexture(TexMan.CheckForTexture(pic,
+            TexMan.Type_MiscPatch), true, x, y, DTA_320x200, true);
+    }
+
+    void DrawVictory()
+    {
+        screen.Dim(Color(0, 65, 65), 1.0, 0, 0, screen.GetWidth(),
+                   screen.GetHeight());
+        DrawPicPx(8, 4, "L_BJWINS");
+
+        WolfWrite(18, 2, "you win!");
+        WolfWrite(14, 6, "total time");       // TIMEX, TIMEY-2
+        WolfWrite(12, 12, "averages");        // RATIOY-2
+        WolfWrite(14, 14, "kill    %");       // RATIOX+8, RATIOY
+        WolfWrite(10, 16, "secret    %");     // RATIOX+4
+        WolfWrite(6, 18, "treasure    %");    // RATIOX
+
+        // total time: L_NUM pics stepped 2 cells apart with a ':' between
+        int mn = totalSec / 60, sc = totalSec % 60;
+        double i = 14 * 8 + 1;
+        DrawPicPx(i, 64, String.Format("L_NUM%d", mn / 10));   i += 16;
+        DrawPicPx(i, 64, String.Format("L_NUM%d", mn % 10));   i += 16;
+        WolfWrite(int(i) / 8, 8, ":");                         i += 8;
+        DrawPicPx(i, 64, String.Format("L_NUM%d", sc / 10));   i += 16;
+        DrawPicPx(i, 64, String.Format("L_NUM%d", sc % 10));
+
+        // ratios right-justified at RATIOX+24
+        WriteRight(30, 14, String.Format("%d", avgKill));
+        WriteRight(30, 16, String.Format("%d", avgSecret));
+        WriteRight(30, 18, String.Format("%d", avgTreasure));
+    }
+
     override void Drawer()
     {
+        if (victoryMode)
+        {
+            DrawVictory();
+            return;
+        }
         // VWB_Bar(0,0,320,200-STATUSLINES,127): palette 127 = (0,65,65)
         screen.Dim(Color(0, 65, 65), 1.0, 0, 0, screen.GetWidth(),
                    screen.GetHeight());

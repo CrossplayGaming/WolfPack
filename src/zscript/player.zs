@@ -79,6 +79,7 @@ class WolfPlayer : DoomPlayer
     bool bIsRunning;
     int oldButtons;
     bool exiting;
+    bool victoryStarted;
 
     // palette-shift counters (StartDamageFlash / StartBonusFlash,
     // WL_PLAY.C:1143-1160). Decay by tics each frame.
@@ -232,6 +233,30 @@ class WolfPlayer : DoomPlayer
         // menu exposes freelook, it lifts the MAPINFO flag instead.
         if (deathPhase != 0)
             return;
+
+        // VictoryTile (WL_AGENT.C:961-962): walking onto a plane-1 code 99
+        // tile fires BJ's victory run. Only E1 and E5 have these tiles.
+        if (!victoryStarted)
+        {
+            int vtx = int(pos.x) / 64, vty = 63 - (int(pos.y) / 64);
+            ThinkerIterator vit = ThinkerIterator.Create("WolfVictoryTrigger");
+            WolfMarker vm;
+            while ((vm = WolfMarker(vit.Next())) != null)
+            {
+                if (vm.tileX == vtx && vm.tileY == vty)
+                {
+                    victoryStarted = true;
+                    WolfGameState gs = WolfGameState.Get();
+                    if (gs != null)
+                        gs.victoryFlag = true;
+                    WolfBJVictory bj = WolfBJVictory(Spawn("WolfBJVictory",
+                                                           pos));
+                    if (bj != null)
+                        bj.StartRun(self);
+                    break;
+                }
+            }
+        }
         if (player && (player.cmd.buttons & BT_USE)
             && !(oldButtons & BT_USE))
         {

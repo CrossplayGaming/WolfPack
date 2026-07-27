@@ -19,6 +19,40 @@ class WolfGameState : StaticEventHandler
     bool victoryFlag;
     bool initialized;
 
+    // LevelRatios[8] (WL_INTER.C:424): the per-floor kill/secret/treasure
+    // percentages and times that the episode-end Victory screen averages.
+    // The original indexes this by mapon, so the secret floor (mapon 9)
+    // writes past the end of the array; we clamp instead of reproducing
+    // that out-of-bounds write.
+    Array<int> lrKill, lrSecret, lrTreasure, lrTime;
+
+    void RecordRatios(int floorNum, int kill, int secret, int treasure,
+                      int levelSec)
+    {
+        int i = floorNum - 1;
+        if (i < 0 || i > 7)
+            return;
+        if (lrKill.Size() < 8)
+        {
+            lrKill.Resize(8); lrSecret.Resize(8);
+            lrTreasure.Resize(8); lrTime.Resize(8);
+        }
+        lrKill[i] = kill; lrSecret[i] = secret;
+        lrTreasure[i] = treasure; lrTime[i] = levelSec;
+        CVar dv = CVar.FindCVar("wolf_dbg_victory");
+        if (dv != null && dv.GetInt() != 0)
+            Console.Printf("WOLFDBG ratios: floor %d k=%d s=%d t=%d %ds",
+                           floorNum, kill, secret, treasure, levelSec);
+    }
+
+    void ClearRatios()
+    {
+        lrKill.Resize(0); lrSecret.Resize(0);
+        lrTreasure.Resize(0); lrTime.Resize(0);
+        lrKill.Resize(8); lrSecret.Resize(8);
+        lrTreasure.Resize(8); lrTime.Resize(8);
+    }
+
     const EXTRAPOINTS = 40000;      // WL_DEF.H:72
 
     clearscope static WolfGameState Get()
@@ -35,6 +69,7 @@ class WolfGameState : StaticEventHandler
             lives = 3;
             oldScore = 0;
             nextExtra = EXTRAPOINTS;
+            ClearRatios();
         }
     }
 
@@ -47,6 +82,25 @@ class WolfGameState : StaticEventHandler
         }
         else
             oldScore = score;       // banked on a completed floor
+
+        // LevelRatios[mapon] (WL_INTER.C:852-855): the finished floor's
+        // percentages feed the episode-end averages. Floors 1-8 only; the
+        // boss floor shows Victory() and the secret floor is out of range.
+        WolfLevel wl = WolfLevel.Get();
+        if (wl != null && !deathRestart && wl.floorNum >= 1
+            && wl.floorNum <= 8)
+        {
+            int kr = wl.killTotal > 0
+                     ? wl.killCount * 100 / wl.killTotal : 0;
+            int sr = wl.secretTotal > 0
+                     ? wl.secretCount * 100 / wl.secretTotal : 0;
+            int tr = wl.treasureTotal > 0
+                     ? wl.treasureCount * 100 / wl.treasureTotal : 0;
+            int sec = level.time / GameTicRate;
+            if (sec > 99 * 60)
+                sec = 99 * 60;
+            RecordRatios(wl.floorNum, kr, sr, tr, sec);
+        }
     }
 
     void GivePoints(int pts)        // WL_AGENT.C:520-530

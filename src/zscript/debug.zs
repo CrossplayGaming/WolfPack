@@ -226,6 +226,35 @@ class WolfDebugHandler : EventHandler
             }
         }
 
+        // victory-run self-test: stand on a victory tile
+        CVar vv = CVar.FindCVar("wolf_dbg_victory");
+        if (vv != null && vv.GetInt() != 0)
+        {
+            if (t == 40)
+            {
+                ThinkerIterator vit =
+                    ThinkerIterator.Create("WolfVictoryTrigger");
+                WolfMarker vm = WolfMarker(vit.Next());
+                PlayerPawn pm = players[0].mo;
+                if (vm != null && pm != null)
+                {
+                    pm.SetOrigin((vm.tileX * 64 + 32,
+                                  4096.0 - (vm.tileY * 64 + 32), 0), false);
+                    pm.Angle = 270;         // look south, back down the run
+                    Console.Printf("WOLFDBG victory: on tile %d,%d",
+                                   vm.tileX, vm.tileY);
+                }
+                else
+                    Console.Printf("WOLFDBG victory: no tile on this map");
+            }
+            if (t == 60 || t == 150)
+            {
+                ThinkerIterator bit = ThinkerIterator.Create("WolfBJVictory");
+                Actor bj = Actor(bit.Next());
+                Console.Printf("WOLFDBG victory: t=%d bj=%d", t, bj != null);
+            }
+        }
+
         // boss self-test: kill the boss outright and watch the DeathCam
         CVar bv = CVar.FindCVar("wolf_dbg_boss");
         if (bv != null && bv.GetInt() != 0)

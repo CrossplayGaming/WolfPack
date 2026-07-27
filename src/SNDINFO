@@ -74,3 +74,4 @@ wolf/mein       "sounds/mein.wav"        // MEINSND digi 44
 wolf/donner     "sounds/donner.wav"      // DONNERSND digi 36
 wolf/mechstep   "sounds/mechstep.wav"    // MECHSTEPSND digi 31
 wolf/missilehit "sounds/missilehit.wav"  // MISSILEHITSND (AdLib)
+wolf/yeah       "sounds/yeah.wav"        // YEAHSND digi 32

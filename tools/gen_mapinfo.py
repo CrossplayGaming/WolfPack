@@ -50,7 +50,7 @@ def main():
         if slot == 9:
             nxt = ep * 10 + ELEVATOR_BACK_TO[ep] + 1
         elif slot == 8:
-            nxt = ep * 10 + 1               # fallback; boss ends via victory
+            nxt = -1                        # boss floor: the episode ends
         else:
             nxt = n + 2
         secret = ep * 10 + 10               # slot 9 of this episode
@@ -58,7 +58,17 @@ def main():
         lines.append("{")
         lines.append(f"    levelnum = {n + 1}")
         lines.append(f'    music = "{EP_SONGS[ep][slot]}"')
-        lines.append(f'    next = "MAP{nxt:02d}"')
+        if nxt < 0:
+            # The boss floor ends the episode. It cannot use MAPINFO's
+            # "EndTitle" or an endgame block: EndTitle skips the
+            # intermission (which is where Victory() draws the episode
+            # averages) and the endgame block is rejected by the parser.
+            # So the floor keeps a placeholder next and WolfIntermission
+            # takes over in victoryMode; the real chain out of it
+            # (EndText -> high scores -> title) lands there.
+            lines.append(f'    next = "MAP{ep * 10 + 1:02d}"')
+        else:
+            lines.append(f'    next = "MAP{nxt:02d}"')
         lines.append(f'    secretnext = "MAP{secret:02d}"')
         lines.append(f"    par = {int(round(PAR[n]['minutes'] * 60))}")
         lines.append("}")
