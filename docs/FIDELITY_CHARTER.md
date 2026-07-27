@@ -606,3 +606,17 @@ extend that fill across the whole display instead, so nothing is
 pillarboxed where the original had nothing to lose. Screens that are a
 single full-frame picture (title, credits) cannot be widened this way and
 need a surround treatment instead.
+
+### 2D draw-path calibration (2026-07-27)
+
+| ID | Item | Value |
+|---|---|---|
+| DRAW-001 | Calibrated in-engine with known DestWidths against a window-sized reference rect in a single frame: `DTA_DestWidthF/HeightF` with real-pixel positions is honoured EXACTLY (asked 400/800/1200 px, measured 400/800/1200). This is the canonical picture path | measured, 1920x1080 window |
+| DRAW-002 | A virtual screen (`DTA_VirtualWidth/Height`) maps onto the centred, aspect-corrected 4:3 box, NOT the full display. Virtual 320x200 text measured x4.475 vs the ideal x4.5 (glyph rounding) starting at the 4:3 box origin - correct. This is the canonical text path | measured |
+| DRAW-003 | Widening the virtual width to "span the display" squeezes everything by 320/VirtW, because the box it maps to does not widen. A 427-unit virtual screen rendered 320-unit art 25% narrow - i.e. SQUARE. This was the pregame-art aspect bug | measured |
+
+Measurement protocol note: screen captures must be validated with an
+in-frame reference rect (full-window magenta Dim). Two earlier rounds of
+contradictory aspect readings were capture artifacts - a fixed-region
+grab reading desktop around a moved/refocused window, and the NVIDIA
+overlay registering as content. The reference rect makes both visible.

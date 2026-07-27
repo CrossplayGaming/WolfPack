@@ -165,32 +165,29 @@ class WolfDraw
                    int(w * sx + 1), int(h * sy + 1));
     }
 
+    // CALIBRATED 2026-07-27 (charter DRAW-001): with known DestWidths
+    // measured against a window-sized reference rect in one frame,
+    // DTA_DestWidthF and real-pixel positions are honoured EXACTLY. A
+    // virtual screen maps onto the centred 4:3 box, NOT the display — so
+    // virtual 320x200 is also correct, while a widened virtual width
+    // (my old VirtW) squeezed everything by 320/VirtW into a square.
     static void Pic(double x, double y, String lump)
     {
         TextureID t = TexMan.CheckForTexture(lump, TexMan.Type_MiscPatch);
         if (!t.IsValid())
             return;
-        // same virtual screen as Text(), so pictures and text that share a
-        // column actually line up
-        screen.DrawTexture(t, true, (VirtW() - 320.0) / 2 + x, y,
-                           DTA_VirtualWidthF, VirtW(),
-                           DTA_VirtualHeightF, 200.0);
-    }
-
-    // DrawText ignores DTA_ScaleX/Y, so text uses a virtual screen instead:
-    // wide enough to span the display, with 320 units across the 4:3 area,
-    // which lands on the same rectangle the pictures use.
-    static double VirtW()
-    {
-        return 320.0 * screen.GetWidth() / (screen.GetHeight() * (4.0 / 3.0));
+        int tw, th;
+        [tw, th] = TexMan.GetSize(t);
+        double sx = ScaleX(), sy = ScaleY();
+        screen.DrawTexture(t, true, OrgX() + x * sx, y * sy,
+                           DTA_DestWidthF, tw * sx,
+                           DTA_DestHeightF, th * sy);
     }
 
     static void Text(Font fnt, double x, double y, String s, Color c)
     {
-        screen.DrawText(fnt, Font.CR_UNTRANSLATED,
-                        (VirtW() - 320.0) / 2 + x, y, s,
-                        DTA_VirtualWidthF, VirtW(),
-                        DTA_VirtualHeightF, 200.0,
+        screen.DrawText(fnt, Font.CR_UNTRANSLATED, x, y, s,
+                        DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
                         DTA_ColorOverlay, 0xFF000000 | c);
     }
 }
