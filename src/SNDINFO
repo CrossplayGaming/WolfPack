@@ -90,3 +90,4 @@ menu/clear     "sounds/escpressedsnd.wav"
 menu/dismiss   "sounds/escpressedsnd.wav"
 menu/prompt    "sounds/shootsnd.wav"
 menu/invalid   "sounds/movegun2snd.wav"
+wolf/rose       "sounds/rose.wav"        // ROSESND digi 45

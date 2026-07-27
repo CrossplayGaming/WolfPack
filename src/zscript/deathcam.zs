@@ -45,18 +45,22 @@ class WolfDeathCam : StaticEventHandler
         PlayerPawn pm = players[0].mo;
         if (pm != null && boss != null)
         {
-            camAngle = pm.AngleTo(boss);
+            // WL_ACT2.C:3808-3835: aim from the KILL position at the
+            // boss, then back away from the boss along that line until
+            // the spot is clear. CheckPosition tests the spot itself;
+            // CheckMove tested the PATH from the player and could fail
+            // everywhere, falling back into a wall (the Hitler clip).
+            camAngle = VectorAngle(boss.pos.x - killPos.x,
+                                   boss.pos.y - killPos.y);
             double dist = 0x14000 / 1024.0;         // 80 map units
-            Vector2 want = boss.pos.xy;
-            for (int i = 0; i < 32; i++)
+            Vector2 want = killPos.xy;
+            for (int i = 0; i < 48; i++)
             {
                 Vector2 p = boss.pos.xy - (cos(camAngle) * dist,
                                            sin(camAngle) * dist);
-                if (pm.CheckMove(p))
-                {
-                    want = p;
+                want = p;                           // keep the farthest
+                if (pm.CheckPosition(p))
                     break;
-                }
                 dist += 0x1000 / 1024.0;            // step out 4 units
             }
             camPos = (want.x, want.y, pm.pos.z);

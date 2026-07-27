@@ -60,6 +60,7 @@ class WolfEnemySim : Actor abstract
     virtual int ChaseSpeedMul() { return 3; }        // SPEED-001
     virtual void SightSound() {}
     virtual void DeathSound() {}
+    virtual String DeathSnd() { return ""; }
     virtual void AttackSound() {}
     virtual int ReactionTics(WolfLevel wl) { return 1 + wl.RndT() / 4; }
     virtual void DropItem_() {}
@@ -181,6 +182,11 @@ class WolfEnemySim : Actor abstract
             return;
         if (dead)
         {
+            if (camHold > 0)
+            {
+                camHold--;          // held on the standing frame while the
+                return;             // death statement plays out in full
+            }
             // corpse still animates its die states
             RunStateClock(2);
             return;
@@ -280,7 +286,12 @@ class WolfEnemySim : Actor abstract
         case 14: HitlerMorph(); break;  // A_HitlerMorph
         case 29: A_StartSound("wolf/mechstep", CHAN_BODY); break;
         case 30: A_StartSound("wolf/slurpie", CHAN_VOICE); break;
-        case 10: DeathSound(); break;
+        case 10:
+            if (screamDone)
+                screamDone = false;      // replay: already played in full
+            else
+                DeathSound();
+            break;
         case 11: StartDeathCam(); break;    // A_StartDeathCam
         default: break;
         }
@@ -814,12 +825,23 @@ class WolfEnemySim : Actor abstract
         Level.ExitLevel(0, false);
     }
 
+    int camHold;
+    bool screamDone;
+
     void StartDeathCamReplay()
     {
         int st = DeathCamState();
         if (st >= 0)
         {
             dead = true;
+            // the death statement plays IN FULL over the standing frame
+            // before the collapse replays (user-verified original order);
+            // the die chain's own scream is suppressed to avoid a double
+            DeathSound();
+            screamDone = true;
+            String snd = DeathSnd();
+            camHold = snd == "" ? 60
+                    : int(S_GetLength(snd) * 35) + 10;
             SetState_(st);
         }
     }

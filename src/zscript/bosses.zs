@@ -59,6 +59,7 @@ class WolfHans : WolfBoss
     }
     override void SightSound() { A_StartSound("wolf/gutentag", CHAN_VOICE); }
     override void DeathSound() { A_StartSound("wolf/mutti", CHAN_VOICE); }
+    override String DeathSnd() { return "wolf/mutti"; }
     override void AttackSound() { A_StartSound("wolf/bossfire", CHAN_WEAPON); }
     override void DropItem_() { PlaceDrop("WolfStatic20"); }   // BOSS-002
 }
@@ -91,7 +92,8 @@ class WolfGretel : WolfBoss
     }
     override int ChaseSpeedMul() { return 3; }
     override void SightSound() { A_StartSound("wolf/kein", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("wolf/mutti", CHAN_VOICE); }
+    override void DeathSound() { A_StartSound("wolf/mein", CHAN_VOICE); }
+    override String DeathSnd() { return "wolf/mein"; }
     override void AttackSound() { A_StartSound("wolf/bossfire", CHAN_WEAPON); }
     override void DropItem_() { PlaceDrop("WolfStatic20"); }
 }
@@ -126,6 +128,7 @@ class WolfSchabbs : WolfBoss
     override int DeathCamState() { return WolfSchabbsTable.SCHABBDEATHCAM; }       // BOSS-003
     override void SightSound() { A_StartSound("wolf/schabbsha", CHAN_VOICE); }
     override void DeathSound() { A_StartSound("wolf/meingott", CHAN_VOICE); }
+    override String DeathSnd() { return "wolf/meingott"; }
 }
 
 // ---------------------------------------------------------------- Gift
@@ -158,6 +161,7 @@ class WolfGift : WolfBoss
     override int DeathCamState() { return WolfGiftTable.GIFTDEATHCAM; }
     override void SightSound() { A_StartSound("wolf/eine", CHAN_VOICE); }
     override void DeathSound() { A_StartSound("wolf/donner", CHAN_VOICE); }
+    override String DeathSnd() { return "wolf/donner"; }
 }
 
 // ----------------------------------------------------------------- Fat
@@ -189,7 +193,8 @@ class WolfFat : WolfBoss
     override bool DeathCamBoss() { return true; }
     override int DeathCamState() { return WolfFatTable.FATDEATHCAM; }
     override void SightSound() { A_StartSound("wolf/erlauben", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("wolf/mein", CHAN_VOICE); }
+    override void DeathSound() { A_StartSound("wolf/rose", CHAN_VOICE); }
+    override String DeathSnd() { return "wolf/rose"; }
 }
 
 // --------------------------------------------------------- Fake Hitler
@@ -222,6 +227,7 @@ class WolfFakeHitler : WolfBoss
     override int ChaseSpeedMul() { return 3; }
     override void SightSound() { A_StartSound("wolf/tothund", CHAN_VOICE); }
     override void DeathSound() { A_StartSound("wolf/hitlerha", CHAN_VOICE); }
+    override String DeathSnd() { return "wolf/hitlerha"; }
 }
 
 // -------------------------------------------------------- Mecha Hitler
@@ -252,6 +258,7 @@ class WolfMechaHitler : WolfBoss
     override int ChaseSpeedMul() { return 3; }
     override void SightSound() { A_StartSound("wolf/die", CHAN_VOICE); }
     override void DeathSound() { A_StartSound("wolf/scheist", CHAN_VOICE); }
+    override String DeathSnd() { return "wolf/scheist"; }
     override void AttackSound() { A_StartSound("wolf/bossfire", CHAN_WEAPON); }
 }
 
@@ -287,6 +294,7 @@ class WolfHitler : WolfBoss
     override int DeathCamState() { return WolfHitlerTable.HITLERDEATHCAM; }
     override void SightSound() { A_StartSound("wolf/die", CHAN_VOICE); }
     override void DeathSound() { A_StartSound("wolf/eva", CHAN_VOICE); }
+    override String DeathSnd() { return "wolf/eva"; }
     override void AttackSound() { A_StartSound("wolf/bossfire", CHAN_WEAPON); }
 }
 
