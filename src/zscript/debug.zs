@@ -216,10 +216,10 @@ class WolfDebugHandler : EventHandler
             {
                 WolfGameState gs = WolfGameState.Get();
                 if (gs != null)
-                    gs.score = 12345;       // must roll back on restart
+                    gs.score[0] = 12345;       // must roll back on restart
                 pm.A_GiveInventory("WolfMachineGun");
                 Console.Printf("WOLFDBG death: killing player (lives=%d)",
-                               gs == null ? -99 : gs.lives);
+                               gs == null ? -99 : gs.lives[0]);
                 pm.DamageMobj(null, null, 500, 'Bullet', DMG_THRUSTLESS);
             }
             if ((t == 60 || t == 130 || t == 200) && pm != null)
@@ -236,8 +236,8 @@ class WolfDebugHandler : EventHandler
                                           : p2.FindInventory("WolfAmmo");
                 Console.Printf("WOLFDBG death: onload lives=%d score=%d "
                                "mg=%d ammo=%d",
-                               gs == null ? -99 : gs.lives,
-                               gs == null ? -99 : gs.score,
+                               gs == null ? -99 : gs.lives[0],
+                               gs == null ? -99 : gs.score[0],
                                mg, am == null ? -1 : am.Amount);
             }
         }

@@ -932,7 +932,7 @@ class WolfEnemySim : Actor abstract
         hitpoints -= damage;
         if (hitpoints <= 0)
         {
-            KillActor_();
+            KillActor_(source);
         }
         else
         {
@@ -945,10 +945,14 @@ class WolfEnemySim : Actor abstract
 
     Vector3 killPos;
 
-    void KillActor_()
+    void KillActor_(Actor killer = null)
     {
-        if (players[0].mo != null)
-            killPos = players[0].mo.pos;    // BOSS-003 killx/killy
+        // BOSS-003 killx/killy: the KILLER's position (in the original
+        // there is only one candidate)
+        if (killer != null)
+            killPos = killer.pos;
+        else if (players[0].mo != null)
+            killPos = players[0].mo.pos;
         WolfLevel wl = WolfLevel.Get();
         wl.ReleaseTile(tileX, tileY, self);
         dead = true;
@@ -957,7 +961,7 @@ class WolfEnemySim : Actor abstract
         DropItem_();
         WolfGameState gs = WolfGameState.Get();
         if (gs != null)
-            gs.GivePoints(KillPoints());
+            gs.GivePoints(WolfGameState.PnumOf(killer), KillPoints());
         wl.killCount++;
         SetState_(DieState());
         SyncPos();

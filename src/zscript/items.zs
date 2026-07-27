@@ -10,10 +10,12 @@
 
 class WolfGameState : StaticEventHandler
 {
-    int score;
-    int lives;
-    int nextExtra;
-    int oldScore;       // score at floor entry (DEATH-004)
+    // Per player (netgame audit): the original is single-player, so the
+    // co-op design gives each player their own score/lives, Doom-style.
+    int score[MAXPLAYERS];
+    int lives[MAXPLAYERS];
+    int nextExtra[MAXPLAYERS];
+    int oldScore[MAXPLAYERS];   // score at floor entry (DEATH-004)
     bool deathRestart;
     bool skipPsyched;
     bool victoryFlag;
@@ -65,10 +67,13 @@ class WolfGameState : StaticEventHandler
         if (!initialized)
         {
             initialized = true;
-            score = 0;
-            lives = 3;
-            oldScore = 0;
-            nextExtra = EXTRAPOINTS;
+            for (int i = 0; i < MAXPLAYERS; i++)
+            {
+                score[i] = 0;
+                lives[i] = 3;
+                oldScore[i] = 0;
+                nextExtra[i] = EXTRAPOINTS;
+            }
             ClearRatios();
         }
     }
@@ -121,12 +126,12 @@ eliminated your chances of
     {
         if (e.Name == "wolf_mli")
         {
-            DoMLI();
+            DoMLI(clamp(e.Player, 0, MAXPLAYERS - 1));
             return;
         }
         if (e.Name == "wolf_cheat")
         {
-            DoCheat(e.Args[0]);
+            DoCheat(e.Args[0], clamp(e.Player, 0, MAXPLAYERS - 1));
             return;
         }
         if (e.Name == "wolf_newgame")
@@ -134,8 +139,8 @@ eliminated your chances of
             // reset only: the map change itself goes through the
             // engine's real new-game path (Menu.StartGameDirect), because
             // ChangeLevel from the titlemap drags title state along
-            if (players[0].mo != null)       // shed any victory freeze
-                players[0].cheats &= ~CF_TOTALLYFROZEN;
+            for (int i = 0; i < MAXPLAYERS; i++)   // shed victory freezes
+                players[i].cheats &= ~CF_TOTALLYFROZEN;
             initialized = false;             // fresh score/lives on load
             deathRestart = false;
             ClearRatios();
@@ -146,9 +151,9 @@ eliminated your chances of
 
     // MLI (WL_PLAY.C:657-693): health 100, ammo 99, both keys, chaingun,
     // score ZEROED, ten-minute par penalty
-    void DoMLI()
+    void DoMLI(int pnum)
     {
-        PlayerPawn pm = players[0].mo;
+        PlayerPawn pm = players[pnum].mo;
         if (pm == null)
             return;
         pm.health = 100; pm.player.health = 100;
@@ -157,20 +162,20 @@ eliminated your chances of
         pm.GiveInventoryType("WolfGoldKey");
         pm.GiveInventoryType("WolfSilverKey");
         pm.GiveInventoryType("WolfChaingun");
-        score = 0;
+        score[pnum] = 0;
         mliPenalty += 600;
     }
 
     // the cheat menu's actions (D-001): ui sends, play executes
-    void DoCheat(int id)
+    void DoCheat(int id, int pnum)
     {
-        PlayerPawn pm = players[0].mo;
+        PlayerPawn pm = players[pnum].mo;
         if (pm == null)
             return;
         switch (id)
         {
-        case 0: players[0].cheats ^= CF_GODMODE; break;
-        case 1: players[0].cheats ^= CF_NOCLIP; break;
+        case 0: players[pnum].cheats ^= CF_GODMODE; break;
+        case 1: players[pnum].cheats ^= CF_NOCLIP; break;
         case 2:
             pm.GiveInventoryType("WolfMachineGun");
             pm.GiveInventoryType("WolfChaingun");
@@ -190,11 +195,13 @@ eliminated your chances of
     {
         if (deathRestart)
         {
-            score = oldScore;       // DEATH-004: roll back to floor entry
+            for (int i = 0; i < MAXPLAYERS; i++)
+                score[i] = oldScore[i];  // DEATH-004: roll back
             deathRestart = false;
         }
         else
-            oldScore = score;       // banked on a completed floor
+            for (int i = 0; i < MAXPLAYERS; i++)
+                oldScore[i] = score[i];  // banked on a completed floor
 
         // LevelRatios[mapon] (WL_INTER.C:852-855): the finished floor's
         // percentages feed the episode-end averages. Floors 1-8 only; the
@@ -216,16 +223,25 @@ eliminated your chances of
         }
     }
 
-    void GivePoints(int pts)        // WL_AGENT.C:520-530
+    void GivePoints(int pnum, int pts)      // WL_AGENT.C:520-530
     {
-        score += pts;
-        while (score >= nextExtra)
+        pnum = clamp(pnum, 0, MAXPLAYERS - 1);
+        score[pnum] += pts;
+        while (score[pnum] >= nextExtra[pnum])
         {
-            nextExtra += EXTRAPOINTS;
-            lives++;
-            if (players[0].mo != null)
-                players[0].mo.A_StartSound("wolf/bonus1up", CHAN_AUTO);
+            nextExtra[pnum] += EXTRAPOINTS;
+            lives[pnum]++;
+            if (players[pnum].mo != null)
+                players[pnum].mo.A_StartSound("wolf/bonus1up", CHAN_AUTO);
         }
+    }
+
+    // player index for an arbitrary actor, 0 when not a player
+    static int PnumOf(Actor a)
+    {
+        if (a != null && a.player != null)
+            return a.PlayerNumber();
+        return 0;
     }
 }
 
@@ -318,29 +334,29 @@ class WolfPickup : Inventory abstract
             }
             break;
         case BO_CROSS:                          // PICK-008
-            gs.GivePoints(100);
+            gs.GivePoints(WolfGameState.PnumOf(toucher), 100);
             if (wl != null) wl.treasureCount++;
             toucher.A_StartSound("wolf/bonus1", CHAN_ITEM);
             break;
         case BO_CHALICE:
-            gs.GivePoints(500);
+            gs.GivePoints(WolfGameState.PnumOf(toucher), 500);
             if (wl != null) wl.treasureCount++;
             toucher.A_StartSound("wolf/bonus2", CHAN_ITEM);
             break;
         case BO_BIBLE:
-            gs.GivePoints(1000);
+            gs.GivePoints(WolfGameState.PnumOf(toucher), 1000);
             if (wl != null) wl.treasureCount++;
             toucher.A_StartSound("wolf/bonus3", CHAN_ITEM);
             break;
         case BO_CROWN:
-            gs.GivePoints(5000);
+            gs.GivePoints(WolfGameState.PnumOf(toucher), 5000);
             if (wl != null) wl.treasureCount++;
             toucher.A_StartSound("wolf/bonus4", CHAN_ITEM);
             break;
         case BO_FULLHEAL:                       // PICK-007
             toucher.GiveBody(99, 100);
             GiveAmmo_(toucher, 25);
-            gs.lives++;
+            gs.lives[WolfGameState.PnumOf(toucher)]++;
             if (wl != null) wl.treasureCount++;
             toucher.A_StartSound("wolf/bonus1up", CHAN_ITEM);
             break;

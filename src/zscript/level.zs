@@ -150,7 +150,9 @@ class WolfLevel : EventHandler
         if (treasureTotal > 0 && treasureCount * 100 / treasureTotal == 100)
             bonus += 10000;
         if (bonus > 0)
-            gs.GivePoints(bonus);
+            for (int pn = 0; pn < MAXPLAYERS; pn++)
+                if (playeringame[pn])
+                    gs.GivePoints(pn, bonus);
     }
 
     override void WorldTick()

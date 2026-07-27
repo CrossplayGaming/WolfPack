@@ -33,8 +33,8 @@ class WolfStatusBar : BaseStatusBar
         int floorNum = ((Level.levelnum - 1) % 10) + 1;
         DrawWolfNumber(floorNum, 2, 2);
         WolfGameState gs = WolfGameState.Get();
-        DrawWolfNumber(gs == null ? 0 : gs.score, 6, 6);
-        DrawWolfNumber(gs == null ? 3 : gs.lives, 14, 1);
+        DrawWolfNumber(gs == null ? 0 : gs.score[CPlayer.mo.PlayerNumber()], 6, 6);
+        DrawWolfNumber(gs == null ? 3 : gs.lives[CPlayer.mo.PlayerNumber()], 14, 1);
         int health = CPlayer.mo == null ? 0 : CPlayer.health;
         DrawWolfNumber(health, 21, 3);
         Inventory am = CPlayer.mo.FindInventory("WolfAmmo");
@@ -77,7 +77,7 @@ class WolfStatusBar : BaseStatusBar
     {
         BeginHUD();
         WolfGameState gs = WolfGameState.Get();
-        DrawHudItem("HUDLIFE", gs == null ? 3 : gs.lives, 30, false);
+        DrawHudItem("HUDLIFE", gs == null ? 3 : gs.lives[CPlayer.mo.PlayerNumber()], 30, false);
         DrawHudItem("HUDMED",
                     CPlayer.mo == null ? 0 : CPlayer.health, 92, false);
         Inventory am = CPlayer.mo.FindInventory("WolfAmmo");

@@ -176,17 +176,18 @@ class WolfPlayer : DoomPlayer
             dh.Finish();
         if (gs != null)
         {
-            gs.lives--;
+            int dpn = PlayerNumber();
+            gs.lives[dpn]--;
             gs.deathRestart = true;
             gs.skipPsyched = true;
-            if (gs.lives < 0)
+            if (gs.lives[dpn] < 0)
             {
                 // TODO: game over -> menu/high scores. Until that flow
                 // exists, start a fresh run on the same floor.
-                gs.lives = 3;
-                gs.score = 0;
-                gs.oldScore = 0;
-                gs.nextExtra = WolfGameState.EXTRAPOINTS;
+                gs.lives[dpn] = 3;
+                gs.score[dpn] = 0;
+                gs.oldScore[dpn] = 0;
+                gs.nextExtra[dpn] = WolfGameState.EXTRAPOINTS;
             }
         }
         // no tally when you die (the source goes straight back in)
