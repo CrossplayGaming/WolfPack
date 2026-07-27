@@ -55,3 +55,8 @@ LISTMENU "WolfAutomapMenu"
 {
     Class "WolfAutomapMenu"
 }
+
+LISTMENU "WolfBindGrid"
+{
+    Class "WolfBindGrid"
+}

@@ -270,7 +270,7 @@ class WolfControlMenu : WolfWidgetMenu
         if (labels[index] == "Mouse Sensitivity")
             Menu.SetMenu("WolfMouseMenu");
         else if (labels[index] == "Customize controls")
-            Menu.SetMenu("CustomizeControls");   // key grid: next pass
+            Menu.SetMenu("WolfBindGrid");
     }
 }
 
