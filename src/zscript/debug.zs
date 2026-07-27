@@ -9,6 +9,7 @@ class WolfDebugHandler : EventHandler
     int t;
     bool found;
     WolfEnemySim sightEnemy;
+    bool sightWakeDone;
     int blockProbe;
     WolfDoor door;
 
@@ -133,10 +134,19 @@ class WolfDebugHandler : EventHandler
             if (t == 400 && sightEnemy == null)
             {
                 WolfLevel wl = WolfLevel.Get();
+                // only guards in the PLAYER'S OWN area: SightPlayer's
+                // areabyplayer gate follows door connectivity, not
+                // teleports, so a guard behind unopened doors can never
+                // wake - which made this test pick-dependent and flaky
+                PlayerPawn pp = players[0].mo;
+                int parea = wl.AreaAt(int(pp.pos.x) / 64,
+                                      63 - (int(pp.pos.y) / 64));
                 ThinkerIterator it = ThinkerIterator.Create("WolfGuardStand");
                 WolfEnemySim e;
                 while ((e = WolfEnemySim(it.Next())) != null)
                 {
+                    if (e.areanumber != parea)
+                        continue;
                     int px = e.tileX + 3, py = e.tileY;
                     int st; WolfDoor dd;
                     [st, dd] = wl.TileState(px, py);
@@ -145,6 +155,13 @@ class WolfDebugHandler : EventHandler
                     sightEnemy = e;
                     players[0].mo.SetOrigin((px * 64 + 32,
                         4096.0 - (py * 64 + 32), 0), false);
+                    // harness artifact: the woken guard can kill the
+                    // player before the check, restarting the floor and
+                    // wiping the test - THE flaky-gate cause
+                    players[0].mo.bINVULNERABLE = true;
+                    // and the test subject: the weapon-soak test sprays
+                    // rounds on this same floor, and a corpse never wakes
+                    e.bINVULNERABLE = true;
                     e.dir = 4;              // face WEST, player is east
                     e.temp2 = 0;
                     e.ambushFlag = false;
@@ -173,9 +190,20 @@ class WolfDebugHandler : EventHandler
                 sightEnemy.dir = 0;         // now face EAST, toward player
                 sightEnemy.temp2 = 0;
             }
-            if (t == 660 && sightEnemy != null)
-                Console.Printf("WOLFDBG sight: facing-player attack=%d",
-                               sightEnemy.attackMode);
+            // latched poll, not a fixed deadline: the reaction delay is
+            // RANDOM (REACT-001..006), so pass the moment the wake lands
+            // and fail only after a generous window
+            if (t > 522 && t <= 940 && sightEnemy != null && !sightWakeDone)
+            {
+                if (sightEnemy.attackMode)
+                {
+                    sightWakeDone = true;
+                    Console.Printf("WOLFDBG sight: facing-player attack=1");
+                }
+                else if (t == 940)
+                    Console.Printf("WOLFDBG sight: facing-player attack=0 "
+                                   "hp=%d", sightEnemy.health);
+            }
         }
 
         // death self-test: damage the player to death, then watch the
