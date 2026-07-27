@@ -257,6 +257,9 @@ class WolfDebugHandler : EventHandler
                 Inventory a = pm.FindInventory("WolfAmmo");
                 if (a != null) a.Amount = 99;
                 Console.Printf("WOLFDBG armed: chaingun, MG, 99 ammo, keys");
+                // one-shot: zero the cvar so the value archived at exit
+                // can never arm a later session (the ini leak, round 3)
+                armv.SetInt(0);
             }
         }
 

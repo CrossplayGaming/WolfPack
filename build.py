@@ -50,6 +50,13 @@ def build() -> Path:
                             cwd=str(ROOT)).returncode
         if rc:
             sys.exit("make_assets failed")
+        # scrub stale wolf_dbg_ values from the playtest config: any
+        # launcher that bypasses play.bat's +set forces would load them
+        ini = ROOT / "dist" / "playtest.ini"
+        if ini.exists():
+            kept = [l for l in ini.read_text(errors="replace").splitlines()
+                    if not l.startswith("wolf_dbg_")]
+            ini.write_text(chr(10).join(kept) + chr(10))
         # launch banner lives in the ENGINE pk3 (drawn before wads mount)
         subprocess.run([sys.executable, "tools/patch_engine.py"],
                        check=False)
