@@ -241,9 +241,13 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
     tp = VGA / "TITLEPIC.png"
     if tp.exists():
         (ASSETS / "widgets").mkdir(exist_ok=True)
-        img = Image.open(tp).convert("RGB")
-        img.resize((640, 400), Image.NEAREST).save(
-            ASSETS / "widgets" / "banner.png")
+        # the engine banner is a 1366x197 strip: centre the title art on
+        # it at 4:3 rather than stretching it to the strip
+        img = Image.open(tp).convert("RGB").resize((263, 197),
+                                                   Image.NEAREST)
+        strip = Image.new("RGB", (1366, 197), (0, 0, 0))
+        strip.paste(img, ((1366 - 263) // 2, 0))
+        strip.save(ASSETS / "widgets" / "banner.png")
 
     # end-of-episode articles and the proportional font (extract_text.py)
     TXT = ROOT / "build" / "text"
