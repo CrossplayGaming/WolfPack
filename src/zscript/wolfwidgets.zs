@@ -8,7 +8,7 @@
 
 class WolfWidgetMenu : WolfMenu
 {
-    enum EKind { W_LABEL, W_TOGGLE, W_SLIDER, W_MULTI, W_COMMAND };
+    enum EKind { W_LABEL, W_TOGGLE, W_SLIDER, W_MULTI, W_COMMAND, W_BIND };
 
     Array<int> wKind;
     Array<String> wCVar;
@@ -43,10 +43,17 @@ class WolfWidgetMenu : WolfMenu
         AddRow(W_TOGGLE, label, cvarName, IT_NORMAL);
     }
     void AddCommand(String label) { AddRow(W_COMMAND, label, "", IT_NORMAL); }
-    void AddToggleV(String label, String cvarName, int onValue)
+    void AddToggleV(String label, String cvarName, int onValue,
+                    int offValue = 0)
     {
         AddRow(W_TOGGLE, label, cvarName, IT_NORMAL);
         wMax[wMax.Size() - 1] = onValue;
+        wMin[wMin.Size() - 1] = offValue;
+    }
+    // a key-binding row: wCVar holds the +command
+    void AddBindRow(String label, String cmd)
+    {
+        AddRow(W_BIND, label, cmd, IT_NORMAL);
     }
     void AddSlider(String label, String cvarName, double mn, double mx,
                    double st)
@@ -108,7 +115,7 @@ class WolfWidgetMenu : WolfMenu
             if (wKind[i] == W_TOGGLE)
             {
                 CVar cv = GetCV(i);
-                bool on = cv != null && cv.GetInt() != 0;
+                bool on = cv != null && cv.GetInt() == int(wMax[i]);
                 WolfDraw.Pic(tx, y + 2, on ? "C_SEL" : "C_NOTSEL");
             }
             if (wKind[i] != W_LABEL)
@@ -136,6 +143,20 @@ class WolfWidgetMenu : WolfMenu
                 WolfDraw.Bar(kx, y + 10, 12, 1, C_READ);
                 WolfDraw.Bar(kx + 11, y + 2, 1, 9, C_READ);
             }
+            else if (wKind[i] == W_BIND)
+            {
+                Array<int> bkeys;
+                Bindings.GetAllKeysForCommand(bkeys, wCVar[i]);
+                String kn = (i == sel && waitingBind) ? "???"
+                    : bkeys.Size() == 0 ? "---"
+                    : KeyBindings.NameKeys(bkeys[0], 0);
+                if (kn.Length() > 7)
+                    kn = kn.Left(7);
+                WolfDraw.Text(big, winX + winW - 10
+                              - big.StringWidth(kn), y, kn,
+                              WolfPal.Get(itemStates[i] == IT_DISABLED
+                                          ? C_DEACTIVE : C_READH));
+            }
             else if (wKind[i] == W_MULTI)
             {
                 CVar cv = GetCV(i);
@@ -151,6 +172,8 @@ class WolfWidgetMenu : WolfMenu
 
     // ---- input -----------------------------------------------------------
 
+    virtual void OnToggled(int i, int newValue) {}
+
     virtual void Adjust(int i, int dir)
     {
         CVar cv = GetCV(i);
@@ -158,7 +181,12 @@ class WolfWidgetMenu : WolfMenu
             return;
         if (wKind[i] == W_TOGGLE)
         {
-            cv.SetInt(cv.GetInt() != 0 ? 0 : int(wMax[i]));
+            // NOTE: server cvars apply DEFERRED - never re-read right
+            // after SetInt (that inverted the freelook companion once)
+            int target = cv.GetInt() == int(wMax[i]) ? int(wMin[i])
+                                                     : int(wMax[i]);
+            cv.SetInt(target);
+            OnToggled(i, target);
             MenuSound("menu/change");
         }
         else if (wKind[i] == W_SLIDER)
@@ -174,6 +202,21 @@ class WolfWidgetMenu : WolfMenu
             MenuSound("menu/change");
         }
     }
+
+    bool waitingBind;
+    int pendingKey;
+
+    void StartBind()
+    {
+        if (itemStates[sel] == IT_DISABLED)
+            return;
+        waitingBind = true;
+        WolfEnterKeyW ek = new("WolfEnterKeyW");
+        ek.Init(self, self);
+        ek.ActivateMenu();
+    }
+
+    void SendKey(int key) { pendingKey = key; }
 
     // Mouse: hover selects; click toggles lamps and cycles values;
     // sliders set to the clicked position and DRAG while held.
@@ -227,6 +270,8 @@ class WolfWidgetMenu : WolfMenu
                 MenuSound("menu/advance");
                 OnChoose(idx);
             }
+            else if (wKind[idx] == W_BIND)
+                StartBind();
             else
                 Adjust(idx, 1);         // lamps flip, values cycle
         }
@@ -245,8 +290,21 @@ class WolfWidgetMenu : WolfMenu
                 MenuSound("menu/advance");
                 OnChoose(sel);
             }
+            else if (wKind[sel] == W_BIND)
+                StartBind();
             else
                 Adjust(sel, 1);
+            return true;
+        case MKEY_Input:
+        {
+            waitingBind = false;
+            Bindings.UnbindACommand(wCVar[sel]);
+            Bindings.SetBind(pendingKey, wCVar[sel]);
+            MenuSound("menu/change");
+            return true;
+        }
+        case MKEY_Abort:
+            waitingBind = false;
             return true;
         }
         return Super.MenuEvent(mkey, fromcontroller);
@@ -339,4 +397,36 @@ class WolfAutomapMenu : WolfWidgetMenu
         winH = 13 * labels.Size() + 6;
         sel = 0;
     }
+}
+
+class WolfEnterKeyW : Menu
+{
+    WolfWidgetMenu mOwner;
+
+    void Init(Menu parent, WolfWidgetMenu owner)
+    {
+        Super.Init(parent);
+        mOwner = owner;
+        menuactive = Menu.WaitKey;
+        DontDim = true;
+    }
+
+    override bool TranslateKeyboardEvents() { return false; }
+
+    override bool OnInputEvent(InputEvent ev)
+    {
+        if (ev.type == InputEvent.Type_KeyDown)
+        {
+            mOwner.SendKey(ev.KeyScan);
+            menuactive = Menu.On;
+            Close();
+            mParentMenu.MenuEvent(
+                ev.KeyScan == InputEvent.KEY_ESCAPE ? Menu.MKEY_Abort
+                                                    : Menu.MKEY_Input, 0);
+            return true;
+        }
+        return false;
+    }
+
+    override void Drawer() { mParentMenu.Drawer(); }
 }

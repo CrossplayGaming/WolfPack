@@ -42,7 +42,7 @@ class WolfCheatMenu : WolfWidgetMenu
             WolfDraw.Pic(winX + 8, winY + CH_GOD * 13 + 2,
                          (ch & CF_GODMODE) ? "C_SEL" : "C_NOTSEL");
             WolfDraw.Pic(winX + 8, winY + CH_NOCLIP * 13 + 2,
-                         (ch & CF_NOCLIP2) ? "C_SEL" : "C_NOTSEL");
+                         (ch & CF_NOCLIP) ? "C_SEL" : "C_NOTSEL");
         }
     }
 
@@ -64,23 +64,40 @@ class WolfModernMenu : WolfWidgetMenu
     {
         Super.Init(parent, desc);
         title = "Modernization";
-        AddToggleV("Mouse Vertical Aim", "sv_freelook", 2);
-        AddToggleV("Jumping", "sv_jump", 2);
-        AddToggleV("Crouching", "sv_crouch", 2);
+        // sv tri-states: 0 Default, 1 Off, 2 On (engine menudef). The
+        // MAPINFO No* blocks are demonstrably inert in this engine, so
+        // "classic" must FORCE-DENY (1), not obey the map (0).
+        AddToggleV("Mouse Vertical Aim", "sv_freelook", 2, 1);
+        AddToggleV("Jumping", "sv_jump", 2, 1);
+        AddBindRow("  Jump Key", "+jump");
+        AddToggleV("Crouching", "sv_crouch", 2, 1);
+        AddBindRow("  Crouch Key", "+crouch");
         winH = 13 * labels.Size() + 6;
         sel = 0;
     }
 
-    override void Adjust(int i, int dir)
+    override void Drawer()
     {
-        Super.Adjust(i, dir);
-        // freelook also needs the INPUT cvar; classic mode turns it off
+        // bind rows grey out while their feature is off
+        CVar j = CVar.GetCVar("sv_jump", players[consoleplayer]);
+        CVar c = CVar.GetCVar("sv_crouch", players[consoleplayer]);
+        itemStates[2] = (j != null && j.GetInt() == 2) ? IT_NORMAL
+                                                       : IT_DISABLED;
+        itemStates[4] = (c != null && c.GetInt() == 2) ? IT_NORMAL
+                                                       : IT_DISABLED;
+        Super.Drawer();
+    }
+
+    override void OnToggled(int i, int newValue)
+    {
+        // freelook also needs the INPUT cvar. Computed from the value we
+        // just SET - server cvars apply deferred, so re-reading here
+        // returns the OLD value (that inverted this toggle once).
         if (wCVar[i] == "sv_freelook")
         {
             CVar fl = CVar.GetCVar("freelook", players[consoleplayer]);
-            CVar sv = GetCV(i);
-            if (fl != null && sv != null)
-                fl.SetInt(sv.GetInt() == 2 ? 1 : 0);
+            if (fl != null)
+                fl.SetInt(newValue == 2 ? 1 : 0);
         }
     }
 }

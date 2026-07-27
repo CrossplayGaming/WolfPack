@@ -60,6 +60,9 @@ class WolfIntermission : StatusScreen
         // TALLY-001: level time in seconds, capped at 99 minutes; par
         // comes from MAPINFO (generated from the extracted par table).
         levelSec = Plrs[me].stime / GameTicRate;
+        WolfGameState pgs = WolfGameState.Get();
+        if (pgs != null)
+            levelSec += pgs.mliPenalty;      // CHEAT-001
         if (levelSec > 99 * 60)
             levelSec = 99 * 60;
         parSec = wbs.partime / GameTicRate;

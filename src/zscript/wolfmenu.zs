@@ -510,12 +510,16 @@ class WolfMessageBox : MessageBoxMenu
             Super.Drawer();
             return;
         }
-        // the red menu screen behind the box (GZDoom draws only the top
-        // menu, so the parent's screen must be repainted here)
-        WolfDraw.WideBar(0, 200, 0x29);
-        WolfDraw.WideBar(10, 24, 0);
-        WolfDraw.WideBar(32, 1, 0x2c);
-        WolfDraw.Pic(84, 0, "C_OPTS");
+        // Opened from a menu: repaint the red menu screen (the engine
+        // draws only the top menu). Opened over gameplay (the MLI
+        // message): overlay the frozen view, as the original does.
+        if (mParentMenu is "WolfMenu")
+        {
+            WolfDraw.WideBar(0, 200, 0x29);
+            WolfDraw.WideBar(10, 24, 0);
+            WolfDraw.WideBar(32, 1, 0x2c);
+            WolfDraw.Pic(84, 0, "C_OPTS");
+        }
 
         // measure the block in font units
         int h = 0, mw = 0;

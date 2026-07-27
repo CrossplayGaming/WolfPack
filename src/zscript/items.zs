@@ -73,9 +73,57 @@ class WolfGameState : StaticEventHandler
         }
     }
 
+    // MLI (CHEAT-001): M+L+I held together in-game. Raw key tracking is
+    // ui-side; scans are learned from each key's first KeyDown since
+    // KeyUp events carry no char.
+    ui int scanM, scanL, scanI;
+    ui bool downM, downL, downI, mliFired;
+
+    override bool InputProcess(InputEvent ev)
+    {
+        if (ev.type == InputEvent.Type_KeyDown)
+        {
+            int c = ev.KeyChar;
+            if (c >= 65 && c <= 90) c += 32;
+            if (c == 109) { scanM = ev.KeyScan; downM = true; }
+            else if (c == 108) { scanL = ev.KeyScan; downL = true; }
+            else if (c == 105) { scanI = ev.KeyScan; downI = true; }
+
+            if (downM && downL && downI && !mliFired
+                && Level.MapName != "TITLEMAP"
+                && Menu.GetCurrentMenu() == null)
+            {
+                mliFired = true;
+                EventHandler.SendNetworkEvent("wolf_mli");
+                // CHEAT-002, verbatim (FOREIGN.H:95-99)
+                Menu.StartMessage("You now have 100% Health,
+"
+                    "99 Ammo and both Keys!
+
+Note that you have "
+                    "basically
+eliminated your chances of
+"
+                    "getting a high score!", 1);
+            }
+        }
+        else if (ev.type == InputEvent.Type_KeyUp)
+        {
+            if (ev.KeyScan == scanM) { downM = false; mliFired = false; }
+            else if (ev.KeyScan == scanL) { downL = false; mliFired = false; }
+            else if (ev.KeyScan == scanI) { downI = false; mliFired = false; }
+        }
+        return false;
+    }
+
     // the menus are ui scope and cannot start a game; they send this
     override void NetworkProcess(ConsoleEvent e)
     {
+        if (e.Name == "wolf_mli")
+        {
+            DoMLI();
+            return;
+        }
         if (e.Name == "wolf_cheat")
         {
             DoCheat(e.Args[0]);
@@ -94,6 +142,25 @@ class WolfGameState : StaticEventHandler
         }
     }
 
+    int mliPenalty;     // CHEAT-001: +42000 Wolf tics = 600 s of par time
+
+    // MLI (WL_PLAY.C:657-693): health 100, ammo 99, both keys, chaingun,
+    // score ZEROED, ten-minute par penalty
+    void DoMLI()
+    {
+        PlayerPawn pm = players[0].mo;
+        if (pm == null)
+            return;
+        pm.health = 100; pm.player.health = 100;
+        Inventory a = pm.FindInventory("WolfAmmo");
+        if (a != null) a.Amount = 99;
+        pm.GiveInventoryType("WolfGoldKey");
+        pm.GiveInventoryType("WolfSilverKey");
+        pm.GiveInventoryType("WolfChaingun");
+        score = 0;
+        mliPenalty += 600;
+    }
+
     // the cheat menu's actions (D-001): ui sends, play executes
     void DoCheat(int id)
     {
@@ -103,7 +170,7 @@ class WolfGameState : StaticEventHandler
         switch (id)
         {
         case 0: players[0].cheats ^= CF_GODMODE; break;
-        case 1: players[0].cheats ^= CF_NOCLIP2; break;
+        case 1: players[0].cheats ^= CF_NOCLIP; break;
         case 2:
             pm.GiveInventoryType("WolfMachineGun");
             pm.GiveInventoryType("WolfChaingun");
