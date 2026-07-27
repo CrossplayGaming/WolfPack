@@ -35,7 +35,9 @@ class WolfDoor : Actor
 
     Default
     {
-        +NOBLOCKMAP +NOSECTOR +NOINTERACTION +NOGRAVITY +DONTSPLASH
+        +SOLID +NOGRAVITY +DONTSPLASH +NOTAUTOAIMED
+        Radius 42;          // 42 + PLAYERSIZE 22 = 64: stops the player
+        Height 64;          // flush with the walls flanking the door
     }
 
     override void PostBeginPlay()
@@ -59,6 +61,11 @@ class WolfDoor : Actor
     // never drift from the sim position across interrupted cycles.
     int OpenX() { return vertical ? homeX : homeX + SLIDEDIST; }
     int OpenY() { return vertical ? homeY - SLIDEDIST : homeY; }
+
+    void A_SetSolid(bool on)
+    {
+        bSolid = on;
+    }
 
     // areas on both sides (DOOR-011: vertical x+-1, horizontal y+-1)
     int, int SideAreas(WolfLevel wl)
@@ -159,6 +166,7 @@ class WolfDoor : Actor
                 ticcount = 0;      // retry later, door stays open
             return;
         }
+        A_SetSolid(true);           // closing: the tile blocks again
         A_StartSound("wolf/doorclose", CHAN_AUTO, attenuation: 1.0);
         Level.ExecuteSpecial(87, self, null, false, polyId);
         Level.ExecuteSpecial(88, self, null, false,
@@ -185,6 +193,7 @@ class WolfDoor : Actor
                 position = FULLOPEN;
                 doorAction = DR_OPEN;
                 ticcount = 0;
+                A_SetSolid(false);      // actorat cleared: tile passable
             }
             break;
         case DR_OPEN:

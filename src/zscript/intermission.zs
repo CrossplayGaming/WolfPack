@@ -68,9 +68,29 @@ class WolfIntermission : StatusScreen
         S_ChangeMusic("ENDLEVEL", 0, true);
     }
 
+    // Input: any key accelerates the count-up, and once the tally has
+    // finished any key leaves the screen (IN_Ack at the end of
+    // LevelCompleted). Without this the screen had no way out.
+    override bool OnEvent(InputEvent ev)
+    {
+        if (ev.type == InputEvent.Type_KeyDown)
+        {
+            if (phase == PH_DONE)
+                End();              // -> LeavingIntermission
+            else
+                acceleratestage = 1;
+            return true;
+        }
+        return false;
+    }
+
+    // NOT Super.Ticker(): the base state machine advances the screen on
+    // its own schedule, which would cut the tally short.
     override void Ticker()
     {
-        Super.Ticker();
+        bcnt++;
+        if (bcnt == 1)
+            StartMusic();
         breatheTics++;
         if (breatheTics >= 35)      // BJ_Breathe
         {
@@ -78,7 +98,7 @@ class WolfIntermission : StatusScreen
             breatheFrame ^= 1;
         }
         if (phase == PH_DONE)
-            return;
+            return;                 // wait for a key (OnEvent)
         if (waitTics > 0)
         {
             waitTics--;
@@ -198,9 +218,9 @@ class WolfIntermission : StatusScreen
         WolfWrite(14, 7, "bonus");
         WolfWrite(16, 10, "time");
         WolfWrite(16, 12, "par");
-        WolfWrite(9, 14, "kill ratio");
-        WolfWrite(5, 16, "secret ratio");
-        WolfWrite(1, 18, "treasure ratio");
+        WolfWrite(9, 14, "kill ratio    %");
+        WolfWrite(5, 16, "secret ratio    %");
+        WolfWrite(1, 18, "treasure ratio    %");
 
         WolfWrite(26, 10, String.Format("%02d:%02d",
                                         levelSec / 60, levelSec % 60));
@@ -212,10 +232,10 @@ class WolfIntermission : StatusScreen
         WriteRight(36, 7, String.Format("%d", shownBonus));
 
         WriteRight(37, 14, String.Format("%d", phase == PH_KILL ? counter
-                : (phase > PH_KILL ? killRatio : 0)) .. "%");
+                : (phase > PH_KILL ? killRatio : 0)));
         WriteRight(37, 16, String.Format("%d", phase == PH_SECRET ? counter
-                : (phase > PH_SECRET ? secretRatio : 0)) .. "%");
+                : (phase > PH_SECRET ? secretRatio : 0)));
         WriteRight(37, 18, String.Format("%d", phase == PH_TREASURE ? counter
-                : (phase > PH_TREASURE ? treasureRatio : 0)) .. "%");
+                : (phase > PH_TREASURE ? treasureRatio : 0)));
     }
 }

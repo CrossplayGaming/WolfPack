@@ -846,22 +846,50 @@ class WolfEnemySim : Actor abstract
 
     void PlaceDrop(class<Actor> cls)
     {
-        // PlaceItemType: at tile, or first free neighbor (WL_STATE.C:783-803)
-        WolfLevel wl = WolfLevel.Get();
+        // PlaceItemType (WL_STATE.C:783-803): the death tile FIRST, and
+        // only if that is occupied does it scan the 3x3 — x outer, y
+        // inner. Blocking statics count as occupied (they set actorat=1),
+        // otherwise a drop can land inside a lamp and be unreachable.
         int tx = wolfX >> 16, ty = wolfY >> 16;
-        for (int dy = -1; dy <= 1; dy++)
-            for (int dx = -1; dx <= 1; dx++)
-            {
-                int s;
-                WolfDoor dd;
-                [s, dd] = wl.TileState(tx + dx, ty + dy);
-                if ((dx == 0 && dy == 0) || s == 0)
+        if (TileFree(tx, ty))
+        {
+            SpawnDrop(cls, tx, ty);
+            return;
+        }
+        for (int x = tx - 1; x <= tx + 1; x++)
+            for (int y = ty - 1; y <= ty + 1; y++)
+                if (TileFree(x, y))
                 {
-                    Spawn(cls, ((tx + dx) * 64 + 32,
-                                4096.0 - ((ty + dy) * 64 + 32), 0));
+                    SpawnDrop(cls, x, y);
                     return;
                 }
-            }
+    }
+
+    bool TileFree(int tx, int ty)
+    {
+        WolfLevel wl = WolfLevel.Get();
+        if (wl == null)
+            return false;
+        int st;
+        WolfDoor dd;
+        [st, dd] = wl.TileState(tx, ty);
+        if (st != 0)
+            return false;
+        // solid decorations (barrels, lamps, tables...) block the tile
+        BlockThingsIterator it = BlockThingsIterator.CreateFromPos(
+            tx * 64 + 32, 4096.0 - (ty * 64 + 32), 0, 0, 24, false);
+        while (it.Next())
+        {
+            Actor a = it.thing;
+            if (a != null && a.bSolid && !a.bIsMonster && a != self)
+                return false;
+        }
+        return true;
+    }
+
+    void SpawnDrop(class<Actor> cls, int tx, int ty)
+    {
+        Spawn(cls, (tx * 64 + 32, 4096.0 - (ty * 64 + 32), 0));
     }
 }
 

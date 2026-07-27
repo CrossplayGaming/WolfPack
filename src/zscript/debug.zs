@@ -9,6 +9,7 @@ class WolfDebugHandler : EventHandler
     int t;
     bool found;
     WolfEnemySim sightEnemy;
+    int blockProbe;
     WolfDoor door;
 
     override void WorldTick()
@@ -207,7 +208,7 @@ class WolfDebugHandler : EventHandler
             }
         }
 
-        if (phase > 3)
+        if (phase > 4)
             return;
         CVar cv = CVar.FindCVar("wolf_dbg_doortest");
         if (cv == null || cv.GetInt() == 0)
@@ -258,7 +259,28 @@ class WolfDebugHandler : EventHandler
         else if (phase == 3 && door.doorAction == WolfDoor.DR_CLOSED)
         {
             Console.Printf("DOORTEST closed %d", t);
+            // barrier probe: a closed door tile must block the player,
+            // an open one must not (actorat semantics, WL_ACT1.C:599-602)
+            PlayerPawn pm = players[0].mo;
+            Vector3 doorPos = (door.tileX * 64 + 32,
+                               4096.0 - (door.tileY * 64 + 32), 0);
+            int ax = door.vertical ? door.tileX - 1 : door.tileX;
+            int ay = door.vertical ? door.tileY : door.tileY - 1;
+            pm.SetOrigin((ax * 64 + 32, 4096.0 - (ay * 64 + 32), 0), false);
+            bool blockedClosed = !pm.TryMove(doorPos.xy, 0, false);
+            door.StartOpen();
+            blockProbe = blockedClosed ? 1 : 0;
             phase = 4;
+        }
+        else if (phase == 4 && door.doorAction == WolfDoor.DR_OPEN)
+        {
+            PlayerPawn pm2 = players[0].mo;
+            Vector2 dp = (door.tileX * 64 + 32,
+                          4096.0 - (door.tileY * 64 + 32));
+            bool passOpen = pm2.TryMove(dp, 0, false);
+            Console.Printf("DOORTEST barrier closed_blocks=%d open_passes=%d",
+                           blockProbe, passOpen);
+            phase = 5;
         }
     }
 }
