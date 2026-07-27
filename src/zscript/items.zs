@@ -15,6 +15,7 @@ class WolfGameState : StaticEventHandler
     int nextExtra;
     int oldScore;       // score at floor entry (DEATH-004)
     bool deathRestart;
+    bool skipPsyched;
     bool initialized;
 
     const EXTRAPOINTS = 40000;      // WL_DEF.H:72
@@ -186,6 +187,10 @@ class WolfPickup : Inventory abstract
         default:
             return false;
         }
+        // StartBonusFlash: NUMWHITESHIFTS * WHITETICS (FLASH-001)
+        WolfPlayer wp = WolfPlayer(toucher);
+        if (wp != null)
+            wp.bonusCount = 18;
         GoAwayAndDie();
         return true;
     }

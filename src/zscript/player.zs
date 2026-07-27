@@ -80,6 +80,20 @@ class WolfPlayer : DoomPlayer
     int oldButtons;
     bool exiting;
 
+    // palette-shift counters (StartDamageFlash / StartBonusFlash,
+    // WL_PLAY.C:1143-1160). Decay by tics each frame.
+    int damageCount, bonusCount;
+
+    override int DamageMobj(Actor inflictor, Actor source, int damage,
+                            Name mod, int flags, double angle)
+    {
+        int taken = Super.DamageMobj(inflictor, source, damage, mod, flags,
+                                     angle);
+        if (taken > 0)
+            damageCount += taken;       // FLASH-002: intensity scales
+        return taken;
+    }
+
     // --- death sequence (Died, WL_GAME.C:1114-1225) ---
     int deathPhase;         // 0 alive, 1 rotating, 2 fizzling, 3 done
     int deathTimer;
@@ -162,6 +176,7 @@ class WolfPlayer : DoomPlayer
         {
             gs.lives--;
             gs.deathRestart = true;
+            gs.skipPsyched = true;
             if (gs.lives < 0)
             {
                 // TODO: game over -> menu/high scores. Until that flow
@@ -229,6 +244,11 @@ class WolfPlayer : DoomPlayer
         if (player)
             oldButtons = player.cmd.buttons;
         UpdateFace();
+        // UpdatePaletteShifts: counters fall by tics (2 per engine tic)
+        if (damageCount > 0)
+            damageCount = max(0, damageCount - 2);
+        if (bonusCount > 0)
+            bonusCount = max(0, bonusCount - 2);
     }
 
     void WolfUse()
