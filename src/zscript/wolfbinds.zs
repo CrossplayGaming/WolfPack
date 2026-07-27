@@ -10,9 +10,9 @@ class WolfBindGrid : WolfMenu
     bool waiting;
     int pendingKey;
 
-    const COL_KEY = 168;
-    const COL_MSE = 222;
-    const COL_JOY = 262;
+    const COL_KEY = 160;
+    const COL_MSE = 208;
+    const COL_JOY = 254;
 
     override void Init(Menu parent, ListMenuDescriptor desc)
     {
@@ -36,7 +36,35 @@ class WolfBindGrid : WolfMenu
         labels.Push(label); itemStates.Push(IT_NORMAL); cmds.Push(cmd);
     }
 
-    // first bound key of each class, named short
+    // input class: 0 keyboard, 1 mouse (buttons + wheel), 2 joystick
+    static int KeyClass(int k)
+    {
+        if (k < 0x100)
+            return 0;
+        if (k < 0x108 || (k >= 0x198 && k <= 0x19B))
+            return 1;
+        return 2;
+    }
+
+    // ECWolf-style compact cell names: MS1, WHU, JY2, AX1...
+    static String ShortName(int k)
+    {
+        String nm = KeyBindings.NameKeys(k, 0);
+        nm.Replace("Mouse", "MS");
+        nm.Replace("MWheelUp", "WHU");
+        nm.Replace("MWheelDown", "WHD");
+        nm.Replace("MWheelLeft", "WHL");
+        nm.Replace("MWheelRight", "WHR");
+        nm.Replace("Joy", "JY");
+        nm.Replace("Axis", "AX");
+        nm.Replace("Arrow", "");
+        int cap = KeyClass(k) == 0 ? 4 : 3;
+        if (nm.Length() > cap)
+            nm = nm.Left(cap);
+        return nm;
+    }
+
+    // first bound key of each class
     String, String, String KeyCols(String cmd)
     {
         Array<int> keys;
@@ -45,19 +73,10 @@ class WolfBindGrid : WolfMenu
         for (int i = 0; i < keys.Size(); i++)
         {
             int k = keys[i];
-            String nm = KeyBindings.NameKeys(k, 0);
-            if (nm.Length() > 4)
-                nm = nm.Left(4);
-            if (k < 0x100)
-            {
-                if (kb == "") kb = nm;
-            }
-            else if (k < 0x108 || (k >= 0x198 && k <= 0x19B))
-            {
-                if (ms == "") ms = nm;
-            }
-            else if (jy == "")
-                jy = nm;
+            int cls = KeyClass(k);
+            if (cls == 0 && kb == "")      kb = ShortName(k);
+            else if (cls == 1 && ms == "") ms = ShortName(k);
+            else if (cls == 2 && jy == "") jy = ShortName(k);
         }
         return kb, ms, jy;
     }
@@ -71,7 +90,7 @@ class WolfBindGrid : WolfMenu
 
         // yellow column headers (ECWolf layout)
         WolfDraw.Text(big, 40, 40, "Control", WolfPal.Get(C_READH));
-        WolfDraw.Text(big, COL_KEY, 40, "Key", WolfPal.Get(C_READH));
+        WolfDraw.Text(big, COL_KEY - 4, 40, "Key", WolfPal.Get(C_READH));
         WolfDraw.Text(big, COL_MSE, 40, "Mse", WolfPal.Get(C_READH));
         WolfDraw.Text(big, COL_JOY, 40, "Joy", WolfPal.Get(C_READH));
 
@@ -115,6 +134,17 @@ class WolfBindGrid : WolfMenu
         if (mkey == MKEY_Input)
         {
             waiting = false;
+            // REPLACE within the input class, as the original grid does:
+            // SetBind only adds, so the old key kept its binding and the
+            // cell (showing the first key of the class) looked stuck
+            Array<int> keys;
+            Bindings.GetAllKeysForCommand(keys, cmds[sel]);
+            for (int i = 0; i < keys.Size(); i++)
+            {
+                if (KeyClass(keys[i]) == KeyClass(pendingKey)
+                    && keys[i] != pendingKey)
+                    Bindings.SetBind(keys[i], "");
+            }
             Bindings.SetBind(pendingKey, cmds[sel]);
             MenuSound("menu/change");
             return true;
