@@ -131,6 +131,7 @@ class WolfKnife : WolfWeapon
     override void AttackSnd() { Owner.A_StartSound("wolf/knife", CHAN_WEAPON); }
     Default
     {
+        Weapon.SlotNumber 1;   // original key 1
         Weapon.SelectionOrder 4;
         +WEAPON.NOAUTOFIRE
         +WEAPON.MELEEWEAPON
@@ -159,6 +160,7 @@ class WolfPistol : WolfWeapon
 {
     Default
     {
+        Weapon.SlotNumber 2;   // original key 2
         Weapon.SelectionOrder 3;
         Weapon.AmmoType1 "WolfAmmo";
         Weapon.AmmoUse1 1;
@@ -190,6 +192,7 @@ class WolfMachineGun : WolfWeapon
 {
     Default
     {
+        Weapon.SlotNumber 3;   // original key 3
         Weapon.SelectionOrder 2;
         Weapon.AmmoType1 "WolfAmmo";
         Weapon.AmmoUse1 1;
@@ -222,6 +225,7 @@ class WolfChaingun : WolfWeapon
 {
     Default
     {
+        Weapon.SlotNumber 4;   // original key 4
         Weapon.SelectionOrder 1;
         Weapon.AmmoType1 "WolfAmmo";
         Weapon.AmmoUse1 1;

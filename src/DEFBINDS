@@ -1,0 +1,10 @@
+// WolfDoom default binds. Space opens doors (the original's use key);
+// no jump or crouch keys exist by default (modernization-menu options
+// later); the wheel steps weapons - a no-cost modern convenience.
+1 "slot 1"
+2 "slot 2"
+3 "slot 3"
+4 "slot 4"
+wheelup "weapprev"
+wheeldown "weapnext"
+space "+use"
