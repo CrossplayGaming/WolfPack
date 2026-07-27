@@ -274,7 +274,8 @@ class WolfDebugHandler : EventHandler
                 {
                     pm.SetOrigin((vm.tileX * 64 + 32,
                                   4096.0 - (vm.tileY * 64 + 32), 0), false);
-                    pm.Angle = 270;         // look south, back down the run
+                    pm.Angle = 90;          // face NORTH: the spin must
+                                            // turn us around by itself
                     Console.Printf("WOLFDBG victory: on tile %d,%d",
                                    vm.tileX, vm.tileY);
                 }
@@ -285,7 +286,9 @@ class WolfDebugHandler : EventHandler
             {
                 ThinkerIterator bit = ThinkerIterator.Create("WolfBJVictory");
                 Actor bj = Actor(bit.Next());
-                Console.Printf("WOLFDBG victory: t=%d bj=%d", t, bj != null);
+                PlayerPawn pv = players[0].mo;
+                Console.Printf("WOLFDBG victory: t=%d bj=%d ang=%d py=%d",
+                               t, bj != null, int(pv.Angle), int(pv.pos.y));
             }
         }
 

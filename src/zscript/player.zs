@@ -80,6 +80,7 @@ class WolfPlayer : DoomPlayer
     int oldButtons;
     bool exiting;
     bool victoryStarted;
+    double victoryDestY;
 
     // palette-shift counters (StartDamageFlash / StartBonusFlash,
     // WL_PLAY.C:1143-1160). Decay by tics each frame.
@@ -236,6 +237,19 @@ class WolfPlayer : DoomPlayer
 
         // VictoryTile (WL_AGENT.C:961-962): walking onto a plane-1 code 99
         // tile fires BJ's victory run. Only E1 and E5 have these tiles.
+        if (victoryStarted)
+        {
+            // spin toward south (270) at 3 deg per Wolf tic = 6/engine tic
+            double d = deltaangle(Angle, 270);
+            if (abs(d) <= 6)      Angle = 270;
+            else if (d > 0)       Angle += 6;
+            else                  Angle -= 6;
+            // glide north at 4096 wolf units per Wolf tic = 8 units
+            if (pos.y < victoryDestY)
+                SetOrigin((pos.x, min(pos.y + 8, victoryDestY), pos.z),
+                          true);
+            return;
+        }
         if (!victoryStarted)
         {
             int vtx = int(pos.x) / 64, vty = 63 - (int(pos.y) / 64);
@@ -246,6 +260,16 @@ class WolfPlayer : DoomPlayer
                 if (vm.tileX == vtx && vm.tileY == vty)
                 {
                     victoryStarted = true;
+                    // VictorySpin (WL_AGENT.C:1255): control is taken,
+                    // the weapon lowers, and the player glides 5 tiles
+                    // north of the trigger while spinning to face south
+                    // to watch BJ come. desty = ((tiley-5)<<16) - 0x3000.
+                    victoryDestY = 4096.0 - ((vty - 5) * 64 - 12);
+                    player.cheats |= CF_TOTALLYFROZEN;
+                    PSprite psp = player.GetPSprite(PSP_WEAPON);
+                    if (psp != null)
+                        psp.SetState(null);
+                    player.ReadyWeapon = null;
                     WolfGameState gs = WolfGameState.Get();
                     if (gs != null)
                         gs.victoryFlag = true;
