@@ -253,9 +253,6 @@ def main():
         if c[1] not in seen_lumps:
             seen_lumps.add(c[1])
             dedup.append(c)
-    (ROOT / "docs" / "data" / "sprite_copies.json").write_text(
-        json.dumps({"note": "chunk -> sprite lump (gen_enemies.py)",
-                    "copies": dedup}, indent=1))
     # projectile sprites (their actors use plain ZScript states)
     for chunk, lump in ((317, "HYPOA0"), (318, "HYPOB0"), (319, "HYPOC0"),
                         (320, "HYPOD0"), (370, "MISLA0"),
@@ -267,6 +264,12 @@ def main():
         if lump not in seen_lumps:
             seen_lumps.add(lump)
             dedup.append([chunk, lump])
+
+    # written AFTER the appends above - the json once ran before them,
+    # which shipped 1x1 placeholders for every entry in that tuple
+    (ROOT / "docs" / "data" / "sprite_copies.json").write_text(
+        json.dumps({"note": "chunk -> sprite lump (gen_enemies.py)",
+                    "copies": dedup}, indent=1))
 
     ph = placeholder_png()
     for _, lump in dedup:

@@ -20,6 +20,7 @@ class WolfBJVictory : Actor
     int tilesLeft;          // temp1: tiles to run forward
     int distance;
     int phase;              // 0 running, 1 jumping
+    int holdTics;
     int seq, seqTics;
 
     Default
@@ -56,6 +57,12 @@ class WolfBJVictory : Actor
     {
         if (IsFrozen())
             return;
+        if (holdTics > 0)
+        {
+            if (--holdTics == 0)
+                Finish();
+            return;
+        }
         // animation
         seqTics -= 2;
         if (seqTics <= 0)
@@ -76,7 +83,8 @@ class WolfBJVictory : Actor
                     if (seq == 1)
                         A_StartSound("wolf/yeah", CHAN_VOICE);  // T_BJYell
                     if (seq == 3)
-                        Finish();
+                        holdTics = 60;      // let the yell play out; the
+                                            // original fades during it
                 }
             }
         }
