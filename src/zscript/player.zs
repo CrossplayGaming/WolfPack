@@ -107,6 +107,22 @@ class WolfPlayer : DoomPlayer
                       Name MeansOfDeath)
     {
         Super.Die(source, inflictor, dmgflags, MeansOfDeath);
+        if (netgame)
+        {
+            // Co-op death (user decision, respawn mode): the engine's
+            // native co-op respawn takes over - press use, respawn at a
+            // start with the pistol loadout. No fizzle, no floor restart,
+            // no score rollback; the floor keeps fighting. One life is
+            // spent (floor of 0 keeps late-joiners playable). Host-chosen
+            // spectate mode lands with the lobby.
+            WolfGameState ngs = WolfGameState.Get();
+            if (ngs != null)
+            {
+                int dpn = PlayerNumber();
+                ngs.lives[dpn] = max(0, ngs.lives[dpn] - 1);
+            }
+            return;
+        }
         killerActor = source;
         deathPhase = 1;
         deathTimer = 0;
@@ -260,6 +276,16 @@ class WolfPlayer : DoomPlayer
             {
                 if (vm.tileX == vtx && vm.tileY == vty)
                 {
+                    if (netgame)
+                    {
+                        // co-op: skip the one-camera BJ staging, end the
+                        // floor for everyone (user decision)
+                        WolfGameState ngs = WolfGameState.Get();
+                        if (ngs != null)
+                            ngs.victoryFlag = true;
+                        Level.ExitLevel(0, false);
+                        return;
+                    }
                     victoryStarted = true;
                     // VictorySpin (WL_AGENT.C:1255): control is taken,
                     // the weapon lowers, and the player glides 5 tiles

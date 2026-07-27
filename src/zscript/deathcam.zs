@@ -36,6 +36,13 @@ class WolfDeathCam : StaticEventHandler
         WolfGameState gs = WolfGameState.Get();
         if (gs == null)
             return false;
+        if (netgame)
+        {
+            // co-op (user decision): no DeathCam - the replay staging is
+            // built around one watcher. Straight to the episode end.
+            gs.victoryFlag = true;
+            return false;
+        }
         if (gs.victoryFlag)
             return false;                   // second call: caller exits
         gs.victoryFlag = true;
