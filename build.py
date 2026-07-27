@@ -8,7 +8,6 @@
 
 Same loop as the Catacomb/Hovertank projects. Assets extracted from the
 user's own data (tools/extract_*.py -> tools/make_assets.py) live under
-    subprocess.run([sys.executable, str(ROOT / "tools" / "patch_engine.py")], check=False)
 build/assets (gitignored) and are merged into the IPK3 at build time.
 """
 import argparse
@@ -51,6 +50,9 @@ def build() -> Path:
                             cwd=str(ROOT)).returncode
         if rc:
             sys.exit("make_assets failed")
+        # launch banner lives in the ENGINE pk3 (drawn before wads mount)
+        subprocess.run([sys.executable, "tools/patch_engine.py"],
+                       check=False)
     DIST.mkdir(exist_ok=True)
     if PK3.exists():
         try:
