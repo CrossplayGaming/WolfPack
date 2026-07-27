@@ -13,10 +13,11 @@ if not exist "build\assets\PLAYPAL" (
 )
 
 python build.py || goto :fail
-REM Mouse: no vertical aim (freelook 0) and no mouse-Y movement
+REM No screen wipe (Wolf has none between levels), and mouse is
+REM horizontal only: no vertical aim (freelook 0), no mouse-Y move
 REM (m_forward 0) -> horizontal turn only, per D-004. Forced at launch
 REM because an archived config value overrides the DEFCVARS default.
-start "" "engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" +set freelook 0 +set m_forward 0 %*
+start "" "engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" +set freelook 0 +set m_forward 0 +set wipetype 0 %*
 exit /b 0
 
 :fail

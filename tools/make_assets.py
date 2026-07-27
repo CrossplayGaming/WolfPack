@@ -185,6 +185,8 @@ def main():
     hud_item(35, "HUDLIFE")     # 1-Up (SPR_STAT_33)
     hud_item(27, "HUDMED")      # first aid kit (SPR_STAT_25)
     hud_item(28, "HUDAMMO")     # ammo clip (SPR_STAT_26)
+    hud_item(22, "HUDKEY1")     # gold key (SPR_STAT_20)
+    hud_item(23, "HUDKEY2")     # silver key (SPR_STAT_21)
 
     # minimal-HUD number font: N_ digits with the blue panel keyed out
     # (digits are white/periwinkle -> r+g high; panel/border blues and

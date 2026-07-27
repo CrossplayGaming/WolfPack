@@ -82,6 +82,25 @@ class WolfStatusBar : BaseStatusBar
                     CPlayer.mo == null ? 0 : CPlayer.health, 92, false);
         Inventory am = CPlayer.mo.FindInventory("WolfAmmo");
         DrawHudItem("HUDAMMO", am == null ? 0 : am.Amount, -30, true);
+
+        // keys appear beside the ammo when held (status bar shows slots
+        // always; the minimal HUD only shows what you have)
+        double kx = -72;
+        if (CPlayer.mo.FindInventory("WolfGoldKey") != null)
+        {
+            DrawHudIcon("HUDKEY1", kx);
+            kx -= 56;
+        }
+        if (CPlayer.mo.FindInventory("WolfSilverKey") != null)
+            DrawHudIcon("HUDKEY2", kx);
+    }
+
+    // icon with no counter (keys), same baseline and alpha as the rest
+    void DrawHudIcon(String tex, double cx)
+    {
+        DrawImage(tex, (cx, -44),
+                  DI_SCREEN_RIGHT_BOTTOM | DI_ITEM_CENTER_BOTTOM, 0.72,
+                  scale: (2, 2));
     }
 
     // one minimal-HUD element: 2x pickup sprite with a 2x keyed-font count
