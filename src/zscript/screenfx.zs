@@ -105,11 +105,11 @@ class WolfScreenFX : StaticEventHandler
         int fw = int(bw * frac);
         if (fw > 0)
         {
-            // source uses palette 0x37 with a 0x32 highlight row
-            screen.Dim(Color(120, 172, 120), 1.0,
+            // palette 0x37 = pure red, 0x32 = pink highlight row (bevel)
+            screen.Dim(Color(255, 0, 0), 1.0,
                        int(xoff + bx * sc), int(by * sc),
                        int(fw * sc), int(2 * sc + 1));
-            screen.Dim(Color(172, 220, 172), 1.0,
+            screen.Dim(Color(255, 158, 158), 1.0,
                        int(xoff + bx * sc), int(by * sc),
                        int((fw - 1) * sc), int(sc + 1));
         }

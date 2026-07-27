@@ -91,8 +91,8 @@ class WolfIntermission : StatusScreen
         bcnt++;
         if (bcnt == 1)
             StartMusic();
-        breatheTics++;
-        if (breatheTics >= 35)      // BJ_Breathe
+        breatheTics += 2;           // Wolf tics
+        if (breatheTics >= 35)      // BJ_Breathe: max = 35 (0.5 s)
         {
             breatheTics = 0;
             breatheFrame ^= 1;

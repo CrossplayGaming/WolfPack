@@ -470,12 +470,12 @@ Target: zero gameplay-visible entries.
 - **DEC-002 (FL_VISABLE):** source marks actors rendered on screen last
   frame (renderer coupling). We use player-LOS + 33° half-FOV test.
   Affects dodge-vs-chase choice and enemy accuracy modifier only.
-- **DEC-005 (fizzle granularity):** the dissolve runs the source's exact
-  17-bit LFSR and timing, but marks 4x4 cells instead of single pixels:
-  64,000 per-pixel draw calls per frame is not viable, and canvas
-  textures abort this engine build's texture manager. Same pseudorandom
-  pattern, same duration, coarser grain. Revisit if a cheap per-pixel
-  path appears.
+- **DEC-005 (fizzle granularity): RESOLVED 2026-07-26.** Now true
+  per-pixel (320x200), matching the original exactly. The earlier 4x4
+  and 2x2 approximations were unnecessary: measured in-engine at 485 fps
+  (2 ms/frame) during the dissolve, with a worst frame of ~16k
+  run-merged rects. Canvas textures still abort this engine build, but
+  are no longer needed.
 - **DEC-003 (pain rotate=2):** CalcRotate's 2-rotation pain split (angle
   <180 vs >=180) is approximated by engine 8-rotation buckets (rots 1-4 vs
   5-8) — a 22.5° wedge error at the boundaries. The GRDP B rots 5-8 →

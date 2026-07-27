@@ -51,3 +51,12 @@ The classic Y-axis-moves-you behaviour becomes a **Modernization menu
 toggle** ("Classic mouse") when that menu is built - it restores
 `m_forward`. Revisit whether the shipping fidelity-first default should
 flip back at that point.
+
+## D-005 - Intermission BJ does not breathe (2026-07-26, measured)
+
+BJ_Breathe (WL_INTER.C) alternates L_GUYPIC and L_GUY2PIC, and the
+alternation is implemented. But in the user's WL6 data those two chunks
+decode byte-identically (9152 bytes each, 104x88, identical compressed
+length), and no other 104x88 picture exists in VGAGRAPH. So the
+breathing is a no-op with this data - not a bug in the recreation.
+If a data version with differing frames turns up, it animates already.
