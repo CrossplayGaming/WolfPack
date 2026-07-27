@@ -233,8 +233,17 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
             if ch == "X":
                 cpx[cx, cy] = (0, 0, 0, 255)
             elif ch == "W":
-                cpx[cx, cy] = (211, 211, 211, 255)      # palette 0x12 grey
+                cpx[cx, cy] = (255, 247, 0, 255)        # READHCOLOR yellow
     cur.save(ASSETS / "graphics" / "M_CURSOR.png")
+
+    # launch-window banner: shadow the engine's widgets/banner.png with
+    # the game's own title art (built from the user's data, not shipped)
+    tp = VGA / "TITLEPIC.png"
+    if tp.exists():
+        (ASSETS / "widgets").mkdir(exist_ok=True)
+        img = Image.open(tp).convert("RGB")
+        img.resize((640, 400), Image.NEAREST).save(
+            ASSETS / "widgets" / "banner.png")
 
     # end-of-episode articles and the proportional font (extract_text.py)
     TXT = ROOT / "build" / "text"
