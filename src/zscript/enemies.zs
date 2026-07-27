@@ -198,6 +198,8 @@ class WolfEnemySim : Actor abstract
             LazyInit(wl);
         if (!activeFlag && !wl.AreaByPlayer(areanumber))
             return;
+        if (attackMode)
+            PickNearestTarget();        // co-op: hunt the nearest live
 
         wl.ReleaseTile(tileX, tileY, self);
 
@@ -298,12 +300,56 @@ class WolfEnemySim : Actor abstract
     }
 
     // ------------------------------------------------------------------
+    // co-op targeting (netgame audit phase 2). The original has exactly
+    // one player; each enemy here holds a target and retargets to the
+    // NEAREST live player while awake. Deterministic (positions only),
+    // so lockstep-safe; with one player it degenerates to the original.
+    // ------------------------------------------------------------------
+    int targetPlayer;
+
+    PlayerPawn TargetPM()
+    {
+        if (playeringame[targetPlayer] && players[targetPlayer].mo != null
+            && players[targetPlayer].health > 0)
+            return players[targetPlayer].mo;
+        for (int i = 0; i < MAXPLAYERS; i++)
+            if (playeringame[i] && players[i].mo != null
+                && players[i].health > 0)
+            {
+                targetPlayer = i;
+                return players[i].mo;
+            }
+        return players[targetPlayer].mo;    // last resort: a corpse
+    }
+
+    void PickNearestTarget()
+    {
+        int best = -1, bestD = int.max;
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            if (!playeringame[i] || players[i].mo == null
+                || players[i].health <= 0)
+                continue;
+            int px = int(players[i].mo.pos.x * 1024);
+            int py = int((4096.0 - players[i].mo.pos.y) * 1024);
+            int d = max(abs(px - wolfX), abs(py - wolfY));
+            if (d < bestD)
+            {
+                bestD = d;
+                best = i;
+            }
+        }
+        if (best >= 0)
+            targetPlayer = best;
+    }
+
+    // ------------------------------------------------------------------
     // sight & activation (WL_STATE.C:1404-1478)
     // ------------------------------------------------------------------
     bool VisibleToPlayer()
     {
         // FL_VISABLE approximation (decision DEC-002): LOS + player FOV
-        PlayerPawn pm = players[0].mo;
+        PlayerPawn pm = TargetPM();
         if (pm == null || !pm.CheckSight(self))
             return false;
         double d = absangle(pm.AngleTo(self), pm.Angle);
@@ -321,7 +367,7 @@ class WolfEnemySim : Actor abstract
         WolfLevel wl = WolfLevel.Get();
         if (wl == null || !wl.AreaByPlayer(areanumber))
             return false;
-        if (players[0].mo == null)
+        if (TargetPM() == null)
             return false;
         int dx = PlayerWolfX() - wolfX;
         int dy = PlayerWolfY() - wolfY;
@@ -341,7 +387,7 @@ class WolfEnemySim : Actor abstract
     bool CheckLine_()
     {
         // CheckLine approximation (DEC-001): engine LOS incl. door slabs
-        PlayerPawn pm = players[0].mo;
+        PlayerPawn pm = TargetPM();
         return pm != null && CheckSight(pm);
     }
 
@@ -486,10 +532,10 @@ class WolfEnemySim : Actor abstract
         wolfX += dx * move;
         wolfY += dy * move;
 
-        if (wl.AreaByPlayer(areanumber) && players[0].mo != null)
+        if (wl.AreaByPlayer(areanumber) && TargetPM() != null)
         {
-            int px = int(players[0].mo.pos.x * 1024);
-            int py = int((4096.0 - players[0].mo.pos.y) * 1024);
+            int px = PlayerWolfX();
+            int py = PlayerWolfY();
             if (abs(wolfX - px) <= MINACTORDIST
                 && abs(wolfY - py) <= MINACTORDIST)
             {
@@ -561,7 +607,7 @@ class WolfEnemySim : Actor abstract
         bool dodge = false;
         if (CheckLine_())
         {
-            PlayerPawn pm = players[0].mo;
+            PlayerPawn pm = TargetPM();
             int ptx = int(pm.pos.x) / 64;
             int pty = 63 - (int(pm.pos.y) / 64);
             int dist = Max(abs(tileX - ptx), abs(tileY - pty));
@@ -624,7 +670,7 @@ class WolfEnemySim : Actor abstract
     void SelectDodgeDir()
     {
         WolfLevel wl = WolfLevel.Get();
-        PlayerPawn pm = players[0].mo;
+        PlayerPawn pm = TargetPM();
         int turnaround = firstAttack ? NODIR : Opposite8(dir);
         firstAttack = false;
 
@@ -670,7 +716,7 @@ class WolfEnemySim : Actor abstract
     void SelectChaseDir()
     {
         WolfLevel wl = WolfLevel.Get();
-        PlayerPawn pm = players[0].mo;
+        PlayerPawn pm = TargetPM();
         int olddir = dir;
         int turnaround = Opposite8(olddir);
 
@@ -734,7 +780,7 @@ class WolfEnemySim : Actor abstract
             return;
         if (!CheckLine_())
             return;
-        PlayerPawn pm = players[0].mo;
+        PlayerPawn pm = TargetPM();
         int ptx = int(pm.pos.x) / 64;
         int pty = 63 - (int(pm.pos.y) / 64);
         int dist = Max(abs(tileX - ptx), abs(tileY - pty));
@@ -761,11 +807,11 @@ class WolfEnemySim : Actor abstract
 
     int PlayerWolfX()
     {
-        return int(players[0].mo.pos.x * 1024);
+        return int(TargetPM().pos.x * 1024);
     }
     int PlayerWolfY()
     {
-        return int((4096.0 - players[0].mo.pos.y) * 1024);
+        return int((4096.0 - TargetPM().pos.y) * 1024);
     }
 
     // T_DogChase (WL_ACT2.C:3257-3320): dodge-pathing with a bite-range
@@ -816,7 +862,7 @@ class WolfEnemySim : Actor abstract
     void StartDeathCam()
     {
         WolfDeathCam cam = WolfDeathCam.Get();
-        PlayerPawn pm = players[0].mo;
+        PlayerPawn pm = TargetPM();
         if (cam != null && pm != null
             && cam.Begin(self, killPos))
             return;                     // replay started
@@ -911,7 +957,7 @@ class WolfEnemySim : Actor abstract
             {
                 int dmg = wl.RndT() >> 4;
                 if (dmg > 0)
-                    players[0].mo.DamageMobj(self, self, dmg, 'Melee',
+                    TargetPM().DamageMobj(self, self, dmg, 'Melee',
                                              DMG_THRUSTLESS);
             }
         }

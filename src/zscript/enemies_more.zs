@@ -90,7 +90,7 @@ class WolfSS : WolfEnemySim abstract
     override void DropItem_()
     {
         // KILL-003: bestweapon < machinegun -> machine gun, else a clip
-        PlayerPawn pm = players[0].mo;
+        PlayerPawn pm = TargetPM();
         bool hasBetter = pm != null
             && (pm.FindInventory("WolfMachineGun") != null
                 || pm.FindInventory("WolfChaingun") != null);

@@ -21,7 +21,7 @@ class WolfLevel : EventHandler
     int areaconnect[1369];      // 37x37 (NUMAREAS)
     bool abpG[37];
     bool madenoise;             // reset each tick (WL_PLAY.C:1404)
-    int playerArea;
+    int playerAreas[MAXPLAYERS];    // one seed per player (co-op)
 
     int rngIndex;
 
@@ -122,12 +122,16 @@ class WolfLevel : EventHandler
                 && pk.BonusKind() <= WolfPickup.BO_FULLHEAL)
                 treasureTotal++;
 
-        // InitAreas: flood from the player's area
-        if (players[0].mo != null)
+        // InitAreas: flood from every in-game player's area
+        for (int pn = 0; pn < MAXPLAYERS; pn++)
         {
-            int tx = int(players[0].mo.pos.x) / 64;
-            int ty = 63 - (int(players[0].mo.pos.y) / 64);
-            playerArea = AreaAt(tx, ty);
+            playerAreas[pn] = -1;
+            if (playeringame[pn] && players[pn].mo != null)
+            {
+                int tx = int(players[pn].mo.pos.x) / 64;
+                int ty = 63 - (int(players[pn].mo.pos.y) / 64);
+                playerAreas[pn] = AreaAt(tx, ty);
+            }
         }
         ConnectAreas();
     }
@@ -158,15 +162,17 @@ class WolfLevel : EventHandler
     override void WorldTick()
     {
         madenoise = false;      // reset every frame (WL_PLAY.C:1404)
-        // track the player's area (Thrust updates areanumber every move)
-        if (players[0].mo != null)
+        // track every player's area (Thrust updates it each move)
+        for (int pn = 0; pn < MAXPLAYERS; pn++)
         {
-            int tx = int(players[0].mo.pos.x) / 64;
-            int ty = 63 - (int(players[0].mo.pos.y) / 64);
+            if (!playeringame[pn] || players[pn].mo == null)
+                continue;
+            int tx = int(players[pn].mo.pos.x) / 64;
+            int ty = 63 - (int(players[pn].mo.pos.y) / 64);
             int a = AreaAt(tx, ty);
-            if (a >= 0 && a != playerArea)
+            if (a >= 0 && a != playerAreas[pn])
             {
-                playerArea = a;
+                playerAreas[pn] = a;
                 ConnectAreas();
             }
         }
@@ -235,11 +241,18 @@ class WolfLevel : EventHandler
     {
         for (int i = 0; i < 37; i++)
             abpG[i] = false;
-        if (playerArea < 0 || playerArea > 36)
-            return;
-        abpG[playerArea] = true;
         Array<int> stack;
-        stack.Push(playerArea);
+        // co-op: connectivity is the UNION over all players' areas -
+        // areabyplayer, plural, exactly as the original named it
+        for (int pn = 0; pn < MAXPLAYERS; pn++)
+        {
+            int pa = playerAreas[pn];
+            if (pa >= 0 && pa <= 36 && !abpG[pa])
+            {
+                abpG[pa] = true;
+                stack.Push(pa);
+            }
+        }
         while (stack.Size() > 0)
         {
             int a = stack[stack.Size() - 1];

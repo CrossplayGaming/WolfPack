@@ -327,7 +327,9 @@ class WolfProjectile : Actor abstract
         wolfSpeed = speed;
         wolfX = int(src.pos.x * 1024);
         wolfY = int((4096.0 - src.pos.y) * 1024);
-        fireAngle = int(src.AngleTo(players[0].mo)) % 360;
+        WolfEnemySim firer = WolfEnemySim(src);
+        Actor aimAt = firer != null ? firer.TargetPM() : players[0].mo;
+        fireAngle = int(src.AngleTo(aimAt)) % 360;
         if (fireAngle < 0)
             fireAngle += 360;
         SetOrigin(src.pos, false);
@@ -369,10 +371,25 @@ class WolfProjectile : Actor abstract
         }
         SetOrigin((wolfX / 1024.0, 4096.0 - wolfY / 1024.0, 20), true);
 
-        PlayerPawn pm = players[0].mo;
+        // co-op: the rocket burns whoever it reaches - test all players
+        PlayerPawn pm = null;
+        int px, py;
+        int bd = int.max;
+        for (int pn = 0; pn < MAXPLAYERS; pn++)
+        {
+            if (!playeringame[pn] || players[pn].mo == null
+                || players[pn].health <= 0)
+                continue;
+            int cx = int(players[pn].mo.pos.x * 1024);
+            int cy = int((4096.0 - players[pn].mo.pos.y) * 1024);
+            int d = max(abs(wolfX - cx), abs(wolfY - cy));
+            if (d < bd)
+            {
+                bd = d; pm = players[pn].mo; px = cx; py = cy;
+            }
+        }
         if (pm != null && pm.health > 0)
         {
-            int px = int(pm.pos.x * 1024), py = int((4096.0 - pm.pos.y) * 1024);
             if (abs(wolfX - px) < 0xC000 && abs(wolfY - py) < 0xC000)
             {
                 int dmg = ProjDamage(wl);
