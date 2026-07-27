@@ -228,8 +228,8 @@ class WolfMenu : ListMenu
 class WolfMainMenu : WolfMenu
 {
     // ECWolf order (D-006)
-    enum EItem { MI_NEWGAME, MI_OPTIONS, MI_LOAD, MI_SAVE, MI_READ,
-                 MI_ENDGAME, MI_BACKTO, MI_QUIT };
+    enum EItem { MI_NEWGAME, MI_OPTIONS, MI_MULTI, MI_LOAD, MI_SAVE,
+                 MI_READ, MI_ENDGAME, MI_BACKTO, MI_QUIT };
 
     bool ingame;
 
@@ -240,6 +240,7 @@ class WolfMainMenu : WolfMenu
         labels.Clear(); itemStates.Clear();
         labels.Push("New Game");     itemStates.Push(IT_NORMAL);
         labels.Push("Options");      itemStates.Push(IT_NORMAL);
+        labels.Push("Multiplayer");  itemStates.Push(IT_NORMAL);
         labels.Push("Load Game");    itemStates.Push(IT_NORMAL);
         labels.Push("Save Game");    itemStates.Push(ingame ? IT_NORMAL
                                                         : IT_DISABLED);
@@ -267,6 +268,7 @@ class WolfMainMenu : WolfMenu
         {
         case MI_NEWGAME: Menu.SetMenu("WolfEpisodeMenu"); break;
         case MI_OPTIONS: Menu.SetMenu("WolfOptionsMenu"); break;
+        case MI_MULTI:   Menu.SetMenu("WolfMPMenu");      break;
         case MI_LOAD:    Menu.SetMenu("LoadGameMenu");    break;
         case MI_SAVE:    Menu.SetMenu("SaveGameMenu");    break;
         case MI_READ:    Menu.SetMenu("WolfReadMenu");    break;
@@ -291,13 +293,16 @@ class WolfOptionsMenu : WolfMenu
         labels.Push("Sound Options");   itemStates.Push(IT_NORMAL);
         labels.Push("Display Options"); itemStates.Push(IT_NORMAL);
         labels.Push("Automap Options"); itemStates.Push(IT_NORMAL);
+        labels.Push("Modernization");   itemStates.Push(IT_NORMAL);
+        labels.Push("Cheats");          itemStates.Push(IT_NORMAL);
     }
 
     override void Drawer()
     {
         DrawBackground();
         DrawBanner();
-        DrawWindowBox(MENU_X - 8, MENU_Y - 3, MENU_W + 30, 13 * 4 + 6);
+        DrawWindowBox(MENU_X - 8, MENU_Y - 3, MENU_W + 30,
+                      13 * labels.Size() + 6);
         DrawItems(MENU_X, MENU_Y, 24, 13);
         DrawGun(MENU_X, MENU_Y, 13);
     }
@@ -311,6 +316,8 @@ class WolfOptionsMenu : WolfMenu
         case 1: Menu.SetMenu("WolfSoundMenu");   break;
         case 2: Menu.SetMenu("WolfDisplayMenu"); break;
         case 3: Menu.SetMenu("WolfAutomapMenu"); break;
+        case 4: Menu.SetMenu("WolfModernMenu");  break;
+        case 5: Menu.SetMenu("WolfCheatMenu");   break;
         }
     }
 }

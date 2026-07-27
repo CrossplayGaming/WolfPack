@@ -60,3 +60,18 @@ LISTMENU "WolfBindGrid"
 {
     Class "WolfBindGrid"
 }
+
+LISTMENU "WolfCheatMenu"
+{
+    Class "WolfCheatMenu"
+}
+
+LISTMENU "WolfModernMenu"
+{
+    Class "WolfModernMenu"
+}
+
+LISTMENU "WolfMPMenu"
+{
+    Class "WolfMPMenu"
+}

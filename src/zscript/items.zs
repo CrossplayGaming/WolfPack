@@ -76,6 +76,11 @@ class WolfGameState : StaticEventHandler
     // the menus are ui scope and cannot start a game; they send this
     override void NetworkProcess(ConsoleEvent e)
     {
+        if (e.Name == "wolf_cheat")
+        {
+            DoCheat(e.Args[0]);
+            return;
+        }
         if (e.Name == "wolf_newgame")
         {
             // reset only: the map change itself goes through the
@@ -86,6 +91,31 @@ class WolfGameState : StaticEventHandler
             initialized = false;             // fresh score/lives on load
             deathRestart = false;
             ClearRatios();
+        }
+    }
+
+    // the cheat menu's actions (D-001): ui sends, play executes
+    void DoCheat(int id)
+    {
+        PlayerPawn pm = players[0].mo;
+        if (pm == null)
+            return;
+        switch (id)
+        {
+        case 0: players[0].cheats ^= CF_GODMODE; break;
+        case 1: players[0].cheats ^= CF_NOCLIP2; break;
+        case 2:
+            pm.GiveInventoryType("WolfMachineGun");
+            pm.GiveInventoryType("WolfChaingun");
+            pm.GiveInventoryType("WolfGoldKey");
+            pm.GiveInventoryType("WolfSilverKey");
+            {
+                Inventory a = pm.FindInventory("WolfAmmo");
+                if (a != null) a.Amount = 99;
+            }
+            break;
+        case 3: pm.health = 100; pm.player.health = 100; break;
+        case 4: level.ExitLevel(0, false); break;
         }
     }
 

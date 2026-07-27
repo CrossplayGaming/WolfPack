@@ -43,6 +43,11 @@ class WolfWidgetMenu : WolfMenu
         AddRow(W_TOGGLE, label, cvarName, IT_NORMAL);
     }
     void AddCommand(String label) { AddRow(W_COMMAND, label, "", IT_NORMAL); }
+    void AddToggleV(String label, String cvarName, int onValue)
+    {
+        AddRow(W_TOGGLE, label, cvarName, IT_NORMAL);
+        wMax[wMax.Size() - 1] = onValue;
+    }
     void AddSlider(String label, String cvarName, double mn, double mx,
                    double st)
     {
@@ -146,14 +151,14 @@ class WolfWidgetMenu : WolfMenu
 
     // ---- input -----------------------------------------------------------
 
-    void Adjust(int i, int dir)
+    virtual void Adjust(int i, int dir)
     {
         CVar cv = GetCV(i);
         if (cv == null)
             return;
         if (wKind[i] == W_TOGGLE)
         {
-            cv.SetInt(cv.GetInt() != 0 ? 0 : 1);
+            cv.SetInt(cv.GetInt() != 0 ? 0 : int(wMax[i]));
             MenuSound("menu/change");
         }
         else if (wKind[i] == W_SLIDER)
