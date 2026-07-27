@@ -225,15 +225,11 @@ class WolfPlayer : DoomPlayer
     override void Tick()
     {
         Super.Tick();
-        // No vertical aim in Wolf (checklist section 3). Enforced here so a
-        // stale config can't reintroduce it; the Modernization toggle
-        // (wolf_freelook) is the sanctioned way to turn it on later.
-        if (player != null)
-        {
-            CVar fl = CVar.GetCVar("wolf_freelook", player);
-            if (fl == null || !fl.GetInt())
-                Pitch = 0;
-        }
+        // Vertical aim is suppressed by MAPINFO's NoFreelook (defaultmap),
+        // which is the engine's own clamp. Do NOT also force Pitch here:
+        // writing pitch after the input has applied it fights the mouse
+        // every frame and makes the view jitter. When the Modernization
+        // menu exposes freelook, it lifts the MAPINFO flag instead.
         if (deathPhase != 0)
             return;
         if (player && (player.cmd.buttons & BT_USE)
