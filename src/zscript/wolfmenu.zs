@@ -79,8 +79,12 @@ class WolfMenu : ListMenu
         WolfDraw.Bar(x + w, y, 1, h + 1, C_BORD2);       // right
     }
 
+    // last-drawn item geometry, for mouse picking (320x200 units)
+    int hitX, hitY, hitPitch;
+
     void DrawItems(int x, int y, int indent, int pitch)
     {
+        hitX = x; hitY = y; hitPitch = pitch;
         for (int i = 0; i < labels.Size(); i++)
         {
             int st = itemStates[i];
@@ -182,6 +186,29 @@ class WolfMenu : ListMenu
             return true;
         }
         return Super.MenuEvent(mkey, fromcontroller);
+    }
+
+    // Wolf mouse handling: the gun cursor rides the list — hovering a
+    // row selects it, click activates. No free-floating dead cursor.
+    override bool MouseEvent(int type, int x, int y)
+    {
+        if (hitPitch <= 0 || labels.Size() == 0)
+            return false;
+        double ux = (x - WolfDraw.OrgX()) / WolfDraw.ScaleX();
+        double uy = y / WolfDraw.ScaleY();
+        int idx = int((uy - hitY + 2) / hitPitch);
+        if (idx >= 0 && idx < labels.Size() && uy >= hitY - 2
+            && itemStates[idx] != IT_DISABLED)
+        {
+            if (idx != sel)
+            {
+                sel = idx;
+                MenuSound("menu/cursor");
+            }
+            if (type == MOUSE_Release)
+                OnChoose(sel);
+        }
+        return true;
     }
 
     // static window in the Message() style (WL_MENU.C:3490): TEXTCOLOR
@@ -410,7 +437,8 @@ class WolfReadMenu : WolfMenu
             return;
         }
         // the letterbox treatment: stone backdrop, page in the bevel
-        WolfDraw.Backdrop();
+        WolfDraw.Backdrop("WALL022");   // wood: stone pages
+                                        // clash on stone tiles
         double px = WolfDraw.Px();
         double sh = screen.GetHeight(), sw = screen.GetWidth();
         double ah = sh - 32 * px, aw = ah * (4.0 / 3.0);

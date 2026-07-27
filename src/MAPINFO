@@ -21,6 +21,7 @@ gameinfo
     statscreen_dm = "DeathmatchStatusScreen"
     drawreadthis = false
     messageboxclass = "WolfMessageBox"
+    CursorPic = "C_CURS1"    // the menu gun as the mouse cursor
     // the engine's menu dim: BORDCOLOR red at high strength instead of
     // GZDoom's purple, so engine pages sit on a Wolf-red field
     dimcolor = "8a 00 00"

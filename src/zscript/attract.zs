@@ -102,6 +102,16 @@ class WolfAttractMenu : GenericMenu
         Menu.SetMenu("MainMenu");
         return true;
     }
+
+    override bool MouseEvent(int type, int x, int y)
+    {
+        if (type == MOUSE_Click)
+        {
+            Menu.SetMenu("MainMenu");
+            return true;
+        }
+        return false;
+    }
 }
 
 // Puts the attract menu up as soon as the title map is running.
@@ -217,9 +227,9 @@ class WolfDraw
 
     // the game's own stone tiled across the window at game-pixel zoom,
     // darkened so the framed art stays the focus
-    static void Backdrop()
+    static void Backdrop(String tex = "WALL000")
     {
-        TextureID t = TexMan.CheckForTexture("WALL000", TexMan.Type_Any);
+        TextureID t = TexMan.CheckForTexture(tex, TexMan.Type_Any);
         if (!t.IsValid())
             return;
         double step = 64.0 * Px();
