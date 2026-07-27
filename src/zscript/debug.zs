@@ -208,6 +208,24 @@ class WolfDebugHandler : EventHandler
             }
         }
 
+        // wolf_dbg_arm: hand the player the full arsenal at level start
+        // (boss playtesting — see boss.bat)
+        CVar armv = CVar.FindCVar("wolf_dbg_arm");
+        if (armv != null && armv.GetInt() != 0 && t == 2)
+        {
+            PlayerPawn pm = players[0].mo;
+            if (pm != null)
+            {
+                pm.GiveInventoryType("WolfMachineGun");
+                pm.GiveInventoryType("WolfChaingun");
+                pm.GiveInventoryType("WolfGoldKey");
+                pm.GiveInventoryType("WolfSilverKey");
+                Inventory a = pm.FindInventory("WolfAmmo");
+                if (a != null) a.Amount = 99;
+                Console.Printf("WOLFDBG armed: chaingun, MG, 99 ammo, keys");
+            }
+        }
+
         if (phase > 4)
             return;
         CVar cv = CVar.FindCVar("wolf_dbg_doortest");
