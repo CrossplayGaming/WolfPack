@@ -93,6 +93,7 @@ def check():
         LOG.unlink()
     proc = subprocess.Popen([str(UZDOOM), "-iwad", str(PK3), "+logfile",
                              str(LOG), "-nosound", "-noautoload",
+                             "+set", "wolf_dbg_check", "1",
                              "+set", "wolf_dbg_doortest", "1",
                              "+set", "wolf_dbg_weapon", "1",
                              "+set", "wolf_dbg_forcefire", "1",

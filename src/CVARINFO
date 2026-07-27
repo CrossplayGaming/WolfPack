@@ -1,12 +1,18 @@
-// debug/self-test switches (build.py --check)
-server int wolf_dbg_doortest = 0;
-server int wolf_dbg_alert = 0;
-server int wolf_dbg_pickup = 0;
-server int wolf_dbg_weapon = 0;
-server int wolf_dbg_forcefire = 0;
-server int wolf_dbg_exit = 0;
-server int wolf_dbg_sight = 0;
-server int wolf_dbg_death = 0;
-server int wolf_dbg_arm = 0;
-server int wolf_dbg_boss = 0;
-server int wolf_dbg_victory = 0;
+// Debug/self-test switches (build.py --check, boss.bat).
+// nosave, NOT server: an archived value beats the default, so a
+// server cvar left set by one test run silently leaks into every
+// later launch (wolf_dbg_arm did exactly that — normal play
+// started fully armed). These now always begin at 0 and only take
+// effect when a launcher passes +set explicitly.
+nosave int wolf_dbg_check = 0;      // harness map-load heartbeat
+nosave int wolf_dbg_doortest = 0;
+nosave int wolf_dbg_alert = 0;
+nosave int wolf_dbg_pickup = 0;
+nosave int wolf_dbg_weapon = 0;
+nosave int wolf_dbg_forcefire = 0;
+nosave int wolf_dbg_exit = 0;
+nosave int wolf_dbg_sight = 0;
+nosave int wolf_dbg_death = 0;
+nosave int wolf_dbg_arm = 0;
+nosave int wolf_dbg_boss = 0;
+nosave int wolf_dbg_victory = 0;

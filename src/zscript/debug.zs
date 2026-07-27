@@ -115,8 +115,14 @@ class WolfDebugHandler : EventHandler
                     Console.Printf("WOLFDBG exit: no usable switch");
             }
         }
+        // map-load heartbeat the harness greps for. Gated: without this it
+        // prints over the screen during ordinary play.
         if (t == 3 || t == 120 || t == 240)
-            Console.Printf("WOLFDBG onmap %s t=%d", Level.MapName, t);
+        {
+            CVar cv = CVar.FindCVar("wolf_dbg_check");
+            if (cv != null && cv.GetInt() != 0)
+                Console.Printf("WOLFDBG onmap %s t=%d", Level.MapName, t);
+        }
 
         // sight self-test (CheckSight facing rule): park the player 3 tiles
         // east of a standing guard in the same area. Facing away => must NOT
