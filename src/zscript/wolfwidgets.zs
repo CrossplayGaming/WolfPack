@@ -170,6 +170,64 @@ class WolfWidgetMenu : WolfMenu
         }
     }
 
+    // Mouse: hover selects; click toggles lamps and cycles values;
+    // sliders set to the clicked position and DRAG while held.
+    bool dragging;
+
+    override bool MouseEvent(int type, int x, int y)
+    {
+        double ux = (x - WolfDraw.OrgX()) / WolfDraw.ScaleX();
+        double uy = y / WolfDraw.ScaleY();
+        int idx = int((uy - hitY + 2) / hitPitch);
+        bool onRow = idx >= 0 && idx < labels.Size()
+                     && uy >= hitY - 2
+                     && itemStates[idx] != IT_DISABLED;
+
+        if (type == MOUSE_Release)
+            dragging = false;
+
+        if (onRow && !dragging && idx != sel)
+        {
+            sel = idx;
+            MenuSound("menu/cursor");
+        }
+
+        // slider: absolute position, live while dragging
+        int si = dragging ? sel : idx;
+        if ((type == MOUSE_Click || (type == MOUSE_Move && dragging))
+            && onRow || (dragging && type == MOUSE_Move))
+        {
+            if (si >= 0 && si < wKind.Size() && wKind[si] == W_SLIDER)
+            {
+                if (type == MOUSE_Click)
+                    dragging = true;
+                CVar cv = GetCV(si);
+                if (cv != null)
+                {
+                    double bx = winX + winW - 112, bw = 100;
+                    double frac = clamp((ux - bx - 6) / (bw - 12), 0, 1);
+                    double v = wMin[si] + frac * (wMax[si] - wMin[si]);
+                    v = wMin[si]
+                        + round((v - wMin[si]) / wStep[si]) * wStep[si];
+                    cv.SetFloat(clamp(v, wMin[si], wMax[si]));
+                }
+                return true;
+            }
+        }
+
+        if (type == MOUSE_Release && onRow)
+        {
+            if (wKind[idx] == W_COMMAND)
+            {
+                MenuSound("menu/advance");
+                OnChoose(idx);
+            }
+            else
+                Adjust(idx, 1);         // lamps flip, values cycle
+        }
+        return true;
+    }
+
     override bool MenuEvent(int mkey, bool fromcontroller)
     {
         switch (mkey)
