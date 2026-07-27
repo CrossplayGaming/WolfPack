@@ -32,6 +32,11 @@ class WolfIntermission : StatusScreen
     bool victoryMode;
     int avgKill, avgSecret, avgTreasure, totalSec;
 
+    // EndText (WL_TEXT.C:800): after Victory() the episode's story article
+    // plays, page by page, before the game returns to the title.
+    WolfArticle article;
+    bool inArticle;
+
     const PAR_AMOUNT = 500;         // WL_INTER.C:432
     const PERCENT100AMT = 10000;    // WL_INTER.C:433
 
@@ -102,6 +107,25 @@ class WolfIntermission : StatusScreen
     {
         if (ev.type == InputEvent.Type_KeyDown)
         {
+            if (victoryMode && phase == PH_DONE)
+            {
+                int k = ev.KeyScan;
+                if (inArticle && article != null)
+                {
+                    if (k == InputEvent.Key_LeftArrow)
+                    {
+                        article.PrevPage();
+                        return true;
+                    }
+                    if (k == InputEvent.Key_Escape)
+                    {
+                        End();
+                        return true;
+                    }
+                }
+                AdvanceVictory();
+                return true;
+            }
             if (phase == PH_DONE)
                 End();              // -> LeavingIntermission
             else
@@ -109,6 +133,25 @@ class WolfIntermission : StatusScreen
             return true;
         }
         return false;
+    }
+
+    // Victory screen -> article pages -> out
+    void AdvanceVictory()
+    {
+        if (!inArticle)
+        {
+            article = new("WolfArticle");
+            int ep = level.levelnum / 10 + 1;
+            if (article.Init(String.Format("ENDART%d.txt", ep)))
+            {
+                inArticle = true;
+                return;
+            }
+            article = null;
+        }
+        else if (article.NextPage())
+            return;
+        End();
     }
 
     // NOT Super.Ticker(): the base state machine advances the screen on
@@ -125,7 +168,15 @@ class WolfIntermission : StatusScreen
             breatheFrame ^= 1;
         }
         if (phase == PH_DONE)
-            return;                 // wait for a key (OnEvent)
+        {
+            // self-test: page through the ending without a keyboard
+            CVar dv = CVar.GetCVar("wolf_dbg_victory",
+                                   players[consoleplayer]);
+            if (victoryMode && dv != null && dv.GetInt() >= 2
+                && (bcnt % 70) == 0)
+                AdvanceVictory();
+            return;                 // otherwise wait for a key (OnEvent)
+        }
         if (waitTics > 0)
         {
             waitTics--;
@@ -270,7 +321,10 @@ class WolfIntermission : StatusScreen
     {
         if (victoryMode)
         {
-            DrawVictory();
+            if (inArticle && article != null)
+                article.Draw();
+            else
+                DrawVictory();
             return;
         }
         // VWB_Bar(0,0,320,200-STATUSLINES,127): palette 127 = (0,65,65)

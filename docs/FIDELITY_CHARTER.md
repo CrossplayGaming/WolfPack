@@ -544,3 +544,21 @@ across all six boss floors:
   So a boss floor keeps a placeholder `next` and `WolfIntermission` takes
   over in `victoryMode`. The real chain out of that screen (EndText ->
   high scores -> title) is still to be built and lands in the same place.
+
+### End-of-episode articles (2026-07-26)
+
+| ID | Item | Value |
+|---|---|---|
+| TEXT-001 | The articles are text chunks T_ENDART1..6 (VGAGRAPH 143-148), one per episode, each 2 pages ending in ^E — verified across all six | GFXV_WL6.H:155-160 |
+| TEXT-002 | Layout commands: ^P page, ^E end, ^C<hex><hex> font colour, ^G<y>,<x>,<pic> graphic, ^L<x>,<y> locate, ^B<y>,<x>,<w>,<h> bar, ^; comment, ^> tab to x=160, ^T timed pic | WL_TEXT.C:6-17, 185-280 |
+| TEXT-003 | Metrics: FONTHEIGHT 10, TOPMARGIN 16, BOTTOMMARGIN 32, LEFT/RIGHTMARGIN 16, PICMARGIN 8, SPACEWIDTH 7, TEXTROWS 15 | WL_TEXT.C:31-40 |
+| TEXT-004 | ^G rewrites the per-row margins for every row the picture covers — right margin if the picture's midpoint is past x=160, left margin otherwise. This is what makes the text flow around the blaze picture | WL_TEXT.C:250-275 |
+| TEXT-005 | BACKCOLOR 0x11; page frame is H_TOPWINDOWPIC (0,0), H_LEFTWINDOWPIC (0,8), H_RIGHTWINDOWPIC (312,8), H_BOTTOMINFOPIC (8,176) | WL_TEXT.C:423-427 |
+| TEXT-006 | Page number "pg N of M" at px (213,183) in fontcolor 0x4f | WL_TEXT.C:478-497 |
+| TEXT-007 | Font chunk 1 (STARTFONT) is a fontstruct: height word, 256 location words, 256 width bytes, then 1-byte-per-pixel masks. Extracted height is 10, matching FONTHEIGHT — an independent cross-check that the format was read correctly. 109 glyphs present | ID_VH.H |
+
+**Engine note:** every element on these screens must share one 320x200
+transform. `DTA_320x200` and hand-rolled scaling disagree, and
+`DTA_KeepRatio` stretches rather than pillarboxing, so the background bar
+takes its rectangle from `Screen.VirtualToRealCoords` with the same
+virtual size the pictures use.

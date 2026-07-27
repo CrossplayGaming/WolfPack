@@ -124,6 +124,13 @@ def main():
     hud_pics["L_GUYPIC"] = "L_GUY"
     hud_pics["L_GUY2PIC"] = "L_GUY2"
     hud_pics["L_BJWINSPIC"] = "L_BJWINS"
+    # article window frame (PageLayout, WL_TEXT.C:423-427) and the one
+    # graphic the end articles reference (^G16,16,5 = H_BLAZEPIC)
+    hud_pics["H_TOPWINDOWPIC"] = "H_TOPWIN"
+    hud_pics["H_LEFTWINDOWPIC"] = "H_LEFTW"
+    hud_pics["H_RIGHTWINDOWPIC"] = "H_RIGHTW"
+    hud_pics["H_BOTTOMINFOPIC"] = "H_BOTINF"
+    hud_pics["H_BLAZEPIC"] = "H_BLAZE"
 
     nhud = 0
     for src_name, lump in hud_pics.items():
@@ -131,6 +138,20 @@ def main():
         if p.exists():
             shutil.copy(p, ASSETS / "graphics" / f"{lump}.png")
             nhud += 1
+
+    # end-of-episode articles and the proportional font (extract_text.py)
+    TXT = ROOT / "build" / "text"
+    if TXT.exists():
+        for ep in range(1, 7):
+            src = TXT / f"endart{ep}.txt"
+            if src.exists():
+                shutil.copy(src, ASSETS / f"ENDART{ep}.txt")
+        fsrc = TXT / "font"
+        if fsrc.exists():
+            fdst = ASSETS / "fonts" / "wolfprop"
+            fdst.mkdir(parents=True, exist_ok=True)
+            for g in fsrc.glob("*.png"):
+                shutil.copy(g, fdst / g.name)
 
     # BJ breathing (D-005): the WL6 release stores the SAME picture for
     # both intermission frames (verified byte-identical across three
