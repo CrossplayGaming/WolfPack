@@ -14,6 +14,7 @@ class WolfDeathCam : StaticEventHandler
     int phase;              // 0 idle, 1 fading out, 2 caption, 3 fading in
     int timer;
     Actor bossActor;
+    bool camLocked;
     Vector3 camPos;
     double camAngle;
 
@@ -73,6 +74,16 @@ class WolfDeathCam : StaticEventHandler
 
     override void WorldTick()
     {
+        // once the cam is placed, pin it every tic until the level ends
+        if (camLocked)
+        {
+            PlayerPawn pl = players[0].mo;
+            if (pl != null)
+            {
+                pl.Angle = camAngle;
+                pl.vel = (0, 0, 0);
+            }
+        }
         if (phase == 0)
             return;
         timer--;
@@ -92,6 +103,15 @@ class WolfDeathCam : StaticEventHandler
                 pm.SetOrigin(camPos, false);
                 pm.Angle = camAngle;
                 pm.vel = (0, 0, 0);
+                // NewState(player, &s_deathcam): a think-less state, so
+                // the camera is LOCKED; victoryflag lowers the weapon.
+                // The status bar stays - the original always draws it.
+                pm.player.cheats |= CF_TOTALLYFROZEN;
+                PSprite psp = pm.player.GetPSprite(PSP_WEAPON);
+                if (psp != null)
+                    psp.SetState(null);
+                pm.player.ReadyWeapon = null;
+                camLocked = true;
             }
             WolfEnemySim e = WolfEnemySim(bossActor);
             if (e != null)
