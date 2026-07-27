@@ -228,6 +228,29 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
                 shutil.copy(src, ASSETS / f"ENDART{ep}.txt")
         if (TXT / "helpart.txt").exists():
             shutil.copy(TXT / "helpart.txt", ASSETS / "HELPART.txt")
+        # NewSmallFont replacement: the engine option pages hardcode this
+        # font (Menu.OptionFont), so shipping a folder font of that name
+        # swaps them onto the Wolf menu font - with a 1px black stroke
+        # baked into every glyph so yellow-on-red stays readable (user).
+        fsrc = TXT / "fontbig"
+        if fsrc.exists():
+            fdst = ASSETS / "fonts" / "newsmallfont"
+            fdst.mkdir(parents=True, exist_ok=True)
+            for g in fsrc.glob("*.png"):
+                im = Image.open(g).convert("RGBA")
+                w, h = im.size
+                out = Image.new("RGBA", (w + 2, h + 2), (0, 0, 0, 0))
+                # black silhouette at the 8 neighbours, glyph on top
+                sil = Image.new("RGBA", im.size, (0, 0, 0, 255))
+                mask = im.split()[3]
+                for dx in (0, 1, 2):
+                    for dy in (0, 1, 2):
+                        if dx == 1 and dy == 1:
+                            continue
+                        out.paste(sil, (dx, dy), mask)
+                out.paste(im, (1, 1), mask)
+                out.save(fdst / g.name)
+
         for srcname, fontname in (("font", "wolfprop"),
                                   ("fontbig", "wolfbig")):
             fsrc = TXT / srcname
