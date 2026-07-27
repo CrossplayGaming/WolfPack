@@ -142,7 +142,7 @@ class WolfPlayer : DoomPlayer
         if (deathPhase == 2)
         {
             deathTimer++;
-            if (deathTimer >= 35 + 40)      // dissolve + IN_UserInput pause
+            if (deathTimer >= 72 + 50)      // 2.05s dissolve + IN_UserInput(100)
             {
                 deathPhase = 3;
                 RestartFloor();

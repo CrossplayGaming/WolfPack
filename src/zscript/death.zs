@@ -50,9 +50,14 @@ class WolfDeathHandler : StaticEventHandler
     ui int rndval;
     ui int drawn;
     ui bool started;
+    ui bool complete;
     ui Array<bool> cover;
 
-    const FIZZLE_TICS = 35;         // 70 source frames at 2 per engine tic
+    // Rate, not duration: pixperframe = 64000/70 = 914 LFSR steps per
+    // 1/70s frame -> 1828 per engine tic. The fade ends when the LFSR
+    // completes its full 131071-step period, i.e. 2.05 s (71.7 tics) —
+    // NOT the 70 frames the call's parameter suggests (ID_VH.C:483-540).
+    const STEPS_PER_TIC = 1828;
 
     clearscope static WolfDeathHandler Get()
     {
@@ -88,6 +93,7 @@ class WolfDeathHandler : StaticEventHandler
             started = true;
             rndval = 1;
             drawn = 0;
+            complete = false;
             cover.Resize(GW * GH);
             for (int i = 0; i < GW * GH; i++)
                 cover[i] = false;
@@ -95,9 +101,8 @@ class WolfDeathHandler : StaticEventHandler
 
         // reveal up to the count this tic calls for, marking cells
         int elapsed = Level.maptime - startTic;
-        int want = elapsed >= FIZZLE_TICS ? 64000
-                                          : elapsed * 64000 / FIZZLE_TICS;
-        while (drawn < want)
+        int want = elapsed * STEPS_PER_TIC;
+        while (!complete && drawn < want)
         {
             int x, y;
             [x, y, rndval] = WolfFizzle.Step(rndval);
@@ -105,10 +110,7 @@ class WolfDeathHandler : StaticEventHandler
             if (x < 320 && y >= 0 && y < 200)
                 cover[(y / CELL) * GW + (x / CELL)] = true;
             if (rndval == 1)
-            {
-                drawn = 64000;
-                break;
-            }
+                complete = true;        // full period: screen covered
         }
 
         // draw revealed cells, merging horizontal runs

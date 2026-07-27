@@ -292,7 +292,7 @@ and by DamageActor (WL_STATE.C:966). Enemies test `madenoise && areabyplayer[the
 |---|---|---|
 | FIZZ-001 | Generator | 17-bit Fibonacci LFSR, seed rndval=1; per step: 32-bit pair shifted right 1; on carry XOR high word 0x0001, low word 0x2000 |
 | FIZZ-002 | Pixel mapping | y = (low 8 bits)âˆ’1; x = next 9 bits; out-of-bounds skipped |
-| FIZZ-003 | Rate | 64000/frames pixels per frame; player-death call uses frames=70 (WL_GAME.C:1197) |
+| FIZZ-003 | Rate (NOT duration): pixperframe = 64000/frames = 914 LFSR steps per 1/70s frame at frames=70 (WL_GAME.C:1197). MEASURED true duration = full 131071-step period / 914 = 143 frames = 2.05 s (71.7 engine tics); after 64000 steps only 49% of pixels are covered | ID_VH.C:483-540 |
 | FIZZ-004 | Termination | when rndval returns to 1 (full period) |
 
 ### Death / lives â€” `WL_GAME.C` Died (l. 1114-1225), GameLoop
@@ -492,14 +492,14 @@ Target: zero gameplay-visible entries.
 
 | ID | Item | Value |
 |---|---|---|
-| SIGHT-001 | CheckSight is NOT plain LOS (WL_STATE.C:1187-1240): (a) area must be connected to the player's, (b) within MINSIGHT 0x18000 (1.5 tiles) on BOTH axes sight is automatic regardless of facing, (c) cardinal FACING test — north rejects deltay>0, east deltax<0, south deltay<0, west deltax>0; diagonal facings skip the test entirely, (d) then CheckLine. Used for waking only |
-| SIGHT-002 | CheckLine (no facing test) is what the ATTACK code uses — T_Shoot and T_Chase's fire decision. An awake enemy shoots at a player it is not "facing" per SIGHT-001 |
+| SIGHT-001 | CheckSight is NOT plain LOS (WL_STATE.C:1187-1240): (a) area must be connected to the player's, (b) within MINSIGHT 0x18000 (1.5 tiles) on BOTH axes sight is automatic regardless of facing, (c) cardinal FACING test ï¿½ north rejects deltay>0, east deltax<0, south deltay<0, west deltax>0; diagonal facings skip the test entirely, (d) then CheckLine. Used for waking only |
+| SIGHT-002 | CheckLine (no facing test) is what the ATTACK code uses ï¿½ T_Shoot and T_Chase's fire decision. An awake enemy shoots at a player it is not "facing" per SIGHT-001 |
 | SIGHT-003 | FirstSighting also zeroes a negative `distance` (cancels a pending door-open wait) before setting FL_ATTACKMODE|FL_FIRSTATTACK | WL_STATE.C:1382-1385 |
 
 Wake paths, in full (SightPlayer, WL_STATE.C:1404-1478):
-1. `areabyplayer[areanumber]` gate — no wake through unconnected areas, ever.
+1. `areabyplayer[areanumber]` gate ï¿½ no wake through unconnected areas, ever.
 2. FL_AMBUSH actors: sight ONLY (CheckSight), never noise; flag clears on first sight.
-3. Non-ambush actors: `madenoise || CheckSight` — gunfire (player firing, or any
+3. Non-ambush actors: `madenoise || CheckSight` ï¿½ gunfire (player firing, or any
    DamageActor) wakes anything in the connected area, even facing away.
 4. On the wake tic the actor only STARTS its reaction countdown (REACT-001..006);
    FirstSighting runs on a later tic when temp2 expires.
