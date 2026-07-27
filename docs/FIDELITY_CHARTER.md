@@ -633,3 +633,9 @@ swapped for the Wolf grey ramp: face 0x17, highlight 0x12, shadow 0x1D.
 The art keeps its exact 4:3 box, shrunk by 16 game px per side to make
 room for the frame. This is presentation around the original frame, not
 a change to it (D-002).
+
+- **VICT-010 (presentation deviation):** BJ's victory run stops after 5
+  tiles, not the source's 6 - the sixth puts him inside the camera, and
+  this renderer's perspective throws him out of frame where the
+  original's sprite scaler filled the screen. Jump, yell and timings
+  unchanged.

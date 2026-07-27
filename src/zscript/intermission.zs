@@ -322,7 +322,18 @@ class WolfIntermission : StatusScreen
         if (victoryMode)
         {
             if (inArticle && article != null)
+            {
+                // same letterbox treatment as Read This!: wood backdrop
+                // (the parchment frame art clashes on stone), bevel ring
+                WolfDraw.Backdrop("WALL022");
+                double bpx = WolfDraw.Px();
+                double bh = screen.GetHeight() - 32 * bpx;
+                double bw = bh * (4.0 / 3.0);
+                double bx = (screen.GetWidth() - bw) / 2;
+                WolfDraw.BevelRing(bx, 16 * bpx, bw, bh);
+                article.SetRect(bx, 16 * bpx, bw, bh);
                 article.Draw();
+            }
             else
                 DrawVictory();
             return;

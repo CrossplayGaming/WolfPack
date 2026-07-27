@@ -44,7 +44,10 @@ class WolfBJVictory : Actor
         tileY = 63 - (int(player.pos.y) / 64) + 1;
         wolfX = int(player.pos.x * 1024);
         wolfY = int((4096.0 - player.pos.y) * 1024) + 0x10000;
-        tilesLeft = 6;
+        // 5, not the source's 6: the last tile would put him inside the
+        // camera, and this renderer's perspective blows him out of frame
+        // (presentation deviation, VICT-010)
+        tilesLeft = 5;
         distance = 0x10000;
         seq = 0;
         seqTics = RUNTICS[0];

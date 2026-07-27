@@ -129,6 +129,10 @@ class WolfAttract : StaticEventHandler
     {
         if (!IsTitle())
             return;
+        // returning from an episode end: the victory sequence froze the
+        // player struct, which persists across level changes
+        if (players[0].mo != null)
+            players[0].cheats &= ~CF_TOTALLYFROZEN;
         S_ChangeMusic("NAZI_NOR", 0, true);      // INTROSONG (WL_MENU.H:37)
     }
 

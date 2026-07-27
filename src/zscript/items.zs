@@ -81,6 +81,8 @@ class WolfGameState : StaticEventHandler
             // reset only: the map change itself goes through the
             // engine's real new-game path (Menu.StartGameDirect), because
             // ChangeLevel from the titlemap drags title state along
+            if (players[0].mo != null)       // shed any victory freeze
+                players[0].cheats &= ~CF_TOTALLYFROZEN;
             initialized = false;             // fresh score/lives on load
             deathRestart = false;
             ClearRatios();

@@ -77,7 +77,7 @@ map MAP09 "Wolf1 Boss"
 {
     levelnum = 9
     music = "WARMARCH"
-    next = "MAP01"
+    next = "TITLEMAP"
     secretnext = "MAP10"
     par = 0
 }
@@ -167,7 +167,7 @@ map MAP19 "Wolf2 Boss"
 {
     levelnum = 19
     music = "WARMARCH"
-    next = "MAP11"
+    next = "TITLEMAP"
     secretnext = "MAP20"
     par = 0
 }
@@ -257,7 +257,7 @@ map MAP29 "Wolf3 Boss"
 {
     levelnum = 29
     music = "ULTIMATE"
-    next = "MAP21"
+    next = "TITLEMAP"
     secretnext = "MAP30"
     par = 0
 }
@@ -347,7 +347,7 @@ map MAP39 "Wolf4 Boss"
 {
     levelnum = 39
     music = "WARMARCH"
-    next = "MAP31"
+    next = "TITLEMAP"
     secretnext = "MAP40"
     par = 0
 }
@@ -437,7 +437,7 @@ map MAP49 "Wolf5 Boss"
 {
     levelnum = 49
     music = "WARMARCH"
-    next = "MAP41"
+    next = "TITLEMAP"
     secretnext = "MAP50"
     par = 0
 }
@@ -527,7 +527,7 @@ map MAP59 "Wolf6 Boss"
 {
     levelnum = 59
     music = "ULTIMATE"
-    next = "MAP51"
+    next = "TITLEMAP"
     secretnext = "MAP60"
     par = 0
 }

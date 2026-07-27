@@ -66,7 +66,10 @@ def main():
             # So the floor keeps a placeholder next and WolfIntermission
             # takes over in victoryMode; the real chain out of it
             # (EndText -> high scores -> title) lands there.
-            lines.append(f'    next = "MAP{ep * 10 + 1:02d}"')
+            # the ending returns to the title map (attract -> menu);
+            # a placeholder next of floor 1 loaded a broken 'next level'
+            # with the victory freeze still on the player
+            lines.append('    next = "TITLEMAP"')
         else:
             lines.append(f'    next = "MAP{nxt:02d}"')
         lines.append(f'    secretnext = "MAP{secret:02d}"')
