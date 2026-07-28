@@ -293,7 +293,7 @@ def convert(level, ceiling_color):
         if k == "player_start":
             thing(o["x"], o["y"], ED_PLAYER1, ANGLES[o["dir"]])
             spots = coop_spots(o["x"], o["y"], 7)
-            for i, (cx, cy) in enumerate(spots):
+            for i, (cx, cy) in enumerate(spots[:7]):
                 # players 2-4: doomednums 2-4; players 5-8: 4001-4004
                 ed = 2 + i if i < 3 else 4001 + (i - 3)
                 thing(cx, cy, ed, ANGLES[o["dir"]])

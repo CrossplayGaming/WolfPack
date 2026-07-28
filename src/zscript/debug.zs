@@ -116,6 +116,23 @@ class WolfDebugHandler : EventHandler
                     Console.Printf("WOLFDBG exit: no usable switch");
             }
         }
+        // hunt actors rendering the missing-sprite marker (user report:
+        // a floating alert icon in SP). "Unknown" is the engine's class
+        // for unrecognized editor numbers.
+        if (t == 10)
+        {
+            ThinkerIterator uit = ThinkerIterator.Create("Actor");
+            Actor ua;
+            while ((ua = Actor(uit.Next())) != null)
+            {
+                if (ua is "Unknown" || ua.GetClassName() == "Unknown")
+                    Console.Printf("WOLFDBG unknown-thing at (%d,%d) tile "
+                                   "%d,%d", int(ua.pos.x), int(ua.pos.y),
+                                   int(ua.pos.x) / 64,
+                                   63 - (int(ua.pos.y) / 64));
+            }
+        }
+
         // map-load heartbeat the harness greps for. Gated: without this it
         // prints over the screen during ordinary play.
         if (t == 3 || t == 120 || t == 240)

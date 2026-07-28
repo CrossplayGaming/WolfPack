@@ -35,6 +35,10 @@ class WolfPlayer : DoomPlayer
     // Netgame body (the generated BJ set, grey variant). Single-player
     // never renders the player; without these, other players draw as
     // the missing-sprite marker.
+    // User-painted BJ set (import_bj_sheet.py), guard frame layout plus
+    // the ROTATED fire frames - a deliberate extension: a player's shots
+    // must read from any angle (the original's enemies always face
+    // their target, so its attack frames never rotated).
     States
     {
     Spawn:
@@ -44,15 +48,15 @@ class WolfPlayer : DoomPlayer
         BJ1W ABCD 4;
         Loop;
     Missile:
-        BJ1A ABCD 3;
+        BJ1F A 10;
         Goto Spawn;
     Pain:
-        BJ1P A 4;
-        BJ1P B 4;
+        BJ1P A 5;
+        BJ1P B 5;
         Goto Spawn;
     Death:
-        BJ1D ABCD 8;
-        BJ1D E -1;
+        BJ1D ABC 8;
+        BJ1D D -1;
         Stop;
     }
 
