@@ -31,6 +31,19 @@ if errorlevel 2 (
 powershell -ExecutionPolicy Bypass -File tools\get_engine.ps1 || (pause & exit /b 1)
 :haveengine
 
+if exist reference\wolfsrc\WOLFSRC\OBJ\GAMEPAL.OBJ goto :havesrc
+echo   The build also needs id Software's GPL Wolfenstein 3D source
+echo   release ^(the palette and data tables come from it^).
+choice /c YN /n /m "  Download it from id's official GitHub now? (Y/N) "
+if errorlevel 2 (
+    echo   Get github.com/id-Software/wolf3d and extract it so that
+    echo   reference\wolfsrc\WOLFSRC\ exists, then rerun.
+    pause
+    exit /b 1
+)
+powershell -ExecutionPolicy Bypass -File tools\get_wolfsrc.ps1 || (pause & exit /b 1)
+:havesrc
+
 if exist gamedata\*.WL6 goto :havedata
 echo   NOTE: no WL6 files in gamedata\ - the build will look for a
 echo   Steam install of Wolfenstein 3D automatically. If you do not
