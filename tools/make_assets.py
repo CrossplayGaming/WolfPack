@@ -263,6 +263,40 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
                         cpx[xx, yy] = (0, 0, 0, 0)
             img.save(cp)
 
+    # boot logo (256x256): the engine's startup window looks up lump
+    # BOOTLOGO (the UZDoom shield by default). Composed from the
+    # extracted Wolf big font - generated from the user's data like
+    # everything else, nothing committed. Shipped in the IPK3 (lump
+    # shadowing) and stamped into the engine pk3 by patch_engine.py.
+    fontbig = ROOT / "build" / "text" / "fontbig"
+    if fontbig.exists():
+        logo = Image.new("RGB", (256, 256), (20, 20, 20))
+        gold = (255, 247, 0)
+        grey = (142, 142, 142)
+        def blit_word(word, y, scale, color):
+            imgs = []
+            for ch in word:
+                g = fontbig / f"{ord(ch):04X}.png"
+                if g.exists():
+                    imgs.append(Image.open(g).convert("RGBA"))
+            w = sum(i.width for i in imgs) + (len(imgs) - 1)
+            x = (256 - w * scale) // 2
+            for i in imgs:
+                big = i.resize((i.width * scale, i.height * scale),
+                               Image.NEAREST)
+                tint = Image.new("RGBA", big.size, color + (255,))
+                tint.putalpha(big.split()[3])
+                logo.paste(tint, (x, y), tint)
+                x += (i.width + 1) * scale
+        blit_word("WOLF", 52, 4, gold)
+        blit_word("PACK", 122, 4, gold)
+        blit_word("WOLFENSTEIN 3D TOGETHER", 208, 1, grey)
+        for yy in (40, 196):
+            for xx in range(24, 232):
+                logo.putpixel((xx, yy), (113, 0, 0))
+        logo.save(ASSETS / "graphics" / "BOOTLOGO.png")
+        print("  boot logo generated")
+
     # multiplayer player sprites (gen_playersprite.py output): packed so
     # other players render in netgames - the missing-sprite diamond over
     # an invisible obstacle in the first 2-player test was player two
