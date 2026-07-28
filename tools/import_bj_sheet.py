@@ -294,6 +294,9 @@ def main():
         u = frames[kn].resize((64 * S, 64 * S), Image.NEAREST)
         sheet.paste(u, (x, y), u)
         dr.text((x, y + 64 * S), kn, fill=(255, 247, 0))
+    # dist/ does not exist yet on a fresh clone (build.py creates it
+    # later) - the verification sheet must not be the crash
+    (ROOT / "dist").mkdir(exist_ok=True)
     sheet.save(ROOT / "dist" / "bj_import_check.png")
     print("check sheet written")
 
