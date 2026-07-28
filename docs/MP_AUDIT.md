@@ -39,3 +39,12 @@ and archives locally, so every node computes the same remap in
 lockstep and the choice survives restarts - including the quit-and-
 relaunch hop into a netgame session. Picker: Multiplayer > Player
 Setup, with a live stand-sprite preview.
+
+Lobby + 1v1 arena (2026-07-27): LOBBY map generated from Hans's level
+(convert_udmf make_lobby): boss/victory tiles stripped, all 8 co-op
+starts clustered in the big pillared hall (user spec), no exit yet -
+episode doors and skill switches come with the lobby flow. Campaign
+MAP09 untouched except deathmatch: curated 1v1 starts replace the
+max-spread eight - one in the starting room (34,58 N), one in Hans's
+chamber (34,11 S), per user spec. DM_OVERRIDES in convert_udmf.py is
+the place for more curated arenas.

@@ -68,6 +68,41 @@ LOCK_NUM = {"normal": 0, "gold": 1, "silver": 2, "lock3": 3, "lock4": 4,
             "elevator": 5}
 SLABW = 8          # slab thickness; pocket channel matches
 
+# Curated deathmatch starts (map design, not derivation): Hans's level
+# doubles as the 1v1 arena - one spawn in the starting room, one in
+# Hans's chamber, per the layout read of build/levels/wl6/MAP08.json
+# (start corridor bottom, boss chamber top, pillared hall between).
+# Keyed (set, map index); value list of (tx, ty, angle). When present,
+# these REPLACE the max-spread dm_spots for that map.
+DM_OVERRIDES = {
+    ("wl6", 8): [(34, 58, 90),     # starting room, facing north
+                 (34, 11, 270)],   # Hans's chamber, facing south
+}
+
+# Lobby (multiplayer staging): a copy of Hans's level with the fight
+# stripped out. All players spawn together in the big pillared hall;
+# episode doors / skill switches wire in with the lobby flow.
+LOBBY_SOURCE = ("wl6", 8)
+LOBBY_START = (34, 34, "north")    # center aisle of the pillared hall
+
+
+def make_lobby(level):
+    lv = dict(level)
+    lv["name"] = "Lobby"
+    objs = []
+    for o in level["objects"]:
+        # no boss, no victory tiles (walking the hall must not end the
+        # episode), no original start - everything else stays
+        if o["kind"] in ("boss", "enemy", "ghost", "victory_trigger",
+                         "player_start"):
+            continue
+        objs.append(o)
+    tx, ty, d = LOBBY_START
+    objs.append({"kind": "player_start", "dir": d, "x": tx, "y": ty,
+                 "code": 19})
+    lv["objects"] = objs
+    return lv
+
 
 def area_grid(level):
     dec = level["decoded0"]
@@ -297,8 +332,15 @@ def convert(level, ceiling_color):
                 # players 2-4: doomednums 2-4; players 5-8: 4001-4004
                 ed = 2 + i if i < 3 else 4001 + (i - 3)
                 thing(cx, cy, ed, ANGLES[o["dir"]])
-            for dx, dy in dm_spots(8):
-                thing(dx, dy, 11, 0)
+            if level.get("name") == "Lobby":
+                pass                       # staging only - no DM starts
+            elif (level["set"], level["map"]) in DM_OVERRIDES:
+                for dx, dy, dang in DM_OVERRIDES[(level["set"],
+                                                  level["map"])]:
+                    thing(dx, dy, 11, dang)
+            else:
+                for dx, dy in dm_spots(8):
+                    thing(dx, dy, 11, 0)
         elif k == "enemy":
             skills = {0: (1, 2, 3, 4, 5), 2: (3, 4, 5), 3: (4, 5)}[o["min_skill"]]
             thing(o["x"], o["y"], ED_ENEMY[(o["enemy"], o["mode"])],
@@ -494,6 +536,12 @@ def main():
             (out / f"{stem}.manifest.json").write_text(json.dumps(manifest))
             (out / f"{stem}.grid.txt").write_text(gridtext)
             total += 1
+            if (setname, level["map"]) == LOBBY_SOURCE:
+                ltm, lman, lgrid = convert(make_lobby(level), ceiling)
+                (out / "LOBBY.textmap").write_text(ltm)
+                (out / "LOBBY.manifest.json").write_text(json.dumps(lman))
+                (out / "LOBBY.grid.txt").write_text(lgrid)
+                print(f"{setname}: + LOBBY (from MAP{level['map']:02d})")
         print(f"{setname}: converted {len(list(src.glob('MAP*.json')))} maps")
     if not total:
         sys.exit("no extracted levels; run extract_levels.py first")

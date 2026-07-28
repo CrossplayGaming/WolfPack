@@ -437,6 +437,16 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
             shutil.copy(grid, ASSETS / "wolfdata" / f"{mapname}.txt")
         nmaps += 1
 
+    # multiplayer lobby (convert_udmf LOBBY variant of Hans's level)
+    lobby = UDMF / "LOBBY.textmap"
+    if lobby.exists():
+        (ASSETS / "maps" / "lobby.wad").write_bytes(
+            wrap_wad("LOBBY", lobby.read_bytes()))
+        lgrid = UDMF / "LOBBY.grid.txt"
+        if lgrid.exists():
+            shutil.copy(lgrid, ASSETS / "wolfdata" / "LOBBY.txt")
+        nmaps += 1
+
     print(f"assets: {nwalls} wall textures, "
           f"{len(set(ceilings['wl6'])) + 1} flats, {nmaps} maps, PLAYPAL")
 
