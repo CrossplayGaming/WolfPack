@@ -44,6 +44,8 @@ class WolfLobby : EventHandler
 
     override void WorldLoaded(WorldEvent e)
     {
+        if (deathmatch)
+            SanitizeArena();
         if (!Active())
             return;
         ep = 0;
@@ -51,6 +53,36 @@ class WolfLobby : EventHandler
         launched = false;
         for (int p = 0; p < MAXPLAYERS; p++)
             lastZone[p] = Z_NONE;
+    }
+
+    // Deathmatch arena pass, any map: the campaign furniture that has no
+    // business refereeing a PvP match goes. Enemies die here rather than
+    // via -nomonsters because the Wolf sim actors are custom and never
+    // carried the engine's monster flag (user repro: Hans in the arena).
+    // Locked doors open freely - the gold key only exists as Hans's drop,
+    // so his door would otherwise stay locked forever - and the victory
+    // tiles go so nobody ends the match by walking the top corridor.
+    void SanitizeArena()
+    {
+        int ne, nv;
+        ThinkerIterator eit = ThinkerIterator.Create("WolfEnemySim");
+        Actor a;
+        while ((a = Actor(eit.Next())) != null)
+        {
+            a.Destroy();
+            ne++;
+        }
+        // doors self-unlock in WolfDoor.PostBeginPlay (which runs on the
+        // first tick, AFTER this) - writing lock here got overwritten
+        ThinkerIterator vit = ThinkerIterator.Create("WolfVictoryTrigger");
+        while ((a = Actor(vit.Next())) != null)
+        {
+            a.Destroy();
+            nv++;
+        }
+        CVar cv = CVar.FindCVar("wolf_dbg_check");
+        if (cv != null && cv.GetInt() != 0)
+            Console.Printf("WOLFDBG arena: enemies=%d victory=%d", ne, nv);
     }
 
     // hall geometry (tile coords of the source map, see the layout read

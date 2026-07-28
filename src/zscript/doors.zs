@@ -44,6 +44,12 @@ class WolfDoor : Actor
         polyId  = args[0];
         vertical = args[1] != 0;
         lock    = args[2];
+        // deathmatch: locked doors can't exist - keys are campaign drops
+        // (the MAP09 gold key is Hans's), so a lock would seal the arena.
+        // Here, not in the arena sweep: PostBeginPlay runs on the first
+        // TICK, after WorldLoaded, and overwrote an earlier unlock there.
+        if (deathmatch)
+            lock = 0;
         tileX = int(pos.x) / 64;
         tileY = 63 - (int(pos.y) / 64);
         homeX = int(pos.x);

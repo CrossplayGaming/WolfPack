@@ -167,6 +167,19 @@ class WolfDebugHandler : EventHandler
                                pm.pos.z, pm.floorz);
         }
 
+        // deathmatch door-lock probe: after PostBeginPlay has run (first
+        // tick), every door in a DM arena must read unlocked
+        if (apv != null && apv.GetInt() != 0 && t == 30 && deathmatch)
+        {
+            int locked = 0;
+            ThinkerIterator ddit = ThinkerIterator.Create("WolfDoor");
+            WolfDoor dd;
+            while ((dd = WolfDoor(ddit.Next())) != null)
+                if (dd.lock != 0)
+                    locked++;
+            Console.Printf("WOLFDBG arena doors still locked: %d", locked);
+        }
+
         // lobby-flow probe: warp player 0 through a west band (episode),
         // an east band (skill), then Hans's chamber (commit) and confirm
         // the level changes to the chosen episode at the chosen skill

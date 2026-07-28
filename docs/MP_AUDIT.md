@@ -69,3 +69,13 @@ red screen at 0%. Fix: sv_spawnfarthest 1 on every deathmatch launch
 (each spawn picks the spot farthest from living opponents - also the
 right 1v1 respawn behavior: you respawn in the room away from your
 killer). Headless 2-node repro went from 2 telefrag obituaries to 0.
+
+Arena sanitize (2026-07-28, user repro: Hans present + gold door
+locked): deathmatch pass in WolfLobby.WorldLoaded destroys all
+WolfEnemySim (the custom sim never carried the engine monster flag, so
+-nomonsters missed it) and all victory triggers (walking the corridor
+would end the match). Door unlock lives in WolfDoor.PostBeginPlay
+(if deathmatch, lock 0) NOT the sweep - map-spawned actors run
+PostBeginPlay on the first TICK, after WorldLoaded, and the args copy
+overwrote an unlock attempted there. Probes: enemies=1 victory=3
+cleared, 0 doors locked at t=30, 0 telefrags.
