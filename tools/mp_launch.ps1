@@ -97,7 +97,7 @@ elseif ($Mode -eq "local") {
     Start-Process -FilePath "$root\engine\uzdoom.exe" -ArgumentList (@("-host","2") + $modeargs + @("-iwad","$root\dist\wolf.ipk3","-config","$root\dist\local_host.ini","+set","wolf_dbg_arm","0","+set","show_obituaries","0","+set","i_pauseinbackground","0","+set","vid_activeinbackground","1","+set","i_soundinbackground","1") + $vidH)
     Start-Sleep -Seconds 4
     Write-Host "  Launching joiner window (right)..."
-    & "$root\engine\uzdoom.exe" -join localhost -iwad "$root\dist\wolf.ipk3" -config "$root\dist\local_join.ini" +set wolf_dbg_arm 0 +set show_obituaries 0 +set snd_musicvolume 0 +set wolf_skin 1 +set i_pauseinbackground 0 +set vid_activeinbackground 1 +set i_soundinbackground 1 @vidJ
+    & "$root\engine\uzdoom.exe" -join localhost -iwad "$root\dist\wolf.ipk3" -config "$root\dist\local_join.ini" +set wolf_dbg_arm 0 +set show_obituaries 0 +set snd_musicvolume 0 +set wolf_skin 1 +set color '24 24 d8' +set i_pauseinbackground 0 +set vid_activeinbackground 1 +set i_soundinbackground 1 @vidJ
 }
 elseif ($Mode -eq "join") {
 

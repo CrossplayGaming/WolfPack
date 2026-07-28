@@ -168,22 +168,6 @@ class WolfLobby : EventHandler
     Array<String> feed;
     Array<int> feedBorn;
 
-    // one-time engine-color sync: the scoreboard swatch follows the
-    // uniform even when wolf_skin arrived by config or +set rather than
-    // through the Player Setup menu (ui scope - userinfo set, same as
-    // the engine's own player menu)
-    ui bool colorSynced;
-
-    override void UiTick()
-    {
-        if (colorSynced)
-            return;
-        colorSynced = true;
-        CVar sv = CVar.GetCVar("wolf_skin", players[consoleplayer]);
-        if (sv != null)
-            WolfPlayerSetupMenu.SyncEngineColor(sv.GetInt());
-    }
-
     override void WorldThingDied(WorldEvent e)
     {
         if (!netgame || e.Thing == null || e.Thing.player == null)

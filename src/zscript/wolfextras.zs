@@ -121,7 +121,9 @@ class WolfPlayerSetupMenu : WolfWidgetMenu
     {
         CVar c = CVar.GetCVar("color", players[consoleplayer]);
         if (c != null)
-            c.SetString(SKINCOLORS[clamp(v, 0, 3)]);
+            // static methods need the class-qualified name for
+            // static const arrays
+            c.SetString(WolfPlayerSetupMenu.SKINCOLORS[clamp(v, 0, 3)]);
     }
 
     override void Init(Menu parent, ListMenuDescriptor desc)
@@ -129,6 +131,9 @@ class WolfPlayerSetupMenu : WolfWidgetMenu
         Super.Init(parent, desc);
         title = "Player Setup";
         AddMulti("Uniform", "wolf_skin", "Grey,Blue,Red,Tan");
+        CVar sv0 = GetCV(0);
+        if (sv0 != null)
+            SyncEngineColor(sv0.GetInt());
         winH = 13 * labels.Size() + 6 + PREVIEW_H;
         sel = 0;
     }
@@ -196,6 +201,11 @@ class WolfMPMenu : WolfMenu
     override void Init(Menu parent, ListMenuDescriptor desc)
     {
         Super.Init(parent, desc);
+        // entering the MP menu syncs the scoreboard swatch to the
+        // uniform (userinfo writes are menu-code-only)
+        CVar skv = CVar.GetCVar("wolf_skin", players[consoleplayer]);
+        if (skv != null)
+            WolfPlayerSetupMenu.SyncEngineColor(skv.GetInt());
         fragIdx = 1;                             // first to 10
         timeIdx = 0;
         labels.Clear(); itemStates.Clear();
