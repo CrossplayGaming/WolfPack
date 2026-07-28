@@ -199,6 +199,8 @@ class WolfPlayer : DoomPlayer
     Actor killerActor;
 
     const DEATHROTATE = 2;  // angle units per Wolf tic (x2 per engine tic)
+    const RESPAWN_WAIT = 70;    // netgame: 2 s cooldown before respawn
+    const RESPAWN_AUTO = 175;   // netgame: 5 s auto-respawn
 
     override void Die(Actor source, Actor inflictor, int dmgflags,
                       Name MeansOfDeath)
@@ -218,6 +220,7 @@ class WolfPlayer : DoomPlayer
                 int dpn = PlayerNumber();
                 ngs.lives[dpn] = max(0, ngs.lives[dpn] - 1);
             }
+            deathTimer = 0;             // respawn cooldown starts now
             return;
         }
         killerActor = source;
@@ -241,12 +244,27 @@ class WolfPlayer : DoomPlayer
         if (netgame)
         {
             // The Wolf sequence (rotate + fizzle + floor restart) is
-            // single-player; deathPhase never leaves 0 here, so without
-            // this hand-off the override ate the ENGINE death handling
-            // too - no view drop, and no press-fire respawn (user repro:
-            // dead forever in deathmatch). Native DeathThink gives the
-            // view lowering to the floor and the respawn button.
+            // single-player. Netgame policy (user spec): 2 s cooldown
+            // where nothing respawns, then use OR fire respawns, and a
+            // 5 s auto-respawn if no button. Spawn placement is the
+            // farthest-from-opponents rule set at launch.
+            if (player.cheats & CF_PREDICTING)
+            {
+                // deathTimer is a custom field the prediction backup
+                // does not restore - advancing it here desyncs (same
+                // class as the Tick RNG divergence)
+                Super.DeathThink();
+                return;
+            }
+            deathTimer++;
+            if (deathTimer < RESPAWN_WAIT)
+                player.cmd.buttons &= ~BT_USE;  // mask engine respawn
             Super.DeathThink();
+            if (player.playerstate == PST_DEAD
+                && (deathTimer >= RESPAWN_AUTO
+                    || (deathTimer >= RESPAWN_WAIT
+                        && (player.cmd.buttons & BT_ATTACK))))
+                player.playerstate = PST_REBORN;
             return;
         }
         player.Uncrouch();

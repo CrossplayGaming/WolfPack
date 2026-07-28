@@ -167,6 +167,14 @@ class WolfDebugHandler : EventHandler
                                pm.pos.z, pm.floorz);
         }
 
+        // scripted netgame kill: deterministic (runs identically on all
+        // nodes), exercises death -> cooldown -> auto-respawn
+        CVar kv = CVar.FindCVar("wolf_dbg_kill");
+        if (kv != null && kv.GetInt() != 0 && t == 100
+            && playeringame[1] && players[1].mo != null)
+            players[1].mo.DamageMobj(players[0].mo, players[0].mo,
+                                     300, 'Normal');
+
         // net-sync beacon: same line must appear in every node's log at
         // the same tic - any field difference is a lockstep divergence
         CVar nbv = CVar.FindCVar("wolf_dbg_net");

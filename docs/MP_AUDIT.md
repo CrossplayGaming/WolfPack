@@ -105,3 +105,13 @@ diverged at the first 30-tic sample with both players motionless;
 after the CF_PREDICTING guard in WolfPlayer.Tick, 19/19 beacons
 identical and zero out-of-sync messages. All damage rolls ride that
 stream, hence the one-sided deaths.
+
+Respawn policy (2026-07-28, user spec): netgame DeathThink now owns
+it - 2 s cooldown (BT_USE masked so the engine's instant use-respawn
+waits), then use OR fire respawns, 5 s auto-respawn if no button.
+deathTimer is prediction-guarded (custom field, not in the prediction
+backup - same desync class as the Tick RNG). Spawn placement stays
+sv_spawnfarthest = away from the killer. Verified with the scripted
+wolf_dbg_kill probe: killed t=100, auto-respawn landed t~275 on BOTH
+nodes, zero beacon divergence through the whole cycle. ZScript note:
+const declarations are class-scope only, not inside function bodies.
