@@ -267,6 +267,37 @@ class WolfDebugHandler : EventHandler
             }
         }
 
+        // extra-boss probe: kill every Hans on the map through the sim's
+        // own death path; the floor must survive (no deathcam, no exit)
+        // and each must drop his gold key
+        CVar bkv = CVar.FindCVar("wolf_dbg_bosskill");
+        if (bkv != null && bkv.GetInt() != 0)
+        {
+            if (t == 60)
+            {
+                ThinkerIterator hit = ThinkerIterator.Create("WolfHans");
+                WolfEnemySim h;
+                int nh = 0;
+                while ((h = WolfEnemySim(hit.Next())) != null)
+                {
+                    h.KillActor_(players[0].mo);
+                    nh++;
+                }
+                Console.Printf("WOLFDBG bosskill: killed %d Hans", nh);
+            }
+            if (t == 260)
+            {
+                int keys = 0;
+                ThinkerIterator kit = ThinkerIterator.Create("Actor");
+                Actor a;
+                while ((a = Actor(kit.Next())) != null)
+                    if (a.GetClassName() == 'WolfStatic20')
+                        keys++;
+                Console.Printf("WOLFDBG bosskill aftermath: map=%s "
+                               "goldkeys=%d", Level.MapName, keys);
+            }
+        }
+
         // net-sync beacon: same line must appear in every node's log at
         // the same tic - any field difference is a lockstep divergence
         CVar nbv = CVar.FindCVar("wolf_dbg_net");
