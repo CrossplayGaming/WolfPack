@@ -167,6 +167,23 @@ class WolfDebugHandler : EventHandler
                                pm.pos.z, pm.floorz);
         }
 
+        // uniform-recolor probe: with wolf_skin set, the player's sprite
+        // must be the variant stand sprite, not the grey BJ1S
+        CVar skv = CVar.FindCVar("wolf_dbg_skin");
+        if (skv != null && skv.GetInt() != 0 && t == 30
+            && players[0].mo != null)
+        {
+            PlayerPawn pm = players[0].mo;
+            CVar sc = CVar.GetCVar("wolf_skin", players[0]);
+            int v = sc == null ? 0 : sc.GetInt();
+            int expect = Actor.GetSpriteIndex(
+                v == 1 ? 'BJ2S' : v == 2 ? 'BJ3S'
+                                : v == 3 ? 'BJ4S' : 'BJ1S');
+            Console.Printf("WOLFDBG skin: wolf_skin=%d sprite=%d expect=%d "
+                           "%s", v, pm.sprite, expect,
+                           pm.sprite == expect ? "OK" : "MISMATCH");
+        }
+
         // map-load heartbeat the harness greps for. Gated: without this it
         // prints over the screen during ordinary play.
         if (t == 3 || t == 120 || t == 240)

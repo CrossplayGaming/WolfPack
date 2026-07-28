@@ -58,6 +58,19 @@ class WolfPlayer : DoomPlayer
         BJ1D ABC 8;
         BJ1D D -1;
         Stop;
+    // sprite-name registration only - never entered. The BJ2-4 uniform
+    // recolors (Player Setup) swap in by sprite ID at Tick time; without
+    // a States mention their names never register and GetSpriteIndex
+    // returns -1 (playbook 4).
+    SkinReg:
+        BJ1A ABC -1;
+        BJ2S A -1; BJ2W ABCD -1; BJ2F A -1;
+        BJ2P AB -1; BJ2A ABC -1; BJ2D ABCD -1;
+        BJ3S A -1; BJ3W ABCD -1; BJ3F A -1;
+        BJ3P AB -1; BJ3A ABC -1; BJ3D ABCD -1;
+        BJ4S A -1; BJ4W ABCD -1; BJ4F A -1;
+        BJ4P AB -1; BJ4A ABC -1; BJ4D ABCD -1;
+        Stop;
     }
 
     // Wolf has ZERO inertia: no acceleration ramp, no glide — velocity is
@@ -107,6 +120,56 @@ class WolfPlayer : DoomPlayer
         {
             if (player.playerstate == PST_LIVE)
                 PlayRunning();
+        }
+    }
+
+    // ---- uniform color (Player Setup) -----------------------------------
+    // wolf_skin is userinfo: per-player, replicated, archived. The state
+    // machine always sets the BJ1 (grey) sprites; this remaps them to the
+    // chosen recolor right after Tick advanced the state, so the renderer
+    // never sees the grey frame. Lockstep-safe: every node reads the same
+    // replicated value and computes the same remap.
+    static const name SKINBASE[] = { 'BJ1S', 'BJ1W', 'BJ1F',
+                                     'BJ1P', 'BJ1A', 'BJ1D' };
+    static const name SKINVAR[] = { 'BJ2S', 'BJ2W', 'BJ2F',
+                                    'BJ2P', 'BJ2A', 'BJ2D',
+                                    'BJ3S', 'BJ3W', 'BJ3F',
+                                    'BJ3P', 'BJ3A', 'BJ3D',
+                                    'BJ4S', 'BJ4W', 'BJ4F',
+                                    'BJ4P', 'BJ4A', 'BJ4D' };
+    // identifiers are case-insensitive, so these can't share the
+    // constant arrays' names
+    int sprGrey[6];
+    int sprTint[18];
+    bool skinInit;
+
+    void ApplySkin()
+    {
+        if (player == null)
+            return;
+        CVar cv = CVar.GetCVar("wolf_skin", player);
+        int v = cv == null ? 0 : clamp(cv.GetInt(), 0, 3);
+        if (v == 0)
+            return;
+        if (!skinInit)
+        {
+            for (int k = 0; k < 6; k++)
+            {
+                sprGrey[k] = GetSpriteIndex(SKINBASE[k]);
+                for (int vi = 0; vi < 3; vi++)
+                    sprTint[vi * 6 + k] = GetSpriteIndex(SKINVAR[vi * 6 + k]);
+            }
+            skinInit = true;
+        }
+        for (int k = 0; k < 6; k++)
+        {
+            if (sprite == sprGrey[k])
+            {
+                int id = sprTint[(v - 1) * 6 + k];
+                if (id > 0)
+                    sprite = id;
+                return;
+            }
         }
     }
 
@@ -278,6 +341,9 @@ class WolfPlayer : DoomPlayer
     override void Tick()
     {
         Super.Tick();
+        // uniform recolor runs even through death: the corpse keeps the
+        // chosen color
+        ApplySkin();
         // Vertical aim is suppressed by MAPINFO's NoFreelook (defaultmap),
         // which is the engine's own clamp. Do NOT also force Pitch here:
         // writing pitch after the input has applied it fights the mouse

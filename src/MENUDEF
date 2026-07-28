@@ -75,3 +75,7 @@ LISTMENU "WolfMPMenu"
 {
     Class "WolfMPMenu"
 }
+LISTMENU "WolfPlayerSetupMenu"
+{
+    Class "WolfPlayerSetupMenu"
+}

@@ -105,6 +105,48 @@ class WolfModernMenu : WolfWidgetMenu
 
 // ---------------------------------------------------------------------------
 
+// Player Setup: pick the uniform recolor other players see in netgames.
+// wolf_skin is userinfo (per-player, replicated, archived); WolfPlayer
+// remaps its BJ1 sprites to the chosen variant at Tick time.
+class WolfPlayerSetupMenu : WolfWidgetMenu
+{
+    const PREVIEW_H = 100;
+
+    override void Init(Menu parent, ListMenuDescriptor desc)
+    {
+        Super.Init(parent, desc);
+        title = "Player Setup";
+        AddMulti("Uniform", "wolf_skin", "Grey,Blue,Red,Tan");
+        winH = 13 * labels.Size() + 6 + PREVIEW_H;
+        sel = 0;
+    }
+
+    override void Drawer()
+    {
+        Super.Drawer();
+        // live preview: the standing frame in the chosen color, facing
+        // the viewer, drawn inside the window below the row
+        CVar cv = GetCV(0);
+        int v = cv == null ? 0 : clamp(cv.GetInt(), 0, 3);
+        String lump = String.Format("BJ%dSA1", v + 1);
+        TextureID t = TexMan.CheckForTexture(lump, TexMan.Type_Sprite);
+        if (!t.IsValid())
+            return;
+        double sx = WolfDraw.ScaleX(), sy = WolfDraw.ScaleY();
+        // 64x64 art shown at 1.4x; sprite grab offsets zeroed so (x,y)
+        // is the top-left corner like every other menu draw
+        double side = 64 * 1.4;
+        double px = winX + (winW - side) / 2;
+        double py = winY + 13 * labels.Size() + 8;
+        screen.DrawTexture(t, true, WolfDraw.OrgX() + px * sx, py * sy,
+                           DTA_DestWidthF, side * sx,
+                           DTA_DestHeightF, side * sy,
+                           DTA_LeftOffsetF, 0.0, DTA_TopOffsetF, 0.0);
+    }
+}
+
+// ---------------------------------------------------------------------------
+
 // Multiplayer scaffold: the page exists and holds its place on the main
 // menu; hosting/joining lands with the co-op/PvP phases.
 class WolfMPMenu : WolfMenu
@@ -119,7 +161,7 @@ class WolfMPMenu : WolfMenu
         labels.Push("Host Deathmatch: 2");       itemStates.Push(IT_NORMAL);
         labels.Push("Host Deathmatch: 4");       itemStates.Push(IT_NORMAL);
         labels.Push("Join (code on clipboard)"); itemStates.Push(IT_NORMAL);
-        labels.Push("Player Setup");             itemStates.Push(IT_DISABLED);
+        labels.Push("Player Setup");             itemStates.Push(IT_NORMAL);
         labels.Push("Back");                     itemStates.Push(IT_RETURN);
         sel = 0;
     }
@@ -164,6 +206,7 @@ class WolfMPMenu : WolfMenu
         case 3: Request("hostdm 2");  break;
         case 4: Request("hostdm 4");  break;
         case 5: Request("join");      break;
+        case 6: Menu.SetMenu("WolfPlayerSetupMenu"); break;
         case 7: Close();              break;
         }
     }

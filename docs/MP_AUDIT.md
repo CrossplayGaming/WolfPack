@@ -31,3 +31,11 @@ Phase 2 (co-op minimum - each site needs a DESIGN decision, not a tag):
 
 Maps: player 2-8 starts + deathmatch starts still absent from
 convert_udmf output - required before any 2-player test.
+
+Player identity (2026-07-27): wolf_skin userinfo cvar (0-3 =
+grey/blue/red/tan) drives a Tick-time sprite remap in WolfPlayer from
+the BJ1 set to the BJ2-4 ramp recolors. Userinfo replicates per player
+and archives locally, so every node computes the same remap in
+lockstep and the choice survives restarts - including the quit-and-
+relaunch hop into a netgame session. Picker: Multiplayer > Player
+Setup, with a live stand-sprite preview.

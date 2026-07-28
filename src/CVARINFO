@@ -16,6 +16,12 @@ nosave int wolf_dbg_death = 0;
 nosave int wolf_dbg_arm = 0;
 nosave int wolf_dbg_boss = 0;
 nosave int wolf_dbg_victory = 0;
+nosave int wolf_dbg_jump = 0;       // CheckJump precondition probe
+nosave int wolf_dbg_skin = 0;       // uniform-recolor remap probe
 user string wolf_mp_request = "";    // menu -> launcher handoff:
 // USER scope on purpose - server cvars apply on game tics, and menus
 // PAUSE the game, so a set made in the menu died before the quit
+
+// Player Setup: uniform color 0-3 (grey/blue/red/tan). Userinfo so
+// each player's choice replicates in netgames and archives locally.
+user int wolf_skin = 0;
