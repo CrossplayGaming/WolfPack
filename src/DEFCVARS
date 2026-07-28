@@ -8,3 +8,6 @@ freelook 0
 m_forward 0
 screenblocks 10
 crosshair 0
+// engine obituaries render in the hardwired console font; the Wolf
+// kill feed (lobby.zs) replaces them in netgames
+show_obituaries 0

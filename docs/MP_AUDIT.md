@@ -115,3 +115,15 @@ sv_spawnfarthest = away from the killer. Verified with the scripted
 wolf_dbg_kill probe: killed t=100, auto-respawn landed t~275 on BOTH
 nodes, zero beacon divergence through the whole cycle. ZScript note:
 const declarations are class-scope only, not inside function bodies.
+
+UI parity pass (2026-07-28, user ask): fonts/smallfont + fonts/bigfont
+in the IPK3 now carry the Wolf glyphs, restyling every engine-drawn
+string that uses SmallFont/BigFont (DM scoreboard included). The
+notify area (obituaries) is HARDWIRED to the console font in this fork
+- probed: SmallFont reads 8x10 wolfprop in-game, yet native-scale
+screenshots show 8x8 monospace - so engine obituaries are suppressed
+(show_obituaries 0, DEFCVARS + every mp launch) and a Wolf-font kill
+feed in WolfLobby renders netgame deaths instead ("X was gunned down
+by Y", top-left, 4 s, max 4 lines). Feed is play state - beacon showed
+identical queues on both nodes. Still console-font: chat, engine join/
+leave notices - future pass if they grate.

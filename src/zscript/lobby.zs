@@ -158,11 +158,56 @@ class WolfLobby : EventHandler
         }
     }
 
+    // ---- Wolf-styled kill feed --------------------------------------
+    // The engine draws notify lines (obituaries included) in the console
+    // font, hardwired - SmallFont replacement can't reach it. Engine
+    // obituaries are suppressed (show_obituaries 0 in DEFCVARS + launch
+    // args) and netgame deaths render here in the Wolf font instead.
+    // Queue is play state (deterministic on every node); drawing is ui.
+    const FEED_TICS = 140;              // 4 s on screen
+    Array<String> feed;
+    Array<int> feedBorn;
+
+    override void WorldThingDied(WorldEvent e)
+    {
+        if (!netgame || e.Thing == null || e.Thing.player == null)
+            return;
+        String victim = e.Thing.player.GetUserName();
+        String msg;
+        Actor killer = e.Thing.player.attacker;
+        if (killer != null && killer.player != null
+            && killer != e.Thing)
+            msg = String.Format("%s was gunned down by %s", victim,
+                                killer.player.GetUserName());
+        else
+            msg = String.Format("%s died", victim);
+        feed.Push(msg);
+        feedBorn.Push(Level.maptime);
+        if (feed.Size() > 4)
+        {
+            feed.Delete(0);
+            feedBorn.Delete(0);
+        }
+    }
+
     // persistent status readout, drawn Wolf-style at the top of the view.
     // Small font: the big one overflows virtual 320 and clips both edges
     // (user screenshot).
     override void RenderOverlay(RenderEvent e)
     {
+        Font kf = Font.GetFont("wolfprop");
+        if (kf != null)
+        {
+            int y = 2;
+            for (int i = 0; i < feed.Size(); i++)
+            {
+                if (Level.maptime - feedBorn[i] > FEED_TICS)
+                    continue;
+                WolfDraw.Text(kf, 2, y, feed[i],
+                              WolfPal.Get(WolfMenu.C_READH));
+                y += 11;
+            }
+        }
         if (!Active() || launched)
             return;
         Font sm = Font.GetFont("wolfprop");

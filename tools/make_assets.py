@@ -281,8 +281,14 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
                 shutil.copy(src, ASSETS / f"ENDART{ep}.txt")
         if (TXT / "helpart.txt").exists():
             shutil.copy(TXT / "helpart.txt", ASSETS / "HELPART.txt")
+        # smallfont/bigfont are the engine's own UI fonts: packing the
+        # Wolf glyphs under those reserved names restyles every engine-
+        # drawn string (obituaries, DM scoreboard, notify lines) for
+        # stylistic parity with the rest of the game
         for srcname, fontname in (("font", "wolfprop"),
-                                  ("fontbig", "wolfbig")):
+                                  ("fontbig", "wolfbig"),
+                                  ("font", "smallfont"),
+                                  ("fontbig", "bigfont")):
             fsrc = TXT / srcname
             if fsrc.exists():
                 fdst = ASSETS / "fonts" / fontname

@@ -21,6 +21,7 @@ nosave int wolf_dbg_skin = 0;       // uniform-recolor remap probe
 nosave int wolf_dbg_lobby = 0;      // lobby-flow walk-through probe
 nosave int wolf_dbg_net = 0;        // lockstep divergence beacon
 nosave int wolf_dbg_kill = 0;       // scripted netgame kill probe
+nosave int wolf_dbg_font = 0;       // font identity probe
 user string wolf_mp_request = "";    // menu -> launcher handoff:
 // USER scope on purpose - server cvars apply on game tics, and menus
 // PAUSE the game, so a set made in the menu died before the quit

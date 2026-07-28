@@ -174,6 +174,40 @@ class WolfDebugHandler : EventHandler
             && playeringame[1] && players[1].mo != null)
             players[1].mo.DamageMobj(players[0].mo, players[0].mo,
                                      300, 'Normal');
+        if (kv != null && kv.GetInt() != 0 && t == 150)
+        {
+            WolfLobby lb = WolfLobby(EventHandler.Find("WolfLobby"));
+            if (lb != null)
+                Console.Printf("WOLFDBG feed: n=%d last=[%s]",
+                               lb.feed.Size(),
+                               lb.feed.Size() ? lb.feed[lb.feed.Size()-1]
+                                              : "");
+        }
+
+        // font-identity probe: which font is SmallFont now?
+        CVar fpv = CVar.FindCVar("wolf_dbg_font");
+        if (fpv != null && fpv.GetInt() != 0 && t == 12)
+        {
+            Font sf = Font.GetFont("SmallFont");
+            Font wp = Font.GetFont("wolfprop");
+            Font cf = Font.GetFont("ConsoleFont");
+            Console.Printf("WOLFDBG fonts: small W=%d h=%d | wolfprop W=%d "
+                           "h=%d | console W=%d h=%d",
+                sf == null ? -1 : sf.StringWidth("W"),
+                sf == null ? -1 : sf.GetHeight(),
+                wp == null ? -1 : wp.StringWidth("W"),
+                wp == null ? -1 : wp.GetHeight(),
+                cf == null ? -1 : cf.StringWidth("W"),
+                cf == null ? -1 : cf.GetHeight());
+            Font nsf = Font.GetFont("NewSmallFont");
+            Font ncf = Font.GetFont("NewConsoleFont");
+            Console.Printf("WOLFDBG fonts2: newsmall W=%d h=%d | "
+                           "newconsole W=%d h=%d",
+                nsf == null ? -1 : nsf.StringWidth("W"),
+                nsf == null ? -1 : nsf.GetHeight(),
+                ncf == null ? -1 : ncf.StringWidth("W"),
+                ncf == null ? -1 : ncf.GetHeight());
+        }
 
         // net-sync beacon: same line must appear in every node's log at
         // the same tic - any field difference is a lockstep divergence
