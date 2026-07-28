@@ -269,7 +269,38 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
     # everything else, nothing committed. Shipped in the IPK3 (lump
     # shadowing) and stamped into the engine pk3 by patch_engine.py.
     fontbig = ROOT / "build" / "text" / "fontbig"
-    if fontbig.exists():
+    userlogo = ROOT / "import" / "bootlogo.png"
+    if userlogo.exists() and fontbig.exists():
+        # user-made WolfPack lettering (transparent background): crop to
+        # the art, fit onto the charcoal canvas, tagline underneath
+        logo = Image.new("RGB", (256, 256), (20, 20, 20))
+        art = Image.open(userlogo).convert("RGBA")
+        bb = art.split()[3].getbbox()
+        art = art.crop(bb)
+        w = 244
+        h = min(150, round(art.height * w / art.width))
+        art = art.resize((w, h), Image.LANCZOS)
+        logo.paste(art, ((256 - w) // 2, (190 - h) // 2), art)
+        grey = (142, 142, 142)
+        def blit_tag(word, y, scale, color):
+            imgs = []
+            for ch in word:
+                g = fontbig / f"{ord(ch):04X}.png"
+                if g.exists():
+                    imgs.append(Image.open(g).convert("RGBA"))
+            tw = sum(i.width for i in imgs) + (len(imgs) - 1)
+            x = (256 - tw * scale) // 2
+            for i in imgs:
+                big = i.resize((i.width * scale, i.height * scale),
+                               Image.NEAREST)
+                tint = Image.new("RGBA", big.size, color + (255,))
+                tint.putalpha(big.split()[3])
+                logo.paste(tint, (x, y), tint)
+                x += (i.width + 1) * scale
+        blit_tag("WOLFENSTEIN 3D TOGETHER", 214, 1, grey)
+        logo.save(ASSETS / "graphics" / "BOOTLOGO.png")
+        print("  boot logo composed from import/bootlogo.png")
+    elif fontbig.exists():
         logo = Image.new("RGB", (256, 256), (20, 20, 20))
         gold = (255, 247, 0)
         grey = (142, 142, 142)
