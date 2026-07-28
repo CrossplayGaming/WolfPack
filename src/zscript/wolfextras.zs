@@ -225,7 +225,7 @@ class WolfMPMenu : WolfMenu
         labels.Push("Host Deathmatch: 4");       itemStates.Push(IT_NORMAL);
         labels.Push(FragLabel());                itemStates.Push(IT_NORMAL);
         labels.Push(TimeLabel());                itemStates.Push(IT_NORMAL);
-        labels.Push("Join (code on clipboard)"); itemStates.Push(IT_NORMAL);
+        labels.Push("Join a Game");             itemStates.Push(IT_NORMAL);
         labels.Push("Player Setup");             itemStates.Push(IT_NORMAL);
         labels.Push("Back");                     itemStates.Push(IT_RETURN);
         sel = 0;
@@ -246,7 +246,10 @@ class WolfMPMenu : WolfMenu
                       13 * labels.Size() + 6);
         DrawItems(MENU_X - 16, MP_TOP, 24, 13);
         String note = "The game restarts to start or join a session";
-        WolfDraw.Text(big, 160 - big.StringWidth(note) / 2, 172, note,
+        String note2 = "Join reads the invite code from your clipboard";
+        WolfDraw.Text(big, 160 - big.StringWidth(note) / 2, 168, note,
+                      WolfPal.Get(C_READ));
+        WolfDraw.Text(big, 160 - big.StringWidth(note2) / 2, 180, note2,
                       WolfPal.Get(C_READ));
         DrawGun(MENU_X - 16, MP_TOP, 13);
     }
