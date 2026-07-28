@@ -24,7 +24,8 @@ REM because an archived config value overrides the DEFCVARS default.
 REM The wolf_dbg_ switches are forced off the same way: even declared
 REM nosave, a stale archived value still LOADS if the ini has the line,
 REM so one boss.bat session could leak the full arsenal into normal play.
-"engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" +set m_forward 0 +set wipetype 0 +set wolf_dbg_arm 0 +set wolf_dbg_doortest 0 +set wolf_dbg_alert 0 +set wolf_dbg_forcefire 0 +set wolf_dbg_victory 0 +set wolf_dbg_boss 0 %*
+for /f "usebackq delims=" %%m in (`powershell -ExecutionPolicy Bypass -File tools\mod_args.ps1`) do set "MODARGS=%%m"
+"engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" %MODARGS% +set m_forward 0 +set wipetype 0 +set wolf_dbg_arm 0 +set wolf_dbg_doortest 0 +set wolf_dbg_alert 0 +set wolf_dbg_forcefire 0 +set wolf_dbg_victory 0 +set wolf_dbg_boss 0 %*
 
 powershell -ExecutionPolicy Bypass -File tools\mp_dispatch.ps1
 

@@ -64,14 +64,14 @@ class WolfModernMenu : WolfWidgetMenu
     {
         Super.Init(parent, desc);
         title = "Modernization";
-        // sv tri-states, SETTLED by the IsJumpingAllowed() probe:
-        // 0=allowed (the map No* blocks are inert), 1=DENIED, 2=ALLOWED.
-        // Earlier contrary observations were the companion-cvar deferral
-        // bug confounding the tests. Classic force-denies: OFF = 1.
-        AddToggleV("Mouse Vertical Aim", "sv_freelook", 2, 1);
-        AddToggleV("Jumping", "sv_jump", 2, 1);
+        // wolf_mod_* are the archived source of truth (the sv
+        // tri-states never archive, so a menu bound to them could not
+        // track across launches - user repro). OnToggled pushes each
+        // change into the sv gate; level load re-applies (lobby.zs).
+        AddToggleV("Mouse Vertical Aim", "wolf_mod_freelook", 1, 0);
+        AddToggleV("Jumping", "wolf_mod_jump", 1, 0);
         AddBindRow("  Jump Key", "+jump");
-        AddToggleV("Crouching", "sv_crouch", 2, 1);
+        AddToggleV("Crouching", "wolf_mod_crouch", 1, 0);
         AddBindRow("  Crouch Key", "+crouch");
         winH = 13 * labels.Size() + 6;
         sel = 0;
@@ -80,25 +80,34 @@ class WolfModernMenu : WolfWidgetMenu
     override void Drawer()
     {
         // bind rows grey out while their feature is off
-        CVar j = CVar.GetCVar("sv_jump", players[consoleplayer]);
-        CVar c = CVar.GetCVar("sv_crouch", players[consoleplayer]);
-        itemStates[2] = (j != null && j.GetInt() == 2) ? IT_NORMAL
+        CVar j = CVar.GetCVar("wolf_mod_jump", players[consoleplayer]);
+        CVar c = CVar.GetCVar("wolf_mod_crouch", players[consoleplayer]);
+        itemStates[2] = (j != null && j.GetInt() != 0) ? IT_NORMAL
                                                        : IT_DISABLED;
-        itemStates[4] = (c != null && c.GetInt() == 2) ? IT_NORMAL
+        itemStates[4] = (c != null && c.GetInt() != 0) ? IT_NORMAL
                                                        : IT_DISABLED;
         Super.Drawer();
     }
 
     override void OnToggled(int i, int newValue)
     {
-        // freelook also needs the INPUT cvar. Computed from the value we
-        // just SET - server cvars apply deferred, so re-reading here
-        // returns the OLD value (that inverted this toggle once).
-        if (wCVar[i] == "sv_freelook")
+        // push the change into the engine gate immediately (menu scope
+        // may set server cvars). Computed from the value we just SET -
+        // cvar sets apply deferred, re-reading returns the OLD value.
+        String sv = wCVar[i] == "wolf_mod_jump" ? "sv_jump"
+                  : wCVar[i] == "wolf_mod_crouch" ? "sv_crouch"
+                  : wCVar[i] == "wolf_mod_freelook" ? "sv_freelook" : "";
+        if (sv.Length() > 0)
+        {
+            CVar g = CVar.FindCVar(sv);
+            if (g != null)
+                g.SetInt(newValue != 0 ? 2 : 1);
+        }
+        if (wCVar[i] == "wolf_mod_freelook")
         {
             CVar fl = CVar.GetCVar("freelook", players[consoleplayer]);
             if (fl != null)
-                fl.SetInt(newValue == 2 ? 1 : 0);
+                fl.SetInt(newValue != 0 ? 1 : 0);
         }
     }
 }
@@ -222,19 +231,24 @@ class WolfMPMenu : WolfMenu
         sel = 0;
     }
 
+    // ten rows outgrow the standard MENU_Y start: from 55 the box ran
+    // to y 188, colliding with the note at 172 (user repro). Start
+    // higher; box bottom lands at 163.
+    const MP_TOP = 30;
+
     override void Drawer()
     {
         DrawBackground();
         String t = "Multiplayer";
         WolfDraw.Text(big, 160 - big.StringWidth(t) / 2, 4, t,
                       WolfPal.Get(C_READH));
-        DrawWindowBox(MENU_X - 24, MENU_Y - 3, MENU_W + 60,
+        DrawWindowBox(MENU_X - 24, MP_TOP - 3, MENU_W + 60,
                       13 * labels.Size() + 6);
-        DrawItems(MENU_X - 16, MENU_Y, 24, 13);
+        DrawItems(MENU_X - 16, MP_TOP, 24, 13);
         String note = "The game restarts to start or join a session";
         WolfDraw.Text(big, 160 - big.StringWidth(note) / 2, 172, note,
                       WolfPal.Get(C_READ));
-        DrawGun(MENU_X - 16, MENU_Y, 13);
+        DrawGun(MENU_X - 16, MP_TOP, 13);
     }
 
     // menu -> wrapper: the request rides an archived cvar (ZScript has

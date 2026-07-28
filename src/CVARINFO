@@ -29,3 +29,13 @@ user string wolf_mp_request = "";    // menu -> launcher handoff:
 // Player Setup: uniform color 0-3 (grey/blue/red/tan). Userinfo so
 // each player's choice replicates in netgames and archives locally.
 user int wolf_skin = 0;
+
+// Modernization source of truth. The engine's sv_jump/sv_crouch/
+// sv_freelook tri-states never archive (absent from LocalServerInfo),
+// so a fresh launch reads 0 = allowed while the menu showed OFF - the
+// menu could not track. These archive like any user cvar; play code
+// pushes them into the sv gates at level load (host's values rule in
+// netgames), and the menu reads/writes only these.
+user int wolf_mod_jump = 0;
+user int wolf_mod_crouch = 0;
+user int wolf_mod_freelook = 0;

@@ -1,0 +1,19 @@
+# Emit the +set sv_* args that enforce the archived Modernization
+# choices (wolf_mod_* user cvars, [WolfDoom.Player] section). The sv
+# tri-states never archive and cvar writes are menu/launch-only, so
+# every launcher translates the truth cvars into engine gates here.
+# 1 = force-deny (classic), 2 = force-allow (modern).
+param([string]$Ini = "")
+if (-not $Ini) { $Ini = Join-Path (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)) "dist\playtest.ini" }
+$vals = @{ jump = 0; crouch = 0; freelook = 0 }
+if (Test-Path $Ini) {
+    foreach ($k in @($vals.Keys)) {
+        $m = Select-String -Path $Ini -Pattern ("^wolf_mod_" + $k + "=(.+)$") | Select-Object -First 1
+        if ($m -and $m.Matches[0].Groups[1].Value.Trim() -notin @("0", "false")) { $vals[$k] = 1 }
+    }
+}
+$out = @()
+foreach ($pair in @(@("jump", "sv_jump"), @("crouch", "sv_crouch"), @("freelook", "sv_freelook"))) {
+    $out += "+set"; $out += $pair[1]; $out += $(if ($vals[$pair[0]]) { "2" } else { "1" })
+}
+$out -join " "
