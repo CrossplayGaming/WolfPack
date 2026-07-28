@@ -144,3 +144,15 @@ Beta-prep polish (2026-07-28, user asks):
   console hidden; the build-failure path shows a message box instead
   of pausing an invisible window. multiplayer.bat stays as the visible
   terminal path for power users.
+
+Dormant-sight fix (2026-07-28, user repro: E2M1 mutants blind to the
+joiner until damaged): the sim's CheckSight_/CheckLine_ test only
+TargetPM(), and targetPlayer defaults to 0 - PickNearestTarget only
+runs once awake. Dormant enemies therefore sighted the HOST alone;
+damage woke them because that path is sight-free. SightAnyPlayer now
+runs the original's sight rules per candidate live player (area gate,
+proximity auto-see, facing, line trace - unchanged per candidate) and
+wakes on the nearest passing one, which becomes the target. Applies
+to every enemy type - the path is shared. SP identical (one
+candidate). 2-node verify on MAP11: mutant woke on the warped joiner
+with the host at spawn, both nodes agree, beacons clean.

@@ -408,17 +408,49 @@ class WolfEnemySim : Actor abstract
                 return false;
             if (ambushFlag)
             {
-                if (!CheckSight_())
+                if (!SightAnyPlayer())
                     return false;
                 ambushFlag = false;
             }
-            else if (!wl.madenoise && !CheckSight_())
+            else if (!wl.madenoise && !SightAnyPlayer())
                 return false;
             temp2 = ReactionTics(wl);
             return false;
         }
         FirstSighting();
         return true;
+    }
+
+    // Wolf is single-player: its CheckSight tests THE player, and our
+    // targetPlayer defaults to 0 - so dormant enemies were blind to
+    // everyone but the host (user repro: E2 mutants ignored the joiner
+    // until damaged; damage wakes without sight). The original's rules
+    // run unchanged per candidate player; the nearest passing one
+    // becomes the target. Deterministic: replicated state, fixed order.
+    bool SightAnyPlayer()
+    {
+        int saved = targetPlayer;
+        int best = -1;
+        int bestD = int.max;
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            if (!playeringame[i] || players[i].mo == null
+                || players[i].health <= 0)
+                continue;
+            targetPlayer = i;
+            if (!CheckSight_())
+                continue;
+            int px = int(players[i].mo.pos.x * 1024);
+            int py = int((4096.0 - players[i].mo.pos.y) * 1024);
+            int d = max(abs(px - wolfX), abs(py - wolfY));
+            if (d < bestD)
+            {
+                bestD = d;
+                best = i;
+            }
+        }
+        targetPlayer = best >= 0 ? best : saved;
+        return best >= 0;
     }
 
     // MoveObj's too-close-to-player branch (WL_STATE.C:713): ghosts and

@@ -298,6 +298,50 @@ class WolfDebugHandler : EventHandler
             }
         }
 
+        // co-op sight probe: warp PLAYER 1 next to a dormant mutant with
+        // the host far away; the mutant must wake and target player 1
+        // without any damage (user repro: blind-to-joiner enemies)
+        CVar csv = CVar.FindCVar("wolf_dbg_coopsight");
+        if (csv != null && csv.GetInt() != 0 && playeringame[1]
+            && players[1].mo != null)
+        {
+            if (t == 60)
+            {
+                ThinkerIterator mit = ThinkerIterator.Create("WolfEnemySim");
+                WolfEnemySim m;
+                while ((m = WolfEnemySim(mit.Next())) != null)
+                {
+                    if (m is "WolfMutant" && !m.attackMode)
+                    {
+                        int fx, fy;
+                        [fx, fy] = m.DirDelta8(m.dir < 0 ? 0 : m.dir);
+                        double wx = (m.tileX + fx) * 64 + 32;
+                        double wy = 4096.0 - ((m.tileY + fy) * 64 + 32);
+                        players[1].mo.SetOrigin((wx, wy, 0), false);
+                        Console.Printf("WOLFDBG coopsight: joiner beside "
+                                       "mutant at %d,%d", m.tileX, m.tileY);
+                        break;
+                    }
+                }
+            }
+            if (t == 130)
+            {
+                ThinkerIterator mit = ThinkerIterator.Create("WolfEnemySim");
+                WolfEnemySim m;
+                while ((m = WolfEnemySim(mit.Next())) != null)
+                {
+                    if (m is "WolfMutant"
+                        && m.Distance2D(players[1].mo) < 200)
+                    {
+                        Console.Printf("WOLFDBG coopsight result: awake=%d "
+                                       "target=%d", m.attackMode,
+                                       m.targetPlayer);
+                        break;
+                    }
+                }
+            }
+        }
+
         // net-sync beacon: same line must appear in every node's log at
         // the same tic - any field difference is a lockstep divergence
         CVar nbv = CVar.FindCVar("wolf_dbg_net");
