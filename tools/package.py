@@ -26,6 +26,8 @@ README = """WOLFPACK - Wolfenstein 3D, together.
 A faithful multiplayer remake running on the UZDoom engine.
 
 PLAY:         double-click WolfPack.vbs   (or play.bat for a console)
+              If Spear of Destiny was built too, WolfPack.vbs asks
+              which campaign you want.
 MULTIPLAYER:  in-game menu > Multiplayer  (host gets an invite code,
               joiners copy it to the clipboard and pick Join)
               or run multiplayer.bat for the same plus a local
@@ -50,6 +52,9 @@ def main():
                     ignore=shutil.ignore_patterns("*.orig"))
     (PKG / "dist").mkdir()
     shutil.copy(ipk3, PKG / "dist" / "wolf.ipk3")
+    spear = ROOT / "dist" / "spear.ipk3"
+    if spear.exists():
+        shutil.copy(spear, PKG / "dist" / "spear.ipk3")
     (PKG / "tools").mkdir()
     for t in ("mp_dispatch.ps1", "mp_launch.ps1", "mod_args.ps1"):
         shutil.copy(ROOT / "tools" / t, PKG / "tools" / t)

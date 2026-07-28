@@ -180,3 +180,13 @@ Real cross-state session feedback (2026-07-28):
   medkits in the aisles, clips in the corners). 2-node verified,
   identical counts, zero divergence.
 - Every yes/no message box now carries "Y = yes  N = no".
+
+Spear of Destiny (2026-07-28): built as a SEPARATE dist/spear.ipk3 so
+each game owns its lump namespace. Multiplayer routes by game - the MP
+menu appends "spear" to the relaunch marker when
+Wads.CheckNumForFullName("mapinfo_sod.txt") resolves (that lump ships
+only in spear.ipk3), the dispatcher turns that into -Iwad spear.ipk3,
+and Spear co-op starts on MAP01 because the generated LOBBY comes from
+a WL6 level. A Spear-native lobby (its own zone geometry) and Spear DM
+arena curation are the open follow-ups. Build IDs differ per game, so
+the existing lobby check also catches a Wolf-vs-Spear mismatch.

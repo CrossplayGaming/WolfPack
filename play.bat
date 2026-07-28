@@ -24,11 +24,19 @@ if not exist "build\assets\PLAYPAL" (
     python tools\import_bj_sheet.py || goto :fail
     echo Rendering the AdLib soundtrack - one-time, takes a few minutes...
     python tools\render_adlib.py --music || goto :fail
+    if exist build\audio\sod\music python tools\render_adlib.py sod --music
     python tools\make_assets.py || goto :fail
 )
 
 python build.py || goto :fail
 :run
+REM game select: "play.bat spear" runs Spear of Destiny when it
+REM was built (the compiler only produces it if you own SOD data)
+set "WPIWAD=wolf.ipk3"
+if /I "%~1"=="spear" (
+    set "WPIWAD=spear.ipk3"
+    shift
+)
 REM No screen wipe (Wolf has none between levels), and mouse is
 REM horizontal only: no vertical aim (freelook 0), no mouse-Y move
 REM (m_forward 0) -> horizontal turn only, per D-004. Forced at launch
@@ -37,7 +45,7 @@ REM The wolf_dbg_ switches are forced off the same way: even declared
 REM nosave, a stale archived value still LOADS if the ini has the line,
 REM so one boss.bat session could leak the full arsenal into normal play.
 for /f "usebackq delims=" %%m in (`powershell -ExecutionPolicy Bypass -File tools\mod_args.ps1`) do set "MODARGS=%%m"
-"engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" %MODARGS% +set m_forward 0 +set wipetype 0 +set wolf_dbg_arm 0 +set wolf_dbg_doortest 0 +set wolf_dbg_alert 0 +set wolf_dbg_forcefire 0 +set wolf_dbg_victory 0 +set wolf_dbg_boss 0 %*
+"engine\uzdoom.exe" -iwad "dist\%WPIWAD%" -config "dist\playtest.ini" %MODARGS% +set m_forward 0 +set wipetype 0 +set wolf_dbg_arm 0 +set wolf_dbg_doortest 0 +set wolf_dbg_alert 0 +set wolf_dbg_forcefire 0 +set wolf_dbg_victory 0 +set wolf_dbg_boss 0 %*
 
 powershell -ExecutionPolicy Bypass -File tools\mp_dispatch.ps1
 

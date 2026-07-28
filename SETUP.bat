@@ -64,6 +64,8 @@ python tools\convert_udmf.py || goto :fail
 python tools\import_bj_sheet.py || goto :fail
 echo   Rendering the AdLib soundtrack ^(one-time, takes a few minutes^)...
 python tools\render_adlib.py --music || goto :fail
+if exist gamedata\*.SOD python tools\render_adlib.py sod --music
+if exist build\audio\sod\music python tools\render_adlib.py sod --music
 python build.py || goto :fail
 
 echo.

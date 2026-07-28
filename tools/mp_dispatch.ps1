@@ -10,9 +10,12 @@ $req = $line.Matches[0].Groups[1].Value.Trim()
 (Get-Content $ini) | Where-Object { $_ -notmatch '^F15=' } | Set-Content $ini
 if (-not $req) { exit 0 }
 $parts = $req -split ' '
+# the in-game menu appends "spear" when the session is Spear of
+# Destiny, so the relaunch comes back up in the same game
+$iwad = if ($req -match '(?i)spear') { "spear.ipk3" } else { "wolf.ipk3" }
 $mpl = Join-Path $root "tools\mp_launch.ps1"
 switch ($parts[0]) {
-    "host"   { & $mpl -Mode host -Players ([int]$parts[1]) -Quiet }
+    "host"   { & $mpl -Mode host -Players ([int]$parts[1]) -Iwad $iwad -Quiet }
     "hostdm" {
         $fl = 10; $tl = 0
         if ($parts.Count -gt 2) {
@@ -21,7 +24,7 @@ switch ($parts[0]) {
                 if ($p -match '^t([0-9]+)$') { $tl = [int]$Matches[1] }
             }
         }
-        & $mpl -Mode host -Players ([int]$parts[1]) -Deathmatch -FragLimit $fl -TimeLimit $tl -Quiet
+        & $mpl -Mode host -Players ([int]$parts[1]) -Deathmatch -FragLimit $fl -TimeLimit $tl -Iwad $iwad -Quiet
     }
-    "join"   { & $mpl -Mode join -Quiet }
+    "join"   { & $mpl -Mode join -Iwad $iwad -Quiet }
 }

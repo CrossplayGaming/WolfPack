@@ -14,12 +14,16 @@ build of it may be sold or paywalled.
 ## Features
 
 - One-for-one fidelity: movement, enemy behavior, damage math, secrets,
-  bosses, episode endings — verified against id's GPL source release,
+  bosses, episode endings - verified against id's GPL source release,
   with the receipts in [docs/FIDELITY_CHARTER.md](docs/FIDELITY_CHARTER.md)
+- **Both games**: the six Wolfenstein 3D episodes and, if you own the
+  data, the full 21-floor Spear of Destiny campaign with its own
+  bosses (Trans Grosse, Barnacle Wilhelm, the Ubermutant, the Death
+  Knight and the Angel of Death) built into its own spear.ipk3
 - **Co-op** (2-4 players): pick episode and skill together in a lobby
   built from Hans's boss level, then play the campaign
 - **Deathmatch**: curated 1v1 arena with frag/time limits, respawn
-  cooldowns, and away-from-killer spawns
+  cooldowns, weapon drops and away-from-killer spawns
 - Friend-friendly hosting: invite codes on the clipboard, automatic
   router setup where possible, no terminals, no server rental
 - Player Setup: four uniform colors so you can tell each other apart

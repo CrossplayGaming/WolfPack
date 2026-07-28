@@ -3,7 +3,7 @@
 # Join: takes a code (or reads the clipboard), launches -join.
 param([string]$Mode, [int]$Players = 2, [string]$Code = "",
       [switch]$Deathmatch, [int]$FragLimit = -1, [int]$TimeLimit = -1,
-      [switch]$Quiet)
+      [string]$Iwad = "wolf.ipk3", [switch]$Quiet)
 
 function New-WolfButton([string]$text, [int]$x, [int]$y, [int]$w) {
     $b = New-Object System.Windows.Forms.Button
@@ -146,9 +146,9 @@ if ($Mode -eq "host") {
             if ($tl -notmatch "^[0-9]+$") { $tl = 0 }
         }
     }
-    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "sv_itemrespawn", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { @("+map", "LOBBY") }
+    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "sv_itemrespawn", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { $(if ($Iwad -eq "spear.ipk3") { @("+map", "MAP01") } else { @("+map", "LOBBY") }) }
     $svargs = ((& "$root\tools\mod_args.ps1") -split " ")
-    & "$root\engine\uzdoom.exe" -host $Players @modeargs @svargs -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0 +set show_obituaries 0 +set i_pauseinbackground 0
+    & "$root\engine\uzdoom.exe" -host $Players @modeargs @svargs -iwad "$root\dist\$Iwad" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0 +set show_obituaries 0 +set i_pauseinbackground 0
 }
 elseif ($Mode -eq "local") {
     # Two windows on THIS pc, side by side, for solo multiplayer testing.
@@ -171,14 +171,14 @@ elseif ($Mode -eq "local") {
         if ($tl -notmatch "^[0-9]+$") { $tl = 0 }
         Write-Host "  Rules: $(if ([int]$fl) { "first to $fl frags" } else { "no frag limit" })$(if ([int]$tl) { ", $tl minute cap" })"
     }
-    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "sv_itemrespawn", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { @("+map", "LOBBY") }
+    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "sv_itemrespawn", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { $(if ($Iwad -eq "spear.ipk3") { @("+map", "MAP01") } else { @("+map", "LOBBY") }) }
     Write-Host ""
     Write-Host "  Launching host window (left)..."
     $svargs = ((& "$root\tools\mod_args.ps1") -split " ")
-    Start-Process -FilePath "$root\engine\uzdoom.exe" -ArgumentList (@("-host","2") + $modeargs + $svargs + @("-iwad","$root\dist\wolf.ipk3","-config","$root\dist\local_host.ini","+set","wolf_dbg_arm","0","+set","show_obituaries","0","+set","i_pauseinbackground","0","+set","vid_activeinbackground","1","+set","i_soundinbackground","1") + $vidH)
+    Start-Process -FilePath "$root\engine\uzdoom.exe" -ArgumentList (@("-host","2") + $modeargs + $svargs + @("-iwad","$root\dist\$Iwad","-config","$root\dist\local_host.ini","+set","wolf_dbg_arm","0","+set","show_obituaries","0","+set","i_pauseinbackground","0","+set","vid_activeinbackground","1","+set","i_soundinbackground","1") + $vidH)
     Start-Sleep -Seconds 4
     Write-Host "  Launching joiner window (right)..."
-    & "$root\engine\uzdoom.exe" -join localhost -iwad "$root\dist\wolf.ipk3" -config "$root\dist\local_join.ini" +set wolf_dbg_arm 0 +set show_obituaries 0 +set snd_musicvolume 0 +set wolf_skin 1 +set color '24 24 d8' +set i_pauseinbackground 0 +set vid_activeinbackground 1 +set i_soundinbackground 1 @vidJ
+    & "$root\engine\uzdoom.exe" -join localhost -iwad "$root\dist\$Iwad" -config "$root\dist\local_join.ini" +set wolf_dbg_arm 0 +set show_obituaries 0 +set snd_musicvolume 0 +set wolf_skin 1 +set color '24 24 d8' +set i_pauseinbackground 0 +set vid_activeinbackground 1 +set i_soundinbackground 1 @vidJ
 }
 elseif ($Mode -eq "join") {
 
@@ -200,5 +200,5 @@ elseif ($Mode -eq "join") {
         $Code = (Read-Host "  Type the code (or 'localhost' to join a host on THIS pc)").Trim()
     }
     Write-Host "  Joining $Code ..."
-    & "$root\engine\uzdoom.exe" -join $Code -iwad "$root\dist\wolf.ipk3" -config "$root\dist\join.ini" +set wolf_dbg_arm 0 +set show_obituaries 0 +set i_pauseinbackground 0
+    & "$root\engine\uzdoom.exe" -join $Code -iwad "$root\dist\$Iwad" -config "$root\dist\join.ini" +set wolf_dbg_arm 0 +set show_obituaries 0 +set i_pauseinbackground 0
 }
