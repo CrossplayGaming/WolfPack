@@ -42,7 +42,16 @@ if ($Mode -eq "host") {
     }
     Write-Host ""
     Write-Host "  Waiting for $Players players total..."
-    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+map", "MAP09") } else { @("+map", "LOBBY") }
+    if ($Deathmatch) {
+        # rulesets: engine-native, serverinfo - the host's values
+        # replicate to every joiner. 0 disables either limit.
+        $fl = Read-Host "  First to how many frags wins? (Enter = 10, 0 = no limit)"
+        if ($fl -notmatch "^[0-9]+$") { $fl = 10 }
+        $tl = Read-Host "  Time limit in minutes? (Enter = none)"
+        if ($tl -notmatch "^[0-9]+$") { $tl = 0 }
+        Write-Host "  Rules: $(if ([int]$fl) { "first to $fl frags" } else { "no frag limit" })$(if ([int]$tl) { ", $tl minute cap" })"
+    }
+    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { @("+map", "LOBBY") }
     & "$root\engine\uzdoom.exe" -host $Players @modeargs -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0 +set i_pauseinbackground 0
 }
 elseif ($Mode -eq "local") {
@@ -57,7 +66,16 @@ elseif ($Mode -eq "local") {
     $w = 1720; $h = 968; $y = 300
     $vidH = @("+set","vid_fullscreen","0","+set","win_w","$w","+set","win_h","$h","+set","win_x","60","+set","win_y","$y")
     $vidJ = @("+set","vid_fullscreen","0","+set","win_w","$w","+set","win_h","$h","+set","win_x","2040","+set","win_y","$y")
-    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+map", "MAP09") } else { @("+map", "LOBBY") }
+    if ($Deathmatch) {
+        # rulesets: engine-native, serverinfo - the host's values
+        # replicate to every joiner. 0 disables either limit.
+        $fl = Read-Host "  First to how many frags wins? (Enter = 10, 0 = no limit)"
+        if ($fl -notmatch "^[0-9]+$") { $fl = 10 }
+        $tl = Read-Host "  Time limit in minutes? (Enter = none)"
+        if ($tl -notmatch "^[0-9]+$") { $tl = 0 }
+        Write-Host "  Rules: $(if ([int]$fl) { "first to $fl frags" } else { "no frag limit" })$(if ([int]$tl) { ", $tl minute cap" })"
+    }
+    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { @("+map", "LOBBY") }
     Write-Host ""
     Write-Host "  Launching host window (left)..."
     Start-Process -FilePath "$root\engine\uzdoom.exe" -ArgumentList (@("-host","2") + $modeargs + @("-iwad","$root\dist\wolf.ipk3","-config","$root\dist\local_host.ini","+set","wolf_dbg_arm","0","+set","i_pauseinbackground","0","+set","vid_activeinbackground","1","+set","i_soundinbackground","1") + $vidH)

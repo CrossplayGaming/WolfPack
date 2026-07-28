@@ -79,3 +79,19 @@ would end the match). Door unlock lives in WolfDoor.PostBeginPlay
 PostBeginPlay on the first TICK, after WorldLoaded, and the args copy
 overwrote an unlock attempted there. Probes: enemies=1 victory=3
 cleared, 0 doors locked at t=30, 0 telefrags.
+
+DM QoL round (2026-07-28, user test feedback):
+- Respawn + death animation: the netgame Die path left deathPhase 0,
+  so the overridden DeathThink did NOTHING - the engine's native death
+  handling (view lowering to the floor + press-fire respawn) never
+  ran. Netgame DeathThink now hands off to Super. One fix, both
+  reports (dead forever + no death animation).
+- Rulesets: DM hosting (real + local test) prompts for frag limit
+  (default 10) and time limit (default none) - engine-native
+  fraglimit/timelimit, serverinfo so the host's values replicate.
+  sv_samelevel keeps the arena on MAP09 after a limit ends the match.
+  UNTESTED: what our custom intermission shows when fraglimit trips.
+- Sync audit: all consoleplayer uses confirmed ui/render scope; sim is
+  clean. User-visible "out of sync" pending diagnosis: permanent
+  divergence (true desync, engine prints consistency failures) vs the
+  ~2-tic lockstep view lag amplified by the dual-window rig.

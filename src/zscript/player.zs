@@ -238,6 +238,17 @@ class WolfPlayer : DoomPlayer
     {
         if (player == null)
             return;
+        if (netgame)
+        {
+            // The Wolf sequence (rotate + fizzle + floor restart) is
+            // single-player; deathPhase never leaves 0 here, so without
+            // this hand-off the override ate the ENGINE death handling
+            // too - no view drop, and no press-fire respawn (user repro:
+            // dead forever in deathmatch). Native DeathThink gives the
+            // view lowering to the floor and the respawn button.
+            Super.DeathThink();
+            return;
+        }
         player.Uncrouch();
         ViewHeight = 32;            // camera stays at eye level
 
