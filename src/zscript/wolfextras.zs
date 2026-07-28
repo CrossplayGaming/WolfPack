@@ -64,13 +64,14 @@ class WolfModernMenu : WolfWidgetMenu
     {
         Super.Init(parent, desc);
         title = "Modernization";
-        // sv tri-states, EMPIRICAL: 2 force-denies, 1 allows - the
-        // opposite of the engine menudef labels (user-tested twice:
-        // freelook blocked at 2, working at 0/1). Classic = 2.
-        AddToggleV("Mouse Vertical Aim", "sv_freelook", 1, 2);
-        AddToggleV("Jumping", "sv_jump", 1, 2);
+        // sv tri-states, SETTLED by the IsJumpingAllowed() probe:
+        // 0=allowed (the map No* blocks are inert), 1=DENIED, 2=ALLOWED.
+        // Earlier contrary observations were the companion-cvar deferral
+        // bug confounding the tests. Classic force-denies: OFF = 1.
+        AddToggleV("Mouse Vertical Aim", "sv_freelook", 2, 1);
+        AddToggleV("Jumping", "sv_jump", 2, 1);
         AddBindRow("  Jump Key", "+jump");
-        AddToggleV("Crouching", "sv_crouch", 1, 2);
+        AddToggleV("Crouching", "sv_crouch", 2, 1);
         AddBindRow("  Crouch Key", "+crouch");
         winH = 13 * labels.Size() + 6;
         sel = 0;
@@ -81,9 +82,9 @@ class WolfModernMenu : WolfWidgetMenu
         // bind rows grey out while their feature is off
         CVar j = CVar.GetCVar("sv_jump", players[consoleplayer]);
         CVar c = CVar.GetCVar("sv_crouch", players[consoleplayer]);
-        itemStates[2] = (j != null && j.GetInt() == 1) ? IT_NORMAL
+        itemStates[2] = (j != null && j.GetInt() == 2) ? IT_NORMAL
                                                        : IT_DISABLED;
-        itemStates[4] = (c != null && c.GetInt() == 1) ? IT_NORMAL
+        itemStates[4] = (c != null && c.GetInt() == 2) ? IT_NORMAL
                                                        : IT_DISABLED;
         Super.Drawer();
     }
@@ -97,7 +98,7 @@ class WolfModernMenu : WolfWidgetMenu
         {
             CVar fl = CVar.GetCVar("freelook", players[consoleplayer]);
             if (fl != null)
-                fl.SetInt(newValue == 1 ? 1 : 0);
+                fl.SetInt(newValue == 2 ? 1 : 0);
         }
     }
 }

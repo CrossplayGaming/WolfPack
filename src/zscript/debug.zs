@@ -133,6 +133,12 @@ class WolfDebugHandler : EventHandler
             }
         }
 
+        if (t == 12)
+            Console.Printf("WOLFDBG allow: jump=%d crouch=%d freelook=%d",
+                           Level.IsJumpingAllowed(),
+                           Level.IsCrouchingAllowed(),
+                           Level.IsFreelookAllowed());
+
         // map-load heartbeat the harness greps for. Gated: without this it
         // prints over the screen during ordinary play.
         if (t == 3 || t == 120 || t == 240)
