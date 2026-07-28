@@ -2,7 +2,13 @@
 # Host: tries UPnP port mapping, copies the invite code, launches -host.
 # Join: takes a code (or reads the clipboard), launches -join.
 param([string]$Mode, [int]$Players = 2, [string]$Code = "",
-      [switch]$Deathmatch)
+      [switch]$Deathmatch, [int]$FragLimit = -1, [int]$TimeLimit = -1,
+      [switch]$Quiet)
+
+function Show-Msg([string]$text) {
+    Add-Type -AssemblyName System.Windows.Forms
+    [System.Windows.Forms.MessageBox]::Show($text, "WolfDoom Multiplayer") | Out-Null
+}
 
 $ErrorActionPreference = "SilentlyContinue"
 $root = Split-Path -Parent $PSScriptRoot
@@ -40,16 +46,26 @@ if ($Mode -eq "host") {
         Write-Host "  Internet friends may fail to connect. Easiest fix: both"
         Write-Host "  install Tailscale (free), then share the code it gives you."
     }
+    if ($Quiet) {
+        $upnpNote = if (-not $upnp -and $pub) { "`n`nNote: your router did not accept automatic setup (UPnP). If internet friends cannot connect, both install Tailscale (free) and share the code it gives you instead." } else { "" }
+        Show-Msg "Your invite code:`n`n$code`n`nIt is already on your clipboard - paste it to your friends now. Same-house players can use: $lan`n`nClick OK to start hosting. The game begins when everyone has joined.$upnpNote"
+    }
     Write-Host ""
     Write-Host "  Waiting for $Players players total..."
     if ($Deathmatch) {
         # rulesets: engine-native, serverinfo - the host's values
-        # replicate to every joiner. 0 disables either limit.
-        $fl = Read-Host "  First to how many frags wins? (Enter = 10, 0 = no limit)"
-        if ($fl -notmatch "^[0-9]+$") { $fl = 10 }
-        $tl = Read-Host "  Time limit in minutes? (Enter = none)"
-        if ($tl -notmatch "^[0-9]+$") { $tl = 0 }
-        Write-Host "  Rules: $(if ([int]$fl) { "first to $fl frags" } else { "no frag limit" })$(if ([int]$tl) { ", $tl minute cap" })"
+        # replicate to every joiner. 0 disables either limit. The menu
+        # passes them via the marker; prompts are the terminal path only.
+        if ($FragLimit -ge 0) {
+            $fl = $FragLimit; $tl = [Math]::Max(0, $TimeLimit)
+        } elseif ($Quiet) {
+            $fl = 10; $tl = 0
+        } else {
+            $fl = Read-Host "  First to how many frags wins? (Enter = 10, 0 = no limit)"
+            if ($fl -notmatch "^[0-9]+$") { $fl = 10 }
+            $tl = Read-Host "  Time limit in minutes? (Enter = none)"
+            if ($tl -notmatch "^[0-9]+$") { $tl = 0 }
+        }
     }
     $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { @("+map", "LOBBY") }
     & "$root\engine\uzdoom.exe" -host $Players @modeargs -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0 +set show_obituaries 0 +set i_pauseinbackground 0
@@ -88,7 +104,12 @@ elseif ($Mode -eq "join") {
     if (-not $Code) {
         try { $Code = ([string](Get-Clipboard -Raw)).Trim() } catch {}
     }
-    # a code must look like an address; anything else re-prompts
+    # a code must look like an address; the quiet path explains and
+    # exits instead of prompting in a window nobody can see
+    if ($Quiet -and (-not ($Code -match "^[A-Za-z0-9\.\-:]+$") -or $Code.Length -lt 2)) {
+        Show-Msg "No invite code found on your clipboard.`n`nAsk the host for their invite code, copy it, then open the game and choose Multiplayer > Join again."
+        exit 0
+    }
     while (-not ($Code -match "^[A-Za-z0-9\.\-:]+$") -or $Code.Length -lt 2) {
         Write-Host ""
         Write-Host "  No usable invite code on the clipboard."

@@ -33,5 +33,5 @@ exit /b 0
 :fail
 echo.
 echo Build failed - see output above.
-pause
+powershell -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('The game build failed. Run play.bat from a terminal to see the details.','WolfDoom') | Out-Null"
 exit /b 1

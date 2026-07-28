@@ -112,6 +112,18 @@ class WolfPlayerSetupMenu : WolfWidgetMenu
 {
     const PREVIEW_H = 100;
 
+    // engine `color` userinfo per uniform: drives the scoreboard's
+    // player swatch so it matches the clothing recolor
+    static const String SKINCOLORS[] = { "9c 9c 9c", "24 24 d8",
+                                         "d8 24 24", "d8 a0 60" };
+
+    static void SyncEngineColor(int v)
+    {
+        CVar c = CVar.GetCVar("color", players[consoleplayer]);
+        if (c != null)
+            c.SetString(SKINCOLORS[clamp(v, 0, 3)]);
+    }
+
     override void Init(Menu parent, ListMenuDescriptor desc)
     {
         Super.Init(parent, desc);
@@ -119,6 +131,17 @@ class WolfPlayerSetupMenu : WolfWidgetMenu
         AddMulti("Uniform", "wolf_skin", "Grey,Blue,Red,Tan");
         winH = 13 * labels.Size() + 6 + PREVIEW_H;
         sel = 0;
+    }
+
+    override void Adjust(int i, int dir)
+    {
+        // cvar sets apply deferred - compute the post-cycle value from
+        // the PRE-set reading (the freelook-companion lesson)
+        CVar sv = GetCV(0);
+        int before = sv == null ? 0 : sv.GetInt();
+        Super.Adjust(i, dir);
+        if (i == 0 && sv != null)
+            SyncEngineColor((before + dir + 4) % 4);
     }
 
     override void Drawer()
@@ -151,15 +174,38 @@ class WolfPlayerSetupMenu : WolfWidgetMenu
 // menu; hosting/joining lands with the co-op/PvP phases.
 class WolfMPMenu : WolfMenu
 {
+    // deathmatch rules, carried in the relaunch marker so the launcher
+    // never has to ask in a terminal
+    static const int FRAGV[] = { 5, 10, 20, 0 };
+    static const int TIMEV[] = { 0, 5, 10, 15 };
+    int fragIdx;
+    int timeIdx;
+
+    String FragLabel()
+    {
+        return FRAGV[fragIdx] == 0 ? "  DM Frag Limit: None"
+            : String.Format("  DM Frag Limit: %d", FRAGV[fragIdx]);
+    }
+
+    String TimeLabel()
+    {
+        return TIMEV[timeIdx] == 0 ? "  DM Time Limit: None"
+            : String.Format("  DM Time Limit: %d min", TIMEV[timeIdx]);
+    }
+
     override void Init(Menu parent, ListMenuDescriptor desc)
     {
         Super.Init(parent, desc);
+        fragIdx = 1;                             // first to 10
+        timeIdx = 0;
         labels.Clear(); itemStates.Clear();
         labels.Push("Host Co-op: 2 Players");    itemStates.Push(IT_NORMAL);
         labels.Push("Host Co-op: 3 Players");    itemStates.Push(IT_NORMAL);
         labels.Push("Host Co-op: 4 Players");    itemStates.Push(IT_NORMAL);
         labels.Push("Host Deathmatch: 2");       itemStates.Push(IT_NORMAL);
         labels.Push("Host Deathmatch: 4");       itemStates.Push(IT_NORMAL);
+        labels.Push(FragLabel());                itemStates.Push(IT_NORMAL);
+        labels.Push(TimeLabel());                itemStates.Push(IT_NORMAL);
         labels.Push("Join (code on clipboard)"); itemStates.Push(IT_NORMAL);
         labels.Push("Player Setup");             itemStates.Push(IT_NORMAL);
         labels.Push("Back");                     itemStates.Push(IT_RETURN);
@@ -196,6 +242,11 @@ class WolfMPMenu : WolfMenu
         Menu.SetMenu("QuitMenu");
     }
 
+    String DMRules()
+    {
+        return String.Format("f%d t%d", FRAGV[fragIdx], TIMEV[timeIdx]);
+    }
+
     override void OnChoose(int index)
     {
         switch (index)
@@ -203,11 +254,21 @@ class WolfMPMenu : WolfMenu
         case 0: Request("host 2");    break;
         case 1: Request("host 3");    break;
         case 2: Request("host 4");    break;
-        case 3: Request("hostdm 2");  break;
-        case 4: Request("hostdm 4");  break;
-        case 5: Request("join");      break;
-        case 6: Menu.SetMenu("WolfPlayerSetupMenu"); break;
-        case 7: Close();              break;
+        case 3: Request("hostdm 2 " .. DMRules());  break;
+        case 4: Request("hostdm 4 " .. DMRules());  break;
+        case 5:
+            fragIdx = (fragIdx + 1) % 4;
+            labels[5] = FragLabel();
+            MenuSound("menu/change");
+            break;
+        case 6:
+            timeIdx = (timeIdx + 1) % 4;
+            labels[6] = TimeLabel();
+            MenuSound("menu/change");
+            break;
+        case 7: Request("join");      break;
+        case 8: Menu.SetMenu("WolfPlayerSetupMenu"); break;
+        case 9: Close();              break;
         }
     }
 }

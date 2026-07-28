@@ -127,3 +127,20 @@ feed in WolfLobby renders netgame deaths instead ("X was gunned down
 by Y", top-left, 4 s, max 4 lines). Feed is play state - beacon showed
 identical queues on both nodes. Still console-font: chat, engine join/
 leave notices - future pass if they grate.
+
+Beta-prep polish (2026-07-28, user asks):
+- Engine text colors: TEXTCOLO now redefines the standard color names
+  (Red/Green/Grey/White/Gold/Blue/...) as Wolf-palette gradients, so
+  scoreboard rows and any engine-drawn string sit in the menu scheme.
+- Scoreboard swatches: engine `color` userinfo now follows wolf_skin
+  (grey/blue/red/tan RGBs) - synced on Player Setup changes (computed
+  forward past the cvar-set deferral) and lazily once per session in
+  WolfLobby.UiTick for configs/+set arrivals.
+- Terminal-free MP flow: DM frag/time limits are menu rows riding the
+  F15 marker (hostdm N fX tY); mp_dispatch parses and passes them;
+  mp_launch -Quiet replaces every prompt with GUI message boxes
+  (invite-code dialog before hosting; join explains and exits if the
+  clipboard has no code). WolfDoom.vbs launches play.bat with the
+  console hidden; the build-failure path shows a message box instead
+  of pausing an invisible window. multiplayer.bat stays as the visible
+  terminal path for power users.

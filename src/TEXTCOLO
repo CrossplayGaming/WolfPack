@@ -7,3 +7,26 @@
 "WolfYellow"    { #141300 #FFF700  Flat: #FFF700 }
 "WolfGold"      { #100F00 #B6AE00  Flat: #B6AE00 }
 "WolfDarkRed"   { #000000 #710000  Flat: #710000 }
+
+// Engine-standard color names, re-toned to the Wolf palette so every
+// engine-drawn string (DM scoreboard, net notices) sits in the same
+// scheme as the menus. Gradients for the same outline reason as above.
+"Red"       { #000000 #D40000  Flat: #B60000 }
+"DarkRed"   { #000000 #710000  Flat: #710000 }
+"Green"     { #001400 #00A800  Flat: #00A800 }
+"DarkGreen" { #000A00 #005400  Flat: #005400 }
+"Grey"      { #000000 #8E8E8E  Flat: #8E8E8E }
+"DarkGray"  { #000000 #545454  Flat: #545454 }
+"White"     { #000000 #C3C3C3  Flat: #C3C3C3 }
+"Yellow"    { #141300 #FFF700  Flat: #FFF700 }
+"Gold"      { #100F00 #B6AE00  Flat: #B6AE00 }
+"Blue"      { #000014 #2424D8  Flat: #2424D8 }
+"LightBlue" { #000014 #5454FC  Flat: #5454FC }
+"Tan"       { #140D00 #D8A060  Flat: #D8A060 }
+"Brown"     { #0A0500 #8E5400  Flat: #8E5400 }
+"Orange"    { #140800 #D87000  Flat: #D87000 }
+"Cyan"      { #001414 #00A8A8  Flat: #00A8A8 }
+"Purple"    { #140014 #A800A8  Flat: #A800A8 }
+"Brick"     { #000000 #B62424  Flat: #B62424 }
+"Cream"     { #14100A #D8C3A0  Flat: #D8C3A0 }
+"Olive"     { #0A0A00 #70701C  Flat: #70701C }
