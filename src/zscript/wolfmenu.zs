@@ -495,6 +495,13 @@ class WolfMessageBox : MessageBoxMenu
     override void Init(Menu parent, String message, int messagemode,
                        bool playsound, Name cmd, voidptr native_handler)
     {
+        CVar rq = CVar.GetCVar("wolf_mp_request",
+                               players[consoleplayer]);
+        if (rq != null && rq.GetString() != "")
+            message = "Restart into multiplayer?
+
+"
+                      "The launcher takes it from here.";
         Super.Init(parent, message, messagemode, playsound, cmd,
                    native_handler);
         big = Font.GetFont("wolfbig");

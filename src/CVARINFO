@@ -16,3 +16,4 @@ nosave int wolf_dbg_death = 0;
 nosave int wolf_dbg_arm = 0;
 nosave int wolf_dbg_boss = 0;
 nosave int wolf_dbg_victory = 0;
+server string wolf_mp_request = "";  // menu -> launcher handoff

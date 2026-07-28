@@ -1,5 +1,9 @@
 @echo off
-REM Launch the current WolfDoom build (rebuilds the IPK3 first, ~1s).
+REM Launch the current WolfDoom build (rebuilds first). Runs the
+
+REM engine in the FOREGROUND: on exit, a pending in-game multiplayer
+
+REM request (wolf_mp_request in the config) restarts into host/join.
 REM Pass extra args through, e.g.:  play.bat +map MAP03
 cd /d "%~dp0"
 
@@ -20,7 +24,10 @@ REM because an archived config value overrides the DEFCVARS default.
 REM The wolf_dbg_ switches are forced off the same way: even declared
 REM nosave, a stale archived value still LOADS if the ini has the line,
 REM so one boss.bat session could leak the full arsenal into normal play.
-start "" "engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" +set m_forward 0 +set wipetype 0+set wolf_dbg_arm 0 +set wolf_dbg_doortest 0 +set wolf_dbg_alert 0 +set wolf_dbg_forcefire 0 +set wolf_dbg_victory 0 +set wolf_dbg_boss 0 %*
+"engine\uzdoom.exe" -iwad "dist\wolf.ipk3" -config "dist\playtest.ini" +set m_forward 0 +set wipetype 0 +set wolf_dbg_arm 0 +set wolf_dbg_doortest 0 +set wolf_dbg_alert 0 +set wolf_dbg_forcefire 0 +set wolf_dbg_victory 0 +set wolf_dbg_boss 0 %*
+
+powershell -ExecutionPolicy Bypass -File tools\mp_dispatch.ps1
+
 exit /b 0
 
 :fail

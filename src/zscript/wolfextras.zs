@@ -112,12 +112,15 @@ class WolfMPMenu : WolfMenu
     {
         Super.Init(parent, desc);
         labels.Clear(); itemStates.Clear();
-        labels.Push("Host Co-op Game");   itemStates.Push(IT_DISABLED);
-        labels.Push("Host Deathmatch");   itemStates.Push(IT_DISABLED);
-        labels.Push("Join Game");         itemStates.Push(IT_DISABLED);
-        labels.Push("Player Setup");      itemStates.Push(IT_DISABLED);
-        labels.Push("Back");              itemStates.Push(IT_RETURN);
-        sel = labels.Size() - 1;
+        labels.Push("Host Co-op: 2 Players");    itemStates.Push(IT_NORMAL);
+        labels.Push("Host Co-op: 3 Players");    itemStates.Push(IT_NORMAL);
+        labels.Push("Host Co-op: 4 Players");    itemStates.Push(IT_NORMAL);
+        labels.Push("Host Deathmatch: 2");       itemStates.Push(IT_NORMAL);
+        labels.Push("Host Deathmatch: 4");       itemStates.Push(IT_NORMAL);
+        labels.Push("Join (code on clipboard)"); itemStates.Push(IT_NORMAL);
+        labels.Push("Player Setup");             itemStates.Push(IT_DISABLED);
+        labels.Push("Back");                     itemStates.Push(IT_RETURN);
+        sel = 0;
     }
 
     override void Drawer()
@@ -126,18 +129,37 @@ class WolfMPMenu : WolfMenu
         String t = "Multiplayer";
         WolfDraw.Text(big, 160 - big.StringWidth(t) / 2, 4, t,
                       WolfPal.Get(C_READH));
-        DrawWindowBox(MENU_X - 8, MENU_Y - 3, MENU_W + 20,
+        DrawWindowBox(MENU_X - 24, MENU_Y - 3, MENU_W + 60,
                       13 * labels.Size() + 6);
-        DrawItems(MENU_X, MENU_Y, 24, 13);
-        String note = "To play online: run multiplayer.bat";
-        WolfDraw.Text(big, 160 - big.StringWidth(note) / 2, 150, note,
+        DrawItems(MENU_X - 16, MENU_Y, 24, 13);
+        String note = "The game restarts to start or join a session";
+        WolfDraw.Text(big, 160 - big.StringWidth(note) / 2, 172, note,
                       WolfPal.Get(C_READ));
-        DrawGun(MENU_X, MENU_Y, 13);
+        DrawGun(MENU_X - 16, MENU_Y, 13);
+    }
+
+    // menu -> wrapper: the request rides an archived cvar (ZScript has
+    // no file IO); the quit confirm - our own messagebox - notices it
+    // and asks about restarting instead of quitting
+    void Request(String what)
+    {
+        CVar rq = CVar.GetCVar("wolf_mp_request", players[consoleplayer]);
+        if (rq != null)
+            rq.SetString(what);
+        Menu.SetMenu("QuitMenu");
     }
 
     override void OnChoose(int index)
     {
-        if (itemStates[index] == IT_RETURN)
-            Close();
+        switch (index)
+        {
+        case 0: Request("host 2");    break;
+        case 1: Request("host 3");    break;
+        case 2: Request("host 4");    break;
+        case 3: Request("hostdm 2");  break;
+        case 4: Request("hostdm 4");  break;
+        case 5: Request("join");      break;
+        case 7: Close();              break;
+        }
     }
 }

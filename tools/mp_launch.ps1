@@ -1,7 +1,8 @@
 # WolfDoom multiplayer launcher core. Called by multiplayer.bat.
 # Host: tries UPnP port mapping, copies the invite code, launches -host.
 # Join: takes a code (or reads the clipboard), launches -join.
-param([string]$Mode, [int]$Players = 2, [string]$Code = "")
+param([string]$Mode, [int]$Players = 2, [string]$Code = "",
+      [switch]$Deathmatch)
 
 $ErrorActionPreference = "SilentlyContinue"
 $root = Split-Path -Parent $PSScriptRoot
@@ -41,7 +42,7 @@ if ($Mode -eq "host") {
     }
     Write-Host ""
     Write-Host "  Waiting for $Players players total..."
-    & "$root\engine\uzdoom.exe" -host $Players -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0
+    & "$root\engine\uzdoom.exe" -host $Players $(if ($Deathmatch) { "-deathmatch" }) -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0
 }
 elseif ($Mode -eq "join") {
     if (-not $Code) {
