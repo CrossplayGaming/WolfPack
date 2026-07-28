@@ -29,14 +29,15 @@ build of it may be sold or paywalled.
 
 ## Building your copy
 
-1. **Engine**: place a UZDoom build in `engine/` (so that
-   `engine/uzdoom.exe` exists).
-2. **Game data**: put your Wolfenstein 3D files (`*.WL6`) in
-   `gamedata/`, or let the build find your Steam install automatically.
-3. **Requirements**: Python 3 with `pip install pillow pefile`.
-4. Run `play.bat` once — the first run extracts and converts
-   everything, then launches the game. After that, double-click
-   `WolfPack.vbs` for a console-free launch.
+1. Install Python 3 (python.org - check "Add python to PATH").
+2. Put your Wolfenstein 3D files (`*.WL6`) in `gamedata/` - or skip
+   this if you have the Steam version installed; the build finds it.
+3. **Run `SETUP.bat`.** It installs the two Python packages it needs,
+   offers to download the UZDoom engine into `engine/` automatically
+   (or you place it there yourself - see `engine/README.md`), builds
+   the game from your data, and can optionally produce a portable
+   package + self-extracting installer of your build.
+4. Play: double-click `WolfPack.vbs` (console-free) or `play.bat`.
 
 ## Multiplayer quickstart
 

@@ -2,7 +2,8 @@
 reference/
 
 # User-supplied game data — never committed, never shipped
-gamedata/
+gamedata/*
+!gamedata/README.md
 
 # Build outputs
 build/
@@ -12,8 +13,9 @@ build/
 __pycache__/
 *.pyc
 
-# Engine binaries (copied from CatacombDoom install)
-engine/
+# Engine binaries - never committed (SETUP.bat can download them)
+engine/*
+!engine/README.md
 
 # Build outputs
 dist/
