@@ -116,6 +116,13 @@ wrong (Init signatures, VirtualToRealCoords arity, ClearMenus existence).
   the conditional in the actor's own `PostBeginPlay` (how the DM door
   unlock landed). Caught only because a probe counted 0 where 1 was
   expected - count your sweeps.
+- `static const` arrays need the class-qualified name inside STATIC
+  methods ("Unknown identifier" otherwise; instance methods see them
+  unqualified).
+- Userinfo cvar writes (`color`, custom `user` cvars) are legal ONLY
+  from menu code - a `UiTick` write VM-aborts every tick ("Attempt to
+  change CVAR outside of menu code"). Sync userinfo on menu entry, or
+  pass `+set` at launch.
 - Probing input from `WorldTick` doesn't work: it runs after
   PlayerThink consumed the tic's cmd, and the net stream rebuilds
   `player.cmd` next tic, so `cmd.buttons |=` injections vanish. Drive
