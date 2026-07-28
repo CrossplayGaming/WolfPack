@@ -263,6 +263,15 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
                         cpx[xx, yy] = (0, 0, 0, 0)
             img.save(cp)
 
+    # multiplayer player sprites (gen_playersprite.py output): packed so
+    # other players render in netgames - the missing-sprite diamond over
+    # an invisible obstacle in the first 2-player test was player two
+    PSPR = ROOT / "build" / "playersprite"
+    if PSPR.exists():
+        for png in PSPR.glob("BJ*.png"):
+            (ASSETS / "sprites" / png.name).write_bytes(
+                png_set_grab(png.read_bytes(), 32, 64))
+
     # end-of-episode articles and the proportional font (extract_text.py)
     TXT = ROOT / "build" / "text"
     if TXT.exists():

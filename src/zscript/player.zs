@@ -32,6 +32,30 @@ class WolfPlayer : DoomPlayer
         Player.StartItem "WolfAmmo", 8;
     }
 
+    // Netgame body (the generated BJ set, grey variant). Single-player
+    // never renders the player; without these, other players draw as
+    // the missing-sprite marker.
+    States
+    {
+    Spawn:
+        BJ1S A -1;
+        Loop;
+    See:
+        BJ1W ABCD 4;
+        Loop;
+    Missile:
+        BJ1A ABCD 3;
+        Goto Spawn;
+    Pain:
+        BJ1P A 4;
+        BJ1P B 4;
+        Goto Spawn;
+    Death:
+        BJ1D ABCD 8;
+        BJ1D E -1;
+        Stop;
+    }
+
     // Wolf has ZERO inertia: no acceleration ramp, no glide — velocity is
     // rebuilt from held input every tic and dropped to zero the moment keys
     // are released (ControlMovement/Thrust, WL_AGENT.C). Replaces Doom's
