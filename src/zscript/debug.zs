@@ -167,6 +167,28 @@ class WolfDebugHandler : EventHandler
                                pm.pos.z, pm.floorz);
         }
 
+        // lobby-flow probe: warp player 0 through a west band (episode),
+        // an east band (skill), then Hans's chamber (commit) and confirm
+        // the level changes to the chosen episode at the chosen skill
+        CVar lbv = CVar.FindCVar("wolf_dbg_lobby");
+        if (lbv != null && lbv.GetInt() != 0 && players[0].mo != null
+            && Level.MapName ~== "LOBBY")
+        {
+            PlayerPawn pm = players[0].mo;
+            if (t == 30)
+                pm.SetOrigin((27 * 64 + 32, (63 - 30) * 64 + 32,
+                              pm.floorz), false);       // west band 2 = E3
+            if (t == 60)
+                pm.SetOrigin((41 * 64 + 32, (63 - 22) * 64 + 32,
+                              pm.floorz), false);       // east band 0 = S1
+            if (t == 90)
+                pm.SetOrigin((34 * 64 + 32, (63 - 12) * 64 + 32,
+                              pm.floorz), false);       // chamber = commit
+        }
+        if (lbv != null && lbv.GetInt() != 0 && t == 150)
+            Console.Printf("WOLFDBG lobby: map=%s skill=%d",
+                           Level.MapName, G_SkillPropertyInt(SKILLP_ACSReturn));
+
         // uniform-recolor probe: with wolf_skin set, the player's sprite
         // must be the variant stand sprite, not the grey BJ1S
         CVar skv = CVar.FindCVar("wolf_dbg_skin");

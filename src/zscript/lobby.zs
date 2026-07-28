@@ -1,0 +1,144 @@
+// Multiplayer lobby flow (LOBBY map, generated from Hans's level).
+//
+// The pillared hall is the control surface: the west aisle's six bands
+// (between the pillar-stub rows) select the episode, the east aisle's
+// top four bands select the skill, and walking into Hans's chamber
+// COMMITS - ChangeLevel to the episode start at the chosen skill, all
+// nodes following in lockstep. Selection is walk-over and re-triggers
+// harmlessly; only the commit needs deliberate travel through a door.
+//
+// Host-only: player 0 (the -host node) owns selection and launch.
+// Everyone sees the same overlay and messages - this runs in play
+// scope, deterministically on every node.
+
+class WolfLobby : EventHandler
+{
+    // pending choice (play state, lockstep-identical everywhere)
+    int ep;
+    int sk;
+    bool launched;
+    int lastZone[MAXPLAYERS];
+
+    enum EZone
+    {
+        Z_NONE = 0,
+        Z_EP1, Z_EP2, Z_EP3, Z_EP4, Z_EP5, Z_EP6,
+        Z_SK1, Z_SK2, Z_SK3, Z_SK4,
+        Z_START,
+    };
+
+    static const String EPMAPS[] = { "MAP01", "MAP11", "MAP21",
+                                     "MAP31", "MAP41", "MAP51" };
+    static const String EPNAMES[] = {
+        "Escape from Wolfenstein", "Operation: Eisenfaust",
+        "Die, Fuhrer, Die!", "A Dark Secret",
+        "Trail of the Madman", "Confrontation" };
+    static const String SKNAMES[] = {
+        "Can I play, Daddy?", "Don't hurt me.",
+        "Bring 'em on!", "I am Death incarnate!" };
+
+    clearscope bool Active()
+    {
+        return Level.MapName ~== "LOBBY";
+    }
+
+    override void WorldLoaded(WorldEvent e)
+    {
+        if (!Active())
+            return;
+        ep = 0;
+        sk = 2;                     // Wolf menu default: Bring 'em on!
+        launched = false;
+        for (int p = 0; p < MAXPLAYERS; p++)
+            lastZone[p] = Z_NONE;
+    }
+
+    // hall geometry (tile coords of the source map, see the layout read
+    // in convert_udmf.py): pillar-stub rows 24/28/32/36/40 divide both
+    // side aisles into six bands y 21-23, 25-27, 29-31, 33-35, 37-39,
+    // 41-43. West aisle x 26-28, east aisle x 40-42; the spawn cluster
+    // sits in the neutral center aisle. Hans's chamber: y 10-14.
+    int ZoneAt(int tx, int ty)
+    {
+        if (ty >= 10 && ty <= 14 && tx >= 31 && tx <= 37)
+            return Z_START;
+        int band = -1;
+        if (ty >= 21 && ty <= 43 && ty % 4 != 0)
+            band = (ty - 21) / 4;
+        if (band < 0)
+            return Z_NONE;
+        if (tx >= 26 && tx <= 28)
+            return Z_EP1 + band;
+        if (tx >= 40 && tx <= 42 && band < 4)
+            return Z_SK1 + band;
+        return Z_NONE;
+    }
+
+    override void WorldTick()
+    {
+        if (!Active() || launched)
+            return;
+        for (int p = 0; p < MAXPLAYERS; p++)
+        {
+            if (!playeringame[p] || players[p].mo == null)
+                continue;
+            PlayerPawn mo = players[p].mo;
+            int zone = ZoneAt(int(mo.pos.x) >> 6,
+                              63 - (int(mo.pos.y) >> 6));
+            if (zone == lastZone[p])
+                continue;
+            lastZone[p] = zone;
+            if (zone == Z_NONE)
+                continue;
+            bool host = (p == 0);
+            if (zone == Z_START)
+            {
+                if (!host)
+                {
+                    Console.Printf("Only the host can start the game.");
+                    continue;
+                }
+                launched = true;
+                Console.Printf("Starting %s - %s",
+                               EPNAMES[ep], SKNAMES[sk]);
+                mo.A_StartSound("menu/advance", CHAN_AUTO);
+                Level.ChangeLevel(EPMAPS[ep], 0,
+                                  CHANGELEVEL_NOINTERMISSION
+                                  | CHANGELEVEL_RESETINVENTORY, sk);
+                return;
+            }
+            if (!host)
+                continue;
+            if (zone <= Z_EP6)
+            {
+                ep = zone - Z_EP1;
+                Console.Printf("Episode %d: %s", ep + 1, EPNAMES[ep]);
+            }
+            else
+            {
+                sk = zone - Z_SK1;
+                Console.Printf("Skill: %s", SKNAMES[sk]);
+            }
+            mo.A_StartSound("menu/change", CHAN_AUTO);
+        }
+    }
+
+    // persistent status readout, drawn Wolf-style at the top of the view
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (!Active() || launched)
+            return;
+        Font big = Font.GetFont("wolfbig");
+        if (big == null)
+            return;
+        String l1 = String.Format("Episode %d: %s   Skill: %s",
+                                  ep + 1, EPNAMES[ep], SKNAMES[sk]);
+        String l2 = consoleplayer == 0
+            ? "West aisle: episode. East aisle: skill. Hans's room: begin."
+            : "The host is choosing episode and skill.";
+        WolfDraw.Text(big, 160 - big.StringWidth(l1) / 2, 4, l1,
+                      WolfPal.Get(WolfMenu.C_READH));
+        WolfDraw.Text(big, 160 - big.StringWidth(l2) / 2, 16, l2,
+                      WolfPal.Get(WolfMenu.C_READ));
+    }
+}

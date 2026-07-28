@@ -42,7 +42,8 @@ if ($Mode -eq "host") {
     }
     Write-Host ""
     Write-Host "  Waiting for $Players players total..."
-    & "$root\engine\uzdoom.exe" -host $Players $(if ($Deathmatch) { "-deathmatch" }) -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0
+    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+map", "MAP09") } else { @("+map", "LOBBY") }
+    & "$root\engine\uzdoom.exe" -host $Players @modeargs -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0
 }
 elseif ($Mode -eq "join") {
     if (-not $Code) {

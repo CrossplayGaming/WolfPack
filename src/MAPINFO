@@ -6,7 +6,8 @@ gameinfo
     playerclasses = "WolfPlayer"
     EventHandlers = "WolfDebugHandler", "WolfLevel",
                     "WolfGameState", "WolfDeathHandler",
-                    "WolfScreenFX", "WolfDeathCam", "WolfAttract"
+                    "WolfScreenFX", "WolfDeathCam", "WolfAttract",
+                    "WolfLobby"
     // DrawPlayBorder (WL_GAME.C:841): palette 127 surround with a 1-unit
     // inset bevel, not Doom's 8-unit decorative border.
     borderflat = "FLOOR7F"

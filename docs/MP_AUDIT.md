@@ -48,3 +48,15 @@ MAP09 untouched except deathmatch: curated 1v1 starts replace the
 max-spread eight - one in the starting room (34,58 N), one in Hans's
 chamber (34,11 S), per user spec. DM_OVERRIDES in convert_udmf.py is
 the place for more curated arenas.
+
+Lobby flow (2026-07-27): WolfLobby handler drives the LOBBY map. West
+aisle bands (6, between the pillar-stub rows) select episode, east
+aisle top 4 bands select skill, walking into Hans's chamber commits:
+ChangeLevel(episode start, NOINTERMISSION|RESETINVENTORY, skill) in
+lockstep on all nodes. Host-only (player 0); joiners get a message and
+a persistent overlay showing the pending choice. Selection is walk-
+over and re-triggerable; only the commit needs deliberate travel.
+mp_launch.ps1: co-op hosts now start in LOBBY; deathmatch hosts start
+straight in the MAP09 arena with -nomonsters (Hans doesn't referee).
+Verified headless (wolf_dbg_lobby): warped through west band 2 + east
+band 0 + chamber, landed on MAP21 at skill 0.
