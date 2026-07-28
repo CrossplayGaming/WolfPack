@@ -29,7 +29,11 @@ THINKS = {"None": 0, "T_Stand": 1, "T_Path": 2, "T_Chase": 3, "T_Shoot": 4,
           "T_Schabb": 20, "T_Gift": 21, "T_Fat": 22, "T_Fake": 23,
           "T_SchabbThrow": 24, "T_GiftThrow": 25, "T_FakeFire": 26,
           "T_Projectile": 27, "A_Smoke": 28, "A_MechaSound": 29,
-          "A_Slurpie": 30, "T_Launch": 31, "A_Relaunch": 32}
+          "A_Slurpie": 30, "T_Launch": 31, "A_Relaunch": 32,
+          # Spear: T_Will is the shared boss chase for Wilhelm, the
+          # Angel and the Death Knight; A_Dormant is the Spectre's wait
+          "T_Will": 33, "T_UShoot": 34, "A_Victory": 35,
+          "A_StartAttack": 36, "A_Dormant": 37, "A_Breathing": 38}
 
 # Sprite naming is mechanical across every enemy: the source's SPR_<X>_<suffix>
 # suffixes map to a 3-char base + category letter (S stand, W walk, P pain,
@@ -49,17 +53,30 @@ ENEMIES = {
     "Fake":    {"table": "WolfFakeTable",    "prefix": "SPR_FAKE_",   "base": "FAK"},
     "Mecha":   {"table": "WolfMechaTable",   "prefix": "SPR_MECHA_",  "base": "MEC"},
     "Hitler":  {"table": "WolfHitlerTable",  "prefix": "SPR_HITLER_", "base": "HIT"},
+    # Spear of Destiny bosses (SPEAR-only sprite enum entries; the state
+    # tables are shared zscript, the chunk mapping is per-set)
+    "Trans":   {"table": "WolfTransTable",   "prefix": "SPR_TRANS_",   "base": "TRN"},
+    "Will":    {"table": "WolfWillTable",    "prefix": "SPR_WILL_",    "base": "WIL"},
+    "Uber":    {"table": "WolfUberTable",    "prefix": "SPR_UBER_",    "base": "UBR"},
+    "Death":   {"table": "WolfDeathTable",   "prefix": "SPR_DEATH_",   "base": "DKN"},
+    "Angel":   {"table": "WolfAngelTable",   "prefix": "SPR_ANGEL_",   "base": "ANG"},
+    "Spectre": {"table": "WolfSpectreTable", "prefix": "SPR_SPECTRE_", "base": "SPC"},
 }
 STATE_PREFIX = {"Guard": "s_grd", "Dog": "s_dog", "Officer": "s_ofc",
                 "SS": "s_ss", "Mutant": "s_mut",
                 "Hans": "s_boss", "Gretel": "s_gretel", "Schabbs": "s_schabb",
                 "Gift": "s_gift", "Fat": "s_fat", "Fake": "s_fake",
-                "Mecha": "s_mecha", "Hitler": "s_hitler"}
+                "Mecha": "s_mecha", "Hitler": "s_hitler",
+           "Trans": "s_trans", "Will": "s_will", "Uber": "s_uber",
+           "Death": "s_death", "Angel": "s_angel", "Spectre": "s_spectre"}
 # state order per enemy: stand, path, pain, shoot, chase, die (source order)
 # NOTE: "dead" is its own group - the dog's final state is s_dogdead,
 # not s_dogdie4, and omitting it truncated the death chain.
 STATE_ORDER = ["stand", "path", "pain", "shoot", "chase", "die",
-               "dead", "jump", "deathcam"]
+               "dead", "jump", "deathcam",
+               # Spear additions: the Spectre idles in a wait loop and
+               # wakes through its own state; the Angel recharges tired
+               "wait", "wake", "tired"]
 
 
 def classify(suffix, seen):
@@ -85,6 +102,12 @@ def classify(suffix, seen):
     m = re.match(r"W(\d)$", suffix)          # boss walk (no rotations)
     if m:
         return "W", int(m.group(1)) - 1, "flat"
+    m = re.match(r"TIRED(\d)$", suffix)      # Angel of Death recharge
+    if m:
+        return "T", int(m.group(1)) - 1, "flat"
+    m = re.match(r"F(\d)$", suffix)          # Spectre fade/wake frames
+    if m:
+        return "F", int(m.group(1)) - 1, "flat"
     if suffix == "SHOOT":                    # fake Hitler: single frame
         return "A", 0, "flat"
     if suffix == "DEAD":
@@ -131,10 +154,24 @@ DOOMEDS = ['    21001 = "WolfGuardStand"',
            '    21023 = "WolfFat"',
            '    21024 = "WolfSchabbs"',
            '    21025 = "WolfFakeHitler"',
-           '    21026 = "WolfMechaHitler"']
+           '    21026 = "WolfMechaHitler"',
+           # Spear of Destiny
+           '    21030 = "WolfSpectre"',
+           '    21031 = "WolfAngel"',
+           '    21032 = "WolfTrans"',
+           '    21033 = "WolfUber"',
+           '    21034 = "WolfWill"',
+           '    21035 = "WolfDeathKnight"']
 
 
-def sprite_enum():
+def sprite_enum(spear=False):
+    """The sprite_t enum as the given build sees it.
+
+    The two builds enumerate DIFFERENT sprite sets, so the same lump
+    name resolves to different VSWAP chunks per game - which is exactly
+    why the chunk->lump copy list is emitted once per set while the
+    ZScript tables (lump names only) stay shared.
+    """
     text = (SRC / "WL_DEF.H").read_text(errors="replace")
     start = text.find("SPR_DEMO")
     lines = text[start:text.find("}", start)].splitlines()
@@ -142,10 +179,10 @@ def sprite_enum():
     for ln in lines:
         s = ln.strip()
         if s.startswith("#ifdef"):
-            stack.append(False)
+            stack.append(s.split()[1] == "SPEAR" and spear)
             continue
         if s.startswith("#ifndef"):
-            stack.append(s.split()[1] == "SPEAR")
+            stack.append(not (s.split()[1] == "SPEAR" and spear))
             continue
         if s.startswith("#else"):
             if stack:
@@ -179,8 +216,7 @@ def main():
     zs = ["// GENERATED by tools/gen_enemies.py from docs/data/state_tables.json",
           "// Rows are WL_ACT2.C statetype entries, one to one. Do not edit.",
           ""]
-    copies = []
-    seen_lumps = set()
+    specs = []
     regs = {}       # per enemy: sprite name -> set of frame chars (for zs regs)
 
     for ename, cfg in ENEMIES.items():
@@ -215,20 +251,10 @@ def main():
             arr("NEXT", nxt_l), "}", ""]
         regs[ename] = reg
 
-        # sprite copy list
+        # sprite copy SPECS: resolved against each build's enum below,
+        # since the same lump sits at different chunks per game
         for sprkey, (sprname, frame, kind) in cfg["sprites"].items():
-            base = enum[sprkey]
-            if kind == "rot8":
-                for r in range(8):
-                    copies.append([base + r, f"{sprname}{frame}{r + 1}"])
-            elif kind == "pain":
-                # CalcRotate rotate==2: +0 (rots 1-4 approx) / +4 (rots 5-8)
-                for r in range(1, 5):
-                    copies.append([base, f"{sprname}{frame}{r}"])
-                for r in range(5, 9):
-                    copies.append([base + 4, f"{sprname}{frame}{r}"])
-            else:
-                copies.append([base, f"{sprname}{frame}0"])
+            specs.append((sprkey, sprname, frame, kind))
 
     # sprite-name registration states (engine needs States blocks to
     # create sprite entries; see the SpriteRegistry pattern)
@@ -248,40 +274,71 @@ def main():
         "// GENERATED by tools/gen_enemies.py — included from MAPINFO\n"
         "DoomEdNums\n{\n" + "\n".join(DOOMEDS) + "\n}\n")
 
-    dedup = []
-    for c in copies:
-        if c[1] not in seen_lumps:
-            seen_lumps.add(c[1])
-            dedup.append(c)
-    # projectile sprites (their actors use plain ZScript states)
-    for chunk, lump in ((317, "HYPOA0"), (318, "HYPOB0"), (319, "HYPOC0"),
-                        (320, "HYPOD0"), (370, "MISLA0"),
-                        (326, "FIREA0"), (327, "FIREB0"),
-                        (408, "BJRNA0"), (409, "BJRNB0"),
-                        (410, "BJRNC0"), (411, "BJRND0"),
-                        (412, "BJJPA0"), (413, "BJJPB0"),
-                        (414, "BJJPC0"), (415, "BJJPD0"),
-                        # E3 secret floor ghosts (sprite_enum-resolved:
-                        # SPR_BLINKY_W1..SPR_INKY_W2 = 288-295 in WL6)
-                        (288, "BLKYA0"), (289, "BLKYB0"),
-                        (290, "PNKYA0"), (291, "PNKYB0"),
-                        (292, "CLYDA0"), (293, "CLYDB0"),
-                        (294, "INKYA0"), (295, "INKYB0")):
-        if lump not in seen_lumps:
-            seen_lumps.add(lump)
-            dedup.append([chunk, lump])
+    # Non-enemy sprites whose actors use plain ZScript states. Resolved
+    # BY NAME per build rather than hardcoded chunk numbers - the Spear
+    # enum shifts everything, and its own extras (the Angel's spark, the
+    # Death Knight's rocket) only exist there.
+    EXTRAS = [("SPR_HYPO1", "HYPOA0"), ("SPR_HYPO2", "HYPOB0"),
+              ("SPR_HYPO3", "HYPOC0"), ("SPR_HYPO4", "HYPOD0"),
+              ("SPR_ROCKET_1", "MISLA0"),
+              ("SPR_FIRE1", "FIREA0"), ("SPR_FIRE2", "FIREB0"),
+              ("SPR_BJ_W1", "BJRNA0"), ("SPR_BJ_W2", "BJRNB0"),
+              ("SPR_BJ_W3", "BJRNC0"), ("SPR_BJ_W4", "BJRND0"),
+              ("SPR_BJ_JUMP1", "BJJPA0"), ("SPR_BJ_JUMP2", "BJJPB0"),
+              ("SPR_BJ_JUMP3", "BJJPC0"), ("SPR_BJ_JUMP4", "BJJPD0"),
+              # E3 secret floor ghosts (WL6 only)
+              ("SPR_BLINKY_W1", "BLKYA0"), ("SPR_BLINKY_W2", "BLKYB0"),
+              ("SPR_PINKY_W1", "PNKYA0"), ("SPR_PINKY_W2", "PNKYB0"),
+              ("SPR_CLYDE_W1", "CLYDA0"), ("SPR_CLYDE_W2", "CLYDB0"),
+              ("SPR_INKY_W1", "INKYA0"), ("SPR_INKY_W2", "INKYB0"),
+              # Spear only: Angel spark, Death Knight heat-seeker
+              ("SPR_SPARK1", "SPRKA0"), ("SPR_SPARK2", "SPRKB0"),
+              ("SPR_SPARK3", "SPRKC0"), ("SPR_SPARK4", "SPRKD0"),
+              ("SPR_HROCKET_1", "HMISA0")]
 
-    # written AFTER the appends above - the json once ran before them,
-    # which shipped 1x1 placeholders for every entry in that tuple
-    (ROOT / "docs" / "data" / "sprite_copies.json").write_text(
-        json.dumps({"note": "chunk -> sprite lump (gen_enemies.py)",
-                    "copies": dedup}, indent=1))
+    def copies_for(en):
+        """chunk -> lump for ONE build; entries the build lacks are
+        simply absent (SOD bosses in WL6, the ghosts in Spear)."""
+        out, seen = [], set()
+        for sprkey, sprname, frame, kind in specs:
+            if sprkey not in en:
+                continue
+            base = en[sprkey]
+            if kind == "rot8":
+                pairs = [(base + r, f"{sprname}{frame}{r + 1}")
+                         for r in range(8)]
+            elif kind == "pain":
+                # CalcRotate rotate==2: +0 (rots 1-4) / +4 (rots 5-8)
+                pairs = [(base, f"{sprname}{frame}{r}") for r in range(1, 5)]
+                pairs += [(base + 4, f"{sprname}{frame}{r}")
+                          for r in range(5, 9)]
+            else:
+                pairs = [(base, f"{sprname}{frame}0")]
+            for chunk, lump in pairs:
+                if lump not in seen:
+                    seen.add(lump)
+                    out.append([chunk, lump])
+        for sprkey, lump in EXTRAS:
+            if sprkey in en and lump not in seen:
+                seen.add(lump)
+                out.append([en[sprkey], lump])
+        return out
 
+    all_lumps = set()
+    for setname, en in (("wl6", enum), ("sod", sprite_enum(spear=True))):
+        cp = copies_for(en)
+        all_lumps.update(l for _, l in cp)
+        (ROOT / "docs" / "data" / f"sprite_copies_{setname}.json").write_text(
+            json.dumps({"note": f"chunk -> sprite lump ({setname}, "
+                                "gen_enemies.py)", "copies": cp}, indent=1))
+        print(f"  {setname}: {len(cp)} sprite lumps")
+
+    # placeholders so the IPK3 boots before any user data is extracted
     ph = placeholder_png()
-    for _, lump in dedup:
+    for lump in sorted(all_lumps):
         (ROOT / "src" / "sprites" / f"{lump}.png").write_bytes(ph)
 
-    print(f"generated {len(ENEMIES)} enemies, {len(dedup)} sprite lumps")
+    print(f"generated {len(ENEMIES)} enemies, {len(all_lumps)} sprite lumps")
 
 
 if __name__ == "__main__":

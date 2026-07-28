@@ -387,6 +387,62 @@ class WolfDebugHandler : EventHandler
             }
         }
 
+        // Spear boss probe: alert the boss, report its class, hp and
+        // ASSIGNED sighting speed, then kill it and watch the outcome
+        CVar sbv = CVar.FindCVar("wolf_dbg_sodboss");
+        if (sbv != null && sbv.GetInt() != 0)
+        {
+            if (t == 40)
+            {
+                ThinkerIterator it = ThinkerIterator.Create("WolfEnemySim");
+                WolfEnemySim e;
+                while ((e = WolfEnemySim(it.Next())) != null)
+                {
+                    String cn = String.Format("%s", e.GetClassName());
+                    if (cn.IndexOf("WolfTrans") == 0 || cn.IndexOf("WolfWill") == 0
+                        || cn.IndexOf("WolfUber") == 0
+                        || cn.IndexOf("WolfDeathKnight") == 0
+                        || cn.IndexOf("WolfAngel") == 0)
+                    {
+                        e.FirstSighting();
+                        Console.Printf("WOLFDBG sodboss: %s hp=%d speed=%d "
+                                       "state=%d", cn, e.hitpoints,
+                                       e.wolfSpeed, e.stateIdx);
+                        break;
+                    }
+                }
+            }
+            if (t == 90)
+            {
+                ThinkerIterator it = ThinkerIterator.Create("WolfEnemySim");
+                WolfEnemySim e;
+                while ((e = WolfEnemySim(it.Next())) != null)
+                {
+                    String cn = String.Format("%s", e.GetClassName());
+                    if (cn.IndexOf("WolfAngel") == 0 || cn.IndexOf("WolfTrans") == 0
+                        || cn.IndexOf("WolfWill") == 0 || cn.IndexOf("WolfUber") == 0
+                        || cn.IndexOf("WolfDeathKnight") == 0)
+                    {
+                        Console.Printf("WOLFDBG sodboss chasing: %s state=%d",
+                                       cn, e.stateIdx);
+                        e.KillActor_(players[0].mo);
+                        break;
+                    }
+                }
+            }
+            if (t == 200)
+            {
+                int keys = 0;
+                ThinkerIterator kit = ThinkerIterator.Create("Actor");
+                Actor a;
+                while ((a = Actor(kit.Next())) != null)
+                    if (a.GetClassName() == 'SodStatic20')
+                        keys++;
+                Console.Printf("WOLFDBG sodboss aftermath: map=%s goldkeys=%d",
+                               Level.MapName, keys);
+            }
+        }
+
         // net-sync beacon: same line must appear in every node's log at
         // the same tic - any field difference is a lockstep divergence
         CVar nbv = CVar.FindCVar("wolf_dbg_net");

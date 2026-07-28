@@ -42,12 +42,16 @@ WARN_PATTERNS = [
 ]
 
 
-def build() -> Path:
+def build(spear: bool = False) -> Path:
+    assets = (ROOT / "build" / "assets_sod") if spear else ASSETS
+    pk3 = (DIST / "spear.ipk3") if spear else PK3
     # Always refresh build/assets from the converter outputs first — packing
     # stale maps cost a whole playtest round once. Cheap (<1s).
     if (ROOT / "build" / "udmf").is_dir():
-        rc = subprocess.run([sys.executable, "tools/make_assets.py"],
-                            cwd=str(ROOT)).returncode
+        cmd = [sys.executable, "tools/make_assets.py"]
+        if spear:
+            cmd.append("sod")
+        rc = subprocess.run(cmd, cwd=str(ROOT)).returncode
         if rc:
             sys.exit("make_assets failed")
         # scrub stale wolf_dbg_ values from the playtest config: any
@@ -70,26 +74,26 @@ def build() -> Path:
         subprocess.run([sys.executable, "tools/patch_engine_icon.py"],
                        check=False)
     DIST.mkdir(exist_ok=True)
-    if PK3.exists():
+    if pk3.exists():
         # a freshly-written pk3 can be briefly locked by AV scanning
         # (user repro: build-failed dialog seconds after SETUP finished,
         # fine on retry) - wait it out before declaring it in use
         import time
         for _attempt in range(5):
             try:
-                PK3.unlink()
+                pk3.unlink()
                 break
             except PermissionError:
                 time.sleep(2)
-    if PK3.exists():
+    if pk3.exists():
         try:
-            PK3.unlink()
+            pk3.unlink()
         except PermissionError:
             sys.exit("wolf.ipk3 is in use — close the running game first, "
                      "then run play.bat again")
-    asset_files = ({f.relative_to(ASSETS).as_posix(): f
-                    for f in ASSETS.rglob("*") if f.is_file()}
-                   if ASSETS.is_dir() else {})
+    asset_files = ({f.relative_to(assets).as_posix(): f
+                    for f in assets.rglob("*") if f.is_file()}
+                   if assets.is_dir() else {})
     # BUILDID: content hash over everything packed, so two builds show
     # the same id exactly when their pk3 content matches - netgames need
     # identical builds, and the lobby overlay displays this for an
@@ -103,18 +107,26 @@ def build() -> Path:
     for rel, f in sorted(asset_files.items()):
         h.update(rel.encode()); h.update(f.read_bytes())
     buildid = h.hexdigest()[:8]
-    with zipfile.ZipFile(PK3, "w", zipfile.ZIP_DEFLATED) as z:
+    with zipfile.ZipFile(pk3, "w", zipfile.ZIP_DEFLATED) as z:
         for f in sorted(SRC.rglob("*")):
             rel = f.relative_to(SRC).as_posix()
-            if f.is_file() and rel not in asset_files:
-                z.write(f, rel)
+            if not f.is_file() or rel in asset_files:
+                continue
+            if rel.endswith(".spear"):
+                continue            # Spear overlay, handled below
+            if spear and rel in ("MAPINFO", "IWADINFO"):
+                continue            # replaced by the .spear overlay
+            z.write(f, rel)
+        if spear:
+            for rel in ("MAPINFO", "IWADINFO"):
+                z.write(SRC / (rel + ".spear"), rel)
         for rel, f in sorted(asset_files.items()):
             z.write(f, rel)
         z.writestr("BUILDID", buildid)
     print(f"build id: {buildid}")
-    print(f"built {PK3.relative_to(ROOT)} ({PK3.stat().st_size} bytes, "
+    print(f"built {pk3.relative_to(ROOT)} ({pk3.stat().st_size} bytes, "
           f"{len(asset_files)} extracted assets)")
-    return PK3
+    return pk3
 
 
 def run_engine(extra_args, timeout=90):
@@ -231,8 +243,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--play", action="store_true")
+    ap.add_argument("--nospear", action="store_true")
     args = ap.parse_args()
     build()
+    # Spear of Destiny is built too when the user owns its data (the
+    # converter only emits build/udmf/sod when SOD files were found)
+    if (ROOT / "build" / "udmf" / "sod").is_dir() and not args.nospear:
+        build(spear=True)
     if args.check:
         check()
     elif args.play:

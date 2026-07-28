@@ -78,8 +78,8 @@ wolf/yeah       "sounds/yeah.wav"        // YEAHSND digi 32
 
 // Wolf menu blips (WL_MENU.C): MOVEGUN1 on cursor move, MOVEGUN2 on a
 // value toggle, SHOOT on select, ESCPRESSED on backing out. Defining the
-// engine's own menu/* names routes EVERY menu — ours and the engine's
-// option pages — through the Wolf sounds.
+// engine's own menu/* names routes EVERY menu ï¿½ ours and the engine's
+// option pages ï¿½ through the Wolf sounds.
 menu/cursor    "sounds/movegun1snd.wav"
 menu/change    "sounds/movegun2snd.wav"
 menu/advance   "sounds/shootsnd.wav"
@@ -91,3 +91,21 @@ menu/dismiss   "sounds/escpressedsnd.wav"
 menu/prompt    "sounds/shootsnd.wav"
 menu/invalid   "sounds/movegun2snd.wav"
 wolf/rose       "sounds/rose.wav"        // ROSESND digi 45
+
+// ---- Spear of Destiny (AdLib boss voices; absent from the WL6 build,
+// where these logical names simply never resolve and stay silent) ----
+sod/ghostsight    "sounds/ghostsightsnd.wav"
+sod/ghostfade     "sounds/ghostfadesnd.wav"
+sod/angelsight    "sounds/angelsightsnd.wav"
+sod/angeldeath    "sounds/angeldeathsnd.wav"
+sod/angelfire     "sounds/angelfiresnd.wav"
+sod/angeltired    "sounds/angeltiredsnd.wav"
+sod/transsight    "sounds/transsightsnd.wav"
+sod/transdeath    "sounds/transdeathsnd.wav"
+sod/uberdeath     "sounds/uberdeathsnd.wav"
+sod/knightsight   "sounds/knightsightsnd.wav"
+sod/knightdeath   "sounds/knightdeathsnd.wav"
+sod/knightmissile "sounds/knightmissilesnd.wav"
+sod/willsight     "sounds/wilhelmsightsnd.wav"
+sod/willdeath     "sounds/wilhelmdeathsnd.wav"
+sod/getspear      "sounds/getspearsnd.wav"

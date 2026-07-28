@@ -1,0 +1,9 @@
+IWad
+{
+    Name = "WolfPack: Spear of Destiny"
+    Autoname = "wolfpack.spear"
+    Game = "Doom"
+    Config = "WolfPack"
+    MustContain = "MAPINFO"
+    BannerColors = "00 00 00", "8d 00 00"
+}

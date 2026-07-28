@@ -6,20 +6,31 @@
 - flats/FLOOR19.png + CEILxx.png: solid-color flats per charter DATA-002
 - maps/mapNN.wad: UDMF TEXTMAP wrapped in a 3-lump PWAD (from convert_udmf)
 
-v1 scope: WL6 set, all 60 maps as MAP01..MAP60 (episode*10+map+1).
+Runs per GAME SET (argv, default wl6):
+  wl6 -> build/assets      -> dist/wolf.ipk3   60 maps as MAP01..MAP60
+  sod -> build/assets_sod  -> dist/spear.ipk3  21 maps as MAP01..MAP21
+The two ipk3s are separate files, so each owns its lump namespace and
+nothing needs renaming between them; only the chunk->lump mappings and
+the static DoomEd range differ (gen_statics emits both sets).
 """
 import json
 import shutil
 import struct
+import sys
 from pathlib import Path
 
 from PIL import Image
 
 from wolf_common import ROOT, load_palette
 
-ASSETS = ROOT / "build" / "assets"
-VSWAP = ROOT / "build" / "vswap" / "wl6"
-UDMF = ROOT / "build" / "udmf" / "wl6"
+SET = "sod" if "sod" in sys.argv[1:] else "wl6"
+IS_SOD = SET == "sod"
+# Spear statics are SodStatic** with D-prefixed sprite lumps (gen_statics)
+SPRPFX = "D" if IS_SOD else "S"
+
+ASSETS = ROOT / "build" / ("assets_sod" if IS_SOD else "assets")
+VSWAP = ROOT / "build" / "vswap" / SET
+UDMF = ROOT / "build" / "udmf" / SET
 
 
 def png_set_grab(data: bytes, xoff: int, yoff: int) -> bytes:
@@ -90,7 +101,7 @@ def main():
 
     ceilings = json.loads((ROOT / "docs" / "data" / "ceiling_colors.json").read_text())
     solid_flat(pal, 0x19).save(ASSETS / "flats" / "FLOOR19.png")
-    for c in sorted(set(ceilings["wl6"])):
+    for c in sorted(set(ceilings[SET])):
         solid_flat(pal, c).save(ASSETS / "flats" / f"CEIL{c:02X}.png")
 
     # sprites: statics S000..S0nn (chunk 2 + row sprite, SPR_STAT_0=2 in the
@@ -99,12 +110,14 @@ def main():
     # original renderer. These override the committed placeholders.
     (ASSETS / "sprites").mkdir()
     statrows = json.loads((ROOT / "docs" / "data" / "statinfo.json").read_text())["rows"]
-    wl6rows = [r for r in statrows
-               if r["cond"] in (None, "ifndef SPEAR", "!ifdef SPEAR")]
-    copies = [(2 + r["sprite"], f"S{pos:03d}A0") for pos, r in enumerate(wl6rows)]
+    conds = ((None, "ifdef SPEAR", "!ifndef SPEAR") if IS_SOD
+             else (None, "ifndef SPEAR", "!ifdef SPEAR"))
+    wl6rows = [r for r in statrows if r["cond"] in conds]
+    copies = [(2 + r["sprite"], f"{SPRPFX}{pos:03d}A0")
+              for pos, r in enumerate(wl6rows)]
     copies.append((95, "SDEDA0"))
     # enemy sprites (gen_enemies.py copy list)
-    sc = ROOT / "docs" / "data" / "sprite_copies.json"
+    sc = ROOT / "docs" / "data" / f"sprite_copies_{SET}.json"
     if sc.exists():
         copies += [(c, n) for c, n in json.loads(sc.read_text())["copies"]]
     nspr = 0
@@ -116,7 +129,7 @@ def main():
             nspr += 1
 
     # HUD graphics from VGAGRAPH (extract_vgagraph.py)
-    VGA = ROOT / "build" / "vgagraph" / "wl6"
+    VGA = ROOT / "build" / "vgagraph" / SET
     (ASSETS / "graphics").mkdir(exist_ok=True)
     hud_pics = {"STATUSBARPIC": "STATBAR", "N_BLANKPIC": "N_BLANK",
                 "KNIFEPIC": "KNIFEP", "GUNPIC": "GUNP",
@@ -213,7 +226,7 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
     # AdLib menu blips (render_adlib.py output): cursor, toggle, select,
     # escape - these replace the engine's Doom menu sounds via SNDINFO
     (ASSETS / "sounds").mkdir(exist_ok=True)
-    SFX = ROOT / "build" / "audio" / "wl6" / "sfx"
+    SFX = ROOT / "build" / "audio" / SET / "sfx"
     for wav in ("MOVEGUN1SND", "MOVEGUN2SND", "SHOOTSND", "ESCPRESSEDSND"):
         src = SFX / f"{wav}.wav"
         if src.exists():
@@ -469,12 +482,12 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
     # pre-rendered audio.
     (ASSETS / "music").mkdir()
     nmus = 0
-    for f in sorted((ROOT / "build" / "audio" / "wl6" / "music_wav").glob("*.flac")):
+    for f in sorted((ROOT / "build" / "audio" / SET / "music_wav").glob("*.flac")):
         shutil.copy(f, ASSETS / "music" / f.name)
         nmus += 1
 
     # AdLib SFX (render_adlib.py) referenced by SNDINFO
-    ADLIB = ROOT / "build" / "audio" / "wl6" / "sfx"
+    ADLIB = ROOT / "build" / "audio" / SET / "sfx"
     (ASSETS / "sounds").mkdir(exist_ok=True)
     adlib_sfx = ["MISSILEHITSND", "PLAYERDEATHSND", "PERCENT100SND", "HEALTH1SND", "HEALTH2SND", "GETAMMOSND", "BONUS1SND",
                  "BONUS2SND", "BONUS3SND", "BONUS4SND", "BONUS1UPSND",
@@ -482,6 +495,14 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
                  "ATKKNIFESND", "DOGATTACKSND", "DONOTHINGSND",
                  "LEVELDONESND", "ENDBONUS1SND", "ENDBONUS2SND",
                  "PERCENT100SND", "NOBONUSSND", "HITWALLSND"]
+    # Spear's boss voices are AdLib, not digitised - pack them by their
+    # sound-enum names alongside the shared set
+    adlib_sfx += ["GHOSTSIGHTSND", "GHOSTFADESND", "ANGELSIGHTSND",
+                  "ANGELDEATHSND", "ANGELFIRESND", "ANGELTIREDSND",
+                  "TRANSSIGHTSND", "TRANSDEATHSND", "UBERDEATHSND",
+                  "KNIGHTSIGHTSND", "KNIGHTDEATHSND", "KNIGHTMISSILESND",
+                  "WILHELMSIGHTSND", "WILHELMDEATHSND", "GETSPEARSND",
+                  "SPIONSND"]
     for n in adlib_sfx:
         src = ADLIB / f"{n}.wav"
         if src.exists():
@@ -531,7 +552,7 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
         nmaps += 1
 
     print(f"assets: {nwalls} wall textures, "
-          f"{len(set(ceilings['wl6'])) + 1} flats, {nmaps} maps, PLAYPAL")
+          f"{len(set(ceilings[SET])) + 1} flats, {nmaps} maps, PLAYPAL")
 
 
 if __name__ == "__main__":

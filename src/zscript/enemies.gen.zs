@@ -414,15 +414,212 @@ class WolfHitlerTable
     static const int NEXT[] = { 1, 2, 3, 4, 5, 6, 10, 8, 11, 6, 7, 9, 13, 14, 15, 16, 17, 18, 19, 20, 21, 21, 12 };
 }
 
+class WolfTransTable
+{
+    const TRANSSTAND = 0;
+    const TRANSSHOOT1 = 1;
+    const TRANSSHOOT2 = 2;
+    const TRANSSHOOT3 = 3;
+    const TRANSSHOOT4 = 4;
+    const TRANSSHOOT5 = 5;
+    const TRANSSHOOT6 = 6;
+    const TRANSSHOOT7 = 7;
+    const TRANSSHOOT8 = 8;
+    const TRANSCHASE1 = 9;
+    const TRANSCHASE2 = 10;
+    const TRANSCHASE3 = 11;
+    const TRANSCHASE4 = 12;
+    const TRANSCHASE1S = 13;
+    const TRANSCHASE3S = 14;
+    const TRANSDIE0 = 15;
+    const TRANSDIE1 = 16;
+    const TRANSDIE2 = 17;
+    const TRANSDIE3 = 18;
+    const TRANSDIE4 = 19;
+    const TRANSDIE01 = 20;
+    static const int ROT[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const String SPR[] = { "TRNW", "TRNA", "TRNA", "TRNA", "TRNA", "TRNA", "TRNA", "TRNA", "TRNA", "TRNW", "TRNW", "TRNW", "TRNW", "TRNW", "TRNW", "TRNW", "TRND", "TRND", "TRND", "TRND", "TRNW" };
+    static const int FRM[] = { 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 1, 2, 3, 0, 2, 0, 0, 1, 2, 3, 0 };
+    static const int TICS[] = { 0, 30, 10, 10, 10, 10, 10, 10, 10, 10, 8, 10, 8, 3, 3, 1, 15, 15, 15, 0, 1 };
+    static const int THINK[] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const int ACT[] = { 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0 };
+    static const int NEXT[] = { 0, 2, 3, 4, 5, 6, 7, 8, 9, 13, 11, 14, 9, 10, 12, 20, 17, 18, 19, 19, 16 };
+}
+
+class WolfWillTable
+{
+    const WILLSTAND = 0;
+    const WILLSHOOT1 = 1;
+    const WILLSHOOT2 = 2;
+    const WILLSHOOT3 = 3;
+    const WILLSHOOT4 = 4;
+    const WILLSHOOT5 = 5;
+    const WILLSHOOT6 = 6;
+    const WILLCHASE1 = 7;
+    const WILLCHASE2 = 8;
+    const WILLCHASE3 = 9;
+    const WILLCHASE4 = 10;
+    const WILLCHASE1S = 11;
+    const WILLCHASE3S = 12;
+    const WILLDIE1 = 13;
+    const WILLDIE2 = 14;
+    const WILLDIE3 = 15;
+    const WILLDIE4 = 16;
+    const WILLDIE5 = 17;
+    const WILLDIE6 = 18;
+    const WILLDEATHCAM = 19;
+    static const int ROT[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const String SPR[] = { "WILW", "WILA", "WILA", "WILA", "WILA", "WILA", "WILA", "WILW", "WILW", "WILW", "WILW", "WILW", "WILW", "WILW", "WILW", "WILD", "WILD", "WILD", "WILD", "WILW" };
+    static const int FRM[] = { 0, 0, 1, 2, 3, 2, 3, 0, 1, 2, 3, 0, 2, 0, 0, 0, 1, 2, 3, 0 };
+    static const int TICS[] = { 0, 30, 10, 10, 10, 10, 10, 10, 8, 10, 8, 3, 3, 1, 10, 10, 10, 10, 20, 1 };
+    static const int THINK[] = { 1, 0, 0, 0, 0, 0, 0, 33, 33, 33, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const int ACT[] = { 0, 0, 31, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0 };
+    static const int NEXT[] = { 0, 2, 3, 4, 5, 6, 7, 11, 9, 12, 7, 8, 10, 14, 15, 16, 17, 18, 18, 13 };
+}
+
+class WolfUberTable
+{
+    const UBERSTAND = 0;
+    const UBERSHOOT1 = 1;
+    const UBERSHOOT2 = 2;
+    const UBERSHOOT3 = 3;
+    const UBERSHOOT4 = 4;
+    const UBERSHOOT5 = 5;
+    const UBERSHOOT6 = 6;
+    const UBERSHOOT7 = 7;
+    const UBERCHASE1 = 8;
+    const UBERCHASE2 = 9;
+    const UBERCHASE3 = 10;
+    const UBERCHASE4 = 11;
+    const UBERCHASE1S = 12;
+    const UBERCHASE3S = 13;
+    const UBERDIE0 = 14;
+    const UBERDIE1 = 15;
+    const UBERDIE2 = 16;
+    const UBERDIE3 = 17;
+    const UBERDIE4 = 18;
+    const UBERDIE5 = 19;
+    const UBERDIE01 = 20;
+    static const int ROT[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const String SPR[] = { "UBRW", "UBRA", "UBRA", "UBRA", "UBRA", "UBRA", "UBRA", "UBRA", "UBRW", "UBRW", "UBRW", "UBRW", "UBRW", "UBRW", "UBRW", "UBRD", "UBRD", "UBRD", "UBRD", "UBRD", "UBRW" };
+    static const int FRM[] = { 0, 0, 1, 2, 3, 2, 1, 0, 0, 1, 2, 3, 0, 2, 0, 0, 1, 2, 3, 4, 0 };
+    static const int TICS[] = { 0, 30, 12, 12, 12, 12, 12, 12, 10, 8, 10, 8, 3, 3, 1, 15, 15, 15, 15, 0, 1 };
+    static const int THINK[] = { 1, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const int ACT[] = { 0, 0, 34, 34, 34, 34, 34, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0 };
+    static const int NEXT[] = { 0, 2, 3, 4, 5, 6, 7, 8, 12, 10, 13, 8, 9, 11, 20, 16, 17, 18, 19, 19, 15 };
+}
+
+class WolfDeathTable
+{
+    const DEATHSTAND = 0;
+    const DEATHSHOOT1 = 1;
+    const DEATHSHOOT2 = 2;
+    const DEATHSHOOT3 = 3;
+    const DEATHSHOOT4 = 4;
+    const DEATHSHOOT5 = 5;
+    const DEATHCHASE1 = 6;
+    const DEATHCHASE2 = 7;
+    const DEATHCHASE3 = 8;
+    const DEATHCHASE4 = 9;
+    const DEATHCHASE1S = 10;
+    const DEATHCHASE3S = 11;
+    const DEATHDIE1 = 12;
+    const DEATHDIE2 = 13;
+    const DEATHDIE3 = 14;
+    const DEATHDIE4 = 15;
+    const DEATHDIE5 = 16;
+    const DEATHDIE6 = 17;
+    const DEATHDIE7 = 18;
+    const DEATHDIE8 = 19;
+    const DEATHDIE9 = 20;
+    const DEATHDEATHCAM = 21;
+    static const int ROT[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const String SPR[] = { "DKNW", "DKNA", "DKNA", "DKNA", "DKNA", "DKNA", "DKNW", "DKNW", "DKNW", "DKNW", "DKNW", "DKNW", "DKNW", "DKNW", "DKND", "DKND", "DKND", "DKND", "DKND", "DKND", "DKND", "DKNW" };
+    static const int FRM[] = { 0, 0, 1, 3, 2, 3, 0, 1, 2, 3, 0, 2, 0, 0, 0, 1, 2, 3, 4, 5, 6, 0 };
+    static const int TICS[] = { 0, 30, 10, 10, 10, 10, 10, 8, 10, 8, 3, 3, 1, 10, 10, 10, 10, 10, 10, 10, 0, 1 };
+    static const int THINK[] = { 1, 0, 0, 0, 0, 0, 33, 33, 33, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const int ACT[] = { 0, 0, 31, 4, 31, 4, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const int NEXT[] = { 0, 2, 3, 4, 5, 6, 10, 8, 11, 6, 7, 9, 13, 14, 15, 16, 17, 18, 19, 20, 20, 12 };
+}
+
+class WolfAngelTable
+{
+    const ANGELSTAND = 0;
+    const ANGELSHOOT1 = 1;
+    const ANGELSHOOT2 = 2;
+    const ANGELSHOOT3 = 3;
+    const ANGELCHASE1 = 4;
+    const ANGELCHASE2 = 5;
+    const ANGELCHASE3 = 6;
+    const ANGELCHASE4 = 7;
+    const ANGELCHASE1S = 8;
+    const ANGELCHASE3S = 9;
+    const ANGELDIE1 = 10;
+    const ANGELDIE2 = 11;
+    const ANGELDIE3 = 12;
+    const ANGELDIE4 = 13;
+    const ANGELDIE5 = 14;
+    const ANGELDIE6 = 15;
+    const ANGELDIE7 = 16;
+    const ANGELDIE8 = 17;
+    const ANGELDIE9 = 18;
+    const ANGELDIE11 = 19;
+    const ANGELTIRED = 20;
+    const ANGELTIRED2 = 21;
+    const ANGELTIRED3 = 22;
+    const ANGELTIRED4 = 23;
+    const ANGELTIRED5 = 24;
+    const ANGELTIRED6 = 25;
+    const ANGELTIRED7 = 26;
+    static const int ROT[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const String SPR[] = { "ANGW", "ANGA", "ANGA", "ANGA", "ANGW", "ANGW", "ANGW", "ANGW", "ANGW", "ANGW", "ANGW", "ANGD", "ANGD", "ANGD", "ANGD", "ANGD", "ANGD", "ANGD", "ANGD", "ANGW", "ANGT", "ANGT", "ANGT", "ANGT", "ANGT", "ANGT", "ANGT" };
+    static const int FRM[] = { 0, 0, 1, 0, 0, 1, 2, 3, 0, 2, 0, 0, 1, 2, 3, 4, 5, 6, 7, 0, 0, 1, 0, 1, 0, 1, 0 };
+    static const int TICS[] = { 0, 10, 20, 10, 10, 8, 10, 8, 3, 3, 1, 10, 10, 10, 10, 10, 10, 10, 130, 1, 40, 40, 40, 40, 40, 40, 40 };
+    static const int THINK[] = { 1, 0, 0, 0, 33, 33, 33, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const int ACT[] = { 0, 36, 31, 32, 0, 0, 0, 0, 0, 0, 10, 30, 0, 0, 0, 0, 0, 0, 35, 0, 38, 0, 38, 0, 38, 0, 38 };
+    static const int NEXT[] = { 0, 2, 3, 2, 8, 6, 9, 4, 5, 7, 19, 12, 13, 14, 15, 16, 17, 18, 18, 11, 21, 22, 23, 24, 25, 26, 4 };
+}
+
+class WolfSpectreTable
+{
+    const SPECTRECHASE1 = 0;
+    const SPECTRECHASE2 = 1;
+    const SPECTRECHASE3 = 2;
+    const SPECTRECHASE4 = 3;
+    const SPECTREDIE1 = 4;
+    const SPECTREDIE2 = 5;
+    const SPECTREDIE3 = 6;
+    const SPECTREDIE4 = 7;
+    const SPECTREWAIT1 = 8;
+    const SPECTREWAIT2 = 9;
+    const SPECTREWAIT3 = 10;
+    const SPECTREWAIT4 = 11;
+    const SPECTREWAKE = 12;
+    static const int ROT[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    static const String SPR[] = { "SPCW", "SPCW", "SPCW", "SPCW", "SPCF", "SPCF", "SPCF", "SPCF", "SPCW", "SPCW", "SPCW", "SPCW", "SPCF" };
+    static const int FRM[] = { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 3 };
+    static const int TICS[] = { 10, 10, 10, 10, 10, 10, 10, 300, 10, 10, 10, 10, 10 };
+    static const int THINK[] = { 12, 12, 12, 12, 0, 0, 0, 0, 1, 1, 1, 1, 0 };
+    static const int ACT[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 37 };
+    static const int NEXT[] = { 1, 2, 3, 0, 5, 6, 7, 12, 9, 10, 11, 8, 12 };
+}
+
 // sprite-name registration only — never entered
 class WolfSpriteRegistry : Actor
 {
     States
     {
     Reg:
+        ANGA AB -1;
+        ANGD ABCDEFGH -1;
+        ANGT AB -1;
+        ANGW ABCD -1;
         BOSA ABC -1;
         BOSD ABCD -1;
         BOSW ABCD -1;
+        DKNA ABCD -1;
+        DKND ABCDEFG -1;
+        DKNW ABCD -1;
         DOGD ABCD -1;
         DOGJ ABC -1;
         DOGW ABCD -1;
@@ -462,11 +659,22 @@ class WolfSpriteRegistry : Actor
         SCHA AB -1;
         SCHD ABCD -1;
         SCHW ABCD -1;
+        SPCF ABCD -1;
+        SPCW ABCD -1;
         SSGA ABC -1;
         SSGD ABCD -1;
         SSGP AB -1;
         SSGS A -1;
         SSGW ABCD -1;
+        TRNA ABC -1;
+        TRND ABCD -1;
+        TRNW ABCD -1;
+        UBRA ABCD -1;
+        UBRD ABCDE -1;
+        UBRW ABCD -1;
+        WILA ABCD -1;
+        WILD ABCD -1;
+        WILW ABCD -1;
         Stop;
     }
 }

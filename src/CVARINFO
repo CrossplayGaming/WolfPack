@@ -1,7 +1,7 @@
 // Debug/self-test switches (build.py --check, boss.bat).
 // nosave, NOT server: an archived value beats the default, so a
 // server cvar left set by one test run silently leaks into every
-// later launch (wolf_dbg_arm did exactly that — normal play
+// later launch (wolf_dbg_arm did exactly that ï¿½ normal play
 // started fully armed). These now always begin at 0 and only take
 // effect when a launcher passes +set explicitly.
 nosave int wolf_dbg_check = 0;      // harness map-load heartbeat
@@ -26,6 +26,7 @@ nosave int wolf_dbg_ghost = 0;      // Pac-Man ghost behavior probe
 nosave int wolf_dbg_bosskill = 0;   // extra-boss floor-survival probe
 nosave int wolf_dbg_coopsight = 0;  // co-op dormant-sight probe
 nosave int wolf_dbg_menutest = 0;   // netgame menu-persistence probe
+nosave int wolf_dbg_sodboss = 0;    // Spear boss behaviour probe
 user string wolf_mp_request = "";    // menu -> launcher handoff:
 // USER scope on purpose - server cvars apply on game tics, and menus
 // PAUSE the game, so a set made in the menu died before the quit

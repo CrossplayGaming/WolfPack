@@ -279,6 +279,15 @@ class WolfEnemySim : Actor abstract
         case 5: T_Bite(); break;
         case 13: T_DogChase(); break;
         case 6: ChaseMove(false); break; // T_Ghosts: chase, no attack roll
+        // ---- Spear of Destiny ----
+        case 31: T_Launch(); break;      // rocket / spark / heat-seeker
+        case 33: BossChase(3); break;    // T_Will (Wilhelm/Angel/Knight)
+        case 34: T_UShoot(); break;
+        case 35: A_Victory(); break;
+        case 36: burstCount = 0; break;  // A_StartAttack
+        case 37: A_Dormant(); break;
+        case 38: A_StartSound("sod/angeltired", CHAN_VOICE); break;
+        case 32: A_Relaunch(); break;    // Angel: 3 shots then tired
         case 20: BossChase(3); break;   // T_Schabb
         case 21: BossChase(3); break;   // T_Gift
         case 22: BossChase(3); break;   // T_Fat
@@ -357,7 +366,7 @@ class WolfEnemySim : Actor abstract
         return d <= 33.0;
     }
 
-    // CheckSight (WL_STATE.C:1187-1240) — NOT plain LOS: area gate, a
+    // CheckSight (WL_STATE.C:1187-1240) ï¿½ NOT plain LOS: area gate, a
     // 1.5-tile proximity auto-see, a cardinal FACING test (an enemy does
     // not see the player behind it), then the line trace. The attack code
     // uses CheckLine instead, which ignores facing.
@@ -457,11 +466,21 @@ class WolfEnemySim : Actor abstract
     // spectres deal their touch damage here; everyone else just backs up
     virtual void OnPlayerContact() {}
 
+    // Spear bosses ASSIGN their chase speed on sighting rather than
+    // multiplying it (WL_STATE.C FirstSighting); 0 = use the multiplier
+    virtual int SightSpeed() { return 0; }
+    virtual bool IsDeathKnight() { return false; }
+    virtual bool IsAngel() { return false; }
+    virtual int TiredState() { return -1; }
+
     virtual void FirstSighting()
     {
         SightSound();
         SetState_(ChaseState());
-        wolfSpeed *= ChaseSpeedMul();
+        if (SightSpeed() > 0)
+            wolfSpeed = SightSpeed();
+        else
+            wolfSpeed *= ChaseSpeedMul();
         if (distance < 0)
             distance = 0;           // ignore the door opening command
         waitDoor = null;
@@ -931,7 +950,7 @@ class WolfEnemySim : Actor abstract
     }
 
     // T_Schabb / T_Gift / T_Fat / T_Fake (WL_ACT2.C:2380+): T_Chase with
-    // a flat attack roll — US_RndT() < (tics<<shift) — instead of the
+    // a flat attack roll ï¿½ US_RndT() < (tics<<shift) ï¿½ instead of the
     // distance formula. tics = 2 (TIC-002).
     void BossChase(int shift)
     {
@@ -949,14 +968,104 @@ class WolfEnemySim : Actor abstract
         ChaseMove(dodge);
     }
 
+    // ---- Spear of Destiny behaviours -------------------------------
+    int burstCount;             // ob->temp1 for the Angel's burst
+
+    // T_UShoot (WL_ACT2.C:1351): the volley plus contact damage when the
+    // player is inside one tile
+    void T_UShoot()
+    {
+        T_Shoot();
+        PlayerPawn pm = TargetPM();
+        if (pm == null)
+            return;
+        int ptx = int(pm.pos.x) / 64;
+        int pty = 63 - (int(pm.pos.y) / 64);
+        int dist = Max(abs(tileX - ptx), abs(tileY - pty));
+        if (dist <= 1)
+            pm.DamageMobj(self, self, 10, 'Melee');
+    }
+
+    // T_Launch (WL_ACT2.C): the Angel throws sparks, the Death Knight a
+    // PAIR of heat-seekers swung +-4 angle units by its two shoot
+    // states, everyone else a plain rocket
+    void T_Launch()
+    {
+        double spread = 0;
+        String cls = "WolfRocket";
+        if (IsAngel())
+        {
+            cls = "WolfSpark";
+            A_StartSound("sod/angelfire", CHAN_WEAPON);
+        }
+        else if (IsDeathKnight())
+        {
+            T_Shoot();
+            cls = "WolfHeatSeeker";
+            // ANGLES/8 = 45 degrees per 4 units; alternate per shot
+            spread = (burstCount++ & 1) != 0 ? 45.0 : -45.0;
+            A_StartSound("sod/knightmissile", CHAN_WEAPON);
+        }
+        ThrowProjectile(cls, 0x2000, spread);
+    }
+
+    // A_Relaunch (WL_ACT2.C): three sparks then the tired recharge; a
+    // coin flip returns to the chase between shots
+    void A_Relaunch()
+    {
+        WolfLevel wl = WolfLevel.Get();
+        if (++burstCount == 3)
+        {
+            burstCount = 0;
+            int ts = TiredState();
+            if (ts >= 0)
+                SetState_(ts);
+            return;
+        }
+        if (wl != null && (wl.RndT() & 1) != 0)
+            SetState_(ChaseState());
+    }
+
+    // A_Victory: killing the Angel of Death wins Spear outright
+    void A_Victory()
+    {
+        WolfGameState gs = WolfGameState.Get();
+        if (gs != null)
+            gs.victoryFlag = true;
+        Level.ExitLevel(0, false);
+    }
+
+    // A_Dormant (WL_ACT2.C): the Spectre only wakes when the player is
+    // outside MINACTORDIST and the surrounding tiles hold no actor
+    void A_Dormant()
+    {
+        PlayerPawn pm = TargetPM();
+        if (pm == null)
+            return;
+        int px = PlayerWolfX(), py = PlayerWolfY();
+        if (abs(wolfX - px) <= MINACTORDIST
+            && abs(wolfY - py) <= MINACTORDIST)
+            return;                     // player too close: stay dormant
+        SetState_(ChaseState());
+        attackMode = true;
+    }
+
     // spawn a projectile aimed at the player (T_SchabbThrow / T_GiftThrow
     // / T_FakeFire: atan2 to the player, speed per PROJ-001..003)
-    void ThrowProjectile(class<Actor> cls, int speed)
+    void ThrowProjectile(class<Actor> cls, int speed, double spread = 0)
     {
         Actor p = Spawn(cls, pos);
         WolfProjectile wp = WolfProjectile(p);
         if (wp != null)
+        {
             wp.InitProjectile(self, speed);
+            if (spread != 0)
+            {
+                // the Death Knight's paired shots leave at +-45 degrees
+                wp.Angle += spread;
+                wp.VelFromAngle(wp.Vel.XY.Length());
+            }
+        }
         AttackSound();
     }
 
@@ -1054,7 +1163,7 @@ class WolfEnemySim : Actor abstract
     void PlaceDrop(class<Actor> cls)
     {
         // PlaceItemType (WL_STATE.C:783-803): the death tile FIRST, and
-        // only if that is occupied does it scan the 3x3 — x outer, y
+        // only if that is occupied does it scan the 3x3 ï¿½ x outer, y
         // inner. Blocking statics count as occupied (they set actorat=1),
         // otherwise a drop can land inside a lamp and be unreachable.
         int tx = wolfX >> 16, ty = wolfY >> 16;
@@ -1168,7 +1277,7 @@ class WolfGuardPatrol : WolfGuard
 }
 
 // ----------------------------------------------------------------------
-// Dog — 1 HP, x2 chase speed, CHECKDIAG pathing (cannot open doors),
+// Dog ï¿½ 1 HP, x2 chase speed, CHECKDIAG pathing (cannot open doors),
 // bite via the jump sequence. No drops; 200 points (KILL-004).
 // ----------------------------------------------------------------------
 class WolfDog : WolfEnemySim abstract
@@ -1203,7 +1312,7 @@ class WolfDog : WolfEnemySim abstract
 class WolfDogStand : WolfDog
 {
     // dog 'stand' spawn codes are dead code in the original (SpawnStand
-    // has no en_dog case; zero uses across all 81 shipped maps) — treat
+    // has no en_dog case; zero uses across all 81 shipped maps) ï¿½ treat
     // as patrol.
     override void PostBeginPlay()
     {

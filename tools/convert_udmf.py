@@ -350,7 +350,10 @@ def convert(level, ceiling_color):
         elif k == "ghost":
             thing(o["x"], o["y"], ED_GHOST[o["enemy"]])
         elif k == "static":
-            thing(o["x"], o["y"], ED_STATIC_BASE + o["index"])
+            # per-set static ranges: WL6 21100+, Spear 21300+ (the
+            # two builds' statinfo arrays diverge from index 15)
+            base = 21300 if level["set"] == "sod" else ED_STATIC_BASE
+            thing(o["x"], o["y"], base + o["index"])
         elif k == "turn":
             thing(o["x"], o["y"], ED_TURN_BASE + DIR8.index(o["dir"]))
         elif k == "pushwall":

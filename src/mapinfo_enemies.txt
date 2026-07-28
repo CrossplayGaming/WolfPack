@@ -18,4 +18,10 @@ DoomEdNums
     21024 = "WolfSchabbs"
     21025 = "WolfFakeHitler"
     21026 = "WolfMechaHitler"
+    21030 = "WolfSpectre"
+    21031 = "WolfAngel"
+    21032 = "WolfTrans"
+    21033 = "WolfUber"
+    21034 = "WolfWill"
+    21035 = "WolfDeathKnight"
 }

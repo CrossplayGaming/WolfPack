@@ -24,7 +24,11 @@ import pyopl
 from wolf_common import ROOT
 
 SRC = ROOT / "reference" / "wolfsrc" / "WOLFSRC"
-AUD = ROOT / "build" / "audio" / "wl6"
+# per game set: Spear has its own sound enum (AUDIOSOD.H) and its own
+# AdLib chunks, so both the names and the rendered output differ
+SET = "sod" if "sod" in sys.argv[1:] else "wl6"
+AUD = ROOT / "build" / "audio" / SET
+AUDIO_H = "AUDIOSOD.H" if SET == "sod" else "AUDIOWL6.H"
 RATE = 44100
 
 
@@ -49,7 +53,7 @@ class OPL:
 
 
 def sound_enum():
-    text = (SRC / "AUDIOWL6.H").read_text(errors="replace")
+    text = (SRC / AUDIO_H).read_text(errors="replace")
     names = {}
     for name, num in re.findall(r"(\w+SND)\s*,?\s*//\s*(\d+)", text):
         names[int(num)] = name
