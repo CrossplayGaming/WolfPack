@@ -16,4 +16,6 @@ nosave int wolf_dbg_death = 0;
 nosave int wolf_dbg_arm = 0;
 nosave int wolf_dbg_boss = 0;
 nosave int wolf_dbg_victory = 0;
-server string wolf_mp_request = "";  // menu -> launcher handoff
+user string wolf_mp_request = "";    // menu -> launcher handoff:
+// USER scope on purpose - server cvars apply on game tics, and menus
+// PAUSE the game, so a set made in the menu died before the quit

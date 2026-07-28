@@ -6,12 +6,12 @@ if (-not (Test-Path $ini)) { exit 0 }
 $line = Select-String -Path $ini -Pattern '^wolf_mp_request=(.+)$'
 if (-not $line) { exit 0 }
 $req = $line.Matches[0].Groups[1].Value.Trim()
-(Get-Content $ini) | Where-Object { $_ -notmatch '^wolf_mp_request=' } |
-    Set-Content $ini
+(Get-Content $ini) | Where-Object { $_ -notmatch '^wolf_mp_request=' } | Set-Content $ini
 if (-not $req) { exit 0 }
 $parts = $req -split ' '
+$mpl = Join-Path $root "tools\mp_launch.ps1"
 switch ($parts[0]) {
-    "host"   { & "$root	ools\mp_launch.ps1" -Mode host -Players ([int]$parts[1]) }
-    "hostdm" { & "$root	ools\mp_launch.ps1" -Mode host -Players ([int]$parts[1]) -Deathmatch }
-    "join"   { & "$root	ools\mp_launch.ps1" -Mode join }
+    "host"   { & $mpl -Mode host -Players ([int]$parts[1]) }
+    "hostdm" { & $mpl -Mode host -Players ([int]$parts[1]) -Deathmatch }
+    "join"   { & $mpl -Mode join }
 }
