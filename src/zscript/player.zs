@@ -121,11 +121,20 @@ class WolfPlayer : DoomPlayer
         if (player == null || !(player.cheats & CF_PREDICTING))
             bIsRunning = running && (fwd != 0 || side != 0);
 
+        // animation transitions mirror the engine's own guards: never
+        // from prediction re-runs, and the return to the standing frame
+        // is explicit - the engine's CheckStopped lives on a movement
+        // path the zero-inertia override bypasses (user repro: netgame
+        // bodies stuck in the walk loop after stopping)
+        if (player.cheats & CF_PREDICTING)
+            return;
         if (fwd != 0 || side != 0)
         {
             if (player.playerstate == PST_LIVE)
                 PlayRunning();
         }
+        else if (player.playerstate == PST_LIVE)
+            PlayIdle();
     }
 
     // ---- uniform color (Player Setup) -----------------------------------

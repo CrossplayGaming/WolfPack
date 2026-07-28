@@ -499,6 +499,8 @@ class WolfMessageBox : MessageBoxMenu
         Bindings.GetAllKeysForCommand(mpk, "");
         String mb = Bindings.GetBinding(0x66);
         if (mb.IndexOf("wolf_mp_marker") == 0)
+            mpMarker = true;
+        if (mpMarker)
             message = "Restart into multiplayer?
 
 "
@@ -515,6 +517,18 @@ Y = yes    N = no";
         // no engine dim (the purple wash): the original never confirms
         // over live gameplay — Confirm() runs on the red menu screen
         DontDim = true;
+    }
+
+    bool mpMarker;
+
+    // answering anything but YES to "Restart into multiplayer?" must
+    // disarm the marker binding, or every later quit shows the same
+    // question and plain quitting becomes impossible (user repro)
+    override void HandleResult(bool res)
+    {
+        if (mpMarker && !res)
+            Bindings.SetBind(0x66, "");
+        Super.HandleResult(res);
     }
 
     override void Drawer()
