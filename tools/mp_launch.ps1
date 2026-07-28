@@ -146,7 +146,7 @@ if ($Mode -eq "host") {
             if ($tl -notmatch "^[0-9]+$") { $tl = 0 }
         }
     }
-    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { @("+map", "LOBBY") }
+    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "sv_itemrespawn", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { @("+map", "LOBBY") }
     $svargs = ((& "$root\tools\mod_args.ps1") -split " ")
     & "$root\engine\uzdoom.exe" -host $Players @modeargs @svargs -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0 +set show_obituaries 0 +set i_pauseinbackground 0
 }
@@ -171,7 +171,7 @@ elseif ($Mode -eq "local") {
         if ($tl -notmatch "^[0-9]+$") { $tl = 0 }
         Write-Host "  Rules: $(if ([int]$fl) { "first to $fl frags" } else { "no frag limit" })$(if ([int]$tl) { ", $tl minute cap" })"
     }
-    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { @("+map", "LOBBY") }
+    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "sv_itemrespawn", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { @("+map", "LOBBY") }
     Write-Host ""
     Write-Host "  Launching host window (left)..."
     $svargs = ((& "$root\tools\mod_args.ps1") -split " ")

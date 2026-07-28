@@ -114,7 +114,12 @@ class WolfPlayer : DoomPlayer
         // thrustspeed bookkeeping for enemy accuracy (ECOMBAT-003: player
         // counts as "running" when thrust >= RUNSPEED 6000 global/Wolf-tic;
         // walk thrust is 5250, run 10500). Exposed for the Phase 2 sim.
-        bIsRunning = running && (fwd != 0 || side != 0);
+        // enemy accuracy reads this (ECOMBAT-003) - a prediction re-run
+        // must not contaminate it, or each node's enemies roll different
+        // hit chances and the lockstep diverges (the co-op desync: DM
+        // strips enemies, so only co-op sessions ever saw it)
+        if (player == null || !(player.cheats & CF_PREDICTING))
+            bIsRunning = running && (fwd != 0 || side != 0);
 
         if (fwd != 0 || side != 0)
         {
@@ -221,6 +226,24 @@ class WolfPlayer : DoomPlayer
                 ngs.lives[dpn] = max(0, ngs.lives[dpn] - 1);
             }
             deathTimer = 0;             // respawn cooldown starts now
+            // deathmatch convention: the corpse drops its best gun (and
+            // a clip) so the victor can claim it. Dropped flag keeps
+            // sv_itemrespawn from regenerating corpse drops.
+            if (deathmatch)
+            {
+                String drop = "";
+                if (FindInventory("WolfChaingun") != null)
+                    drop = "WolfStatic28";
+                else if (FindInventory("WolfMachineGun") != null)
+                    drop = "WolfStatic27";
+                if (drop.Length() > 0)
+                {
+                    Actor d = Spawn(drop, pos);
+                    if (d != null) d.bDropped = true;
+                }
+                Actor c = Spawn("WolfStatic26", pos + (24, 0, 0));
+                if (c != null) c.bDropped = true;
+            }
             return;
         }
         killerActor = source;

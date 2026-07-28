@@ -156,3 +156,27 @@ wakes on the nearest passing one, which becomes the target. Applies
 to every enemy type - the path is shared. SP identical (one
 candidate). 2-node verify on MAP11: mutant woke on the warped joiner
 with the host at spawn, both nodes agree, beacons clean.
+
+Real cross-state session feedback (2026-07-28):
+- bIsRunning was written by prediction re-runs of MovePlayer and READ
+  by enemy accuracy - each node's enemies rolled different hit chances
+  once players moved. DM strips enemies, so only co-op desynced -
+  matching the report exactly. Now prediction-guarded.
+- BUILDID: sha1 content hash over the packed pk3 inputs, shown on the
+  lobby overlay. Mismatched builds (the other prime desync suspect -
+  the shared portable folder predated several sim fixes) are now an
+  eyeball check: same id = same sim.
+- Dormant sight: the SightAnyPlayer fix shipped AFTER the last package
+  regen, so the brothers' session predated it.
+- Joiner menu auto-close: does NOT reproduce locally (probe: menu
+  opened programmatically on a joiner survives 200+ tics). Suspected
+  symptom of the desynced session; revisit if it recurs on matched
+  builds.
+- Weapon hierarchy: Wolf's single bestweapon rank means chaingun
+  implies machine gun - GiveWeapon_ and MLI now honor it.
+- DM conventions: corpses drop their best gun + a clip (bDropped, so
+  no respawn); sv_itemrespawn on DM launches; curated arena pickups
+  on MAP09 (contested chaingun center hall, MG near each approach,
+  medkits in the aisles, clips in the corners). 2-node verified,
+  identical counts, zero divergence.
+- Every yes/no message box now carries "Y = yes  N = no".

@@ -83,6 +83,33 @@ class WolfLobby : EventHandler
         CVar cv = CVar.FindCVar("wolf_dbg_check");
         if (cv != null && cv.GetInt() != 0)
             Console.Printf("WOLFDBG arena: enemies=%d victory=%d", ne, nv);
+        if (Level.MapName ~== "MAP09")
+            PlaceArenaPickups();
+    }
+
+    // deathmatch conventions for the 1v1 arena: a contested chaingun in
+    // the hall center, a machine gun near each spawn's approach, health
+    // in the side aisles, clips in the hall corners. sv_itemrespawn
+    // (set at DM launch) regenerates them; corpse drops never respawn.
+    void PlaceArenaPickups()
+    {
+        static const int ITEMS[] = {
+            34, 33, 0,      // chaingun - hall center
+            34, 48, 1,      // machine gun - start-room approach
+            34, 17, 1,      // machine gun - chamber anteroom
+            27, 34, 2,      // first aid - west aisle
+            41, 34, 2,      // first aid - east aisle
+            27, 22, 3, 41, 22, 3,   // clips - hall corners
+            27, 42, 3, 41, 42, 3
+        };
+        static const String CLS[] = { "WolfStatic28", "WolfStatic27",
+                                      "WolfStatic25", "WolfStatic26" };
+        for (int i = 0; i < 24; i += 3)
+        {
+            double wx = ITEMS[i] * 64 + 32;
+            double wy = 4096.0 - (ITEMS[i + 1] * 64 + 32);
+            Actor.Spawn(CLS[ITEMS[i + 2]], (wx, wy, 0));
+        }
     }
 
     // hall geometry (tile coords of the source map, see the layout read
@@ -215,6 +242,9 @@ class WolfLobby : EventHandler
             return;
         String l1 = String.Format("Episode %d: %s", ep + 1, EPNAMES[ep]);
         String l2 = String.Format("Skill: %s", SKNAMES[sk]);
+        int bl = Wads.CheckNumForFullName("BUILDID");
+        if (bl >= 0)
+            l2 = l2 .. "   Build: " .. Wads.ReadLump(bl);
         String l3 = consoleplayer == 0
             ? "West aisle: pick episode. East aisle: change skill. "
               "Hans's room: begin."

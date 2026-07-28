@@ -161,6 +161,7 @@ eliminated your chances of
         if (a != null) a.Amount = 99;
         pm.GiveInventoryType("WolfGoldKey");
         pm.GiveInventoryType("WolfSilverKey");
+        pm.GiveInventoryType("WolfMachineGun");     // bestweapon model
         pm.GiveInventoryType("WolfChaingun");
         score[pnum] = 0;
         mliPenalty += 600;
@@ -403,6 +404,13 @@ class WolfPickup : Inventory abstract
     static void GiveWeapon_(Actor toucher, class<Weapon> cls)
     {
         GiveAmmo_(toucher, 6);
+        // bestweapon model (GiveWeapon, WL_AGENT.C): owning a weapon
+        // means owning every lesser one - the original tracks a single
+        // rank, so a chaingun pickup implies the machine gun (user
+        // repro: chaingun/MLI without the MG slot)
+        if (cls is "WolfChaingun"
+            && toucher.FindInventory("WolfMachineGun") == null)
+            toucher.GiveInventoryType("WolfMachineGun");
         if (toucher.FindInventory(cls) == null)
             toucher.GiveInventoryType(cls);
         // bestweapon upgrade: switch to it (selection order encodes rank)

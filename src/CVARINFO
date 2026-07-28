@@ -25,6 +25,7 @@ nosave int wolf_dbg_font = 0;       // font identity probe
 nosave int wolf_dbg_ghost = 0;      // Pac-Man ghost behavior probe
 nosave int wolf_dbg_bosskill = 0;   // extra-boss floor-survival probe
 nosave int wolf_dbg_coopsight = 0;  // co-op dormant-sight probe
+nosave int wolf_dbg_menutest = 0;   // netgame menu-persistence probe
 user string wolf_mp_request = "";    // menu -> launcher handoff:
 // USER scope on purpose - server cvars apply on game tics, and menus
 // PAUSE the game, so a set made in the menu died before the quit

@@ -503,6 +503,12 @@ class WolfMessageBox : MessageBoxMenu
 
 "
                       "The launcher takes it from here.";
+        // modern players do not assume keyboard confirms: every yes/no
+        // box carries the hint (mode 0 = the yes/no style)
+        if (messagemode == 0)
+            message = message .. "
+
+Y = yes    N = no";
         Super.Init(parent, message, messagemode, playsound, cmd,
                    native_handler);
         big = Font.GetFont("wolfbig");

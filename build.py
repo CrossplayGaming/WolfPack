@@ -90,6 +90,19 @@ def build() -> Path:
     asset_files = ({f.relative_to(ASSETS).as_posix(): f
                     for f in ASSETS.rglob("*") if f.is_file()}
                    if ASSETS.is_dir() else {})
+    # BUILDID: content hash over everything packed, so two builds show
+    # the same id exactly when their pk3 content matches - netgames need
+    # identical builds, and the lobby overlay displays this for an
+    # eyeball check across machines (mismatched-build sessions desync)
+    import hashlib
+    h = hashlib.sha1()
+    for f in sorted(SRC.rglob("*")):
+        rel = f.relative_to(SRC).as_posix()
+        if f.is_file() and rel not in asset_files:
+            h.update(rel.encode()); h.update(f.read_bytes())
+    for rel, f in sorted(asset_files.items()):
+        h.update(rel.encode()); h.update(f.read_bytes())
+    buildid = h.hexdigest()[:8]
     with zipfile.ZipFile(PK3, "w", zipfile.ZIP_DEFLATED) as z:
         for f in sorted(SRC.rglob("*")):
             rel = f.relative_to(SRC).as_posix()
@@ -97,6 +110,8 @@ def build() -> Path:
                 z.write(f, rel)
         for rel, f in sorted(asset_files.items()):
             z.write(f, rel)
+        z.writestr("BUILDID", buildid)
+    print(f"build id: {buildid}")
     print(f"built {PK3.relative_to(ROOT)} ({PK3.stat().st_size} bytes, "
           f"{len(asset_files)} extracted assets)")
     return PK3

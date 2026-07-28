@@ -13,6 +13,32 @@ class WolfDebugHandler : EventHandler
     int blockProbe;
     WolfDoor door;
 
+    // joiner menu-close repro (user report: Esc menu "blinks" shut for
+    // the JOINING player in a real netgame): open the menu from ui scope
+    // and watch whether it survives
+    ui int menuProbeT;
+    override void UiTick()
+    {
+        CVar mv = CVar.FindCVar("wolf_dbg_menutest");
+        if (mv == null || mv.GetInt() == 0)
+            return;
+        menuProbeT++;
+        if (menuProbeT == 300)
+        {
+            Menu.SetMenu("MainMenu");
+            Console.Printf("WOLFDBG menutest: opened on player %d",
+                           consoleplayer);
+        }
+        if (menuProbeT == 330 || menuProbeT == 500)
+        {
+            Menu cur = Menu.GetCurrentMenu();
+            String cn = cur == null ? "NONE"
+                : String.Format("%s", cur.GetClassName());
+            Console.Printf("WOLFDBG menutest t=%d: current=%s",
+                           menuProbeT, cn);
+        }
+    }
+
     override void WorldTick()
     {
         t++;
@@ -172,8 +198,27 @@ class WolfDebugHandler : EventHandler
         CVar kv = CVar.FindCVar("wolf_dbg_kill");
         if (kv != null && kv.GetInt() != 0 && t == 100
             && playeringame[1] && players[1].mo != null)
+        {
+            players[1].mo.GiveInventoryType("WolfChaingun");
             players[1].mo.DamageMobj(players[0].mo, players[0].mo,
                                      300, 'Normal');
+        }
+        if (kv != null && kv.GetInt() != 0 && t == 140 && deathmatch)
+        {
+            int gats = 0, clips = 0, meds = 0, mgs = 0;
+            ThinkerIterator pit = ThinkerIterator.Create("Actor");
+            Actor pa;
+            while ((pa = Actor(pit.Next())) != null)
+            {
+                String cn = String.Format("%s", pa.GetClassName());
+                if (cn == "WolfStatic28") gats++;
+                else if (cn == "WolfStatic27") mgs++;
+                else if (cn == "WolfStatic26") clips++;
+                else if (cn == "WolfStatic25") meds++;
+            }
+            Console.Printf("WOLFDBG dmitems: gatling=%d mg=%d clip=%d "
+                           "medkit=%d", gats, mgs, clips, meds);
+        }
         if (kv != null && kv.GetInt() != 0 && t == 150)
         {
             WolfLobby lb = WolfLobby(EventHandler.Find("WolfLobby"));
