@@ -255,12 +255,16 @@ def main():
     fb = largest_blob(atk_sheet.crop(first), k2)
     scale2 = gheight / (fb[3] - fb[1])
     print(f"attack scale {scale2:.3f}")
+    # The sheet's reading order circles OPPOSITE to the engine's rotation
+    # convention: keeping 1 (front) and 5 (back), 2-8 reverse. User repro
+    # on the 2-window test: left and right firing views were mirrored.
+    MIRROR = {1: 1, 2: 8, 3: 7, 4: 6, 5: 5, 6: 4, 7: 3, 8: 2}
     rot = 1
     for band in b2:
         for c in cells(atk_sheet, k2, band):
             fr = to_frame(atk_sheet.crop(c), k2, scale2)
             if fr and rot <= 8:
-                frames[f"BJ1FA{rot}"] = fr
+                frames[f"BJ1FA{MIRROR[rot]}"] = fr
                 rot += 1
     print(f"fire rotations: {rot - 1}")
 
