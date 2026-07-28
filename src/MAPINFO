@@ -96,6 +96,11 @@ DoomEdNums
     21210 = "WolfPushwall"
     21211 = "WolfVictoryTrigger"
     21220 = "WolfDoor"
+    // E3 secret floor ghosts (converter DIR: blinky/clyde/pinky/inky)
+    21040 = "WolfGhostBlinky"
+    21041 = "WolfGhostClyde"
+    21042 = "WolfGhostPinky"
+    21043 = "WolfGhostInky"
 }
 
 include "mapinfo_statics.txt"

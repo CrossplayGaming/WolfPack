@@ -278,6 +278,7 @@ class WolfEnemySim : Actor abstract
         case 4: T_Shoot(); break;
         case 5: T_Bite(); break;
         case 13: T_DogChase(); break;
+        case 6: ChaseMove(false); break; // T_Ghosts: chase, no attack roll
         case 20: BossChase(3); break;   // T_Schabb
         case 21: BossChase(3); break;   // T_Gift
         case 22: BossChase(3); break;   // T_Fat
@@ -420,6 +421,10 @@ class WolfEnemySim : Actor abstract
         return true;
     }
 
+    // MoveObj's too-close-to-player branch (WL_STATE.C:713): ghosts and
+    // spectres deal their touch damage here; everyone else just backs up
+    virtual void OnPlayerContact() {}
+
     virtual void FirstSighting()
     {
         SightSound();
@@ -539,6 +544,7 @@ class WolfEnemySim : Actor abstract
             if (abs(wolfX - px) <= MINACTORDIST
                 && abs(wolfY - py) <= MINACTORDIST)
             {
+                OnPlayerContact();          // ghosts/spectres drain here
                 wolfX -= dx * move;         // back up, keep distance
                 wolfY -= dy * move;
                 return;

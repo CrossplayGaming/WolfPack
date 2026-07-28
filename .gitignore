@@ -19,3 +19,7 @@ engine/*
 
 # Build outputs
 dist/
+
+# Dev-only test launchers - local tools, not part of the product
+boss.bat
+bossfights/

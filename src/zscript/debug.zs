@@ -209,6 +209,64 @@ class WolfDebugHandler : EventHandler
                 ncf == null ? -1 : ncf.GetHeight());
         }
 
+        // Pac-Man ghost probe: with wolf_dbg_alert waking everything,
+        // ghosts must chase (position changes) and drain on touch
+        CVar gpv = CVar.FindCVar("wolf_dbg_ghost");
+        if (gpv != null && gpv.GetInt() != 0)
+        {
+            if (t == 40)
+            {
+                ThinkerIterator wit = ThinkerIterator.Create("WolfGhost");
+                WolfEnemySim wg;
+                while ((wg = WolfEnemySim(wit.Next())) != null)
+                    if (!wg.attackMode)
+                        wg.FirstSighting();
+            }
+            if (t == 60 || t == 150)
+            {
+                ThinkerIterator git = ThinkerIterator.Create("WolfGhost");
+                WolfEnemySim g;
+                int n = 0;
+                while ((g = WolfEnemySim(git.Next())) != null)
+                {
+                    n++;
+                    if (n == 1)
+                        Console.Printf("WOLFDBG ghost t=%d: pos=%d,%d "
+                                       "speed=%d attackMode=%d", t,
+                                       int(g.pos.x), int(g.pos.y),
+                                       g.wolfSpeed, g.attackMode);
+                }
+                if (t == 60)
+                    Console.Printf("WOLFDBG ghosts on map: %d", n);
+            }
+            if (t == 155 && players[0].mo != null)
+                players[0].mo.health = 5000;    // survive the drain test
+            if (t == 160 && players[0].mo != null)
+            {
+                ThinkerIterator git = ThinkerIterator.Create("WolfGhost");
+                Actor g = Actor(git.Next());
+                if (g != null)
+                    players[0].mo.SetOrigin((g.pos.x + 40, g.pos.y,
+                                             g.floorz), false);
+            }
+            if (t == 165 || t == 230)
+            {
+                ThinkerIterator git2 = ThinkerIterator.Create("WolfGhost");
+                WolfEnemySim g2 = WolfEnemySim(git2.Next());
+                WolfLevel wl2 = WolfLevel.Get();
+                Console.Printf("WOLFDBG ghost touch t=%d: health=%d "
+                               "gdist=%d dir=%d distance=%d stateIdx=%d "
+                               "tc=%d", t,
+                               players[0].mo.health,
+                               g2 == null ? -1
+                                   : int(g2.Distance2D(players[0].mo)),
+                               g2 == null ? -1 : g2.dir,
+                               g2 == null ? -1 : g2.distance,
+                               g2 == null ? -1 : g2.stateIdx,
+                               g2 == null ? -1 : g2.ticcount);
+            }
+        }
+
         // net-sync beacon: same line must appear in every node's log at
         // the same tic - any field difference is a lockstep divergence
         CVar nbv = CVar.FindCVar("wolf_dbg_net");

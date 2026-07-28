@@ -260,7 +260,13 @@ def main():
                         (408, "BJRNA0"), (409, "BJRNB0"),
                         (410, "BJRNC0"), (411, "BJRND0"),
                         (412, "BJJPA0"), (413, "BJJPB0"),
-                        (414, "BJJPC0"), (415, "BJJPD0")):
+                        (414, "BJJPC0"), (415, "BJJPD0"),
+                        # E3 secret floor ghosts (sprite_enum-resolved:
+                        # SPR_BLINKY_W1..SPR_INKY_W2 = 288-295 in WL6)
+                        (288, "BLKYA0"), (289, "BLKYB0"),
+                        (290, "PNKYA0"), (291, "PNKYB0"),
+                        (292, "CLYDA0"), (293, "CLYDB0"),
+                        (294, "INKYA0"), (295, "INKYB0")):
         if lump not in seen_lumps:
             seen_lumps.add(lump)
             dedup.append([chunk, lump])
