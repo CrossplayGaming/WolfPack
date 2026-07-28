@@ -495,9 +495,10 @@ class WolfMessageBox : MessageBoxMenu
     override void Init(Menu parent, String message, int messagemode,
                        bool playsound, Name cmd, voidptr native_handler)
     {
-        CVar rq = CVar.GetCVar("wolf_mp_request",
-                               players[consoleplayer]);
-        if (rq != null && rq.GetString() != "")
+        Array<int> mpk;
+        Bindings.GetAllKeysForCommand(mpk, "");
+        String mb = Bindings.GetBinding(0x66);
+        if (mb.IndexOf("wolf_mp_marker") == 0)
             message = "Restart into multiplayer?
 
 "

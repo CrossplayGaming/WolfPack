@@ -1,12 +1,12 @@
-# After the engine exits: if the in-game menu left a multiplayer
-# request in the config, clear it and hand off to mp_launch.ps1.
+# After the engine exits: a pending in-game multiplayer request rides
+# an F15 key binding (instant from ui; cvar sets die in paused menus).
 $root = Split-Path -Parent $PSScriptRoot
 $ini = Join-Path $root "dist\playtest.ini"
 if (-not (Test-Path $ini)) { exit 0 }
-$line = Select-String -Path $ini -Pattern '^wolf_mp_request=(.+)$'
+$line = Select-String -Path $ini -Pattern '^F15=wolf_mp_marker (.+)$'
 if (-not $line) { exit 0 }
 $req = $line.Matches[0].Groups[1].Value.Trim()
-(Get-Content $ini) | Where-Object { $_ -notmatch '^wolf_mp_request=' } | Set-Content $ini
+(Get-Content $ini) | Where-Object { $_ -notmatch '^F15=' } | Set-Content $ini
 if (-not $req) { exit 0 }
 $parts = $req -split ' '
 $mpl = Join-Path $root "tools\mp_launch.ps1"

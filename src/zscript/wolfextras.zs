@@ -64,13 +64,13 @@ class WolfModernMenu : WolfWidgetMenu
     {
         Super.Init(parent, desc);
         title = "Modernization";
-        // sv tri-states: 0 Default, 1 Off, 2 On (engine menudef). The
-        // MAPINFO No* blocks are demonstrably inert in this engine, so
-        // "classic" must FORCE-DENY (1), not obey the map (0).
-        AddToggleV("Mouse Vertical Aim", "sv_freelook", 2, 1);
-        AddToggleV("Jumping", "sv_jump", 2, 1);
+        // sv tri-states, EMPIRICAL: 2 force-denies, 1 allows - the
+        // opposite of the engine menudef labels (user-tested twice:
+        // freelook blocked at 2, working at 0/1). Classic = 2.
+        AddToggleV("Mouse Vertical Aim", "sv_freelook", 1, 2);
+        AddToggleV("Jumping", "sv_jump", 1, 2);
         AddBindRow("  Jump Key", "+jump");
-        AddToggleV("Crouching", "sv_crouch", 2, 1);
+        AddToggleV("Crouching", "sv_crouch", 1, 2);
         AddBindRow("  Crouch Key", "+crouch");
         winH = 13 * labels.Size() + 6;
         sel = 0;
@@ -81,9 +81,9 @@ class WolfModernMenu : WolfWidgetMenu
         // bind rows grey out while their feature is off
         CVar j = CVar.GetCVar("sv_jump", players[consoleplayer]);
         CVar c = CVar.GetCVar("sv_crouch", players[consoleplayer]);
-        itemStates[2] = (j != null && j.GetInt() == 2) ? IT_NORMAL
+        itemStates[2] = (j != null && j.GetInt() == 1) ? IT_NORMAL
                                                        : IT_DISABLED;
-        itemStates[4] = (c != null && c.GetInt() == 2) ? IT_NORMAL
+        itemStates[4] = (c != null && c.GetInt() == 1) ? IT_NORMAL
                                                        : IT_DISABLED;
         Super.Drawer();
     }
@@ -97,7 +97,7 @@ class WolfModernMenu : WolfWidgetMenu
         {
             CVar fl = CVar.GetCVar("freelook", players[consoleplayer]);
             if (fl != null)
-                fl.SetInt(newValue == 2 ? 1 : 0);
+                fl.SetInt(newValue == 1 ? 1 : 0);
         }
     }
 }
@@ -141,11 +141,15 @@ class WolfMPMenu : WolfMenu
     // menu -> wrapper: the request rides an archived cvar (ZScript has
     // no file IO); the quit confirm - our own messagebox - notices it
     // and asks about restarting instead of quitting
+    const KEY_F15 = 0x66;
+
     void Request(String what)
     {
-        CVar rq = CVar.GetCVar("wolf_mp_request", players[consoleplayer]);
-        if (rq != null)
-            rq.SetString(what);
+        // Bindings apply INSTANTLY from ui and archive at exit - unlike
+        // cvar sets (server and user both), which defer to game tics
+        // that never come while the menu has the game paused. F15: no
+        // physical keyboard in circulation has one.
+        Bindings.SetBind(KEY_F15, "wolf_mp_marker " .. what);
         Menu.SetMenu("QuitMenu");
     }
 
