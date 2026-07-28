@@ -1,9 +1,9 @@
 IWad
 {
-    Name = "WolfDoom (working title)"
-    Autoname = "wolfdoom.remake"
+    Name = "WolfPack"
+    Autoname = "wolfpack.remake"
     Game = "Doom"
-    Config = "WolfDoom"
+    Config = "WolfPack"
     MustContain = "MAPINFO"
     BannerColors = "00 00 00", "8d 00 00"
 }

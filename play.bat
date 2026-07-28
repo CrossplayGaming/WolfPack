@@ -7,6 +7,8 @@ REM request (wolf_mp_request in the config) restarts into host/join.
 REM Pass extra args through, e.g.:  play.bat +map MAP03
 cd /d "%~dp0"
 
+REM Packaged builds ship without the compiler: skip build steps
+if not exist build.py goto :run
 if not exist "build\assets\PLAYPAL" (
     echo First run: extracting assets from your game data...
     python tools\extract_levels.py || goto :fail
@@ -17,6 +19,7 @@ if not exist "build\assets\PLAYPAL" (
 )
 
 python build.py || goto :fail
+:run
 REM No screen wipe (Wolf has none between levels), and mouse is
 REM horizontal only: no vertical aim (freelook 0), no mouse-Y move
 REM (m_forward 0) -> horizontal turn only, per D-004. Forced at launch

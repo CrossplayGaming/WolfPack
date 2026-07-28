@@ -52,13 +52,22 @@ def build() -> Path:
             sys.exit("make_assets failed")
         # scrub stale wolf_dbg_ values from the playtest config: any
         # launcher that bypasses play.bat's +set forces would load them
-        ini = ROOT / "dist" / "playtest.ini"
-        if ini.exists():
-            kept = [l for l in ini.read_text(errors="replace").splitlines()
+        for iniName in ("playtest.ini", "join.ini", "check.ini"):
+            ini = ROOT / "dist" / iniName
+            if not ini.exists():
+                continue
+            text = ini.read_text(errors="replace")
+            # WolfPack rename: migrate config sections once
+            if "[WolfDoom." in text and "[WolfPack." not in text:
+                text = text.replace("[WolfDoom.", "[WolfPack.")
+            kept = [l for l in text.splitlines()
                     if not l.startswith("wolf_dbg_")]
             ini.write_text(chr(10).join(kept) + chr(10))
         # launch banner lives in the ENGINE pk3 (drawn before wads mount)
         subprocess.run([sys.executable, "tools/patch_engine.py"],
+                       check=False)
+        # exe icon branding (in-place resource patch, idempotent)
+        subprocess.run([sys.executable, "tools/patch_engine_icon.py"],
                        check=False)
     DIST.mkdir(exist_ok=True)
     if PK3.exists():

@@ -12,13 +12,14 @@ choice /c 123 /n /m "  Choose: "
 if errorlevel 3 goto local
 if errorlevel 2 goto join
 REM host rebuilds (fresh build for the session); joiners must NOT -
-REM they need to match the host, and the running host locks the pk3
-python build.py || (echo Build failed & pause & exit /b 1)
+REM they need to match the host, and the running host locks the pk3.
+REM Packaged builds ship without the compiler: nothing to rebuild.
+if exist build.py python build.py || (echo Build failed & pause & exit /b 1)
 set /p NUM="  How many players total (2-8)? "
 powershell -ExecutionPolicy Bypass -File tools\mp_launch.ps1 -Mode host -Players %NUM%
 exit /b 0
 :local
-python build.py || (echo Build failed & pause & exit /b 1)
+if exist build.py python build.py || (echo Build failed & pause & exit /b 1)
 choice /c CD /n /m "  (C)o-op lobby or (D)eathmatch arena? "
 if errorlevel 2 (
     powershell -ExecutionPolicy Bypass -File tools\mp_launch.ps1 -Mode local -Deathmatch
