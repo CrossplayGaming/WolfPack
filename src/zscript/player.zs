@@ -68,6 +68,12 @@ class WolfPlayer : DoomPlayer
     {
         UserCmd cmd = player.cmd;
 
+        // the stock MovePlayer computes this as a side effect; dropping it
+        // in the override left onground permanently false, which silently
+        // vetoed the engine's CheckJump (engine player.zs:1299)
+        player.onground = (pos.z <= floorz) || bOnMobj
+                          || (player.cheats & CF_NOCLIP2);
+
         // turning (mouse yaw and keyboard turn arrive premerged in cmd.yaw)
         if (reactiontime)
         {
@@ -96,11 +102,6 @@ class WolfPlayer : DoomPlayer
         // counts as "running" when thrust >= RUNSPEED 6000 global/Wolf-tic;
         // walk thrust is 5250, run 10500). Exposed for the Phase 2 sim.
         bIsRunning = running && (fwd != 0 || side != 0);
-
-        // the zero-inertia override replaced the engine movement chain
-        // wholesale, which silently dropped jump processing - hand the
-        // button back to the engine (it validates sv_jump itself)
-        CheckJump();
 
         if (fwd != 0 || side != 0)
         {

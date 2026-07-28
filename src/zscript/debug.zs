@@ -140,6 +140,33 @@ class WolfDebugHandler : EventHandler
                            Level.IsCrouchingAllowed(),
                            Level.IsFreelookAllowed());
 
+        // jump probe: hold BT_JUMP via cmd injection for a few tics, then
+        // report every CheckJump precondition plus the resulting Vel.Z
+        CVar jpv = CVar.FindCVar("wolf_dbg_jump");
+        if (jpv != null && jpv.GetInt() != 0 && players[0].mo != null)
+        {
+            PlayerPawn pm = players[0].mo;
+            // WorldTick runs after PlayerThink consumed this tic's cmd, and
+            // next tic the net stream overwrites it - so drive CheckJump
+            // directly with the button set, same code path a real press hits
+            if (t == 22)
+            {
+                players[0].cmd.buttons |= BT_JUMP;
+                pm.CheckJump();
+            }
+            if (t == 21 || t == 24)
+                Console.Printf("WOLFDBG jump t=%d: onground=%d jumpTics=%d "
+                               "crouchoff=%f water=%d nograv=%d JumpZ=%f "
+                               "velz=%f z=%f floorz=%f",
+                               t, players[0].onground, players[0].jumpTics,
+                               players[0].crouchoffset, pm.waterlevel,
+                               pm.bNoGravity, pm.JumpZ, pm.Vel.Z,
+                               pm.pos.z, pm.floorz);
+            if (t == 40)
+                Console.Printf("WOLFDBG jump result: z=%f (spawn floor %f)",
+                               pm.pos.z, pm.floorz);
+        }
+
         // map-load heartbeat the harness greps for. Gated: without this it
         // prints over the screen during ordinary play.
         if (t == 3 || t == 120 || t == 240)
@@ -267,7 +294,7 @@ class WolfDebugHandler : EventHandler
         }
 
         // wolf_dbg_arm: hand the player the full arsenal at level start
-        // (boss playtesting — see boss.bat)
+        // (boss playtesting ï¿½ see boss.bat)
         CVar armv = CVar.FindCVar("wolf_dbg_arm");
         if (armv != null && armv.GetInt() != 0 && t == 2)
         {

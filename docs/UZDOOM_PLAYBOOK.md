@@ -99,6 +99,21 @@ wrong (Init signatures, VirtualToRealCoords arity, ClearMenus existence).
 - `A_ReFire`'s parameter is the FLASH state, not a jump target.
 - `String.Format("%d%%")` does not emit a literal `%`.
 - Lump names cap at 8 chars — longer names fail silently.
+- Overriding an engine virtual WHOLESALE drops its hidden side
+  effects. Symptom: a nearby feature dies with no error and every
+  config knob for it looks broken. The stock `MovePlayer` computes
+  `player.onground` (engine player.zs:1299); replacing it for
+  zero-inertia movement left onground permanently false, which made
+  `CheckJump` silently refuse at every sv_jump value — two rounds of
+  cvar debugging chased a physics bug. Before overriding, read the
+  stock body end to end and inventory every assignment that outlives
+  the call (player fields, flags, counters), then re-emit the ones the
+  replacement doesn't obsolete.
+- Probing input from `WorldTick` doesn't work: it runs after
+  PlayerThink consumed the tic's cmd, and the net stream rebuilds
+  `player.cmd` next tic, so `cmd.buttons |=` injections vanish. Drive
+  the handler directly (set the button, call `CheckJump()` in the same
+  tick) — same code path a real press takes.
 
 ## 5. Testing & verification harness
 
