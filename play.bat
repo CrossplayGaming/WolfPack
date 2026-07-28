@@ -9,6 +9,10 @@ cd /d "%~dp0"
 
 REM Packaged builds ship without the compiler: skip build steps
 if not exist build.py goto :run
+if not exist "reference\wolfsrc\WOLFSRC\OBJ\GAMEPAL.OBJ" (
+    echo The id GPL source release is missing - run SETUP.bat first.
+    goto :fail
+)
 if not exist "build\assets\PLAYPAL" (
     echo First run: extracting assets from your game data...
     python tools\extract_levels.py || goto :fail
