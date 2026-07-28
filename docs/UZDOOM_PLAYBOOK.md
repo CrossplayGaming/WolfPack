@@ -122,6 +122,18 @@ wrong (Init signatures, VirtualToRealCoords arity, ClearMenus existence).
   the handler directly (set the button, call `CheckJump()` in the same
   tick) — same code path a real press takes.
 
+- **Netgame client prediction re-runs the local player's `Tick` and
+  `PlayerThink` several times per frame, then restores the PAWN - not
+  global state.** Any Tick side effect on shared sim state (an RNG
+  stream, doors, level exit, handler fields) advances differently on
+  each node and desyncs the lockstep - symptom: "Out of sync with:
+  Player (N)", positions still agreeing while derived events (damage
+  rolls, kills) differ per node. Guard with the engine's own pattern:
+  `if (player.cheats & CF_PREDICTING) return;` before anything
+  non-movement. Proof protocol: a gated beacon printing tic + RNG
+  index + player state on every node, diffed across logs - divergence
+  showed at the FIRST sample with both players standing still.
+
 ## 5. Testing & verification harness
 
 - `+quit` runs before the game loop: to prove a map loads, poll the

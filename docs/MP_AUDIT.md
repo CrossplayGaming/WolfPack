@@ -95,3 +95,13 @@ DM QoL round (2026-07-28, user test feedback):
   clean. User-visible "out of sync" pending diagnosis: permanent
   divergence (true desync, engine prints consistency failures) vs the
   ~2-tic lockstep view lag amplified by the dual-window rig.
+
+DESYNC ROOT CAUSE (2026-07-28, user screenshot "Out of sync with:
+Player (2)"; kills computed on one node only): netgame client
+prediction re-runs the local player's Tick per frame and restores the
+pawn but NOT global state - so UpdateFace's US_RndT consumption
+advanced each node's RNG stream unevenly. Beacon-proven: rng index
+diverged at the first 30-tic sample with both players motionless;
+after the CF_PREDICTING guard in WolfPlayer.Tick, 19/19 beacons
+identical and zero out-of-sync messages. All damage rolls ride that
+stream, hence the one-sided deaths.

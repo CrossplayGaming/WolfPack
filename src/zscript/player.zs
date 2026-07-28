@@ -355,6 +355,16 @@ class WolfPlayer : DoomPlayer
         // uniform recolor runs even through death: the corpse keeps the
         // chosen color
         ApplySkin();
+        // Netgame client prediction re-runs the local player's Tick
+        // several times per frame and restores the PAWN afterward - but
+        // not global state. Everything below mutates shared sim state
+        // (the US_RndT stream via UpdateFace, doors via WolfUse, level
+        // exit via the victory scan), so predicted re-runs advanced the
+        // RNG stream on each node unevenly: beacon-proven divergence at
+        // the first sample, and kills that only one node computed. Same
+        // guard the engine's own player code uses for its side effects.
+        if (player != null && (player.cheats & CF_PREDICTING))
+            return;
         // Vertical aim is suppressed by MAPINFO's NoFreelook (defaultmap),
         // which is the engine's own clamp. Do NOT also force Pitch here:
         // writing pitch after the input has applied it fights the mouse

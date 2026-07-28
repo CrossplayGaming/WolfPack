@@ -167,6 +167,23 @@ class WolfDebugHandler : EventHandler
                                pm.pos.z, pm.floorz);
         }
 
+        // net-sync beacon: same line must appear in every node's log at
+        // the same tic - any field difference is a lockstep divergence
+        CVar nbv = CVar.FindCVar("wolf_dbg_net");
+        if (nbv != null && nbv.GetInt() != 0 && t % 30 == 0)
+        {
+            WolfLevel nwl = WolfLevel.Get();
+            String hp = "";
+            for (int p = 0; p < MAXPLAYERS; p++)
+                if (playeringame[p] && players[p].mo != null)
+                    hp = hp .. String.Format(" p%d:h=%d,x=%d,y=%d", p,
+                        players[p].mo.health,
+                        int(players[p].mo.pos.x * 4),
+                        int(players[p].mo.pos.y * 4));
+            Console.Printf("WOLFDBG net t=%d rng=%d%s", t,
+                           nwl == null ? -1 : nwl.rngIndex, hp);
+        }
+
         // deathmatch door-lock probe: after PostBeginPlay has run (first
         // tick), every door in a DM arena must read unlocked
         if (apv != null && apv.GetInt() != 0 && t == 30 && deathmatch)
