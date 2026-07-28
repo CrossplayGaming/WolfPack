@@ -109,6 +109,13 @@ wrong (Init signatures, VirtualToRealCoords arity, ClearMenus existence).
   stock body end to end and inventory every assignment that outlives
   the call (player fields, flags, counters), then re-emit the ones the
   replacement doesn't obsolete.
+- Map-spawned actors run `PostBeginPlay` on the first TICK - AFTER
+  `WorldLoaded`. Mutating actor state from `WorldLoaded` that
+  `PostBeginPlay` also writes (e.g. fields copied from `args[]`) gets
+  silently overwritten. Either mutate on the first `WorldTick`, or put
+  the conditional in the actor's own `PostBeginPlay` (how the DM door
+  unlock landed). Caught only because a probe counted 0 where 1 was
+  expected - count your sweeps.
 - Probing input from `WorldTick` doesn't work: it runs after
   PlayerThink consumed the tic's cmd, and the net stream rebuilds
   `player.cmd` next tic, so `cmd.buttons |=` injections vanish. Drive
