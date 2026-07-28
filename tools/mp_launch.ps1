@@ -45,7 +45,28 @@ if ($Mode -eq "host") {
     $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+map", "MAP09") } else { @("+map", "LOBBY") }
     & "$root\engine\uzdoom.exe" -host $Players @modeargs -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0
 }
+elseif ($Mode -eq "local") {
+    # Two windows on THIS pc, side by side, for solo multiplayer testing.
+    # Throwaway configs (copied fresh from playtest.ini each run) so the
+    # forced windowed-mode cvars never leak into the real config; the
+    # joiner window keeps sound effects but drops music so audio does
+    # not double up. Host launches first and gets a moment to bind the
+    # port before the joiner connects to localhost.
+    Copy-Item "$root\dist\playtest.ini" "$root\dist\local_host.ini" -Force
+    Copy-Item "$root\dist\playtest.ini" "$root\dist\local_join.ini" -Force
+    $w = 1720; $h = 968; $y = 300
+    $vidH = @("+set","vid_fullscreen","0","+set","win_w","$w","+set","win_h","$h","+set","win_x","60","+set","win_y","$y")
+    $vidJ = @("+set","vid_fullscreen","0","+set","win_w","$w","+set","win_h","$h","+set","win_x","2040","+set","win_y","$y")
+    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+map", "MAP09") } else { @("+map", "LOBBY") }
+    Write-Host ""
+    Write-Host "  Launching host window (left)..."
+    Start-Process -FilePath "$root\engine\uzdoom.exe" -ArgumentList (@("-host","2") + $modeargs + @("-iwad","$root\dist\wolf.ipk3","-config","$root\dist\local_host.ini","+set","wolf_dbg_arm","0") + $vidH)
+    Start-Sleep -Seconds 4
+    Write-Host "  Launching joiner window (right)..."
+    & "$root\engine\uzdoom.exe" -join localhost -iwad "$root\dist\wolf.ipk3" -config "$root\dist\local_join.ini" +set wolf_dbg_arm 0 +set snd_musicvolume 0 +set wolf_skin 1 @vidJ
+}
 elseif ($Mode -eq "join") {
+
     if (-not $Code) {
         try { $Code = ([string](Get-Clipboard -Raw)).Trim() } catch {}
     }
