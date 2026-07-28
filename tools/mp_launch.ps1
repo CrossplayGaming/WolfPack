@@ -42,7 +42,7 @@ if ($Mode -eq "host") {
     }
     Write-Host ""
     Write-Host "  Waiting for $Players players total..."
-    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+map", "MAP09") } else { @("+map", "LOBBY") }
+    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+map", "MAP09") } else { @("+map", "LOBBY") }
     & "$root\engine\uzdoom.exe" -host $Players @modeargs -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0
 }
 elseif ($Mode -eq "local") {
@@ -57,7 +57,7 @@ elseif ($Mode -eq "local") {
     $w = 1720; $h = 968; $y = 300
     $vidH = @("+set","vid_fullscreen","0","+set","win_w","$w","+set","win_h","$h","+set","win_x","60","+set","win_y","$y")
     $vidJ = @("+set","vid_fullscreen","0","+set","win_w","$w","+set","win_h","$h","+set","win_x","2040","+set","win_y","$y")
-    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+map", "MAP09") } else { @("+map", "LOBBY") }
+    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+map", "MAP09") } else { @("+map", "LOBBY") }
     Write-Host ""
     Write-Host "  Launching host window (left)..."
     Start-Process -FilePath "$root\engine\uzdoom.exe" -ArgumentList (@("-host","2") + $modeargs + @("-iwad","$root\dist\wolf.ipk3","-config","$root\dist\local_host.ini","+set","wolf_dbg_arm","0") + $vidH)

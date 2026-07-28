@@ -60,3 +60,12 @@ mp_launch.ps1: co-op hosts now start in LOBBY; deathmatch hosts start
 straight in the MAP09 arena with -nomonsters (Hans doesn't referee).
 Verified headless (wolf_dbg_lobby): warped through west band 2 + east
 band 0 + chamber, landed on MAP21 at skill 0.
+
+DM spawn telefrag (2026-07-28, user repro + headless confirm): with
+only the two curated 1v1 starts, the engine's random initial spawn put
+both players on the SAME spot - at first spawn no body exists yet to
+block the second pick - and the mutual telefrag left both dead on a
+red screen at 0%. Fix: sv_spawnfarthest 1 on every deathmatch launch
+(each spawn picks the spot farthest from living opponents - also the
+right 1v1 respawn behavior: you respawn in the room away from your
+killer). Headless 2-node repro went from 2 telefrag obituaries to 0.
