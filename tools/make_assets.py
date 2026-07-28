@@ -277,10 +277,21 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
         art = Image.open(userlogo).convert("RGBA")
         bb = art.split()[3].getbbox()
         art = art.crop(bb)
-        w = 244
-        h = min(150, round(art.height * w / art.width))
-        art = art.resize((w, h), Image.LANCZOS)
-        logo.paste(art, ((256 - w) // 2, (190 - h) // 2), art)
+        aspect = art.width / art.height
+        if 0.9 <= aspect <= 1.1:
+            # complete square badge (frame, panel, credit) - use whole
+            art = art.resize((256, 256), Image.LANCZOS)
+            logo.paste(art, (0, 0), art)
+            logo.save(ASSETS / "graphics" / "BOOTLOGO.png")
+            print("  boot logo: full-badge import art")
+            return_early = True
+        else:
+            return_early = False
+        if not return_early:
+            w = 244
+            h = min(150, round(art.height * w / art.width))
+            art = art.resize((w, h), Image.LANCZOS)
+            logo.paste(art, ((256 - w) // 2, (190 - h) // 2), art)
         grey = (142, 142, 142)
         def blit_tag(word, y, scale, color):
             imgs = []
@@ -297,9 +308,10 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
                 tint.putalpha(big.split()[3])
                 logo.paste(tint, (x, y), tint)
                 x += (i.width + 1) * scale
-        blit_tag("WOLFENSTEIN 3D TOGETHER", 214, 1, grey)
-        logo.save(ASSETS / "graphics" / "BOOTLOGO.png")
-        print("  boot logo composed from import/bootlogo.png")
+        if not return_early:
+            blit_tag("WOLFENSTEIN 3D TOGETHER", 214, 1, grey)
+            logo.save(ASSETS / "graphics" / "BOOTLOGO.png")
+            print("  boot logo composed from import/bootlogo.png")
     elif fontbig.exists():
         logo = Image.new("RGB", (256, 256), (20, 20, 20))
         gold = (255, 247, 0)
