@@ -53,7 +53,7 @@ class WolfMenu : ListMenu
     // ---- shared drawing --------------------------------------------------
 
     // plain menu screen: ClearMScreen + the mouse bar. The stripe and
-    // "Options" plaque belong ONLY to the main/options pages — the
+    // "Options" plaque belong ONLY to the main/options pages ï¿½ the
     // episode and skill screens draw without them (DrawNewEpisode /
     // DrawNewGame), which is also what keeps their titles clear.
     void DrawBackground()
@@ -188,7 +188,7 @@ class WolfMenu : ListMenu
         return Super.MenuEvent(mkey, fromcontroller);
     }
 
-    // Wolf mouse handling: the gun cursor rides the list — hovering a
+    // Wolf mouse handling: the gun cursor rides the list ï¿½ hovering a
     // row selects it, click activates. No free-floating dead cursor.
     override bool MouseEvent(int type, int x, int y)
     {
@@ -244,7 +244,9 @@ class WolfMainMenu : WolfMenu
         labels.Push("Load Game");    itemStates.Push(IT_NORMAL);
         labels.Push("Save Game");    itemStates.Push(ingame ? IT_NORMAL
                                                         : IT_DISABLED);
-        labels.Push("Read This!");   itemStates.Push(IT_NORMAL);
+        // Spear has no Read This! article (WL6-only T_HELPART)
+        labels.Push("Read This!");
+        itemStates.Push(WolfDraw.IsSpear() ? IT_DISABLED : IT_NORMAL);
         labels.Push("End Game");     itemStates.Push(ingame ? IT_NORMAL
                                                         : IT_DISABLED);
         labels.Push(ingame ? "Back to Game" : "Back to Demo");
@@ -266,7 +268,11 @@ class WolfMainMenu : WolfMenu
     {
         switch (index)
         {
-        case MI_NEWGAME: Menu.SetMenu("WolfEpisodeMenu"); break;
+        case MI_NEWGAME:
+            // Spear is a single 21-floor campaign: straight to skill
+            Menu.SetMenu(WolfDraw.IsSpear() ? "WolfSkillMenu"
+                                            : "WolfEpisodeMenu");
+            break;
         case MI_OPTIONS: Menu.SetMenu("WolfOptionsMenu"); break;
         case MI_MULTI:   Menu.SetMenu("WolfMPMenu");      break;
         case MI_LOAD:    Menu.SetMenu("LoadGameMenu");    break;
@@ -407,7 +413,7 @@ class WolfSkillMenu : WolfMenu
     {
         // Reset score/lives play-side, then start through the engine's own
         // new-game path. ChangeLevel from the titlemap is NOT that: it
-        // carries GS_TITLELEVEL into the new map — no status bar, any key
+        // carries GS_TITLELEVEL into the new map ï¿½ no status bar, any key
         // reopening the menu, the works.
         EventHandler.SendNetworkEvent("wolf_newgame", episode, index);
         Menu.StartGameDirect(false, false, null, episode, index);
@@ -515,7 +521,7 @@ Y = yes    N = no";
                    native_handler);
         big = Font.GetFont("wolfbig");
         // no engine dim (the purple wash): the original never confirms
-        // over live gameplay — Confirm() runs on the red menu screen
+        // over live gameplay ï¿½ Confirm() runs on the red menu screen
         DontDim = true;
     }
 

@@ -71,7 +71,7 @@ class WolfArticle ui
         return pageNum < pageStart.Size();
     }
 
-    // BackPage (WL_TEXT.C:520) — the bottom bar promises "<> PAGE"
+    // BackPage (WL_TEXT.C:520) ï¿½ the bottom bar promises "<> PAGE"
     void PrevPage()
     {
         if (pageNum > 0)
@@ -309,10 +309,23 @@ class WolfArticle ui
         DefaultRect();
 
         Bar(0, 0, 320, 200, BACKCOLOR);
-        Pic(0, 0, "H_TOPWIN");
-        Pic(0, 8, "H_LEFTW");
-        Pic(312, 8, "H_RIGHTW");
-        Pic(8, 176, "H_BOTINF");
+        // The window frame is WL6 art (H_*WINDOWPIC); Spear's VGAGRAPH
+        // has none, so its single ending article gets the generated
+        // bevel instead of four missing pics.
+        if (WolfDraw.IsSpear())
+        {
+            Bar(0, 0, 320, 8, 0x29);
+            Bar(0, 192, 320, 8, 0x29);
+            Bar(0, 0, 8, 200, 0x29);
+            Bar(312, 0, 8, 200, 0x29);
+        }
+        else
+        {
+            Pic(0, 0, "H_TOPWIN");
+            Pic(0, 8, "H_LEFTW");
+            Pic(312, 8, "H_RIGHTW");
+            Pic(8, 176, "H_BOTINF");
+        }
 
         lMargin.Resize(TEXTROWS);
         rMargin.Resize(TEXTROWS);

@@ -20,10 +20,21 @@ class WolfHighScores
 
         WolfDraw.WideBar(0, 200, BORDCOLOR);            // ClearMScreen
         DrawStripes(10);
-        WolfDraw.Pic(48, 0, "HISCORES");
-        WolfDraw.Pic(4 * 8, 68, "C_NAME");
-        WolfDraw.Pic(20 * 8, 68, "C_LEVEL");
-        WolfDraw.Pic(28 * 8, 68, "C_SCORE");
+        // Spear's high-score screen has NO column-header pics: the
+        // source draws HIGHSCORESPIC full-bleed at 0,0 and prints the
+        // rows in the big font (WL_INTER.C, #ifdef SPEAR)
+        bool spear = WolfDraw.IsSpear();
+        if (spear)
+        {
+            WolfDraw.Pic(0, 0, "HISCORES");
+        }
+        else
+        {
+            WolfDraw.Pic(48, 0, "HISCORES");
+            WolfDraw.Pic(4 * 8, 68, "C_NAME");
+            WolfDraw.Pic(20 * 8, 68, "C_LEVEL");
+            WolfDraw.Pic(28 * 8, 68, "C_SCORE");
+        }
 
         Color fg = WolfPal.Get(15);
         for (int i = 0; i < MAXSCORES; i++)

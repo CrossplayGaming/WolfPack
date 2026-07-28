@@ -111,6 +111,15 @@ def main():
     raw = chunk(HELPART)
     if raw is not None:
         (OUT / "helpart.txt").write_bytes(raw)
+
+    # Spear ships ONE ending article (T_ENDART1, chunk 168 in
+    # GFXV_SOD.H) and no Read This! page
+    sod = open_graph("SOD")
+    if sod is not None:
+        raw = sod(168)
+        if raw is not None:
+            (OUT / "sod_endart1.txt").write_bytes(raw)
+            print("  + Spear ending article")
     print(f"articles: {len(ENDART)}+help extracted, ^G pics referenced: "
           f"{sorted(pics)}")
 

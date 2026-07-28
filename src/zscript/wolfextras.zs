@@ -267,14 +267,9 @@ class WolfMPMenu : WolfMenu
 
     // which game is this build? mapinfo_sod.txt ships only in
     // spear.ipk3, so its presence is the tell
-    static bool IsSpear()
-    {
-        return Wads.CheckNumForFullName("mapinfo_sod.txt") >= 0;
-    }
-
     void Request(String what)
     {
-        if (IsSpear())
+        if (WolfDraw.IsSpear())
             what = what .. " spear";
         // Bindings apply INSTANTLY from ui and archive at exit - unlike
         // cvar sets (server and user both), which defer to game tics

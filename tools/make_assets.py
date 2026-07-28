@@ -191,6 +191,30 @@ def main():
     for ep in range(1, 7):
         hud_pics[f"C_EPISODE{ep}PIC"] = f"C_EPIS{ep}"
 
+    # Spear splits its title screen into two VGAGRAPH chunks (320x80 over
+    # 320x120); stack them so the shared attract code finds one TITLEPIC
+    if IS_SOD:
+        t1, t2 = VGA / "TITLE1PIC.png", VGA / "TITLE2PIC.png"
+        if t1.exists() and t2.exists():
+            a, b = Image.open(t1).convert("RGB"), Image.open(t2).convert("RGB")
+            title = Image.new("RGB", (max(a.width, b.width),
+                                      a.height + b.height))
+            title.paste(a, (0, 0))
+            title.paste(b, (0, a.height))
+            (ASSETS / "graphics").mkdir(exist_ok=True)
+            title.save(ASSETS / "graphics" / "TITLEPIC.png")
+        # Spear's own menu/ending art
+        for src, lump in (("C_WONSPEARPIC", "C_WONSPR"),
+                          ("ENDPICPIC", "ENDPIC"),
+                          ("C_HOWTOUGHPIC", "C_HOWTGH")):
+            f = VGA / f"{src}.png"
+            if f.exists():
+                shutil.copy(f, ASSETS / "graphics" / f"{lump}.png")
+        for n in (3, 4, 5, 6, 7, 8, 9, 11, 12):
+            f = VGA / f"ENDSCREEN{n}PIC.png"
+            if f.exists():
+                shutil.copy(f, ASSETS / "graphics" / f"ENDSCR{n:02d}.png")
+
     nhud = 0
     for src_name, lump in hud_pics.items():
         p = VGA / f"{src_name}.png"
@@ -365,11 +389,15 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
     # end-of-episode articles and the proportional font (extract_text.py)
     TXT = ROOT / "build" / "text"
     if TXT.exists():
-        for ep in range(1, 7):
-            src = TXT / f"endart{ep}.txt"
+        # WL6 has six episode articles; Spear has ONE ending text and no
+        # Read This! page, so packing WL6's would show the wrong game's
+        # story (they come from the WL6 VGAGRAPH)
+        for ep in range(1, 7 if not IS_SOD else 2):
+            src = TXT / (f"endart{ep}.txt" if not IS_SOD
+                         else "sod_endart1.txt")
             if src.exists():
                 shutil.copy(src, ASSETS / f"ENDART{ep}.txt")
-        if (TXT / "helpart.txt").exists():
+        if not IS_SOD and (TXT / "helpart.txt").exists():
             shutil.copy(TXT / "helpart.txt", ASSETS / "HELPART.txt")
         # smallfont/bigfont are the engine's own UI fonts: packing the
         # Wolf glyphs under those reserved names restyles every engine-

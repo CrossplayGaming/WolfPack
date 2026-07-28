@@ -161,6 +161,16 @@ class WolfAttract : StaticEventHandler
 // transform that means the same thing in every context.
 class WolfDraw
 {
+    // Which game is this build? mapinfo_sod.txt ships only in
+    // spear.ipk3, so its presence is the tell. Spear differs in the
+    // presentation layer: no episode select, no Read This! article,
+    // its own title art and high-score layout (WL_INTER/WL_MENU are
+    // full of #ifdef SPEAR for exactly these).
+    static bool IsSpear()
+    {
+        return Wads.CheckNumForFullName("mapinfo_sod.txt") >= 0;
+    }
+
     static double ScaleX()
     {
         return screen.GetHeight() * (4.0 / 3.0) / 320.0;
