@@ -133,7 +133,8 @@ class WolfDebugHandler : EventHandler
             }
         }
 
-        if (t == 12)
+        CVar apv = CVar.FindCVar("wolf_dbg_check");
+        if (t == 12 && apv != null && apv.GetInt() != 0)
             Console.Printf("WOLFDBG allow: jump=%d crouch=%d freelook=%d",
                            Level.IsJumpingAllowed(),
                            Level.IsCrouchingAllowed(),

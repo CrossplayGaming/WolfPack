@@ -97,6 +97,11 @@ class WolfPlayer : DoomPlayer
         // walk thrust is 5250, run 10500). Exposed for the Phase 2 sim.
         bIsRunning = running && (fwd != 0 || side != 0);
 
+        // the zero-inertia override replaced the engine movement chain
+        // wholesale, which silently dropped jump processing - hand the
+        // button back to the engine (it validates sv_jump itself)
+        CheckJump();
+
         if (fwd != 0 || side != 0)
         {
             if (player.playerstate == PST_LIVE)
