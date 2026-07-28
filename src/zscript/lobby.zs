@@ -23,7 +23,7 @@ class WolfLobby : EventHandler
     {
         Z_NONE = 0,
         Z_EP1, Z_EP2, Z_EP3, Z_EP4, Z_EP5, Z_EP6,
-        Z_SK1, Z_SK2, Z_SK3, Z_SK4,
+        Z_SK1, Z_SK2, Z_SK3, Z_SK4, Z_SK5, Z_SK6,
         Z_START,
     };
 
@@ -101,7 +101,7 @@ class WolfLobby : EventHandler
             return Z_NONE;
         if (tx >= 26 && tx <= 28)
             return Z_EP1 + band;
-        if (tx >= 40 && tx <= 42 && band < 4)
+        if (tx >= 40 && tx <= 42)
             return Z_SK1 + band;
         return Z_NONE;
     }
@@ -148,29 +148,37 @@ class WolfLobby : EventHandler
             }
             else
             {
-                sk = zone - Z_SK1;
+                // any east alcove CYCLES the skill (4 skills can't map
+                // onto 6 alcoves positionally - user repro: the south
+                // bands did nothing and the choice "didn't take")
+                sk = (sk + 1) % 4;
                 Console.Printf("Skill: %s", SKNAMES[sk]);
             }
             mo.A_StartSound("menu/change", CHAN_AUTO);
         }
     }
 
-    // persistent status readout, drawn Wolf-style at the top of the view
+    // persistent status readout, drawn Wolf-style at the top of the view.
+    // Small font: the big one overflows virtual 320 and clips both edges
+    // (user screenshot).
     override void RenderOverlay(RenderEvent e)
     {
         if (!Active() || launched)
             return;
-        Font big = Font.GetFont("wolfbig");
-        if (big == null)
+        Font sm = Font.GetFont("wolfprop");
+        if (sm == null)
             return;
-        String l1 = String.Format("Episode %d: %s   Skill: %s",
-                                  ep + 1, EPNAMES[ep], SKNAMES[sk]);
-        String l2 = consoleplayer == 0
-            ? "West aisle: episode. East aisle: skill. Hans's room: begin."
+        String l1 = String.Format("Episode %d: %s", ep + 1, EPNAMES[ep]);
+        String l2 = String.Format("Skill: %s", SKNAMES[sk]);
+        String l3 = consoleplayer == 0
+            ? "West aisle: pick episode. East aisle: change skill. "
+              "Hans's room: begin."
             : "The host is choosing episode and skill.";
-        WolfDraw.Text(big, 160 - big.StringWidth(l1) / 2, 4, l1,
+        WolfDraw.Text(sm, 160 - sm.StringWidth(l1) / 2, 3, l1,
                       WolfPal.Get(WolfMenu.C_READH));
-        WolfDraw.Text(big, 160 - big.StringWidth(l2) / 2, 16, l2,
+        WolfDraw.Text(sm, 160 - sm.StringWidth(l2) / 2, 13, l2,
+                      WolfPal.Get(WolfMenu.C_READH));
+        WolfDraw.Text(sm, 160 - sm.StringWidth(l3) / 2, 23, l3,
                       WolfPal.Get(WolfMenu.C_READ));
     }
 }
