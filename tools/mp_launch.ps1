@@ -43,7 +43,7 @@ if ($Mode -eq "host") {
     Write-Host ""
     Write-Host "  Waiting for $Players players total..."
     $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+map", "MAP09") } else { @("+map", "LOBBY") }
-    & "$root\engine\uzdoom.exe" -host $Players @modeargs -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0
+    & "$root\engine\uzdoom.exe" -host $Players @modeargs -iwad "$root\dist\wolf.ipk3" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0 +set i_pauseinbackground 0
 }
 elseif ($Mode -eq "local") {
     # Two windows on THIS pc, side by side, for solo multiplayer testing.
@@ -77,5 +77,5 @@ elseif ($Mode -eq "join") {
         $Code = (Read-Host "  Type the code (or 'localhost' to join a host on THIS pc)").Trim()
     }
     Write-Host "  Joining $Code ..."
-    & "$root\engine\uzdoom.exe" -join $Code -iwad "$root\dist\wolf.ipk3" -config "$root\dist\join.ini" +set wolf_dbg_arm 0
+    & "$root\engine\uzdoom.exe" -join $Code -iwad "$root\dist\wolf.ipk3" -config "$root\dist\join.ini" +set wolf_dbg_arm 0 +set i_pauseinbackground 0
 }
