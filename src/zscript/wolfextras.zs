@@ -245,12 +245,18 @@ class WolfMPMenu : WolfMenu
         DrawWindowBox(MENU_X - 24, MP_TOP - 3, MENU_W + 60,
                       13 * labels.Size() + 6);
         DrawItems(MENU_X - 16, MP_TOP, 24, 13);
+        // small font: both lines measure 374 wolfbig units - wider than
+        // the 320 screen (the lobby-overlay lesson, again)
+        Font sm = Font.GetFont("wolfprop");
         String note = "The game restarts to start or join a session";
         String note2 = "Join reads the invite code from your clipboard";
-        WolfDraw.Text(big, 160 - big.StringWidth(note) / 2, 168, note,
-                      WolfPal.Get(C_READ));
-        WolfDraw.Text(big, 160 - big.StringWidth(note2) / 2, 180, note2,
-                      WolfPal.Get(C_READ));
+        if (sm != null)
+        {
+            WolfDraw.Text(sm, 160 - sm.StringWidth(note) / 2, 168, note,
+                          WolfPal.Get(C_READ));
+            WolfDraw.Text(sm, 160 - sm.StringWidth(note2) / 2, 179, note2,
+                          WolfPal.Get(C_READ));
+        }
         DrawGun(MENU_X - 16, MP_TOP, 13);
     }
 
