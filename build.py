@@ -71,6 +71,17 @@ def build() -> Path:
                        check=False)
     DIST.mkdir(exist_ok=True)
     if PK3.exists():
+        # a freshly-written pk3 can be briefly locked by AV scanning
+        # (user repro: build-failed dialog seconds after SETUP finished,
+        # fine on retry) - wait it out before declaring it in use
+        import time
+        for _attempt in range(5):
+            try:
+                PK3.unlink()
+                break
+            except PermissionError:
+                time.sleep(2)
+    if PK3.exists():
         try:
             PK3.unlink()
         except PermissionError:

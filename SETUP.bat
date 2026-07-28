@@ -18,6 +18,9 @@ if errorlevel 1 (
 )
 python -c "import PIL" >nul 2>nul || pip install pillow
 python -c "import pefile" >nul 2>nul || pip install pefile
+python -c "import numpy" >nul 2>nul || pip install numpy
+python -c "import soundfile" >nul 2>nul || pip install soundfile
+python -c "import pyopl" >nul 2>nul || pip install pyopl
 
 if exist engine\uzdoom.exe goto :haveengine
 echo   The UZDoom engine is not in engine\ yet.
@@ -59,6 +62,8 @@ python tools\extract_vgagraph.py || goto :fail
 python tools\extract_text.py || goto :fail
 python tools\convert_udmf.py || goto :fail
 python tools\import_bj_sheet.py || goto :fail
+echo   Rendering the AdLib soundtrack ^(one-time, takes a few minutes^)...
+python tools\render_adlib.py --music || goto :fail
 python build.py || goto :fail
 
 echo.

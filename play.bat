@@ -22,6 +22,8 @@ if not exist "build\assets\PLAYPAL" (
     python tools\extract_text.py || goto :fail
     python tools\convert_udmf.py || goto :fail
     python tools\import_bj_sheet.py || goto :fail
+    echo Rendering the AdLib soundtrack - one-time, takes a few minutes...
+    python tools\render_adlib.py --music || goto :fail
     python tools\make_assets.py || goto :fail
 )
 
@@ -44,5 +46,5 @@ exit /b 0
 :fail
 echo.
 echo Build failed - see output above.
-powershell -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('The game build failed. Run play.bat from a terminal to see the details.','WolfDoom') | Out-Null"
+powershell -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('The game build failed. Run play.bat from a terminal to see the details.','WolfPack') | Out-Null"
 exit /b 1
