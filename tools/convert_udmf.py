@@ -240,20 +240,26 @@ def convert(level, ceiling_color):
         x, y = d["x"], d["y"]
         xb, yb = x * T, (63 - y) * T
         w = SLABW // 2
+        # jamb pages are DERIVED (DOORWALL+2/+3); these were hardcoded to
+        # WL6's 100/101, which in Spear's wall set are plain stone - the
+        # pocket side is exactly one flank of every door, which is why
+        # only one side of each doorway looked wrong (user repro)
+        dw = doorwall_for(level["set"])
+        J_H, J_V = f"WALL{dw + 2:03d}", f"WALL{dw + 3:03d}"
         if d["vertical"]:                     # channel in the south tile
             xm = xb + T // 2
-            add_line((xb + T, yb), (xm + w, yb), s, "WALL100")
-            add_line((xm - w, yb), (xb, yb), s, "WALL100")
-            add_line((xm - w, yb - T), (xm - w, yb), s, "WALL101")
-            add_line((xm + w, yb), (xm + w, yb - T), s, "WALL101")
-            add_line((xm + w, yb - T), (xm - w, yb - T), s, "WALL100")
+            add_line((xb + T, yb), (xm + w, yb), s, J_H)
+            add_line((xm - w, yb), (xb, yb), s, J_H)
+            add_line((xm - w, yb - T), (xm - w, yb), s, J_V)
+            add_line((xm + w, yb), (xm + w, yb - T), s, J_V)
+            add_line((xm + w, yb - T), (xm - w, yb - T), s, J_H)
         else:                                 # channel in the east tile
             ym = yb + T // 2
-            add_line((xb + T, yb + T), (xb + T, ym + w), s, "WALL101")
-            add_line((xb + T, ym - w), (xb + T, yb), s, "WALL101")
-            add_line((xb + T, ym + w), (xb + 2 * T, ym + w), s, "WALL100")
-            add_line((xb + 2 * T, ym - w), (xb + T, ym - w), s, "WALL100")
-            add_line((xb + 2 * T, ym + w), (xb + 2 * T, ym - w), s, "WALL101")
+            add_line((xb + T, yb + T), (xb + T, ym + w), s, J_V)
+            add_line((xb + T, ym - w), (xb + T, yb), s, J_V)
+            add_line((xb + T, ym + w), (xb + 2 * T, ym + w), s, J_H)
+            add_line((xb + 2 * T, ym - w), (xb + T, ym - w), s, J_H)
+            add_line((xb + 2 * T, ym + w), (xb + 2 * T, ym - w), s, J_V)
 
     for y in range(64):
         for x in range(64):

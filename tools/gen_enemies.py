@@ -193,7 +193,16 @@ def sprite_enum(spear=False):
                 stack.pop()
             continue
         if all(stack):
-            names += re.findall(r"\b(SPR_[A-Z0-9_]+)\b", ln)
+            # Match EVERY enum identifier, not just SPR_-prefixed
+            # ones: id's header has a typo - MACHINEGUNATK3 lost
+            # its SPR_ prefix - and an SPR_-only regex silently
+            # DROPPED that slot, shifting every later index down
+            # by one. That is why Spear's chaingun wore a machine
+            # gun. Cross-check: the parsed length must equal the
+            # VSWAP sprite count (it was short by exactly one).
+            body = ln.split("//")[0]
+            names += [m for m in re.findall(r"[A-Z][A-Z0-9_]{2,}", body)
+                      if not m.startswith(("NUM", "START", "STRUCT"))]
     return {n: i for i, n in enumerate(names)}
 
 

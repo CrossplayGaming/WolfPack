@@ -49,6 +49,75 @@ def derived(setname):
     }
 
 
+def check_enum(vals):
+    """The parsed sprite enum must have exactly as many entries as the
+    VSWAP has sprites. A single dropped name (id's header has one - a
+    MACHINEGUNATK3 missing its SPR_ prefix) shifts every later index and
+    silently mis-draws weapons in BOTH games. This is the independent
+    cross-check: parsed length vs what the data actually contains."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    from gen_enemies import sprite_enum
+    bad = []
+    for s in SETS:
+        m = manifest(s)
+        if not m:
+            continue
+        n = len(sprite_enum(spear=(s == "sod")))
+        if n != m["sprites"]:
+            bad.append(f"{s}: enum parsed {n} names, VSWAP has "
+                       f"{m['sprites']} sprites - indices are shifted")
+    return bad
+
+
+def check_hardcodes():
+    """No raw WALL### / SPR### literals in the pipeline. Every one is a
+    latent per-game bug: the door pocket carried a hardcoded WALL100
+    (WL6's jamb) that rendered as stone in Spear, on exactly one flank
+    of every door. Derive from the data instead."""
+    import re
+    bad = []
+    for f in ("convert_udmf.py", "make_assets.py"):
+        src = (ROOT / "tools" / f).read_text(errors="replace")
+        for n, line in enumerate(src.splitlines(), 1):
+            code = line.split("#")[0]
+            for m in re.findall(r'"(WALL\d{3}|SPR\d{3})"', code):
+                if m == "WALL000":          # the void filler, game-agnostic
+                    continue
+                bad.append(f"{f}:{n} hardcodes {m}")
+    return bad
+
+
+def check_jambs():
+    """Every wall face touching a door must carry the jamb page. Ground
+    truth comes from the MAP DATA (walls adjacent to door tiles), not
+    from our own emission - the pocket-side bug halved this silently."""
+    import json as _j
+    import re
+    bad = []
+    for s in SETS:
+        lv = ROOT / "build" / "levels" / s / "MAP00.json"
+        tm = ROOT / "build" / "udmf" / s / "MAP00.textmap"
+        d = derived(s)
+        if not (lv.exists() and tm.exists() and d):
+            continue
+        dec = _j.loads(lv.read_text())["decoded0"]
+        doors = {(i % 64, i // 64) for i, c in enumerate(dec)
+                 if c["kind"] == "door"}
+        walls = {(i % 64, i // 64) for i, c in enumerate(dec)
+                 if c["kind"] in ("wall", "elevator_switch", "exit_rail")}
+        want = sum(1 for (x, y) in walls
+                   for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))
+                   if (x + dx, y + dy) in doors)
+        t = tm.read_text()
+        dw = d["DOORWALL"]
+        got = (len(re.findall("WALL%03d" % (dw + 2), t))
+               + len(re.findall("WALL%03d" % (dw + 3), t))) // 3
+        if got < want:
+            bad.append(f"{s} MAP00: {got} jamb faces emitted, map data "
+                       f"has {want} wall faces touching doors")
+    return bad
+
+
 def check_pipeline(vals):
     """Compare what the converter would emit against the derived truth."""
     sys.path.insert(0, str(ROOT / "tools"))
@@ -121,13 +190,17 @@ def main():
         print(f"{k:16s} {str(a):>18s} {str(b):>18s}   "
               f"{'yes' if a == b else 'NO (must be per-game)'}")
     print()
-    bad = check_pipeline(vals)
+    bad = (check_enum(vals) + check_pipeline(vals)
+           + check_hardcodes() + check_jambs())
     if bad:
         print("PIPELINE MISMATCH:")
         for b in bad:
             print("  ", b)
         sys.exit(1)
+    print("sprite enum length matches VSWAP sprite count (both games)")
     print("pipeline derived constants agree with both games' data")
+    print("no hardcoded WALL/SPR indices in the pipeline")
+    print("jamb faces match the map data in both games")
     if "--sheet" in sys.argv:
         sheet()
 

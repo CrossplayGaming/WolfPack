@@ -141,6 +141,15 @@ wrong (Init signatures, VirtualToRealCoords arity, ClearMenus existence).
   index + player state on every node, diffed across logs - divergence
   showed at the FIRST sample with both players standing still.
 
+- **Parsers that filter by naming convention silently DROP malformed
+  entries and shift every index after them.** id's WL_DEF.H sprite enum
+  contains a typo - `MACHINEGUNATK3` missing its `SPR_` prefix - and a
+  regex matching only `SPR_*` skipped that slot, shifting the chaingun
+  by one in BOTH games. Symptom: one weapon wears another's art.
+  Enumerations parsed out of source MUST be length-checked against the
+  data they index (parsed names vs VSWAP sprite count); that single
+  assertion catches every drop instantly, and self-consistent audits
+  built on the same parser cannot.
 - **Existence checks cannot catch a wrong-content index.** Porting two
   data sets (WL6 + Spear) through one pipeline, every bug was the same
   shape: an index that resolves to a REAL lump in both games but the

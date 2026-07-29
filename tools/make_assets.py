@@ -339,10 +339,10 @@ vertex { x = 0.0; y = 0.0; }
 vertex { x = 64.0; y = 0.0; }
 vertex { x = 64.0; y = 64.0; }
 vertex { x = 0.0; y = 64.0; }
-sidedef { sector = 0; texturemiddle = "WALL022"; }
-sidedef { sector = 0; texturemiddle = "WALL022"; }
-sidedef { sector = 0; texturemiddle = "WALL022"; }
-sidedef { sector = 0; texturemiddle = "WALL022"; }
+sidedef { sector = 0; texturemiddle = "WALL000"; }
+sidedef { sector = 0; texturemiddle = "WALL000"; }
+sidedef { sector = 0; texturemiddle = "WALL000"; }
+sidedef { sector = 0; texturemiddle = "WALL000"; }
 linedef { v1 = 0; v2 = 1; sidefront = 0; blocking = true; }
 linedef { v1 = 1; v2 = 2; sidefront = 1; blocking = true; }
 linedef { v1 = 2; v2 = 3; sidefront = 2; blocking = true; }
@@ -678,9 +678,11 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
     # into the chaingun.
     _enum = _enum_early()
     wnames = {}
+    # every weapon really does have five frames (READY + four attack);
+    # the "machine gun has four" reading came from the dropped enum slot
     for ready, spr, nframes in (("SPR_KNIFEREADY", "WKNF", 5),
                                 ("SPR_PISTOLREADY", "WPIS", 5),
-                                ("SPR_MACHINEGUNREADY", "WMGN", 4),
+                                ("SPR_MACHINEGUNREADY", "WMGN", 5),
                                 ("SPR_CHAINREADY", "WCHN", 5)):
         if ready in _enum:
             wnames[_enum[ready]] = (spr, nframes)
