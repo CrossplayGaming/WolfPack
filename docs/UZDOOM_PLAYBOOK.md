@@ -141,6 +141,13 @@ wrong (Init signatures, VirtualToRealCoords arity, ClearMenus existence).
   index + player state on every node, diffed across logs - divergence
   showed at the FIRST sample with both players standing still.
 
+- **Not all of a game's art is in the game palette.** Spear's title
+  halves and nine ending screens each carry their OWN palette chunk;
+  decoded against the game palette they render like a photo negative.
+  Guard it structurally: every `*PALETTE` chunk in the graphics enum
+  must be applied to some picture or explicitly listed as unused. A
+  hand-kept list goes stale - the ending screens were handled and the
+  title was missed by the same author in the same session.
 - **Parsers that filter by naming convention silently DROP malformed
   entries and shift every index after them.** id's WL_DEF.H sprite enum
   contains a typo - `MACHINEGUNATK3` missing its `SPR_` prefix - and a

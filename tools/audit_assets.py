@@ -118,6 +118,37 @@ def check_jambs():
     return bad
 
 
+# Palettes present in the data that we deliberately do NOT apply.
+UNUSED_PALETTES = {"IDGUYSPALETTE"}     # the id-guys easter egg screen
+
+
+def check_palettes():
+    """Every *PALETTE chunk in a game's graphics enum must either be
+    applied to a picture or be listed as deliberately unused. Spear's
+    art is not all in the game palette: its title halves and nine
+    ending screens carry their own, and decoding them against the game
+    palette renders them like a photo negative (user repro on the title
+    screen - the ending screens had already been handled, which is
+    exactly how a hand-maintained list goes stale)."""
+    import re
+    sys.path.insert(0, str(ROOT / "tools"))
+    from extract_vgagraph import parse_enum
+    src = (ROOT / "tools" / "extract_vgagraph.py").read_text(errors="replace")
+    applied = set(re.findall(r'"(\w+PALETTE)"', src))
+    bad = []
+    for header, tag in (("GFXV_WL6.H", "wl6"), ("GFXV_SOD.H", "sod")):
+        try:
+            names = parse_enum(header)
+        except SystemExit:
+            continue
+        for v in names.values():
+            if (v.endswith("PALETTE") and v not in applied
+                    and v not in UNUSED_PALETTES):
+                bad.append(f"{tag}: {v} exists in the data but no picture "
+                           f"is repalettised with it")
+    return bad
+
+
 def check_pipeline(vals):
     """Compare what the converter would emit against the derived truth."""
     sys.path.insert(0, str(ROOT / "tools"))
@@ -191,7 +222,7 @@ def main():
               f"{'yes' if a == b else 'NO (must be per-game)'}")
     print()
     bad = (check_enum(vals) + check_pipeline(vals)
-           + check_hardcodes() + check_jambs())
+           + check_hardcodes() + check_jambs() + check_palettes())
     if bad:
         print("PIPELINE MISMATCH:")
         for b in bad:
@@ -201,6 +232,7 @@ def main():
     print("pipeline derived constants agree with both games' data")
     print("no hardcoded WALL/SPR indices in the pipeline")
     print("jamb faces match the map data in both games")
+    print("every custom palette in the data is applied or acknowledged")
     if "--sheet" in sys.argv:
         sheet()
 

@@ -109,7 +109,12 @@ def extract_set(setname, ext, header):
     # Spear's ending screens each carry their OWN VGA palette chunk
     # (END1..END9PALETTE); decoded against the game palette they come
     # out miscoloured, so remap each to its own (EndSpear, WL_INTER.C)
-    ENDPAL = {"ENDSCREEN11PIC": "END1PALETTE", "ENDSCREEN3PIC": "END3PALETTE",
+    # Spear's TITLE halves carry their own palette too - decoded against
+    # the game palette the title art came out looking like a photo
+    # negative (user repro). Any pic with a matching *PALETTE chunk
+    # belongs in this table.
+    ENDPAL = {"TITLE1PIC": "TITLEPALETTE", "TITLE2PIC": "TITLEPALETTE",
+              "ENDSCREEN11PIC": "END1PALETTE", "ENDSCREEN3PIC": "END3PALETTE",
               "ENDSCREEN4PIC": "END4PALETTE", "ENDSCREEN5PIC": "END5PALETTE",
               "ENDSCREEN6PIC": "END6PALETTE", "ENDSCREEN7PIC": "END7PALETTE",
               "ENDSCREEN8PIC": "END8PALETTE", "ENDSCREEN9PIC": "END9PALETTE",
@@ -134,7 +139,8 @@ def extract_set(setname, ext, header):
         img.save(f)
         npal += 1
     if npal:
-        print(f"{setname}: {npal} ending screens repalettised")
+        print(f"{setname}: {npal} screens repalettised "
+              "(title + endings)")
     print(f"{setname}: {n} pics extracted")
     return True
 
