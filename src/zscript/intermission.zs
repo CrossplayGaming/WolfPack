@@ -36,6 +36,23 @@ class WolfIntermission : StatusScreen
     // plays, page by page, before the game returns to the title.
     WolfArticle article;
     bool inArticle;
+    // Spear's finale is a slideshow of full-screen panels rather than a
+    // text article (EndSpear, WL_INTER.C:51-94): screen 11, then screen
+    // 3 with two pages of caption text, then 4-9, then 12.
+    bool spearEnd;
+    int spearStep;
+    static const String SPEARSCR[] = { "ENDSCR11", "ENDSCR03", "ENDSCR03",
+                                       "ENDSCR04", "ENDSCR05", "ENDSCR06",
+                                       "ENDSCR07", "ENDSCR08", "ENDSCR09",
+                                       "ENDSCR12" };
+    static const String SPEARTXT1[] = {
+        "", "We owe you a great debt, Mr. Blazkowicz.",
+        "With the spear gone, the Allies will finally",
+        "", "", "", "", "", "", "" };
+    static const String SPEARTXT2[] = {
+        "", "You have served your country well.",
+        "by able to destroy Hitler...",
+        "", "", "", "", "", "", "" };
 
     const PAR_AMOUNT = 500;         // WL_INTER.C:432
     const PERCENT100AMT = 10000;    // WL_INTER.C:433
@@ -70,10 +87,13 @@ class WolfIntermission : StatusScreen
 
         // the boss floor ends the episode (ex_victorious), so it shows
         // Victory() instead of the tally and records nothing
-        victoryMode = (floorNum == 9);
+        // WL6: the boss floor (9) ends the episode. Spear: floor 21,
+        // the Angel of Death, ends the whole game (EndSpear).
+        spearEnd = WolfDraw.IsSpear();
+        victoryMode = spearEnd ? (level.levelnum == 21) : (floorNum == 9);
 
         // (the per-floor ratios themselves are recorded play-side, in
-        // WolfGameState.WorldUnloaded — a ui screen may read play data but
+        // WolfGameState.WorldUnloaded ï¿½ a ui screen may read play data but
         // not write it)
         WolfGameState gs = WolfGameState.Get();
         if (gs != null && victoryMode)
@@ -141,6 +161,13 @@ class WolfIntermission : StatusScreen
     // Victory screen -> article pages -> out
     void AdvanceVictory()
     {
+        if (spearEnd)
+        {
+            spearStep++;
+            if (spearStep >= SPEARSCR.Size())
+                End();
+            return;
+        }
         if (!inArticle)
         {
             article = new("WolfArticle");
@@ -292,8 +319,36 @@ class WolfIntermission : StatusScreen
             TexMan.Type_MiscPatch), true, x, y, DTA_320x200, true);
     }
 
+    // EndSpear's slideshow: each panel fills the screen; panel 3 also
+    // carries two pages of caption text along its lower edge
+    void DrawSpearEnd()
+    {
+        String lump = SPEARSCR[clamp(spearStep, 0, SPEARSCR.Size() - 1)];
+        TextureID t = TexMan.CheckForTexture(lump, TexMan.Type_MiscPatch);
+        if (t.IsValid())
+            screen.DrawTexture(t, true, 0, 0, DTA_320x200, true);
+        else
+            screen.Dim(Color(0, 0, 0), 1.0, 0, 0, screen.GetWidth(),
+                       screen.GetHeight());
+        Font f = Font.GetFont("wolfprop");
+        if (f == null)
+            return;
+        String a = SPEARTXT1[clamp(spearStep, 0, SPEARTXT1.Size() - 1)];
+        String b = SPEARTXT2[clamp(spearStep, 0, SPEARTXT2.Size() - 1)];
+        Color c = WolfPal.Get(0xd0);          // fontcolor 0xd0 (EndSpear)
+        if (a.Length() > 0)
+            WolfDraw.Text(f, 160 - f.StringWidth(a) / 2, 180, a, c);
+        if (b.Length() > 0)
+            WolfDraw.Text(f, 160 - f.StringWidth(b) / 2, 190, b, c);
+    }
+
     void DrawVictory()
     {
+        if (spearEnd)
+        {
+            DrawSpearEnd();
+            return;
+        }
         screen.Dim(Color(0, 65, 65), 1.0, 0, 0, screen.GetWidth(),
                    screen.GetHeight());
         DrawPicPx(8, 4, "L_BJWINS");

@@ -128,3 +128,12 @@ include "mapinfo_sod.txt"
 // Multiplayer lobby: Hans's level with the fight stripped, all players
 // spawning in the pillared hall. No exit yet - episode doors and skill
 // switches arrive with the lobby flow. Menu music: it's a staging area.
+
+// Multiplayer lobby: the same pillared hall as Wolfenstein's, wearing
+// Spear's wall set. Skill only - Spear is a single campaign.
+map LOBBY "Lobby"
+{
+    levelnum = 99
+    music = "XTIPTOE"
+    next = "LOBBY"
+}

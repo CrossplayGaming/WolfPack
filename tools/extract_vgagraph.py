@@ -26,7 +26,7 @@ def parse_enum(header):
     """Return {index: NAME} for the graphics chunk enum (index = enum value)."""
     text = (SRC / header).read_text(errors="replace")
     names = {}
-    for name, num in re.findall(r"(\w+PIC|\w+_LUMP_\w+|ORDERSCREEN|ERRORSCREEN|"
+    for name, num in re.findall(r"(\w+PIC|\w+PALETTE|\w+_LUMP_\w+|ORDERSCREEN|ERRORSCREEN|"
                                 r"T_\w+|STARTFONT\w*|STARTTILE8M?)\s*,?\s*//\s*(\d+)",
                                 text):
         names[int(num)] = name
@@ -105,6 +105,36 @@ def extract_set(setname, ext, header):
         img.putpalette(flat)
         img.save(out / f"{name}.png")
         n += 1
+
+    # Spear's ending screens each carry their OWN VGA palette chunk
+    # (END1..END9PALETTE); decoded against the game palette they come
+    # out miscoloured, so remap each to its own (EndSpear, WL_INTER.C)
+    ENDPAL = {"ENDSCREEN11PIC": "END1PALETTE", "ENDSCREEN3PIC": "END3PALETTE",
+              "ENDSCREEN4PIC": "END4PALETTE", "ENDSCREEN5PIC": "END5PALETTE",
+              "ENDSCREEN6PIC": "END6PALETTE", "ENDSCREEN7PIC": "END7PALETTE",
+              "ENDSCREEN8PIC": "END8PALETTE", "ENDSCREEN9PIC": "END9PALETTE",
+              "ENDSCREEN12PIC": "END2PALETTE"}
+    byname = {v: k for k, v in names.items()}
+    npal = 0
+    for picname, palname in ENDPAL.items():
+        f = out / f"{picname}.png"
+        ci = byname.get(palname)
+        if ci is None or not f.exists():
+            continue
+        raw = chunk(ci)
+        if raw is None or len(raw) < 768:
+            continue
+        # 6-bit VGA -> 8-bit, same conversion as the game palette
+        pal = []
+        for i in range(256):
+            r, g, b = raw[i * 3], raw[i * 3 + 1], raw[i * 3 + 2]
+            pal += [(r * 255) // 63, (g * 255) // 63, (b * 255) // 63]
+        img = Image.open(f)
+        img.putpalette(pal)
+        img.save(f)
+        npal += 1
+    if npal:
+        print(f"{setname}: {npal} ending screens repalettised")
     print(f"{setname}: {n} pics extracted")
     return True
 

@@ -83,7 +83,10 @@ class WolfLobby : EventHandler
         CVar cv = CVar.FindCVar("wolf_dbg_check");
         if (cv != null && cv.GetInt() != 0)
             Console.Printf("WOLFDBG arena: enemies=%d victory=%d", ne, nv);
-        if (Level.MapName ~== "MAP09")
+        // the curated drops are placed by WL6-hall tile coordinates, so
+        // they only make sense on that arena; Spear's DM floors keep
+        // their own map items (sv_itemrespawn regenerates them)
+        if (Level.MapName ~== "MAP09" && !WolfDraw.IsSpear())
             PlaceArenaPickups();
     }
 
@@ -158,17 +161,23 @@ class WolfLobby : EventHandler
                     continue;
                 }
                 launched = true;
-                Console.Printf("Starting %s - %s",
-                               EPNAMES[ep], SKNAMES[sk]);
+                // Spear is one linear campaign: always floor one
+                String dest = WolfDraw.IsSpear() ? "MAP01" : EPMAPS[ep];
+                if (WolfDraw.IsSpear())
+                    Console.Printf("Starting Spear of Destiny - %s",
+                                   SKNAMES[sk]);
+                else
+                    Console.Printf("Starting %s - %s",
+                                   EPNAMES[ep], SKNAMES[sk]);
                 mo.A_StartSound("menu/advance", CHAN_AUTO);
-                Level.ChangeLevel(EPMAPS[ep], 0,
+                Level.ChangeLevel(dest, 0,
                                   CHANGELEVEL_NOINTERMISSION
                                   | CHANGELEVEL_RESETINVENTORY, sk);
                 return;
             }
             if (!host)
                 continue;
-            if (zone <= Z_EP6)
+            if (zone <= Z_EP6 && !WolfDraw.IsSpear())
             {
                 ep = zone - Z_EP1;
                 Console.Printf("Episode %d: %s", ep + 1, EPNAMES[ep]);
@@ -240,14 +249,17 @@ class WolfLobby : EventHandler
         Font sm = Font.GetFont("wolfprop");
         if (sm == null)
             return;
-        String l1 = String.Format("Episode %d: %s", ep + 1, EPNAMES[ep]);
+        String l1 = WolfDraw.IsSpear() ? "Spear of Destiny"
+            : String.Format("Episode %d: %s", ep + 1, EPNAMES[ep]);
         String l2 = String.Format("Skill: %s", SKNAMES[sk]);
         int bl = Wads.CheckNumForFullName("BUILDID");
         if (bl >= 0)
             l2 = l2 .. "   Build: " .. Wads.ReadLump(bl);
         String l3 = consoleplayer == 0
-            ? "West aisle: pick episode. East aisle: change skill. "
-              "Hans's room: begin."
+            ? (WolfDraw.IsSpear()
+               ? "Either aisle: change skill. The north room: begin."
+               : "West aisle: pick episode. East aisle: change skill. "
+                 "Hans's room: begin.")
             : "The host is choosing episode and skill.";
         WolfDraw.Text(sm, 160 - sm.StringWidth(l1) / 2, 3, l1,
                       WolfPal.Get(WolfMenu.C_READH));

@@ -539,6 +539,24 @@ def main():
             (out / f"{stem}.manifest.json").write_text(json.dumps(manifest))
             (out / f"{stem}.grid.txt").write_text(gridtext)
             total += 1
+            if setname == "sod" and level["map"] == 0:
+                # Spear lobby: the same hall (so lobby.zs's zone map
+                # still applies) rendered with Spear's wall set. Its
+                # statics are stripped - WL6 static indices mean
+                # different objects in Spear's statinfo array.
+                wl6dir = LEVELS / "wl6"
+                src8 = wl6dir / "MAP08.json"
+                if src8.exists():
+                    lv = make_lobby(json.loads(src8.read_text()))
+                    lv["set"] = "sod"
+                    lv["objects"] = [o for o in lv["objects"]
+                                     if o["kind"] != "static"]
+                    ltm, lman, lgrid = convert(lv, ceiling)
+                    (out / "LOBBY.textmap").write_text(ltm)
+                    (out / "LOBBY.manifest.json").write_text(
+                        json.dumps(lman))
+                    (out / "LOBBY.grid.txt").write_text(lgrid)
+                    print(f"{setname}: + LOBBY (Spear-skinned hall)")
             if (setname, level["map"]) == LOBBY_SOURCE:
                 ltm, lman, lgrid = convert(make_lobby(level), ceiling)
                 (out / "LOBBY.textmap").write_text(ltm)
