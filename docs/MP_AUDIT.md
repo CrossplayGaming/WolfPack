@@ -190,3 +190,29 @@ and Spear co-op starts on MAP01 because the generated LOBBY comes from
 a WL6 level. A Spear-native lobby (its own zone geometry) and Spear DM
 arena curation are the open follow-ups. Build IDs differ per game, so
 the existing lobby check also catches a Wolf-vs-Spear mismatch.
+
+Cross-game asset audit (2026-07-28): swept every asset the code
+references against what each build actually ships. Method: parse the
+sprite names out of every States block and the SNDINFO entries, diff
+against the packed lumps per ipk3, then a runtime sweep of nine maps
+across both games watching for unresolved-asset complaints.
+
+Result: 191 sprite names, 0 missing in either game; 92 SNDINFO
+entries, 0 genuine wiring errors (the remaining absences are correct
+cross-game ones - WL6 has no Spear boss voices, Spear has no
+Hans/Hitler); 0 runtime complaints on either game.
+
+Found and fixed by the sweep:
+- dead-guard decoration hardcoded to chunk 95 (Spear's is 99)
+- TOT_HUNDSND misspelled TOTHUNDSND in the digi name table, so the
+  Fake Hitler's sight sound never packed - a WL6 bug
+- SNDINFO pointed wolf/missilehit at a filename the build never wrote
+  (missilehit.wav vs missilehitsnd.wav) - rocket impacts were silent
+  in BOTH games
+- Spear's big font is NOT WL6's (two glyphs differ); fonts are now
+  extracted and packed per game
+
+Verified shared-by-design (not bugs): the base VGA palette (one
+GAMEPAL in the GPL source; the Spear ending screens' own palettes are
+handled separately), and the weapon/HUD art both games genuinely
+reuse.

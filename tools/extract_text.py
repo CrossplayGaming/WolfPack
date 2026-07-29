@@ -125,6 +125,11 @@ def main():
 
     for nm, ch in FONT_CHUNKS.items():
         extract_font(chunk, OUT, nm, ch)
+    # Spear's big font is NOT the same data as WL6's, so it gets its own
+    # extraction; shipping WL6's in spear.ipk3 was a quiet mismatch
+    if sod is not None:
+        for nm, ch in FONT_CHUNKS.items():
+            extract_font(sod, OUT, f"sod_{nm}", ch)
 
 
 if __name__ == "__main__":

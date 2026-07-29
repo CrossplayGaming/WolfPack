@@ -85,7 +85,7 @@ DIGI_NAMES = {
     "AHHHGSND": "ahhhg", "SSFIRESND": "ssfire",
     "GUTENTAGSND": "gutentag", "MUTTISND": "mutti",
     "BOSSFIRESND": "bossfire", "SCHABBSHASND": "schabbsha",
-    "MEINGOTTSND": "meingott", "TOTHUNDSND": "tothund",
+    "MEINGOTTSND": "meingott", "TOT_HUNDSND": "tothund",
     "HITLERHASND": "hitlerha", "SCHEISTSND": "scheist",
     "DIESND": "die", "EVASND": "eva", "EINESND": "eine",
     "ERLAUBENSND": "erlauben", "KEINSND": "kein", "MEINSND": "mein",
@@ -143,6 +143,20 @@ def digimap_for_build():
         if m and m.group(1) in DIGI_NAMES:
             out.append((int(m.group(2)), DIGI_NAMES[m.group(1)]))
     return out
+
+
+_ENUM_CACHE = None
+
+
+def _enum_early():
+    """This build's sprite enum (cached); Spear shifts many indices."""
+    global _ENUM_CACHE
+    if _ENUM_CACHE is None:
+        import sys as _s
+        _s.path.insert(0, str(ROOT / "tools"))
+        from gen_enemies import sprite_enum
+        _ENUM_CACHE = sprite_enum(spear=IS_SOD)
+    return _ENUM_CACHE
 
 
 def solid_flat(pal, idx):
@@ -204,7 +218,11 @@ def main():
     wl6rows = [r for r in statrows if r["cond"] in conds]
     copies = [(2 + r["sprite"], f"{SPRPFX}{pos:03d}A0")
               for pos, r in enumerate(wl6rows)]
-    copies.append((95, "SDEDA0"))
+    # the dead-guard decoration: chunk 95 in WL6 but 99 in Spear, so
+    # resolve it by name like everything else (hardcoding it drew some
+    # other sprite as Spear's corpses)
+    if "SPR_GRD_DEAD" in _enum_early():
+        copies.append((_enum_early()["SPR_GRD_DEAD"], "SDEDA0"))
     # enemy sprites (gen_enemies.py copy list)
     sc = ROOT / "docs" / "data" / f"sprite_copies_{SET}.json"
     if sc.exists():
@@ -395,7 +413,8 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
     # helper for) means the engine handles perspective, scaling and
     # occlusion for free. One sprite name, 11 labels x 2 states:
     # frames A-K unselected (grey), L-V selected (gold).
-    fontbig_dir = ROOT / "build" / "text" / "fontbig"
+    fontbig_dir = ROOT / "build" / "text" / ("sod_fontbig" if IS_SOD
+                                             else "fontbig")
     if fontbig_dir.exists():
         LABELS = ["EPISODE 1", "EPISODE 2", "EPISODE 3", "EPISODE 4",
                   "EPISODE 5", "EPISODE 6", "CAN I PLAY DADDY",
@@ -461,7 +480,8 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
     # extracted Wolf big font - generated from the user's data like
     # everything else, nothing committed. Shipped in the IPK3 (lump
     # shadowing) and stamped into the engine pk3 by patch_engine.py.
-    fontbig = ROOT / "build" / "text" / "fontbig"
+    fontbig = ROOT / "build" / "text" / ("sod_fontbig" if IS_SOD
+                                        else "fontbig")
     userlogo = ROOT / "import" / "bootlogo.png"
     if userlogo.exists() and fontbig.exists():
         # user-made WolfPack lettering (transparent background): crop to
@@ -559,10 +579,13 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
         # Wolf glyphs under those reserved names restyles every engine-
         # drawn string (obituaries, DM scoreboard, notify lines) for
         # stylistic parity with the rest of the game
-        for srcname, fontname in (("font", "wolfprop"),
-                                  ("fontbig", "wolfbig"),
-                                  ("font", "smallfont"),
-                                  ("fontbig", "bigfont")):
+        # per game: Spear ships its own font chunks (its big font
+        # differs from WL6's), extracted as sod_font / sod_fontbig
+        _fp = "sod_" if IS_SOD else ""
+        for srcname, fontname in ((_fp + "font", "wolfprop"),
+                                  (_fp + "fontbig", "wolfbig"),
+                                  (_fp + "font", "smallfont"),
+                                  (_fp + "fontbig", "bigfont")):
             fsrc = TXT / srcname
             if fsrc.exists():
                 fdst = ASSETS / "fonts" / fontname
@@ -653,10 +676,7 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
     # contiguously from each weapon's READY sprite - and the machine gun
     # has only FOUR (its enum jumps ATK2 -> ATK4), so a fifth frame read
     # into the chaingun.
-    import sys as _sys
-    _sys.path.insert(0, str(ROOT / "tools"))
-    from gen_enemies import sprite_enum
-    _enum = sprite_enum(spear=IS_SOD)
+    _enum = _enum_early()
     wnames = {}
     for ready, spr, nframes in (("SPR_KNIFEREADY", "WKNF", 5),
                                 ("SPR_PISTOLREADY", "WPIS", 5),

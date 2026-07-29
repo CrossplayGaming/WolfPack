@@ -73,7 +73,7 @@ wolf/kein       "sounds/kein.wav"        // KEINSND digi 43
 wolf/mein       "sounds/mein.wav"        // MEINSND digi 44
 wolf/donner     "sounds/donner.wav"      // DONNERSND digi 36
 wolf/mechstep   "sounds/mechstep.wav"    // MECHSTEPSND digi 31
-wolf/missilehit "sounds/missilehit.wav"  // MISSILEHITSND (AdLib)
+wolf/missilehit "sounds/missilehitsnd.wav"  // MISSILEHITSND (AdLib)
 wolf/yeah       "sounds/yeah.wav"        // YEAHSND digi 32
 
 // Wolf menu blips (WL_MENU.C): MOVEGUN1 on cursor move, MOVEGUN2 on a
