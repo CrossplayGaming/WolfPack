@@ -461,6 +461,10 @@ class WolfDebugHandler : EventHandler
             }
             Console.Printf("WOLFDBG signs: n=%d first=%s spear=%d",
                            n, first, WolfDraw.IsSpear());
+            Console.Printf("WOLFDBG menucolors: border=%02x bkgd=%02x "
+                           "bord2=%02x deactive=%02x",
+                           WolfDraw.C_BORDER_(), WolfDraw.C_BKGD_(),
+                           WolfDraw.C_BORD2_(), WolfDraw.C_DEACTIVE_());
             // face the west aisle so a screenshot actually shows them
             if (players[0].mo != null)
                 players[0].mo.Angle = 180;

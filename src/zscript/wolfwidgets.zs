@@ -155,7 +155,7 @@ class WolfWidgetMenu : WolfMenu
                 WolfDraw.Text(big, winX + winW - 10
                               - big.StringWidth(kn), y, kn,
                               WolfPal.Get(itemStates[i] == IT_DISABLED
-                                          ? C_DEACTIVE : C_READH));
+                                          ? WolfDraw.C_DEACTIVE_() : C_READH));
             }
             else if (wKind[i] == W_MULTI)
             {

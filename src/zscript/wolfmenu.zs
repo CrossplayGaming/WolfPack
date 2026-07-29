@@ -58,7 +58,7 @@ class WolfMenu : ListMenu
     // DrawNewGame), which is also what keeps their titles clear.
     void DrawBackground()
     {
-        WolfDraw.WideBar(0, 200, C_BORDER);      // ClearMScreen
+        WolfDraw.WideBar(0, 200, WolfDraw.C_BORDER_());      // ClearMScreen
         WolfDraw.Pic(112, 184, "C_MLBACK");
     }
 
@@ -72,11 +72,11 @@ class WolfMenu : ListMenu
     // DrawWindow + DrawOutline (WL_MENU.C:3419-3434)
     void DrawWindowBox(int x, int y, int w, int h)
     {
-        WolfDraw.Bar(x, y, w, h, C_BKGD);
-        WolfDraw.Bar(x, y, w, 1, C_DEACTIVE);            // top
-        WolfDraw.Bar(x, y, 1, h, C_DEACTIVE);            // left
-        WolfDraw.Bar(x, y + h, w, 1, C_BORD2);           // bottom
-        WolfDraw.Bar(x + w, y, 1, h + 1, C_BORD2);       // right
+        WolfDraw.Bar(x, y, w, h, WolfDraw.C_BKGD_());
+        WolfDraw.Bar(x, y, w, 1, WolfDraw.C_DEACTIVE_());            // top
+        WolfDraw.Bar(x, y, 1, h, WolfDraw.C_DEACTIVE_());            // left
+        WolfDraw.Bar(x, y + h, w, 1, WolfDraw.C_BORD2_());           // bottom
+        WolfDraw.Bar(x + w, y, 1, h + 1, WolfDraw.C_BORD2_());       // right
     }
 
     // last-drawn item geometry, for mouse picking (320x200 units)
@@ -89,7 +89,7 @@ class WolfMenu : ListMenu
         {
             int st = itemStates[i];
             int pal;
-            if (st == IT_DISABLED)     pal = C_DEACTIVE;
+            if (st == IT_DISABLED)     pal = WolfDraw.C_DEACTIVE_();
             else if (i == sel)
                 pal = st == IT_RETURN ? C_READH
                     : (st == IT_EPISODE ? 0x67 : C_HILITE);

@@ -166,6 +166,19 @@ class WolfDraw
     // presentation layer: no episode select, no Read This! article,
     // its own title art and high-score layout (WL_INTER/WL_MENU are
     // full of #ifdef SPEAR for exactly these).
+    // Spear runs the SAME menus in a different palette range: its
+    // WL_MENU.H #ifdef SPEAR block swaps the 0x2x reds for the 0x9x
+    // steels. Drawing WL6's reds under Spear gave a red menu with blue
+    // patches where its own art showed through (user repro). These live
+    // on WolfDraw so menus (ui), status screens and handlers can all
+    // read them.
+    static int MC(int wl6, int sod) { return IsSpear() ? sod : wl6; }
+    static int C_BORDER_()   { return MC(0x29, 0x99); }
+    static int C_BORD2_()    { return MC(0x23, 0x93); }
+    static int C_DEACTIVE_() { return MC(0x2b, 0x9b); }
+    static int C_BKGD_()     { return MC(0x2d, 0x9d); }
+    static int C_STRIPE_()   { return MC(0x2c, 0x9c); }
+
     static bool IsSpear()
     {
         // an explicit marker written by build.py - inferring this from

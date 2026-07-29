@@ -9,7 +9,7 @@
 class WolfHighScores
 {
     const MAXSCORES = 7;
-    const BORDCOLOR = 0x29;
+
     const STRIPE    = 0x2c;
 
     static void Draw()
@@ -18,7 +18,7 @@ class WolfHighScores
         if (fnt == null)
             return;
 
-        WolfDraw.WideBar(0, 200, BORDCOLOR);            // ClearMScreen
+        WolfDraw.WideBar(0, 200, WolfDraw.C_BORDER_());            // ClearMScreen
         DrawStripes(10);
         // Spear's high-score screen has NO column-header pics: the
         // source draws HIGHSCORESPIC full-bleed at 0,0 and prints the

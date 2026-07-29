@@ -63,6 +63,88 @@ def wrap_wad(mapname: str, textmap: bytes) -> bytes:
     return header + body + dirents
 
 
+# Our SNDINFO's logical names -> the source's sound enum names. The
+# INDEX behind each differs per build (wolfdigimap has #ifndef SPEAR /
+# #else branches), which is why this is resolved from the source per
+# game rather than hardcoded: Spear's index 21 is the dog attack, while
+# WL6's is the guard's rifle - so a fixed table gave Spear's soldiers a
+# barking gun.
+DIGI_NAMES = {
+    "OPENDOORSND": "dooropen", "CLOSEDOORSND": "doorclose",
+    "PUSHWALLSND": "pushwall", "HALTSND": "halt",
+    "DEATHSCREAM1SND": "death1", "DEATHSCREAM2SND": "death2",
+    "DEATHSCREAM3SND": "death3", "DEATHSCREAM4SND": "death4",
+    "DEATHSCREAM5SND": "death5", "DEATHSCREAM6SND": "death6",
+    "DEATHSCREAM7SND": "death7", "DEATHSCREAM8SND": "death8",
+    "DEATHSCREAM9SND": "death9", "NAZIFIRESND": "nazifire",
+    "ATKPISTOLSND": "pistol", "ATKMACHINEGUNSND": "machinegun",
+    "ATKGATLINGSND": "gatling", "DOGBARKSND": "dogbark",
+    "DOGDEATHSND": "dogdeath", "SLURPIESND": "slurpie",
+    "SPIONSND": "spion", "NEINSOVASSND": "neinsovas",
+    "SCHUTZADSND": "schutzad", "LEBENSND": "leben",
+    "AHHHGSND": "ahhhg", "SSFIRESND": "ssfire",
+    "GUTENTAGSND": "gutentag", "MUTTISND": "mutti",
+    "BOSSFIRESND": "bossfire", "SCHABBSHASND": "schabbsha",
+    "MEINGOTTSND": "meingott", "TOTHUNDSND": "tothund",
+    "HITLERHASND": "hitlerha", "SCHEISTSND": "scheist",
+    "DIESND": "die", "EVASND": "eva", "EINESND": "eine",
+    "ERLAUBENSND": "erlauben", "KEINSND": "kein", "MEINSND": "mein",
+    "DONNERSND": "donner", "MECHSTEPSND": "mechstep",
+    "YEAHSND": "yeah", "ROSESND": "rose",
+    "TRANSSIGHTSND": "transsight", "TRANSDEATHSND": "transdeath",
+    "WILHELMSIGHTSND": "willsight", "WILHELMDEATHSND": "willdeath",
+    "UBERDEATHSND": "uberdeath", "KNIGHTSIGHTSND": "knightsight",
+    "KNIGHTDEATHSND": "knightdeath", "ANGELSIGHTSND": "angelsight",
+    "ANGELDEATHSND": "angeldeath", "GETSPEARSND": "getspear",
+    "DOGATTACKSND": "dogattack",
+}
+
+
+def digimap_for_build():
+    """[(digi index, our lump name)] from wolfdigimap for THIS build."""
+    import re
+    src = ROOT / "reference" / "wolfsrc" / "WOLFSRC" / "WL_MAIN.C"
+    if not src.exists():
+        return []
+    text = src.read_text(errors="replace")
+    i = text.find("wolfdigimap")
+    body = text[i:text.find("};", i)]
+    # walk the conditional stack, keeping only the branches this build
+    # compiles (the Spear block also holds its boss voices)
+    out, stack = [], []
+    for line in body.splitlines():
+        t = line.strip()
+        if t.startswith("#ifndef SPEARDEMO"):
+            stack.append(True)          # we are not the Spear demo
+            continue
+        if t.startswith("#ifndef SPEAR"):
+            stack.append(not IS_SOD)
+            continue
+        if t.startswith("#ifdef SPEAR"):
+            stack.append(IS_SOD)
+            continue
+        if t.startswith("#if"):
+            # any other conditional (#ifndef UPLOAD): we build the full
+            # game, and it MUST still push a frame or its #endif pops
+            # the Spear condition and both branches leak through
+            stack.append(t.startswith("#ifndef"))
+            continue
+        if t.startswith("#else"):
+            if stack:
+                stack[-1] = not stack[-1]
+            continue
+        if t.startswith("#endif"):
+            if stack:
+                stack.pop()
+            continue
+        if not all(stack):
+            continue
+        m = re.match(r"(\w+SND)\s*,\s*(\d+)", t)
+        if m and m.group(1) in DIGI_NAMES:
+            out.append((int(m.group(2)), DIGI_NAMES[m.group(1)]))
+    return out
+
+
 def solid_flat(pal, idx):
     img = Image.new("P", (64, 64), idx)
     flat = []
@@ -564,10 +646,27 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
     # prescaled x3 (Wolf draws the 64x64 shape at full view height).
     # grAb offsets place the 192x192 image centered, bottom at the view
     # bottom in 320x200 psprite space.
-    wnames = {416: "WKNF", 421: "WPIS", 426: "WMGN", 431: "WCHN"}
+    # Resolved from THIS build's sprite enum, not fixed chunk numbers:
+    # Spear shifts the whole weapon block down by 15 (knife ready is 401
+    # there, 416 in WL6), which drew the pistol as a chaingun. The source
+    # indexes weaponscale[weapon] + weaponframe, i.e. frames run
+    # contiguously from each weapon's READY sprite - and the machine gun
+    # has only FOUR (its enum jumps ATK2 -> ATK4), so a fifth frame read
+    # into the chaingun.
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "tools"))
+    from gen_enemies import sprite_enum
+    _enum = sprite_enum(spear=IS_SOD)
+    wnames = {}
+    for ready, spr, nframes in (("SPR_KNIFEREADY", "WKNF", 5),
+                                ("SPR_PISTOLREADY", "WPIS", 5),
+                                ("SPR_MACHINEGUNREADY", "WMGN", 4),
+                                ("SPR_CHAINREADY", "WCHN", 5)):
+        if ready in _enum:
+            wnames[_enum[ready]] = (spr, nframes)
     nweap = 0
-    for base, spr in wnames.items():
-        for f in range(5):
+    for base, (spr, nframes) in wnames.items():
+        for f in range(nframes):
             src = VSWAP / "sprites" / f"SPR{base + f:03d}.png"
             if not src.exists():
                 continue
@@ -612,21 +711,7 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
 
     # digitized sounds referenced by src/SNDINFO (wolfdigimap, WL_MAIN.C:849+)
     (ASSETS / "sounds").mkdir(exist_ok=True)
-    for digi, name in ((3, "dooropen"), (2, "doorclose"), (15, "pushwall"),
-                       (0, "halt"), (12, "death1"), (13, "death2"),
-                       (21, "nazifire"), (5, "pistol"), (4, "machinegun"),
-                       (6, "gatling"), (1, "dogbark"), (16, "dogdeath"), (22, "slurpie"),
-                       (13, "death3"), (34, "death4"), (35, "death5"),
-                       (39, "death6"), (40, "death7"), (41, "death8"),
-                       (42, "death9"), (27, "spion"), (28, "neinsovas"),
-                       (7, "schutzad"), (20, "leben"), (17, "ahhhg"),
-                       (11, "ssfire"), (8, "gutentag"), (9, "mutti"),
-                       (10, "bossfire"), (25, "schabbsha"), (24, "meingott"),
-                       (23, "tothund"), (26, "hitlerha"), (33, "scheist"),
-                       (18, "die"), (19, "eva"), (37, "eine"),
-                       (38, "erlauben"), (43, "kein"), (44, "mein"),
-                       (36, "donner"), (31, "mechstep"), (32, "yeah"),
-                       (45, "rose")):
+    for digi, name in digimap_for_build():
         src = VSWAP / "sounds" / f"DIGI{digi:03d}.wav"
         if src.exists():
             shutil.copy(src, ASSETS / "sounds" / f"{name}.wav")
