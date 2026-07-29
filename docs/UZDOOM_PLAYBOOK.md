@@ -141,6 +141,17 @@ wrong (Init signatures, VirtualToRealCoords arity, ClearMenus existence).
   index + player state on every node, diffed across logs - divergence
   showed at the FIRST sample with both players standing still.
 
+- **Existence checks cannot catch a wrong-content index.** Porting two
+  data sets (WL6 + Spear) through one pipeline, every bug was the same
+  shape: an index that resolves to a REAL lump in both games but the
+  wrong art/sound in one. "Is every referenced lump present?" returns
+  clean while doors render as rock. Audit derived constants by
+  RE-DERIVING them from each data set and rendering what they select
+  (tools/audit_assets.py). Anything computed from data layout -
+  DOORWALL = PMSpriteStart - 8, weapon bases, the dead-guard chunk -
+  must be derived per set, never hardcoded from whichever game you
+  built first.
+
 ## 5. Testing & verification harness
 
 - `+quit` runs before the game loop: to prove a map loads, poll the

@@ -142,6 +142,15 @@ def run_engine(extra_args, timeout=90):
     return 0
 
 
+def check_assets():
+    """Derived-constant audit (tools/audit_assets.py): catches indices
+    that resolve in both games but point at the WRONG art in one."""
+    rc = subprocess.run([sys.executable, "tools/audit_assets.py"],
+                        cwd=str(ROOT)).returncode
+    if rc:
+        sys.exit("asset audit failed - a derived constant is wrong")
+
+
 def check():
     # +quit executes during startup, before the game loop runs — so to prove
     # the map loads we launch without it, poll the log for the map header,
@@ -252,6 +261,7 @@ def main():
     if (ROOT / "build" / "udmf" / "sod").is_dir() and not args.nospear:
         build(spear=True)
     if args.check:
+        check_assets()
         check()
     elif args.play:
         run_engine([], timeout=None)

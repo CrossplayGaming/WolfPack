@@ -62,8 +62,23 @@ ED_POLY_START = 9301
 DIR8 = ["east", "northeast", "north", "northwest",
         "west", "southwest", "south", "southeast"]
 
-DOOR_FACE = {"normal": (98, 99), "gold": (104, 105), "silver": (104, 105),
-             "lock3": (104, 105), "lock4": (104, 105), "elevator": (102, 103)}
+# Door pages are DERIVED, not fixed: the source defines
+# DOORWALL = PMSpriteStart - 8 (WL_DRAW.C:19), i.e. the last eight wall
+# pages before the sprites begin. WL6 starts sprites at 106 so DOORWALL
+# is 98; Spear has 28 more walls and starts at 134, so its doors live at
+# 126. Hardcoding WL6's 98 drew Spear's doors as a mid-set rock texture
+# (user repro: brown rock doors on floor one).
+#   +0/+1 normal   +2/+3 jamb   +4/+5 elevator   +6/+7 locked
+DOOR_OFF = {"normal": 0, "gold": 6, "silver": 6, "lock3": 6, "lock4": 6,
+            "elevator": 4}
+
+
+def doorwall_for(setname):
+    import json as _j
+    mf = ROOT / "build" / "vswap" / setname / "manifest.json"
+    if mf.exists():
+        return _j.loads(mf.read_text())["spritestart"] - 8
+    return 98                       # WL6 fallback
 LOCK_NUM = {"normal": 0, "gold": 1, "silver": 2, "lock3": 3, "lock4": 4,
             "elevator": 5}
 SLABW = 8          # slab thickness; pocket channel matches
@@ -209,7 +224,8 @@ def convert(level, ceiling_color):
         # jamb page ONLY on faces looking into the door lane (DOOR-013,
         # WL_DRAW.C:521-527 — approach tile must be the door tile)
         if front_is_door:
-            return f"WALL{100 if horiz_face else 101:03d}"
+            dw = doorwall_for(level["set"])
+            return f"WALL{dw + (2 if horiz_face else 3):03d}"
         return f"WALL{(code - 1) * 2 + (0 if horiz_face else 1):03d}"
 
     pocket_edge = {}        # door tile -> which edge opens into the pocket
@@ -376,7 +392,9 @@ def convert(level, ceiling_color):
         add_line((x2, y1), (x1, y1), stash_sec, "WALL000")
         add_line((x1, y1), (x1, y2), stash_sec, "WALL000")
 
-        face_v, face_h = DOOR_FACE[d["lock"]]
+        dw = doorwall_for(level["set"])
+        off = DOOR_OFF[d["lock"]]
+        face_v, face_h = dw + off, dw + off + 1
         # end caps are pure black: the pocket-side cap fills the jamb's slot
         # exactly at full open, reading as the original's empty black slot
         if d["vertical"]:
