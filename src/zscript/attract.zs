@@ -168,7 +168,11 @@ class WolfDraw
     // full of #ifdef SPEAR for exactly these).
     static bool IsSpear()
     {
-        return Wads.CheckNumForFullName("mapinfo_sod.txt") >= 0;
+        // an explicit marker written by build.py - inferring this from
+        // mapinfo_sod.txt was wrong, since the shared src/ tree puts
+        // that include in BOTH ipk3s (it made WL6 think it was Spear)
+        int l = Wads.CheckNumForFullName("GAMESET");
+        return l >= 0 && Wads.ReadLump(l).IndexOf("sod") >= 0;
     }
 
     static double ScaleX()
@@ -221,6 +225,22 @@ class WolfDraw
         screen.DrawTexture(t, true, OrgX() + x * sx, y * sy,
                            DTA_DestWidthF, tw * sx,
                            DTA_DestHeightF, th * sy);
+    }
+
+    // Text positioned in a framed picture's own 320x200 space: the
+    // caption belongs to the art, not the screen, so it scales and
+    // moves with the frame (the Spear ending panels use this).
+    static void TextIn(Font fnt, double ax, double ay, double aw, double ah,
+                       double vx, double vy, String s, Color c)
+    {
+        if (s.Length() == 0)
+            return;
+        double sx = aw / 320.0, sy = ah / 200.0;
+        double w = fnt.StringWidth(s) * sx;
+        screen.DrawText(fnt, Font.CR_UNTRANSLATED,
+                        int(ax + vx * sx - w / 2), int(ay + vy * sy), s,
+                        DTA_ScaleX, sx, DTA_ScaleY, sy,
+                        DTA_ColorOverlay, 0xFF000000 | c);
     }
 
     static void Text(Font fnt, double x, double y, String s, Color c)

@@ -11,6 +11,42 @@
 // Everyone sees the same overlay and messages - this runs in play
 // scope, deterministically on every node.
 
+// A floating label over a selectable alcove. The art is generated at
+// build time from the Wolf font (make_assets): frames A-K are the grey
+// unselected labels, L-V the gold selected ones, so highlighting is a
+// frame swap. Real world sprites, so perspective/occlusion are the
+// engine's problem, not ours.
+class WolfLobbySign : Actor
+{
+    int labelIdx;               // 0-10, indexes the generated frames
+
+    Default
+    {
+        +NOBLOCKMAP
+        +NOGRAVITY
+        +NOINTERACTION
+        +BRIGHT
+        Scale 1.4;              // legible from the centre aisle
+    }
+
+    void SetLabel(int idx, bool selected)
+    {
+        labelIdx = idx;
+        frame = idx + (selected ? 11 : 0);
+    }
+
+    States
+    {
+    Spawn:
+        LOBS A -1;
+        Stop;
+    // registration for every generated frame (playbook 4)
+    Reg:
+        LOBS ABCDEFGHIJKLMNOPQRSTUV -1;
+        Stop;
+    }
+}
+
 class WolfLobby : EventHandler
 {
     // pending choice (play state, lockstep-identical everywhere)
@@ -53,6 +89,7 @@ class WolfLobby : EventHandler
         launched = false;
         for (int p = 0; p < MAXPLAYERS; p++)
             lastZone[p] = Z_NONE;
+        PlaceSigns();
     }
 
     // Deathmatch arena pass, any map: the campaign furniture that has no
@@ -112,6 +149,60 @@ class WolfLobby : EventHandler
             double wx = ITEMS[i] * 64 + 32;
             double wy = 4096.0 - (ITEMS[i + 1] * 64 + 32);
             Actor.Spawn(CLS[ITEMS[i + 2]], (wx, wy, 0));
+        }
+    }
+
+    // ---- signage ----------------------------------------------------
+    // One floating label per selectable alcove, at its centre tile. The
+    // episode aisle is skipped under Spear (one campaign), and skills
+    // occupy the first four east bands - the last two carry no label
+    // and no zone, which is now self-evident rather than a dead spot.
+    Array<WolfLobbySign> signs;
+    Array<int> signKind;        // 0 = episode, 1 = skill, 2 = start
+
+    void PlaceSigns()
+    {
+        signs.Clear();
+        signKind.Clear();
+        bool spear = WolfDraw.IsSpear();
+        for (int band = 0; band < 6; band++)
+        {
+            int ty = 22 + band * 4;             // centre row of the band
+            if (!spear)
+                AddSign(27, ty, band, 0);       // west: episodes 1-6
+            if (band < 4)
+                AddSign(41, ty, 6 + band, 1);   // east: the four skills
+        }
+        AddSign(34, 12, 10, 2);                 // the commit room
+        RefreshSigns();
+    }
+
+    void AddSign(int tx, int ty, int labelIdx, int kind)
+    {
+        double wx = tx * 64 + 32;
+        double wy = 4096.0 - (ty * 64 + 32);
+        Actor a = Actor.Spawn("WolfLobbySign", (wx, wy, 40));
+        WolfLobbySign sg = WolfLobbySign(a);
+        if (sg == null)
+            return;
+        sg.SetLabel(labelIdx, false);
+        signs.Push(sg);
+        signKind.Push(kind);
+    }
+
+    // gold on the current picks, grey elsewhere
+    void RefreshSigns()
+    {
+        for (int i = 0; i < signs.Size(); i++)
+        {
+            WolfLobbySign sg = signs[i];
+            if (sg == null)
+                continue;
+            int k = signKind[i];
+            bool on = (k == 0 && sg.labelIdx == ep)
+                   || (k == 1 && sg.labelIdx - 6 == sk)
+                   || k == 2;
+            sg.SetLabel(sg.labelIdx, on);
         }
     }
 
@@ -184,12 +275,17 @@ class WolfLobby : EventHandler
             }
             else
             {
-                // any east alcove CYCLES the skill (4 skills can't map
-                // onto 6 alcoves positionally - user repro: the south
-                // bands did nothing and the choice "didn't take")
-                sk = (sk + 1) % 4;
+                // positional again: the first four east bands carry the
+                // four skill signs, so there is no longer a hidden
+                // mapping to guess (the cycling was a workaround for
+                // unlabelled alcoves)
+                int band = zone - Z_SK1;
+                if (band > 3)
+                    continue;                   // unlabelled, no zone
+                sk = band;
                 Console.Printf("Skill: %s", SKNAMES[sk]);
             }
+            RefreshSigns();
             mo.A_StartSound("menu/change", CHAN_AUTO);
         }
     }

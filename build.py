@@ -123,6 +123,7 @@ def build(spear: bool = False) -> Path:
         for rel, f in sorted(asset_files.items()):
             z.write(f, rel)
         z.writestr("BUILDID", buildid)
+        z.writestr("GAMESET", "sod" if spear else "wl6")
     print(f"build id: {buildid}")
     print(f"built {pk3.relative_to(ROOT)} ({pk3.stat().st_size} bytes, "
           f"{len(asset_files)} extracted assets)")

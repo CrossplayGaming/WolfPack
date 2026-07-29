@@ -323,23 +323,28 @@ class WolfIntermission : StatusScreen
     // carries two pages of caption text along its lower edge
     void DrawSpearEnd()
     {
+        // full-screen ARTWORK, so it gets the same letterbox treatment
+        // as the attract pictures and the article pages: tiled stone
+        // backdrop, sunken bevel frame, art inside the 4:3 box
         String lump = SPEARSCR[clamp(spearStep, 0, SPEARSCR.Size() - 1)];
-        TextureID t = TexMan.CheckForTexture(lump, TexMan.Type_MiscPatch);
-        if (t.IsValid())
-            screen.DrawTexture(t, true, 0, 0, DTA_320x200, true);
-        else
-            screen.Dim(Color(0, 0, 0), 1.0, 0, 0, screen.GetWidth(),
-                       screen.GetHeight());
+        WolfDraw.FramedPic(lump);
+
         Font f = Font.GetFont("wolfprop");
         if (f == null)
             return;
         String a = SPEARTXT1[clamp(spearStep, 0, SPEARTXT1.Size() - 1)];
         String b = SPEARTXT2[clamp(spearStep, 0, SPEARTXT2.Size() - 1)];
+        if (a.Length() == 0 && b.Length() == 0)
+            return;
+        // captions ride inside the framed art, at the source's rows
+        // (PrintY 180/190 of 200) rather than over the frame
+        double px = WolfDraw.Px();
+        double ah = screen.GetHeight() - 32 * px;
+        double aw = ah * (4.0 / 3.0);
+        double ax = (screen.GetWidth() - aw) / 2, ay = 16 * px;
         Color c = WolfPal.Get(0xd0);          // fontcolor 0xd0 (EndSpear)
-        if (a.Length() > 0)
-            WolfDraw.Text(f, 160 - f.StringWidth(a) / 2, 180, a, c);
-        if (b.Length() > 0)
-            WolfDraw.Text(f, 160 - f.StringWidth(b) / 2, 190, b, c);
+        WolfDraw.TextIn(f, ax, ay, aw, ah, 160, 178, a, c);
+        WolfDraw.TextIn(f, ax, ay, aw, ah, 160, 188, b, c);
     }
 
     void DrawVictory()

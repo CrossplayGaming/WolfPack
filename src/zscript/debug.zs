@@ -443,6 +443,29 @@ class WolfDebugHandler : EventHandler
             }
         }
 
+        // lobby signage probe: how many labels spawned, and where
+        CVar sgv = CVar.FindCVar("wolf_dbg_signs");
+        if (sgv != null && sgv.GetInt() != 0 && t == 20)
+        {
+            ThinkerIterator it = ThinkerIterator.Create("WolfLobbySign");
+            Actor a;
+            int n = 0;
+            String first = "";
+            while ((a = Actor(it.Next())) != null)
+            {
+                if (n == 0)
+                    first = String.Format("(%d,%d,%d) frame=%d",
+                                          int(a.pos.x), int(a.pos.y),
+                                          int(a.pos.z), a.frame);
+                n++;
+            }
+            Console.Printf("WOLFDBG signs: n=%d first=%s spear=%d",
+                           n, first, WolfDraw.IsSpear());
+            // face the west aisle so a screenshot actually shows them
+            if (players[0].mo != null)
+                players[0].mo.Angle = 180;
+        }
+
         // net-sync beacon: same line must appear in every node's log at
         // the same tic - any field difference is a lockstep divergence
         CVar nbv = CVar.FindCVar("wolf_dbg_net");

@@ -33,6 +33,13 @@ VSWAP = ROOT / "build" / "vswap" / SET
 UDMF = ROOT / "build" / "udmf" / SET
 
 
+def _png_bytes(img) -> bytes:
+    import io
+    buf = io.BytesIO()
+    img.save(buf, "PNG")
+    return buf.getvalue()
+
+
 def png_set_grab(data: bytes, xoff: int, yoff: int) -> bytes:
     """Insert (or replace) a grAb chunk right after IHDR."""
     import zlib as _z
@@ -299,6 +306,73 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
                     if cpx[xx, yy] == key:
                         cpx[xx, yy] = (0, 0, 0, 0)
             img.save(cp)
+
+    # Lobby signage: the multiplayer lobby's selectable alcoves get
+    # floating labels. Rendering them to SPRITES (rather than doing
+    # world-to-screen math in ZScript, which this engine exposes no
+    # helper for) means the engine handles perspective, scaling and
+    # occlusion for free. One sprite name, 11 labels x 2 states:
+    # frames A-K unselected (grey), L-V selected (gold).
+    fontbig_dir = ROOT / "build" / "text" / "fontbig"
+    if fontbig_dir.exists():
+        LABELS = ["EPISODE 1", "EPISODE 2", "EPISODE 3", "EPISODE 4",
+                  "EPISODE 5", "EPISODE 6", "CAN I PLAY DADDY",
+                  "DONT HURT ME", "BRING EM ON", "DEATH INCARNATE",
+                  "START GAME"]
+        GREY, GOLD = (142, 142, 142), (255, 247, 0)
+
+        def render_label(text, rgb):
+            glyphs = []
+            for ch in text:
+                g = fontbig_dir / f"{ord(ch):04X}.png"
+                if g.exists():
+                    glyphs.append(Image.open(g).convert("RGBA"))
+                else:
+                    glyphs.append(None)          # space
+            w = sum((g.width if g else 5) + 1 for g in glyphs) + 4
+            h = max((g.height for g in glyphs if g), default=13) + 4
+            img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+            x = 2
+            for g in glyphs:
+                if g is None:
+                    x += 6
+                    continue
+                tint = Image.new("RGBA", g.size, rgb + (255,))
+                tint.putalpha(g.split()[3])
+                img.paste(tint, (x, 2), tint)
+                x += g.width + 1
+            # 1px black outline so the text reads against any wall
+            a = img.split()[3]
+            out = Image.new("RGBA", img.size, (0, 0, 0, 0))
+            px, ap = out.load(), a.load()
+            for yy in range(img.height):
+                for xx in range(img.width):
+                    if ap[xx, yy]:
+                        continue
+                    near = False
+                    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                        nx, ny = xx + dx, yy + dy
+                        if (0 <= nx < img.width and 0 <= ny < img.height
+                                and ap[nx, ny]):
+                            near = True
+                            break
+                    if near:
+                        px[xx, yy] = (0, 0, 0, 255)
+            out.alpha_composite(img)
+            return out
+
+        nlab = 0
+        for i, text in enumerate(LABELS):
+            for state, rgb in ((0, GREY), (1, GOLD)):
+                img = render_label(text, rgb)
+                frame = chr(65 + i + state * 11)     # A-K grey, L-V gold
+                # grAb: centred horizontally, baseline at the bottom, so
+                # the actor's z is where the label's underside floats
+                (ASSETS / "sprites" / f"LOBS{frame}0.png").write_bytes(
+                    png_set_grab(_png_bytes(img), img.width // 2,
+                                 img.height))
+                nlab += 1
+        print(f"  lobby signage: {nlab} label sprites")
 
     # boot logo (256x256): the engine's startup window looks up lump
     # BOOTLOGO (the UZDoom shield by default). Composed from the
