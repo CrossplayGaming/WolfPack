@@ -34,8 +34,10 @@ build of it may be sold or paywalled.
 ## Building your copy
 
 1. Install Python 3 (python.org - check "Add python to PATH").
-2. Put your Wolfenstein 3D files (`*.WL6`) in `gamedata/` - or skip
-   this if you have the Steam version installed; the build finds it.
+2. Put your Wolfenstein 3D files (`*.WL6`) in `gamedata/`, and your
+   Spear of Destiny files (`*.SOD`) alongside them if you own it -
+   both games share that folder. Skip this entirely if you have the
+   Steam version installed; the build finds it, Spear included.
 3. **Run `SETUP.bat`.** It installs the two Python packages it needs,
    offers to download the UZDoom engine into `engine/` automatically
    (or you place it there yourself - see `engine/README.md`), builds
