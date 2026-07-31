@@ -74,9 +74,21 @@ class WolfModernMenu : WolfWidgetMenu
         AddToggleV("Crouching", "wolf_mod_crouch", 1, 0);
         AddBindRow("  Crouch Key", "+crouch");
         AddToggleV("Third-Person View", "wolf_mod_tp", 1, 0);
+        // always-available swap key (user decision: unlike jump/crouch
+        // there is no availability gate - bind it once, flip views any
+        // time). `toggle` on the replicated user cvar is the whole
+        // mechanism; chasecam.zs reacts on the next tick.
+        AddBindRow("  3rd-Person Key", "toggle wolf_mod_tp");
         AddToggleV("Floor + Ceiling Textures", "wolf_mod_flats", 1, 0);
+        AddCommand("Crosshair Setup");
         winH = 13 * labels.Size() + 6;
         sel = 0;
+    }
+
+    override void OnChoose(int index)
+    {
+        if (labels[index] == "Crosshair Setup")
+            Menu.SetMenu("WolfCrosshairMenu");
     }
 
     override void Drawer()
@@ -309,5 +321,110 @@ class WolfMPMenu : WolfMenu
         case 8: Menu.SetMenu("WolfPlayerSetupMenu"); break;
         case 9: Close();              break;
         }
+    }
+}
+
+
+// ---------------------------------------------------------------------------
+
+// Crosshair setup, Wolf-styled (Eric: "easy size, color and style").
+// Fronts the engine's own crosshair cvars so archiving/replication is
+// the engine's problem; the only invention is the color row, which
+// cycles named presets into the crosshaircolor color-cvar (a raw color
+// string is not a menu-friendly thing to adjust).
+class WolfCrosshairMenu : WolfWidgetMenu
+{
+    static const String colorNames[] = { "White", "Gold", "Green",
+                                         "Red", "Blue", "Grey" };
+    static const String colorVals[] = { "ff ff ff", "ff f7 00",
+                                        "00 ff 00", "ff 00 00",
+                                        "40 80 ff", "c0 c0 c0" };
+
+    override void Init(Menu parent, ListMenuDescriptor desc)
+    {
+        Super.Init(parent, desc);
+        title = "Crosshair";
+        AddToggle("Crosshair", "crosshairon");
+        AddMulti("Style", "crosshair",
+                 "Default,Cross 1,Cross 2,X,Circle,Angle,Triangle,Dot");
+        AddSlider("Size", "crosshairscale", 0.25, 2.0, 0.25);
+        AddMulti("Color", "wolf_xhair_color",
+                 "White,Gold,Green,Red,Blue,Grey");
+        AddToggle("Grow On Pickup", "crosshairgrow");
+        AddMulti("Damage/Health Color", "crosshairhealth",
+                 "Off,Standard,Enhanced");
+        winH = 13 * labels.Size() + 6 + 30;      // room for the preview
+        sel = 0;
+        // adopt whatever color is archived so the row shows the truth
+        CVar cc = CVar.FindCVar("crosshaircolor");
+        CVar idx = CVar.GetCVar("wolf_xhair_color",
+                                players[consoleplayer]);
+        if (cc != null && idx != null)
+        {
+            String cur = cc.GetString();
+            for (int i = 0; i < colorVals.Size(); i++)
+                if (cur ~== colorVals[i])
+                    idx.SetInt(i);
+        }
+    }
+
+    override void Adjust(int i, int dir)
+    {
+        Super.Adjust(i, dir);
+        if (wCVar[i] == "wolf_xhair_color")
+        {
+            CVar idx = CVar.GetCVar("wolf_xhair_color",
+                                    players[consoleplayer]);
+            CVar cc = CVar.FindCVar("crosshaircolor");
+            if (idx != null && cc != null)
+                cc.SetString(colorVals[
+                    clamp(idx.GetInt(), 0, colorVals.Size() - 1)]);
+        }
+    }
+
+    override void Drawer()
+    {
+        Super.Drawer();
+        // live preview under the rows: the actual engine lump, at the
+        // chosen size, in the chosen color (styles are alpha images -
+        // FillColor is exactly how the renderer colors them too)
+        CVar st = CVar.FindCVar("crosshair");
+        int style = st == null ? 0 : clamp(st.GetInt(), 0, 7);
+        if (style == 0)
+            return;
+        TextureID t = TexMan.CheckForTexture(
+            String.Format("XHAIRS%d", style), TexMan.Type_MiscPatch);
+        if (!t.IsValid())
+            return;
+        CVar sc = CVar.FindCVar("crosshairscale");
+        double k = sc == null ? 1.0 : clamp(sc.GetFloat(), 0.25, 2.0);
+        CVar idx = CVar.GetCVar("wolf_xhair_color",
+                                players[consoleplayer]);
+        int ci = idx == null ? 0 : clamp(idx.GetInt(), 0,
+                                         colorVals.Size() - 1);
+        Color col = WolfCrosshairMenu.PresetColor(ci);
+        int tw, th;
+        [tw, th] = TexMan.GetSize(t);
+        double sx = WolfDraw.ScaleX(), sy = WolfDraw.ScaleY();
+        double px = 160, py = winY + 13 * labels.Size() + 16;
+        screen.DrawTexture(t, true,
+            WolfDraw.OrgX() + (px - tw * k / 2) * sx,
+            (py - th * k / 2) * sy,
+            DTA_DestWidthF, tw * k * sx,
+            DTA_DestHeightF, th * k * sy,
+            DTA_FillColor, col & 0xFFFFFF);
+    }
+
+    static Color PresetColor(int i)
+    {
+        switch (i)
+        {
+        case 1:  return Color(255, 247, 0);
+        case 2:  return Color(0, 255, 0);
+        case 3:  return Color(255, 0, 0);
+        case 4:  return Color(64, 128, 255);
+        case 5:  return Color(192, 192, 192);
+        }
+        return Color(255, 255, 255);
     }
 }

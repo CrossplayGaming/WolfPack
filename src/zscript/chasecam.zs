@@ -79,3 +79,66 @@ class WolfChaseCam : Actor
         pitch = clamp(p.pitch + 10, -80, 80);
     }
 }
+
+
+// The engine draws the crosshair only when the view camera IS the
+// player pawn - in third person there is none (measured: first-person
+// shot has the circle, chasecam shot does not). This overlay fills the
+// gap with the same lump, scale and color the engine would use, so
+// toggling views never changes the crosshair's look.
+class WolfChaseXhair : EventHandler
+{
+    override void RenderOverlay(RenderEvent e)
+    {
+        PlayerInfo p = players[consoleplayer];
+        if (p == null || p.mo == null || !(p.camera is "WolfChaseCam"))
+            return;
+        CVar on = CVar.FindCVar("crosshairon");
+        if (on == null || on.GetInt() == 0)
+            return;
+        CVar st = CVar.FindCVar("crosshair");
+        int style = st == null ? 0 : clamp(st.GetInt(), 0, 7);
+        if (style == 0)
+            style = 1;              // "Default" resolves native-side; use Cross 1
+        TextureID t = TexMan.CheckForTexture(
+            String.Format("XHAIRS%d", style), TexMan.Type_MiscPatch);
+        if (!t.IsValid())
+            return;
+
+        // color: health tint when crosshairhealth is on (the engine's
+        // green->yellow->red ramp, approximated), else crosshaircolor
+        Color col;
+        CVar hc = CVar.FindCVar("crosshairhealth");
+        if (hc != null && hc.GetInt() != 0)
+        {
+            int h = clamp(p.mo.health, 0, 100);
+            col = Color(clamp((100 - h) * 255 / 50, 0, 255),
+                        clamp(h * 255 / 50, 0, 255), 0);
+        }
+        else
+        {
+            CVar cc = CVar.FindCVar("crosshaircolor");
+            col = cc == null ? Color(255, 255, 255) : Color(cc.GetInt());
+        }
+
+        CVar sc = CVar.FindCVar("crosshairscale");
+        double k = sc == null ? 1.0 : clamp(sc.GetFloat(), 0.0, 2.0);
+        int vx, vy, vw, vh;
+        [vx, vy, vw, vh] = Screen.GetViewWindow();
+        int tw, th;
+        [tw, th] = TexMan.GetSize(t);
+        // the engine sizes crosshairs by INTEGER clean-scale steps of
+        // the full screen height (not fractional view height - measured
+        // as a slightly smaller ring in the first A/B); match exactly
+        // so toggling views never changes the crosshair size
+        double f = k * max(1, int(Screen.GetHeight() / 200));
+        Screen.DrawTexture(t, false,
+            vx + vw / 2 - tw * f / 2, vy + vh / 2 - th * f / 2,
+            DTA_DestWidthF, tw * f, DTA_DestHeightF, th * f,
+            DTA_FillColor, col & 0xFFFFFF,
+            DTA_AlphaChannel, true);    // XHAIRS are alpha-only images:
+                                        // FillColor without this paints
+                                        // the whole rect (measured: a
+                                        // gold square, not a circle)
+    }
+}
