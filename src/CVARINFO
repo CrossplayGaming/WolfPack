@@ -48,3 +48,4 @@ user int wolf_mod_freelook = 0;
 user int wolf_mod_tp = 0;       // third-person view (chasecam.zs)
 user int wolf_mod_flats = 0;    // textured floors/ceilings (flats.zs)
 user int wolf_xhair_color = 0;  // crosshair color preset index (menu)
+user int wolf_mod_light = 0;    // enhanced lighting (lighting.zs)

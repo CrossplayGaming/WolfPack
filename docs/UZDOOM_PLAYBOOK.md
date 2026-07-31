@@ -353,3 +353,23 @@ Reference implementation: F:\CrystalCavesFPS tools/build_base.py
   while every real playthrough fails from the second floor on. When a
   user report and a probe disagree, ask what state the pawn CARRIES
   that the probe's pawn does not.
+
+## Generated sprite lumps (the grAb lesson, 2026-07-31)
+
+- **PIL re-saves strip the grAb chunk** (sprite origin offsets). A
+  sprite PNG without grAb still loads and installs - it renders
+  DISPLACED far out of view, which presents as invisible. Two full red
+  herrings were chased first (frame registration, transparency
+  structure); the tell that finally convicted it: a byte-copied
+  original under the new name rendered, a pixel-identical PIL re-save
+  did not. Every tool that writes sprite PNGs must splice the source's
+  grAb (or write one) into the output.
+- Frame swapping on one sprite name (actor.frame = 1 with only frame A
+  in States) does not render even when the B lump exists and
+  CheckForTexture validates it. Give variants their own 4-char sprite
+  name, registered by a dormant States block, and swap actor.sprite
+  via the index from that class's own FindState().sprite.
+- Console `summon` probes: the actor spawns at a fixed distance ahead
+  - inside door slabs or stacked on a prior summon if aimed poorly.
+  Two isolation tests were invalidated this way. Face open floor, one
+  summon per run.

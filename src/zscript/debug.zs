@@ -23,6 +23,41 @@ class WolfDebugHandler : EventHandler
                 TexMan.GetName(sc.GetTexture(Sector.floor)),
                 TexMan.GetName(sc.GetTexture(Sector.ceiling)));
         }
+        if (e.Name == "wolf_dbg_fixture")
+        {
+            ThinkerIterator it = ThinkerIterator.Create("WolfStatic14");
+            Actor a = Actor(it.Next());
+            if (a != null)
+            {
+                TextureID tb = TexMan.CheckForTexture("S014B0",
+                    TexMan.Type_Sprite);
+                int xpi = a.GetSpriteIndex("XP14");
+                State ds = GetDefaultByType(
+                    "WolfPoollessFrames").FindState("P14");
+                Console.Printf("FIXCHECK dummy P14 state sprite=%d",
+                    ds == null ? -1 : ds.sprite);
+                TextureID tx = TexMan.CheckForTexture("XP14A0",
+                    TexMan.Type_Sprite);
+                Console.Printf("FIXCHECK frame=%d sprite=%d "
+                    "xpIndex=%d xpTexValid=%d", a.frame, a.sprite,
+                    xpi, tx.IsValid());
+            }
+        }
+        if (e.Name == "wolf_dbg_light" && e.Player >= 0
+            && players[e.Player].mo != null)
+        {
+            Sector sc = players[e.Player].mo.CurSector;
+            CVar lm = CVar.FindCVar("gl_lightmode");
+            int vx, vy, vw, vh;
+            [vx, vy, vw, vh] = Screen.GetViewWindow();
+            CVar sb = CVar.FindCVar("screenblocks");
+            Console.Printf("LIGHTCHECK sec=%d light=%d mode=%d "
+                "view=%d,%d %dx%d screen=%dx%d sb=%d",
+                sc.Index(), sc.lightlevel,
+                lm == null ? -1 : lm.GetInt(), vx, vy, vw, vh,
+                Screen.GetWidth(), Screen.GetHeight(),
+                sb == null ? -1 : sb.GetInt());
+        }
         // set the exiting latch as if an elevator had been used - for
         // proving field persistence across level travel
         if (e.Name == "wolf_dbg_setexit" && e.Player >= 0

@@ -81,6 +81,7 @@ class WolfModernMenu : WolfWidgetMenu
         AddBindRow("  3rd-Person Key", "toggle wolf_mod_tp");
         AddToggleV("Floor + Ceiling Textures", "wolf_mod_flats", 1, 0);
         AddCommand("Crosshair Setup");
+        AddCommand("Lighting Setup");
         winH = 13 * labels.Size() + 6;
         sel = 0;
     }
@@ -89,6 +90,8 @@ class WolfModernMenu : WolfWidgetMenu
     {
         if (labels[index] == "Crosshair Setup")
             Menu.SetMenu("WolfCrosshairMenu");
+        else if (labels[index] == "Lighting Setup")
+            Menu.SetMenu("WolfLightMenu");
     }
 
     override void Drawer()
@@ -428,5 +431,41 @@ class WolfCrosshairMenu : WolfWidgetMenu
         case 5:  return Color(192, 192, 192);
         }
         return Color(255, 255, 255);
+    }
+}
+
+
+// ---------------------------------------------------------------------------
+
+// Enhanced lighting page. The master toggle drives the world half
+// (lighting.zs: depth shading + painted-pool swap, host-controlled)
+// and pushes the local render half (dynamic lights + Doom light mode)
+// so one switch does the whole look; the rest are per-player taste.
+class WolfLightMenu : WolfWidgetMenu
+{
+    override void Init(Menu parent, ListMenuDescriptor desc)
+    {
+        Super.Init(parent, desc);
+        title = "Lighting";
+        AddToggleV("Enhanced Lighting", "wolf_mod_light", 1, 0);
+        AddToggle("Light Shadows", "gl_light_shadowmap");
+        AddMulti("Ambient Occlusion", "gl_ssao",
+                 "Off,Low,Medium,High");
+        AddToggle("Bloom", "gl_bloom");
+        winH = 13 * labels.Size() + 6;
+        sel = 0;
+    }
+
+    override void OnToggled(int i, int newValue)
+    {
+        if (wCVar[i] == "wolf_mod_light")
+        {
+            // local render companion: Software falloff (this engine's
+            // enum: 0 Classic / 1 Software / 2 Vanilla; Vanilla banded
+            // to near-black in long corridors) when on, Classic off
+            CVar lm = CVar.FindCVar("gl_lightmode");
+            if (lm != null)
+                lm.SetInt(newValue != 0 ? 1 : 0);
+        }
     }
 }

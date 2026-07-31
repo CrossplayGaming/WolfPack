@@ -54,6 +54,9 @@ def build(spear: bool = False) -> Path:
         rc = subprocess.run(cmd, cwd=str(ROOT)).returncode
         if rc:
             sys.exit("make_assets failed")
+        rl = subprocess.run([sys.executable, "tools/gen_lighting.py"])
+        if rl.returncode != 0:
+            sys.exit("gen_lighting failed")
         # scrub stale wolf_dbg_ values from the playtest config: any
         # launcher that bypasses play.bat's +set forces would load them
         for iniName in ("playtest.ini", "join.ini", "check.ini"):
