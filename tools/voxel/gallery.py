@@ -102,7 +102,7 @@ def station_guard(pal):
     so the gallery uses the cached results rather than reconverting."""
     out = []
     variants = (("GRDM.kvx", "VGRM", "WolfVoxShowGRM",
-                 "Guard - Meshy mesh, sprite-stamped"),
+                 "Guard - Meshy, hue-family transfer + mirror + eyes"),
                 ("GRDM_raw.kvx", "VGRN", "WolfVoxShowGRN",
                  "Guard - Meshy mesh, AI texture (quantised)"))
     for i, (fname, vname, cname, label) in enumerate(variants):

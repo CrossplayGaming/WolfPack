@@ -165,7 +165,29 @@ def orient(solid, dims, views, top, zsiz, w):
     return best
 
 
-def build(glb, stem, palette, stamp=True):
+def sprite_palette_subset(views, w, h):
+    """Every palette index the 8 rotation sprites actually use, plus
+    per-channel mean/std of their RGB - the target distribution for the
+    transfer."""
+    used = set()
+    for r in views:
+        for y in range(h):
+            for x in range(w):
+                if views[r][y][x] is not None:
+                    used.add(views[r][y][x])
+    return sorted(used)
+
+
+def channel_stats(cols):
+    n = len(cols)
+    mean = [sum(c[i] for c in cols) / n for i in range(3)]
+    std = [max(1e-6, (sum((c[i] - mean[i]) ** 2 for c in cols) / n) ** 0.5)
+           for i in range(3)]
+    return mean, std
+
+
+def build(glb, stem, palette, stamp=True, transfer=False, mirror=False,
+          eyes=False):
     views, w, h = hull_mod.load_views(stem)
     paint_rows = [y for y in range(h)
                   if any(views[r][y][x] is not None
@@ -176,6 +198,11 @@ def build(glb, stem, palette, stamp=True):
     with tempfile.TemporaryDirectory() as td:
         obj = glb_to_obj(glb, Path(td))
         shell, dims = voxelize_obj(obj, zsiz)
+    if mirror:
+        nx0 = dims[0]
+        shell = {(nx0 - 1 - x, y, z): c
+                 for (x, y, z), c in shell.items()}
+        print("  mirrored in x (strap chirality)")
     interior = fill_interior(shell, dims)
     shell, dims, iou, k = orient(shell, dims, views, top, zsiz, w)
     print(f"  mesh: {len(shell)} voxels {dims}, interior filled "
@@ -229,11 +256,67 @@ def build(glb, stem, palette, stamp=True):
 
     grid = [[[EMPTY] * zsiz for _ in range(n)] for _ in range(n)]
 
-    # nearest-palette for the AI texture on never-seen surfaces
-    def quant(rgb):
-        return min(range(256),
-                   key=lambda i: sum((a - b) ** 2
-                                     for a, b in zip(palette[i], rgb)))
+    # Colour mapping for the AI texture. Plain mode: nearest of all 256.
+    #
+    # Transfer mode: HUE-FAMILY RAMP MAPPING. The first attempt - one
+    # global mean/std histogram match - failed visibly: the sprite's
+    # palette is multi-modal (tan uniform, grey helmet, blue boots), so
+    # the global shift dragged half the tan uniform onto the grey ramp.
+    # Families cannot share statistics. Instead, both the sprite subset
+    # and each texture colour are classified by hue family (grey = low
+    # saturation, blue, tan/skin, ...), and a texture colour maps onto
+    # ITS OWN family's sprite ramp at the same relative brightness.
+    # Region placement stays the AI's; colour identity is the sprite's,
+    # ramp by ramp.
+    import colorsys
+
+    def family(rgb):
+        r_, g_, b_ = (v / 255 for v in rgb)
+        hh, ss, vv = colorsys.rgb_to_hsv(r_, g_, b_)
+        if ss < 0.16 or vv < 0.09:
+            return "grey"
+        deg = hh * 360
+        # Blue must be SATURATED AND BRIGHT blue - the boots. The Meshy
+        # helmet rim is a dark desaturated blue-grey shadow, and routing
+        # it to the blue ramp painted a blue band across the face (the
+        # close-up showed it surviving the eye-order fix, which is what
+        # exposed the real culprit). Dark blues are shadows: grey ramp.
+        if 150 <= deg <= 310:
+            return "blue" if (ss >= 0.30 and vv >= 0.22) else "grey"
+        return "tan"          # browns, oranges, skin - one Wolf ramp
+
+    def luma(rgb):
+        return 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]
+
+    if transfer:
+        subset = sprite_palette_subset(views, w, h)
+        ramps = {}
+        for i in subset:
+            ramps.setdefault(family(palette[i]), []).append(i)
+        for f in ramps:
+            ramps[f].sort(key=lambda i: luma(palette[i]))
+        # texture brightness range per family, for relative placement
+        span = {}
+        for c in set(c for c in colour.values() if c is not None):
+            f = family(c)
+            v = luma(c)
+            lo, hi = span.get(f, (v, v))
+            span[f] = (min(lo, v), max(hi, v))
+        print("  transfer ramps: " + ", ".join(
+            f"{f}:{len(r)}" for f, r in sorted(ramps.items())))
+
+        def quant(rgb):
+            f = family(rgb)
+            ramp = ramps.get(f) or ramps["tan"]
+            lo, hi = span.get(f, (0, 255))
+            t = (luma(rgb) - lo) / max(1e-6, hi - lo)
+            return ramp[min(len(ramp) - 1,
+                            max(0, int(round(t * (len(ramp) - 1)))))]
+    else:
+        def quant(rgb):
+            return min(range(256),
+                       key=lambda i: sum((a - b) ** 2
+                                         for a, b in zip(palette[i], rgb)))
     qcache = {}
     for key, c in colour.items():
         if c not in qcache:
@@ -268,6 +351,8 @@ def build(glb, stem, palette, stamp=True):
             grid[gx][gy][gz] = px
         stamped = len(best)
 
+    eyed = 0
+
     # BFS-fill any solid voxel still uncoloured (interior, crevices)
     q = deque(k_ for k_ in
               ((x, y, z) for x in range(n) for y in range(n)
@@ -288,6 +373,33 @@ def build(glb, stem, palette, stamp=True):
             seen.add((a, b, c_))
             q.append((a, b, c_))
 
+    # Eyes are stamped AFTER the BFS fill on purpose: stamped early,
+    # those 2 blue pixels seed the flood and paint a blue band across
+    # the whole face (first render showed exactly that).
+    if eyes:
+        # The sprite's face carries the guard's blue eyes; a washed-out
+        # texture loses them. Stamp ONLY those pixels: blue-dominant
+        # pixels in the head region of the front view, placed on the
+        # front-facing surface by the same raycast the stamp uses.
+        cc, ss = cs[1]
+        rows = views[1]
+        head_rows = range(top, top + (bottom - top) // 3)
+        for y in head_rows:
+            for u in range(w):
+                px = rows[y][u]
+                if px is None:
+                    continue
+                r_, g_, b_ = palette[px]
+                if not (b_ > 90 and b_ > r_ + 30 and b_ > g_ + 30):
+                    continue
+                gz = y - top
+                hit = hull_mod._first_hit(solid, n, n, centre,
+                                          hull_mod.AXIS, u, cc, ss, gz)
+                if hit:
+                    grid[hit[0]][hit[1]][gz] = px
+                    eyed += 1
+        print(f"  eyes: stamped {eyed} blue pixels from the front view")
+
     for gx in range(n):
         for gy in range(n):
             for gz in range(zsiz):
@@ -300,7 +412,7 @@ def build(glb, stem, palette, stamp=True):
                        pivot=pivot, empty=EMPTY)
     report = {"dims": [n, n, zsiz], "mesh_voxels": len(shell),
               "carved_away": carved, "front_iou": round(iou, 3),
-              "stamped": stamped,
+              "stamped": stamped, "eyed": eyed,
               "voxels": kv.mips[0].voxel_count()}
     return kv, report
 
@@ -312,10 +424,18 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--no-stamp", action="store_true",
                     help="keep the AI texture everywhere (comparison)")
+    ap.add_argument("--transfer", action="store_true",
+                    help="histogram-match the AI texture to the sprites "
+                         "and restrict it to sprite-used colours")
+    ap.add_argument("--mirror", action="store_true",
+                    help="flip the mesh in x (strap chirality)")
+    ap.add_argument("--eyes", action="store_true",
+                    help="stamp the front view's blue eye pixels")
     ap.add_argument("--palette", default="build/vswap/palette.json")
     a = ap.parse_args()
     pal = json.loads((ROOT / a.palette).read_text())
-    kv, rep = build(a.glb, a.stem, pal, stamp=not a.no_stamp)
+    kv, rep = build(a.glb, a.stem, pal, stamp=not a.no_stamp,
+                    transfer=a.transfer, mirror=a.mirror, eyes=a.eyes)
     Path(a.out).write_bytes(kv.to_bytes())
     print(f"{a.out}: {rep}")
 
