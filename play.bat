@@ -33,6 +33,9 @@ if not exist "build\assets\PLAYPAL" (
 
 python build.py || goto :fail
 :run
+REM keep the previous session log: a VM abort report must survive
+REM the relaunch that follows it
+if exist dist\lastlog.txt copy /y dist\lastlog.txt dist\prevlog.txt >nul
 REM game select: "play.bat spear" runs Spear of Destiny when it
 REM was built (the compiler only produces it if you own SOD data)
 set "WPIWAD=wolf.ipk3"
