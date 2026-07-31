@@ -66,6 +66,11 @@ LISTMENU "WolfCheatMenu"
     Class "WolfCheatMenu"
 }
 
+LISTMENU "WolfCrosshairMenu"
+{
+    Class "WolfCrosshairMenu"
+}
+
 LISTMENU "WolfModernMenu"
 {
     Class "WolfModernMenu"

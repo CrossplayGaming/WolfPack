@@ -408,11 +408,13 @@ class WolfCrosshairMenu : WolfWidgetMenu
         double sx = WolfDraw.ScaleX(), sy = WolfDraw.ScaleY();
         double px = 160, py = winY + 13 * labels.Size() + 16;
         screen.DrawTexture(t, true,
-            WolfDraw.OrgX() + (px - tw * k / 2) * sx,
-            (py - th * k / 2) * sy,
-            DTA_DestWidthF, tw * k * sx,
-            DTA_DestHeightF, th * k * sy,
-            DTA_FillColor, col & 0xFFFFFF);
+            WolfDraw.OrgX() + (px - tw * k) * sx,
+            (py - th * k) * sy,
+            DTA_DestWidthF, tw * k * 2 * sx,
+            DTA_DestHeightF, th * k * 2 * sy,
+            DTA_FillColor, col & 0xFFFFFF,
+            DTA_AlphaChannel, true);    // alpha-only lump: without this
+                                        // the preview is a filled square
     }
 
     static Color PresetColor(int i)
