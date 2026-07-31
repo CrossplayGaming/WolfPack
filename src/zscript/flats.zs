@@ -83,6 +83,25 @@ class WolfFlats : EventHandler
                 if (L > 0 && f[k].ByteAt(L - 1) == 13)
                     f[k] = f[k].Left(L - 1);
             }
+            // door line: "T x y CEIL FLOOR" - tile-addressed, the
+            // neighboring room's pair runs under the door
+            if (f[0] == "T" && f.Size() >= 5)
+            {
+                int tx = f[1].ToInt(), ty = f[2].ToInt();
+                Sector ds = Level.PointInSector(
+                    (tx * 64 + 32.0, (63 - ty) * 64 + 32.0));
+                if (ds != null)
+                {
+                    sects.Push(ds.Index());
+                    origCeil.Push(ds.GetTexture(Sector.ceiling));
+                    origFloor.Push(ds.GetTexture(Sector.floor));
+                    newCeil.Push(TexMan.CheckForTexture(
+                        f[3], TexMan.Type_Any));
+                    newFloor.Push(TexMan.CheckForTexture(
+                        f[4], TexMan.Type_Any));
+                }
+                continue;
+            }
             int area = f[0].ByteAt(0) - 65;
             // find a floor tile of this area -> its sector
             bool found = false;

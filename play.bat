@@ -20,7 +20,7 @@ if not exist "build\assets\PLAYPAL" (
     python tools\extract_audio.py || goto :fail
     python tools\extract_vgagraph.py || goto :fail
     python tools\extract_text.py || goto :fail
-    python tools\convert_udmf.py || goto :fail
+    python tools\convert_udmf.py || goto :fail
     python tools\gen_flats.py || goto :fail
     python tools\import_bj_sheet.py || goto :fail
 
@@ -48,7 +48,7 @@ REM The wolf_dbg_ switches are forced off the same way: even declared
 REM nosave, a stale archived value still LOADS if the ini has the line,
 REM so one boss.bat session could leak the full arsenal into normal play.
 for /f "usebackq delims=" %%m in (`powershell -ExecutionPolicy Bypass -File tools\mod_args.ps1`) do set "MODARGS=%%m"
-"engine\uzdoom.exe" -iwad "dist\%WPIWAD%" -config "dist\playtest.ini" %MODARGS% +set m_forward 0 +set wipetype 0 +set wolf_dbg_arm 0 +set wolf_dbg_doortest 0 +set wolf_dbg_alert 0 +set wolf_dbg_forcefire 0 +set wolf_dbg_victory 0 +set wolf_dbg_boss 0 %*
+"engine\uzdoom.exe" -iwad "dist\%WPIWAD%" -config "dist\playtest.ini" +logfile "dist\lastlog.txt" %MODARGS% +set m_forward 0 +set wipetype 0 +set wolf_dbg_arm 0 +set wolf_dbg_doortest 0 +set wolf_dbg_alert 0 +set wolf_dbg_forcefire 0 +set wolf_dbg_victory 0 +set wolf_dbg_boss 0 %*
 
 powershell -ExecutionPolicy Bypass -File tools\mp_dispatch.ps1
 

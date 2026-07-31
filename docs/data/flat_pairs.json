@@ -1,27 +1,59 @@
 {
   "_doc": [
     "Textured floors/ceilings (Modernization): dominant wall code of an",
-    "area -> [ceiling texture, floor texture]. Chosen by eye from the",
-    "contact sheet after metric filtering (readability, tiling, baked",
-    "lighting gradient); WALL033 was rejected as a floor because it is",
-    "the German-text brick. Eric holds veto authority over every pair -",
-    "regenerate the verdict rooms after editing. Codes are Wolf plane-0",
-    "wall codes; dominance = wall faces adjacent to the area's floor",
-    "(immune to decorative one-offs). fallback covers the long tail",
-    "(top 10 walls cover ~93% of the 867 WL6 areas)."
+    "area -> [ceiling texture, floor texture]. v2 after Eric's in-game",
+    "review: WALL042 retired (so featureless it reads as untextured from",
+    "ceiling distance), and NO pair may use the dominant wall's own",
+    "light/dark siblings (WALL015 under c8 and WALL057 under c29 felt",
+    "like wall extensions) - gen_flats.py enforces that rule loudly.",
+    "WALL033 remains rejected (German-text brick). Doors inherit a",
+    "neighboring area's pair so no grey pokes through under them."
   ],
   "wl6": {
-    "1":  ["WALL042", "WALL023"],
-    "2":  ["WALL042", "WALL087"],
-    "27": ["WALL042", "WALL091"],
-    "35": ["WALL042", "WALL087"],
-    "8":  ["WALL015", "WALL003"],
-    "17": ["WALL023", "WALL087"],
-    "12": ["WALL023", "WALL053"],
-    "24": ["WALL042", "WALL091"],
-    "29": ["WALL057", "WALL091"],
-    "19": ["WALL057", "WALL091"],
-    "fallback": ["WALL042", "WALL053"]
+    "1": [
+      "WALL003",
+      "WALL023"
+    ],
+    "2": [
+      "WALL023",
+      "WALL087"
+    ],
+    "27": [
+      "WALL003",
+      "WALL091"
+    ],
+    "35": [
+      "WALL023",
+      "WALL087"
+    ],
+    "8": [
+      "WALL053",
+      "WALL003"
+    ],
+    "17": [
+      "WALL023",
+      "WALL087"
+    ],
+    "12": [
+      "WALL003",
+      "WALL087"
+    ],
+    "24": [
+      "WALL057",
+      "WALL091"
+    ],
+    "29": [
+      "WALL003",
+      "WALL091"
+    ],
+    "19": [
+      "WALL003",
+      "WALL091"
+    ],
+    "fallback": [
+      "WALL003",
+      "WALL053"
+    ]
   },
   "sod": {}
 }

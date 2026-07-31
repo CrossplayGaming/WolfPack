@@ -48,6 +48,46 @@ def area_walls(dec):
     return per
 
 
+def sibling_check(table):
+    """No pair may reuse the keyed wall's own light/dark textures -
+    Eric's rule after the v1 review: WALL015 under the blue cells read
+    as the wall folding onto the ceiling. Loud failure, not a warning."""
+    bad = []
+    for code, pair in table.items():
+        if code == "fallback":
+            continue
+        c = int(code)
+        sibs = {f"WALL{(c - 1) * 2:03d}", f"WALL{(c - 1) * 2 + 1:03d}"}
+        for tex in pair:
+            if tex in sibs:
+                bad.append(f"code {code}: {tex} is that wall's own face")
+    if bad:
+        raise SystemExit("flat_pairs sibling violations:\n  "
+                         + "\n  ".join(bad))
+
+
+def door_lines(dec, area_pair):
+    """Doors get a neighboring area's pair - the next room's texture
+    runs under the door instead of bare grey. Deterministic pick:
+    north/west neighbor first."""
+    out = []
+    for i, t in enumerate(dec):
+        if t["kind"] != "door":
+            continue
+        x, y = i % 64, i // 64
+        for dx, dy in ((0, -1), (-1, 0), (0, 1), (1, 0)):
+            nx, ny = x + dx, y + dy
+            if not (0 <= nx < 64 and 0 <= ny < 64):
+                continue
+            n = dec[ny * 64 + nx]
+            if (n["kind"] in ("floor", "ambush_floor")
+                    and n.get("area", -1) in area_pair):
+                c, f = area_pair[n["area"]]
+                out.append(f"T {x} {y} {c} {f}")
+                break
+    return out
+
+
 def main():
     total = 0
     for setname in ("wl6", "sod"):
@@ -55,6 +95,7 @@ def main():
         if not table:
             print(f"{setname}: no pair table - skipped")
             continue
+        sibling_check(table)
         fallback = table["fallback"]
         lv = ROOT / "build" / "levels" / setname
         out = ROOT / "build" / "udmf" / setname
@@ -64,6 +105,7 @@ def main():
             d = json.loads(f.read_text())
             per = area_walls(d["decoded0"])
             lines = []
+            area_pair = {}
             for a in sorted(per):
                 c = per[a]
                 if sum(c.values()) >= 8:
@@ -71,7 +113,9 @@ def main():
                     ceil, floor = table.get(dom, fallback)
                 else:
                     ceil, floor = fallback
+                area_pair[a] = (ceil, floor)
                 lines.append(f"{chr(65 + a)} {ceil} {floor}")
+            lines += door_lines(d["decoded0"], area_pair)
             (out / f"{f.stem}.flats.txt").write_text("\n".join(lines) + "\n")
             total += 1
     print(f"flat assignments written for {total} maps")
