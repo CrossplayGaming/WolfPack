@@ -73,6 +73,7 @@ class WolfModernMenu : WolfWidgetMenu
         AddBindRow("  Jump Key", "+jump");
         AddToggleV("Crouching", "wolf_mod_crouch", 1, 0);
         AddBindRow("  Crouch Key", "+crouch");
+        AddToggleV("Third-Person View", "wolf_mod_tp", 1, 0);
         winH = 13 * labels.Size() + 6;
         sel = 0;
     }

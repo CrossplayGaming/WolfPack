@@ -187,6 +187,37 @@ wrong (Init signatures, VirtualToRealCoords arity, ClearMenus existence).
   actively uses the machine — don't fight for focus, hand them the test.
 - Debug prints that gate the harness must themselves be cvar-gated or
   they print over normal play.
+- **Unattended map-load validation works; unattended FRAME CAPTURE does
+  not.** (4.14.3, Vulkan, measured on CatacombDoom's package from the
+  CrystalCavesFPS project.) What works: `+logfile <path>` for the whole
+  log, `+map X` to pick the map, and a `-file` pk3 whose
+  StaticEventHandler prints markers from inside the loaded map — poll the
+  log for those, then kill. Register it with **`AddEventHandlers`** in a
+  MAPINFO `gameinfo` block; that APPENDS, where `EventHandlers` would
+  replace the host game's list and silently unregister its handlers.
+  What fails: startup `+commands` all execute BEFORE the game loop, and
+  console `wait` does not defer them (`+wait 350 +quit` lived 1.4s vs
+  1.6s for `+quit` alone) — so `+map X +screenshot +quit` never draws a
+  frame. And `LevelLocals.MakeScreenShot()` (doombase.zs:492) produces
+  NO file when called from a loaded map: the marker proves the call is
+  reached, but nothing lands in the shot dir, the engine dir, or the user
+  profile, windowed or fullscreen, with nothing logged even at
+  `screenshot_quiet 0`. Screen capture (the `cap.ps1` approach) remains
+  the only route to pixels, and it needs the foreground — so treat
+  visual capture as attended and design review harnesses around
+  artifacts that need no engine (top-down renders from level data).
+- **`StaticEventHandler` hooks take an event parameter.** `WorldLoaded`
+  is `virtual void WorldLoaded(WorldEvent e)`; overriding it with no
+  parameter fails as "Attempt to override non-existent virtual
+  function", which reads like the hook doesn't exist rather than like a
+  signature mismatch. `WorldTick()` genuinely takes none. Read
+  `zscript/events.zs` for the full list.
+- **Over-broad error patterns in a log-polling harness turn warnings
+  into failures.** Matching bare `Unknown` caught the benign "Unknown
+  texture: F_SKY1" that a perfectly loadable package emits, aborting the
+  run and reporting a false negative. Match only strings that genuinely
+  stop the engine ("Execution could not continue", "VM execution
+  aborted").
 
 ## 6. Assets & pipeline
 
@@ -213,3 +244,86 @@ wrong (Init signatures, VirtualToRealCoords arity, ClearMenus existence).
 - Slice-edits on ZScript files corrupt easily; prefer anchored
   string-replace with asserts, and `git checkout` the file rather than
   patch a mangled state.
+
+## Standalone IPK3 minimum furniture (Crystal Caves FPS shell, 2026-07-31)
+
+Booting an IWADINFO+MAPINFO-only ipk3 dies with a BLANK fatal dialog (the
+log ends right after the wad-add lines, no message anywhere). Measured by
+lump bisect, a standalone needs, in failure order:
+
+1. **PLAYPAL** -- the actual blank-dialog fatal. Any 256-entry palette
+   works if all art is truecolour PNG; only existence matters.
+2. **Own episodes and skills** -- with none defined, Doom's inherited lists
+   survive, and anything downstream saying `clearepisodes`/`clearskills`
+   (our capture harness does) fatals with "you cannot use clearX ... if you
+   do not define any new X after it."
+3. **MENUDEF overriding MainMenu/EpisodeMenu/SkillMenu with TextItems** --
+   the stock menudef's PatchItems reference M_DOOM/M_NEWG/... which do not
+   exist without Doom's art. NOTE: the stock lump still PARSES first and
+   logs one "Script error" per missing patch even when overridden; ship
+   1px placeholder graphics under those names to keep logs clean.
+4. **borderflat + the eight brdr_* pieces** -- otherwise every frame at
+   screenblocks<11 spams "Unknown texture brdr_b".
+
+Corollary caught the same night: our capture harness treated "Script
+error," as a FATAL hint and killed every run against the new shell --
+script errors are per-lump warnings the engine survives. True fatals carry
+"Execution could not continue" / "VM execution aborted" / "Fatal error".
+The over-broad-log-pattern lesson, third occurrence.
+
+Also proven here: the borrowed-base era is over cheaply. IWADINFO's
+`Config` key gives the game its OWN cvar namespace, so a fresh shell means
+fresh defaults -- no inherited nojump, no foreign HUD, no archived-cvar
+poison from sibling projects.
+
+## Reusable pattern: in-game tuning sliders (Crystal Caves FPS, 2026-07-31)
+
+Eric flagged this as a keeper for ANY future FPS-style project. Feel
+constants (speed, jump, gravity, ramps, view bob) cannot be tuned by
+reading numbers -- the designer needs hands on the game while the numbers
+move. The pattern, four pieces, all data-driven:
+
+1. **CVARINFO**: one `server float` per tunable. Server cvars archive to
+   the config by default, and the standalone shell''s own IWADINFO
+   `Config` namespace means the archived values belong to THIS game.
+2. **MENUDEF**: an `OptionMenu` of `Slider` items bound to those cvars,
+   reachable from the pause menu (`TextItem "Tuning", "t", "YourMenu"`
+   in MainMenu). Sliders write cvars live, no restart.
+3. **Player class**: read the cvars each tic in PlayerThink and apply
+   (JumpZ, Gravity, ForwardMove1/2, ViewBob...). FindCVar per tic is
+   cheap; engine field names verified against uzdoom.pk3''s player.zs.
+4. **The workflow**: designer plays, slides, exits; the config archives
+   everything; the session then reads the archived values back and
+   freezes them into the constants file. Tuning session = one playthrough.
+
+Bonus lesson from proving it: SendKeys never reaches the engine (raw
+input) -- to screenshot a menu unattended, launch with
+`+wait 105; openmenu YourMenu` instead.
+
+Reference implementation: F:\CrystalCavesFPS tools/build_base.py
+(CVARINFO + MENUDEF blocks) and tools/harness/movetest/zscript/ccplayer.zs.
+
+## Third-person camera (chasecam.zs)
+
+- `player.camera` is SHARED SIM STATE, not a render preference. Public
+  third-person mods assign it from `consoleplayer` only - single-player
+  thinking. In lockstep MP, derive it on every node for every player
+  from a replicated user cvar (the wolf_skin pattern) and maintain it
+  in the pawn's Tick AFTER the CF_PREDICTING guard.
+- Once `camera != mo` the engine does the two hard parts itself: the
+  player's own sprite renders (8-rotation skin required) and the
+  first-person weapon overlay + crosshair are suppressed. No flags.
+- Camera actor: +NOINTERACTION, no Super.Tick(), position = pure
+  function of the owner recomputed per tic; `SetOrigin(pos, true)`
+  keeps render interpolation so the glide is framerate-smooth.
+- Pull in off walls with the OWNER's LineTrace (angle+180,
+  TRF_THRUACTORS) - tracing from the camera actor itself starts the
+  trace outside the world after a fast turn and returns garbage.
+- Interplay: any feature that repositions the pawn for a cutscene (the
+  boss DeathCam) must suspend third person, or the chase cam films the
+  camera stand.
+- Headless two-node netgames (`-host 2`/`-join localhost`, no visible
+  windows) stall after "Selected peer to peer networking mode" and
+  never load the map, even with separate -config files and
+  i_pauseinbackground 0. Visible-window instances (mp_launch.ps1) work.
+  Sync-verify MP features with the real dual-window path.

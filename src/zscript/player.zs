@@ -399,6 +399,45 @@ class WolfPlayer : DoomPlayer
     // Cmd_Use (WL_AGENT.C:1008-1080): on use press, scan exactly one tile in
     // the facing cardinal direction (octant test, EXIT-001) and operate any
     // door there. Pushwalls and the elevator switch join in later passes.
+    WolfChaseCam chaseCam;
+
+    // Third person (wolf_mod_tp): camera state is SHARED SIM STATE
+    // (player.camera), so this runs on every node for every player,
+    // after the CF_PREDICTING guard, from the replicated user cvar -
+    // the wolf_skin pattern. The engine renders the pawn's own body
+    // and hides the weapon overlay whenever camera != mo.
+    void MaintainChaseCam()
+    {
+        if (player == null)
+            return;
+        CVar cv = CVar.GetCVar("wolf_mod_tp", player);
+        bool wanted = cv != null && cv.GetInt() != 0
+            && health > 0 && !victoryStarted;
+        // the boss DeathCam repositions the pawn itself (victoryFlag);
+        // filming that from behind would show the camera stand
+        let gs = WolfGameState.Get();
+        if (gs != null && gs.victoryFlag)
+            wanted = false;
+        if (wanted)
+        {
+            if (chaseCam == null)
+            {
+                chaseCam = WolfChaseCam(Spawn("WolfChaseCam", pos));
+                if (chaseCam != null)
+                    chaseCam.master = self;
+            }
+            if (chaseCam != null && player.camera != chaseCam)
+                player.camera = chaseCam;
+        }
+        else if (chaseCam != null)
+        {
+            if (player.camera == chaseCam)
+                player.camera = self;
+            chaseCam.Destroy();
+            chaseCam = null;
+        }
+    }
+
     override void Tick()
     {
         Super.Tick();
@@ -415,6 +454,7 @@ class WolfPlayer : DoomPlayer
         // guard the engine's own player code uses for its side effects.
         if (player != null && (player.cheats & CF_PREDICTING))
             return;
+        MaintainChaseCam();
         // Vertical aim is suppressed by MAPINFO's NoFreelook (defaultmap),
         // which is the engine's own clamp. Do NOT also force Pitch here:
         // writing pitch after the input has applied it fights the mouse
