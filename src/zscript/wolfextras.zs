@@ -74,6 +74,7 @@ class WolfModernMenu : WolfWidgetMenu
         AddToggleV("Crouching", "wolf_mod_crouch", 1, 0);
         AddBindRow("  Crouch Key", "+crouch");
         AddToggleV("Third-Person View", "wolf_mod_tp", 1, 0);
+        AddToggleV("Floor + Ceiling Textures", "wolf_mod_flats", 1, 0);
         winH = 13 * labels.Size() + 6;
         sel = 0;
     }

@@ -13,6 +13,16 @@ class WolfDebugHandler : EventHandler
         if (e.Name == "wolf_dbg_face" && e.Player >= 0
             && players[e.Player].mo != null)
             players[e.Player].mo.angle = e.Args[0];
+        // dump the sector planes under the sender - flats debugging
+        if (e.Name == "wolf_dbg_flatcheck" && e.Player >= 0
+            && players[e.Player].mo != null)
+        {
+            Sector sc = players[e.Player].mo.CurSector;
+            Console.Printf("FLATCHECK sec=%d floor=%s ceil=%s",
+                sc.Index(),
+                TexMan.GetName(sc.GetTexture(Sector.floor)),
+                TexMan.GetName(sc.GetTexture(Sector.ceiling)));
+        }
         // set the exiting latch as if an elevator had been used - for
         // proving field persistence across level travel
         if (e.Name == "wolf_dbg_setexit" && e.Player >= 0

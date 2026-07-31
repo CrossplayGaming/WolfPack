@@ -1,0 +1,27 @@
+{
+  "_doc": [
+    "Textured floors/ceilings (Modernization): dominant wall code of an",
+    "area -> [ceiling texture, floor texture]. Chosen by eye from the",
+    "contact sheet after metric filtering (readability, tiling, baked",
+    "lighting gradient); WALL033 was rejected as a floor because it is",
+    "the German-text brick. Eric holds veto authority over every pair -",
+    "regenerate the verdict rooms after editing. Codes are Wolf plane-0",
+    "wall codes; dominance = wall faces adjacent to the area's floor",
+    "(immune to decorative one-offs). fallback covers the long tail",
+    "(top 10 walls cover ~93% of the 867 WL6 areas)."
+  ],
+  "wl6": {
+    "1":  ["WALL042", "WALL023"],
+    "2":  ["WALL042", "WALL087"],
+    "27": ["WALL042", "WALL091"],
+    "35": ["WALL042", "WALL087"],
+    "8":  ["WALL015", "WALL003"],
+    "17": ["WALL023", "WALL087"],
+    "12": ["WALL023", "WALL053"],
+    "24": ["WALL042", "WALL091"],
+    "29": ["WALL057", "WALL091"],
+    "19": ["WALL057", "WALL091"],
+    "fallback": ["WALL042", "WALL053"]
+  },
+  "sod": {}
+}

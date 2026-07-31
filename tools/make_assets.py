@@ -748,6 +748,9 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
         grid = UDMF / f"{tm.stem}.grid.txt"
         if grid.exists():
             shutil.copy(grid, ASSETS / "wolfdata" / f"{mapname}.txt")
+        flats = UDMF / f"{tm.stem}.flats.txt"
+        if flats.exists():          # textured-flats sidecar (gen_flats.py)
+            shutil.copy(flats, ASSETS / "wolfdata" / f"{mapname}.flats")
         nmaps += 1
 
     # multiplayer lobby (convert_udmf LOBBY variant of Hans's level)
