@@ -79,3 +79,36 @@ MagicaVoxel on top of generated models are the optional last mile.
 - SoD assets too, or Wolf3D first?
 - Per-frame model count budget on Android (TURBOSTEIN lineage) -- the
   perf check from CCFPS's asset strategy applies here doubly.
+
+## Addendum: Eric''s reconstruction pipeline + the synthesis (2026-08-02)
+
+Eric''s path for single-view cases (proven in spirit by the CC dinosaur):
+sprite -> ChatGPT generates a PRISTINE high-res multi-angle turnaround
+sheet (clean render style, no pixel art, no outlines -- Meshy handles
+this far better than raw 64x64 sprites) -> Meshy multi-image to 3D ->
+AI texture from the original colours -> voxelize through the proven
+chain -> derive ALL remaining frames from the one reconstructed actor
+(posing / preset sampling / archetype animator) rather than per-frame
+reconstruction.
+
+THE SYNTHESIS -- "AI proposes the flesh, the sprites impose the skeleton
+and the skin":
+1. SILHOUETTE CARVE (hard constraint): the voxelized AI model is carved
+   against the original sprite silhouette at the canonical angle -- for
+   8-view actors, against all eight (the model must live inside the
+   sprites'' visual hull). AI excess is deleted mechanically; deficits
+   are flagged by the fidelity harness, never auto-filled.
+2. COLOUR STAMP: canonical-angle surfaces take the sprite''s exact
+   palette pixels; AI texture survives only on never-seen surfaces.
+3. Fidelity harness scores the result like everything else.
+
+Default route per class (verdict table, Eric-ruled):
+- Wolf 8-view enemies, symmetric props: SPRITE-DERIVED (hull/lathe/slab,
+  no AI, deterministic).
+- Floor-flat items: SLAB (they are floor drawings; 1-2 voxels thick).
+- Asymmetric single-view props, bosses, CC creatures (no rotations
+  exist): ERIC''S AI-RECONSTRUCTION route + carve/stamp enforcement.
+- Attack/pain: per-actor model posed (Eric''s architecture) where the
+  actor has one; stance-hull warp as the no-model fallback.
+- Deaths: posed model per frame or progressive flattening toward the
+  corpse SLAB; final corpses are always slabs.
