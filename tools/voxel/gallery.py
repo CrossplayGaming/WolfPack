@@ -1,34 +1,35 @@
 #!/usr/bin/env python3
-"""Build the voxel gallery: every model on a plinth beside its sprite.
+"""Build the voxel gallery: models on plinths beside their source sprites.
 
 Metrics rank models; they cannot tell you whether a lathed barrel READS
-as a barrel. This generates a purpose-built exhibition map where each
-model stands next to the original sprite it came from, so the whole set
-can be judged at a glance, walked through, and filmed.
+as a barrel. This generates an exhibition map where each model stands
+next to the sprite it came from, so a whole batch can be judged at a
+glance, walked through, and filmed.
 
-HOW BOTH CAN SHOW AT ONCE
-A voxel replaces a SPRITE NAME globally - once `s012a` is mapped, every
-urn in the game is a voxel and there is nothing left to compare against.
-So the gallery gives each model a second identity: the sprite lump is
-copied to `V###A0`, a display actor is generated that uses it, and only
-`v###a` is mapped in VOXELDEF. The original `S###` actors are untouched
-and still draw as sprites. Sprite and voxel therefore stand side by
-side, and loading this pack does not alter normal play.
+CURRENT EXHIBITION - the proof-of-concept trio (2026-07-30). The first
+lathe generation taught that symmetry was the wrong gate: Wolf art is
+drawn from ~8-11 degrees above, so top faces are ellipses, not profile.
+The hall was cleared and now shows only the new-method attempts, one
+per object tier:
+
+  1. TRUE REVOLVE   S036 water well via lathe_top (top-face reprojection
+                    - the water must lie IN the well, not stripe around
+                    its wall)
+  2. VIEW-SYMMETRIC S010 sink via the generative-recovery route; station
+                    appears automatically when a mesh lands in import/
+                    (until then the tier is represented by its absence)
+  3. ENEMY HULL     guard standing frame carved from all 8 rotations
+
+HOW BOTH SHOW AT ONCE
+A voxel replaces a SPRITE NAME globally, so each model gets a second
+identity: its sprite lump is copied under a V-name, a display actor is
+generated to use it, and only the V-name is mapped in VOXELDEF. The
+original actors are untouched - loading this pack does not alter play.
 
 THE LAYOUT
-Stations are laid out on a regular grid and the room is sized to fit
-them exactly, rather than a fixed room that models are squeezed into:
-
-    pitch_x = 3 tiles   sprite tile | voxel tile | aisle
-    pitch_y = 3 tiles   exhibit row | two clear rows to walk and frame
-
-Columns are chosen to make the hall roughly square in world units,
-which is what makes it photograph well:
-
-    cols = round(sqrt(N * pitch_y / pitch_x))
-
-The room then spans cols*pitch_x by rows*pitch_y tiles plus a margin
-and an entry apron, all at Wolf's 64 units per tile.
+Stations grid at 3-tile pitch; columns = round(sqrt(N*py/px)) makes the
+hall roughly square in world units; the room is sized to fit the count
+and errors loudly rather than overflowing Wolf's 64x64 tile cap.
 
   python tools/voxel/gallery.py            # writes dist/wolfvox_gallery.pk3
   python tools/voxel/gallery.py --plan     # print the layout only
@@ -36,7 +37,6 @@ and an entry apron, all at Wolf's 64 units per tile.
 import argparse
 import json
 import math
-import shutil
 import sys
 import zipfile
 from pathlib import Path
@@ -46,61 +46,107 @@ ROOT = HERE.parent.parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / "tools"))
 
-import build_pack                                          # noqa: E402
 import convert_udmf                                        # noqa: E402
+import hull                                                # noqa: E402
+import lathe_top                                           # noqa: E402
 from make_assets import wrap_wad                           # noqa: E402
 
 PITCH_X = 3
 PITCH_Y = 3
-MARGIN = 1          # clear tiles between the grid and the walls
-APRON = 3           # approach space at the entrance, south of the grid
+MARGIN = 1
+APRON = 3
+WALL_CODE = 1
+ED_BASE = convert_udmf.ED_STATIC_BASE      # 21100; things emit base+index
 
-FLOOR_AREA = 0      # one connected area: the whole hall is one zone
-WALL_CODE = 1       # grey stone
-VOX_ED_BASE = 21500  # editor numbers for the display actors
+SPRITES = ROOT / "build/assets/sprites"
 
+
+# ---------------------------------------------------------------------------
+# Station definitions. Each returns dict(label, vname, kvx, sprite_files,
+# spr_actor, vox_actor) or None if its inputs are not available yet.
+# ---------------------------------------------------------------------------
+
+def station_well(pal):
+    k, rep = lathe_top.build(SPRITES / "S036A0.png", pal)
+    print(f"  well: {rep}")
+    return {
+        "label": "Water well - true revolve, top face reprojected",
+        "vname": "V036",
+        "kvx": k,
+        # voxel display sprite = copy of the original frame
+        "sprites": {"V036A0.png": SPRITES / "S036A0.png"},
+        # sprite side: the game's own static actor, already defined
+        "spr_ednum": ED_BASE + 36,
+        "spr_class": None,
+        "vox_class": ("WolfVoxShow36", "V036 A"),
+    }
+
+
+def station_sink(pal):
+    """The generative-recovery tier. Activates when a mesh arrives."""
+    for ext in ("glb", "obj"):
+        for p in sorted((ROOT / "import").glob(f"sink*.{ext}")):
+            print(f"  sink: found {p.name} - carve/stamp not wired yet, "
+                  f"station reserved")
+            return None
+    print("  sink: no mesh in import/ yet - station skipped")
+    return None
+
+
+def station_guard(pal):
+    k, rep = hull.build("GRDSA", pal)
+    print(f"  guard: {rep}")
+    return {
+        "label": "Guard (standing) - visual hull from 8 rotations",
+        "vname": "VGRD",
+        "kvx": k,
+        "sprites": {f"VGRDA{r}.png": SPRITES / f"GRDSA{r}.png"
+                    for r in range(1, 9)},
+        # sprite side: an inert actor drawing the live GRDS rotations
+        # (the real WolfGuard would walk off and shoot the visitors)
+        "spr_ednum": ED_BASE + 496,
+        "spr_class": ("WolfSprShowGRD", "GRDS A"),
+        "vox_class": ("WolfVoxShowGRD", "VGRD A"),
+    }
+
+
+STATIONS = (station_well, station_sink, station_guard)
+
+
+# ---------------------------------------------------------------------------
 
 def plan(n):
-    """Grid geometry for n stations. Pure arithmetic, no side effects."""
     cols = max(1, round(math.sqrt(n * PITCH_Y / PITCH_X)))
     rows = math.ceil(n / cols)
-    grid_w = cols * PITCH_X - 1          # last station needs no aisle
-    grid_h = rows * PITCH_Y - (PITCH_Y - 1)
-    inner_w = grid_w + 2 * MARGIN
-    inner_h = grid_h + 2 * MARGIN + APRON
+    inner_w = (cols * PITCH_X - 1) + 2 * MARGIN
+    inner_h = (rows * PITCH_Y - (PITCH_Y - 1)) + 2 * MARGIN + APRON
     if inner_w + 2 > 64 or inner_h + 2 > 64:
         raise SystemExit(f"{n} stations need {inner_w + 2}x{inner_h + 2} "
                          f"tiles; the Wolf map format caps at 64x64")
     return {"n": n, "cols": cols, "rows": rows,
-            "inner_w": inner_w, "inner_h": inner_h,
-            "map_w": inner_w + 2, "map_h": inner_h + 2}
+            "inner_w": inner_w, "inner_h": inner_h}
 
 
 def station_tile(i, g):
-    """Tile of the SPRITE half of station i; the voxel sits one east."""
     c, r = i % g["cols"], i // g["cols"]
     return (1 + MARGIN + c * PITCH_X, 1 + MARGIN + r * PITCH_Y)
 
 
-def build_level(models, g):
-    """Synthesise a level dict the normal converter can consume, so the
-    gallery is built by exactly the same code path as the real maps."""
+def build_level(pairs, g):
+    """Level dict for the standard converter: pairs of (spr_idx, vox_idx)
+    are statinfo-style indices (ednum - ED_BASE)."""
     dec = [{"kind": "wall", "code": WALL_CODE} for _ in range(64 * 64)]
     for y in range(1, 1 + g["inner_h"]):
         for x in range(1, 1 + g["inner_w"]):
-            dec[y * 64 + x] = {"kind": "floor", "area": FLOOR_AREA,
+            dec[y * 64 + x] = {"kind": "floor", "area": 0,
                                "secret_exit_pad": False, "code": 143}
-
     objects = []
-    for i, (name, _label, _k, _rep) in enumerate(models):
+    for i, (spr_idx, vox_idx) in enumerate(pairs):
         tx, ty = station_tile(i, g)
-        idx = int(name[1:4])
-        objects.append({"kind": "static", "index": idx, "x": tx, "y": ty,
-                        "code": 23})
-        objects.append({"kind": "voxdisplay", "index": idx,
+        objects.append({"kind": "static", "index": spr_idx,
+                        "x": tx, "y": ty, "code": 23})
+        objects.append({"kind": "static", "index": vox_idx,
                         "x": tx + 1, "y": ty, "code": 23})
-
-    # Entrance: centred on the south wall, looking north up the grid.
     objects.append({"kind": "player_start", "dir": "north", "code": 19,
                     "x": 1 + g["inner_w"] // 2, "y": g["inner_h"]})
     return {"set": "wl6", "map": 90, "name": "Voxel Gallery",
@@ -108,98 +154,84 @@ def build_level(models, g):
             "decoded0": dec, "objects": objects}
 
 
-def zscript(models):
-    out = ["// GENERATED by tools/voxel/gallery.py",
-           "version \"4.10\"", ""]
-    for name, label, _k, _rep in models:
-        idx = int(name[1:4])
-        out += [f"// {label}",
-                f"class WolfVoxShow{idx:02d} : Actor",
-                "{",
-                "    Default { +NOBLOCKMAP +NOGRAVITY +SOLID "
-                "Radius 24; Height 64; }",
-                "    States { Spawn: V%03d A -1; Stop; }" % idx,
-                "}", ""]
-    return "\n".join(out) + "\n"
-
-
-def mapinfo(models):
-    out = ["// GENERATED by tools/voxel/gallery.py", "DoomEdNums", "{"]
-    for name, _l, _k, _r in models:
-        idx = int(name[1:4])
-        out.append(f"    {VOX_ED_BASE + idx} = \"WolfVoxShow{idx:02d}\"")
-    out += ["}", "",
-            'map GALLERY "Voxel Gallery"', "{",
-            "    levelnum = 90",
-            '    music = "GETTHEM"',
-            '    next = "GALLERY"',
-            "    par = 0",
-            "}", ""]
-    return "\n".join(out)
+def actor_class(name, frame):
+    spr, frm = frame.split()
+    return "\n".join([
+        f"class {name} : Actor",
+        "{",
+        "    Default { +NOBLOCKMAP +NOGRAVITY +SOLID "
+        "Radius 24; Height 64; }",
+        f"    States {{ Spawn: {spr} {frm} -1; Stop; }}",
+        "}", ""])
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--out", default="dist/wolfvox_gallery.pk3")
-    ap.add_argument("--set", default="wl6")
     ap.add_argument("--plan", action="store_true")
     a = ap.parse_args()
 
-    accepted, _rejected = build_pack.judge(a.set)
-    if not accepted:
-        sys.exit("no models accepted - run tools/voxel/build_pack.py")
-    g = plan(len(accepted))
-
-    print(f"{g['n']} stations -> {g['cols']} cols x {g['rows']} rows")
-    print(f"hall {g['map_w']}x{g['map_h']} tiles "
-          f"({g['map_w'] * 64}x{g['map_h'] * 64} map units), "
-          f"interior {g['inner_w']}x{g['inner_h']}")
-    for i, (name, label, _k, _r) in enumerate(accepted):
+    pal = json.loads((ROOT / "build/vswap/palette.json").read_text())
+    stations = [s for s in (f(pal) for f in STATIONS) if s]
+    if not stations:
+        sys.exit("no stations could be built")
+    g = plan(len(stations))
+    print(f"\n{g['n']} stations -> {g['cols']} cols x {g['rows']} rows, "
+          f"hall {g['inner_w'] + 2}x{g['inner_h'] + 2} tiles")
+    for i, st in enumerate(stations):
         tx, ty = station_tile(i, g)
-        print(f"  {i:2d} {name}  {label:<18.18} sprite ({tx:2d},{ty:2d})  "
-              f"voxel ({tx + 1:2d},{ty:2d})")
+        print(f"  {i} ({tx:2d},{ty:2d})  {st['label']}")
     if a.plan:
         return
 
-    # The converter emits statics by editor number; teach it the display
-    # actors' range for this one run rather than forking the emitter.
-    base = convert_udmf.ED_STATIC_BASE
-    level = build_level(accepted, g)
-    for o in level["objects"]:
-        if o["kind"] == "voxdisplay":
-            o["kind"] = "static"
-            o["index"] = VOX_ED_BASE - base + o["index"]
+    # Assign voxel-display ednum indices after the statinfo range.
+    zs = ["// GENERATED by tools/voxel/gallery.py", 'version "4.10"', ""]
+    ednums = []
+    pairs = []
+    next_idx = 400
+    for st in stations:
+        if st["spr_class"]:
+            cname, frame = st["spr_class"]
+            zs.append(actor_class(cname, frame))
+            spr_idx = st["spr_ednum"] - ED_BASE
+            ednums.append((st["spr_ednum"], cname))
+        else:
+            spr_idx = st["spr_ednum"] - ED_BASE
+        cname, frame = st["vox_class"]
+        zs.append(actor_class(cname, frame))
+        vox_idx = next_idx
+        next_idx += 1
+        ednums.append((ED_BASE + vox_idx, cname))
+        pairs.append((spr_idx, vox_idx))
 
+    mi = ["// GENERATED by tools/voxel/gallery.py", "DoomEdNums", "{"]
+    mi += [f'    {n} = "{c}"' for n, c in ednums]
+    mi += ["}", "", 'map GALLERY "Voxel Gallery"', "{",
+           "    levelnum = 90", '    music = "GETTHEM"',
+           '    next = "GALLERY"', "    par = 0", "}", ""]
+
+    level = build_level(pairs, g)
     ceilings = json.loads(
         (ROOT / "docs/data/ceiling_colors.json").read_text())
-    ceiling = ceilings["wl6"][1]
-    textmap, _manifest, gridtext = convert_udmf.convert(level, ceiling)
+    textmap, _m, _grid = convert_udmf.convert(level, ceilings["wl6"][1])
 
     out = ROOT / a.out
     out.parent.mkdir(parents=True, exist_ok=True)
-    src_sprites = ROOT / "build/assets/sprites"
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("maps/gallery.wad", wrap_wad("GALLERY",
                                                 textmap.encode()))
-        z.writestr("ZSCRIPT.zs", zscript(accepted))
-        z.writestr("MAPINFO", mapinfo(accepted))
+        z.writestr("ZSCRIPT.zs", "\n".join(zs))
+        z.writestr("MAPINFO", "\n".join(mi))
         vd = ["// GENERATED by tools/voxel/gallery.py"]
-        for name, label, k, _rep in accepted:
-            idx = int(name[1:4])
-            vname = f"V{idx:03d}A"
-            z.writestr(f"voxels/{vname}.kvx", k.to_bytes())
-            # the display actor needs a real sprite lump for its name to
-            # register; the voxel then replaces it
-            spr = src_sprites / f"S{idx:03d}A0.png"
-            if spr.exists():
-                z.writestr(f"sprites/{vname}0.png", spr.read_bytes())
-            vd.append(f'{vname.lower()} = "{vname.lower()}" {{}}'
-                      f'   // {label}')
+        for st in stations:
+            z.writestr(f"voxels/{st['vname']}A.kvx", st["kvx"].to_bytes())
+            for arc, src in st["sprites"].items():
+                z.writestr(f"sprites/{arc}", src.read_bytes())
+            vd.append(f'{st["vname"].lower()}a = '
+                      f'"{st["vname"].lower()}a" {{}}   // {st["label"]}')
         z.writestr("VOXELDEF", "\n".join(vd) + "\n")
-    (ROOT / "build/voxels/gallery.grid.txt").write_text(gridtext)
     print(f"\nwrote {out} ({out.stat().st_size / 1024:.0f} KB)")
-    print(f"play: engine\\uzdoom.exe -iwad dist\\wolf.ipk3 "
-          f"-file {a.out} +map GALLERY")
+    print("play: gallery.bat")
 
 
 if __name__ == "__main__":
