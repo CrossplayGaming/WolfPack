@@ -21,7 +21,8 @@ if not exist "build\assets\PLAYPAL" (
     python tools\extract_vgagraph.py || goto :fail
     python tools\extract_text.py || goto :fail
     python tools\convert_udmf.py || goto :fail
-    python tools\import_bj_sheet.py || goto :fail
+    python tools\import_bj_sheet.py || goto :fail
+    python tools\import_bj_gun.py || goto :fail
     echo Rendering the AdLib soundtrack - one-time, takes a few minutes...
     python tools\render_adlib.py --music || goto :fail
     if exist build\audio\sod\music python tools\render_adlib.py sod --music

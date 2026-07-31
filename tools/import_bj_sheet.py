@@ -186,19 +186,67 @@ VARIANTS = {"2": ramp(0x98, 0xA0), "3": ramp(0x24, 0x2C),
             "4": ramp(0xD4, 0xDC)}
 
 
-def recolor(frame, target):
+def recolor(frame, target, protect=None):
+    """Uniform grey -> variant colour, v2.
+
+    v1 remapped only EXACT ramp-index colours and had no notion of
+    where the face is. Both defects shipped in the skin: near-greys
+    that quantized off the 0x10-0x20 ramp stayed grey (speckled
+    uniforms on every variant), and the eye whites - grey by any
+    measure - recolored into a blue/red patch across the face.
+
+    v2 classifies by measurement: a pixel is uniform-grey if its
+    channels are close (desaturated) and its luminance sits in the
+    grey ramp's band; it maps onto the target ramp at the same
+    relative brightness. Face detail is protected by WARM ADJACENCY,
+    not geometry: a grey pixel touching skin/hair tones (eye whites,
+    face shading) is face, wherever it sits - which also covers lying
+    death frames, where a "head zone" row band points sideways. A
+    geometric zone was tried first and left a grey yoke across the
+    shoulders. Boots (saturated navy) and gun darks (below the band)
+    never qualify. `protect` is an optional set of (x, y) the caller
+    knows better about (import_bj_gun passes the machine-gun mask,
+    classified at source resolution where metal and fabric separate
+    cleanly - at 64x64 their luminances are one smeared mass).
+    """
     im = frame.copy()
     px = im.load()
-    greyset = {pal[i]: n for n, i in enumerate(GREY)}
+    lo = min(lum(pal[i]) for i in GREY) - 8
+    hi = max(lum(pal[i]) for i in GREY) + 8
+
+    # Warmth is judged on a FROZEN snapshot of the input. Reading the
+    # image being mutated protected the neighbours of every freshly
+    # painted red/tan pixel (recolored warm counts as warm) and
+    # checkerboarded those variants.
+    src = frame.load()
+
+    def warm(x, y):
+        if not (0 <= x < 64 and 0 <= y < 64):
+            return False
+        r, g, b, a = src[x, y]
+        return a and r > b + 40 and r > 110
+
     for y in range(64):
         for x in range(64):
             r, g, b, a = px[x, y]
-            if a and (r, g, b) in greyset:
-                idx = greyset[(r, g, b)]
-                t = target[min(len(target) - 1,
-                               idx * len(target) // len(GREY))]
-                q = pal[t]
-                px[x, y] = (q[0], q[1], q[2], a)
+            if not a:
+                continue
+            if protect and (x, y) in protect:
+                continue
+            if any(warm(x + dx, y + dy)
+                   for dx in (-1, 0, 1) for dy in (-1, 0, 1)
+                   if (dx, dy) != (0, 0)):
+                continue
+            if max(r, g, b) - min(r, g, b) >= 30:
+                continue                        # saturated: skin, boots
+            v = lum((r, g, b))
+            if not (lo <= v <= hi):
+                continue                        # gun darks, highlights
+            t = target[min(len(target) - 1,
+                           int((v - lo) / max(1e-6, hi - lo)
+                               * len(target)))]
+            q = pal[t]
+            px[x, y] = (q[0], q[1], q[2], a)
     return im
 
 
