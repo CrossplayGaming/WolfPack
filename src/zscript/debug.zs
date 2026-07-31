@@ -13,6 +13,14 @@ class WolfDebugHandler : EventHandler
         if (e.Name == "wolf_dbg_face" && e.Player >= 0
             && players[e.Player].mo != null)
             players[e.Player].mo.angle = e.Args[0];
+        // set the exiting latch as if an elevator had been used - for
+        // proving field persistence across level travel
+        if (e.Name == "wolf_dbg_setexit" && e.Player >= 0
+            && players[e.Player].mo != null)
+        {
+            let px = WolfPlayer(players[e.Player].mo);
+            if (px != null) px.exiting = true;
+        }
         // direct WolfUse invocation, bypassing the button edge detect
         if (e.Name == "wolf_dbg_use" && e.Player >= 0
             && players[e.Player].mo != null)

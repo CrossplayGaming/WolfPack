@@ -344,3 +344,12 @@ Reference implementation: F:\CrystalCavesFPS tools/build_base.py
   WRAP, not reload.
 - `changemap` silently does nothing in single player here; `map` works
   once sv_cheats is set.
+- **The player pawn TRAVELS between levels with all custom fields
+  intact** (G_StartTravel/FinishTravel) - a one-shot latch field set
+  during level N is still set on level N+1. WolfUse's `exiting`
+  debounce silently refused every elevator after the first until
+  cleared on WorldLoaded. The trap in testing: `-warp` and fresh-map
+  probes spawn NEW pawns (latch clear), so every harness run passes
+  while every real playthrough fails from the second floor on. When a
+  user report and a probe disagree, ask what state the pawn CARRIES
+  that the probe's pawn does not.

@@ -94,6 +94,15 @@ class WolfLevel : EventHandler
         {
             if (players[i].mo == null)
                 continue;
+            // The pawn TRAVELS between levels with its fields intact,
+            // so the one-shot exit latch WolfUse sets must be cleared
+            // here or the SECOND elevator of a session refuses
+            // silently (user repro: E1M1 secret elevator worked, the
+            // secret level's did not; every -warp probe passed because
+            // -warp spawns a fresh pawn with the latch clear).
+            let wpx = WolfPlayer(players[i].mo);
+            if (wpx != null)
+                wpx.exiting = false;
             players[i].mo.TakeInventory("WolfGoldKey", 99);
             players[i].mo.TakeInventory("WolfSilverKey", 99);
         }
