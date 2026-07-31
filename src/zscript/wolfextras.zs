@@ -351,7 +351,7 @@ class WolfCrosshairMenu : WolfWidgetMenu
         AddMulti("Color", "wolf_xhair_color",
                  "White,Gold,Green,Red,Blue,Grey");
         AddToggle("Grow On Pickup", "crosshairgrow");
-        AddMulti("Damage/Health Color", "crosshairhealth",
+        AddMulti("Health Color", "crosshairhealth",
                  "Off,Standard,Enhanced");
         winH = 13 * labels.Size() + 6 + 30;      // room for the preview
         sel = 0;

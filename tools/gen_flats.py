@@ -66,15 +66,18 @@ def sibling_check(table):
                          + "\n  ".join(bad))
 
 
-def door_lines(dec, area_pair):
-    """Doors get a neighboring area's pair - the next room's texture
-    runs under the door instead of bare grey. Deterministic pick:
+def door_lines(dec, area_pair, pushwalls):
+    """Doors AND pushwall tiles get a neighboring area's pair - the
+    next room's texture runs under them instead of bare grey (Eric's
+    screenshots: a revealed secret pocket showed naked flats mid-
+    corridor; pushwall tiles are walls in the map data, so the area
+    pass never reaches their dedicated sectors). Deterministic pick:
     north/west neighbor first."""
     out = []
-    for i, t in enumerate(dec):
-        if t["kind"] != "door":
-            continue
-        x, y = i % 64, i // 64
+    tiles = [(i % 64, i // 64) for i, t in enumerate(dec)
+             if t["kind"] == "door"]
+    tiles += pushwalls
+    for x, y in tiles:
         for dx, dy in ((0, -1), (-1, 0), (0, 1), (1, 0)):
             nx, ny = x + dx, y + dy
             if not (0 <= nx < 64 and 0 <= ny < 64):
@@ -115,7 +118,9 @@ def main():
                     ceil, floor = fallback
                 area_pair[a] = (ceil, floor)
                 lines.append(f"{chr(65 + a)} {ceil} {floor}")
-            lines += door_lines(d["decoded0"], area_pair)
+            pw = [(o["x"], o["y"]) for o in d["objects"]
+                  if o["kind"] == "pushwall"]
+            lines += door_lines(d["decoded0"], area_pair, pw)
             (out / f"{f.stem}.flats.txt").write_text("\n".join(lines) + "\n")
             total += 1
     print(f"flat assignments written for {total} maps")
