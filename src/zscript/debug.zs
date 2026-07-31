@@ -5,6 +5,53 @@
 // tic): open = start+32, closing = open+150, closed = closing+32.
 class WolfDebugHandler : EventHandler
 {
+    // probe helper: `netevent wolf_dbg_face <deg>` points the sender's
+    // pawn - headless exit/door probes need an exact facing and the
+    // console has no angle command
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if (e.Name == "wolf_dbg_face" && e.Player >= 0
+            && players[e.Player].mo != null)
+            players[e.Player].mo.angle = e.Args[0];
+        // direct WolfUse invocation, bypassing the button edge detect
+        if (e.Name == "wolf_dbg_use" && e.Player >= 0
+            && players[e.Player].mo != null)
+        {
+            let pm2 = WolfPlayer(players[e.Player].mo);
+            if (pm2 != null) pm2.WolfUse();
+        }
+        // one-shot dump of the WolfUse decision chain from the sender's
+        // exact position - every gate the elevator branch must pass
+        if (e.Name == "wolf_dbg_usecheck" && e.Player >= 0
+            && players[e.Player].mo != null)
+        {
+            let pm = WolfPlayer(players[e.Player].mo);
+            if (pm == null) return;
+            double a = pm.angle % 360.0;
+            if (a < 0) a += 360.0;
+            int tx = int(pm.pos.x) / 64;
+            int ty = 63 - (int(pm.pos.y) / 64);
+            int cx = tx, cy = ty, dir;
+            if (a < 45.0 || a >= 315.0)      { cx++; dir = 0; }
+            else if (a < 135.0)              { cy--; dir = 1; }
+            else if (a < 225.0)              { cx--; dir = 2; }
+            else                             { cy++; dir = 3; }
+            Console.Printf("USECHECK pos=(%d,%d) a=%.1f target=(%d,%d) "
+                           "dir=%d", tx, ty, a, cx, cy, dir);
+            ThinkerIterator it = ThinkerIterator.Create("WolfDoor");
+            WolfDoor d;
+            while ((d = WolfDoor(it.Next())) != null)
+                if (d.tileX == cx && d.tileY == cy)
+                    Console.Printf("USECHECK door CLAIMS target (lock=%d)",
+                                   d.lock);
+            WolfLevel wl = WolfLevel.Get();
+            Console.Printf("USECHECK elevAt=%d areaAt(stand)=%d "
+                           "exiting=%d", wl != null && wl.ElevatorAt(cx, cy),
+                           wl == null ? -99 : wl.AreaAt(tx, ty),
+                           pm.exiting);
+        }
+    }
+
     int phase;
     int t;
     bool found;

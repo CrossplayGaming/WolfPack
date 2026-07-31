@@ -43,6 +43,12 @@ SETS = (
     ("sod", "SodStatic", "D", 21300, SOD_CONDS),
 )
 
+# bo_spear is not a BonusKind: the spear ends the run (WL_AGENT.C:778,
+# handled by the handwritten WolfSpearOfDestiny in sod.zs). Generating
+# it as an inert decoration soft-locked floor 18 - the exit audit's
+# find, 2026-07-31.
+SPECIAL_CLASSES = {"bo_spear": "WolfSpearOfDestiny"}
+
 BO_KINDS = {"bo_firstaid": "BO_FIRSTAID", "bo_food": "BO_FOOD",
             "bo_alpo": "BO_ALPO", "bo_gibs": "BO_GIBS",
             "bo_clip": "BO_CLIP", "bo_clip2": "BO_CLIP2",
@@ -72,6 +78,17 @@ def placeholder_png():
 
 def emit_actor(zs, cls, spr, row):
     """one statinfo row -> a ZScript actor definition"""
+    if row["class"] in SPECIAL_CLASSES:
+        zs.append("class %s : %s" % (cls, SPECIAL_CLASSES[row["class"]]))
+        zs.append("{")
+        zs.append("    States")
+        zs.append("    {")
+        zs.append("    Spawn:")
+        zs.append("        %s A -1;" % spr)
+        zs.append("        Stop;")
+        zs.append("    }")
+        zs.append("}")
+        return
     if row["class"] in BO_KINDS:
         zs.append("class %s : WolfPickup" % cls)
         zs.append("{")

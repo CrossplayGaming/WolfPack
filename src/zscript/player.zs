@@ -522,6 +522,9 @@ class WolfPlayer : DoomPlayer
         if (player && (player.cmd.buttons & BT_USE)
             && !(oldButtons & BT_USE))
         {
+            CVar uv = CVar.FindCVar("wolf_dbg_check");
+            if (uv != null && uv.GetInt() != 0)
+                Console.Printf("WOLFDBG use-edge fired");
             WolfUse();
         }
         if (player)
@@ -561,6 +564,11 @@ class WolfPlayer : DoomPlayer
         // works facing east or west. EXIT-004: standing on floor code 107
         // (area 0, ALTELEVATORTILE) takes the secret exit instead.
         WolfLevel wl = WolfLevel.Get();
+        CVar uv2 = CVar.FindCVar("wolf_dbg_check");
+        if (uv2 != null && uv2.GetInt() != 0)
+            Console.Printf("WOLFDBG use: tgt=(%d,%d) dir=%d elev=%d "
+                           "exiting=%d", cx, cy, dir,
+                           wl != null && wl.ElevatorAt(cx, cy), exiting);
         if (wl != null && wl.ElevatorAt(cx, cy) && (dir == 0 || dir == 2)
             && !exiting)
         {

@@ -62,8 +62,27 @@ class WolfGameState : StaticEventHandler
         return WolfGameState(StaticEventHandler.Find("WolfGameState"));
     }
 
+    // spear travel (WL_GAME.C:1305-1313): the warp to the Death
+    // Dimension restores each player's pickup position and angle
+    bool spearTravel;
+    double spearX[MAXPLAYERS];
+    double spearY[MAXPLAYERS];
+    double spearAngle[MAXPLAYERS];
+
     override void WorldLoaded(WorldEvent e)
     {
+        if (spearTravel)
+        {
+            spearTravel = false;
+            for (int i = 0; i < MAXPLAYERS; i++)
+            {
+                if (!playeringame[i] || players[i].mo == null)
+                    continue;
+                players[i].mo.SetOrigin(
+                    (spearX[i], spearY[i], players[i].mo.pos.z), false);
+                players[i].mo.angle = spearAngle[i];
+            }
+        }
         if (!initialized)
         {
             initialized = true;

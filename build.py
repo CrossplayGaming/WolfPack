@@ -142,6 +142,20 @@ def run_engine(extra_args, timeout=90):
     return 0
 
 
+def check_exits():
+    """Exit audit (tools/audit_exits.py): every floor must have a
+    reachable exit and a resolving MAPINFO chain - the inert Spear of
+    Destiny soft-locked SoD floor 18 for weeks without any other gate
+    noticing."""
+    rc = subprocess.run([sys.executable, "tools/audit_exits.py"],
+                        capture_output=True, text=True)
+    tail = "\n".join(rc.stdout.strip().split("\n")[-3:])
+    print(tail)
+    if rc.returncode != 0:
+        print(rc.stdout)
+        sys.exit("exit audit FAILED")
+
+
 def check_assets():
     """Derived-constant audit (tools/audit_assets.py): catches indices
     that resolve in both games but point at the WRONG art in one."""
@@ -262,6 +276,7 @@ def main():
         build(spear=True)
     if args.check:
         check_assets()
+        check_exits()
         check()
     elif args.play:
         run_engine([], timeout=None)

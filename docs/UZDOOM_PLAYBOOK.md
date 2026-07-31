@@ -327,3 +327,20 @@ Reference implementation: F:\CrystalCavesFPS tools/build_base.py
   never load the map, even with separate -config files and
   i_pauseinbackground 0. Visible-window instances (mp_launch.ps1) work.
   Sync-verify MP features with the real dual-window path.
+
+## Probe-harness gotchas (elevator false alarm, 2026-07-31)
+
+- The console `warp` teleport does NOT trigger touch specials - a
+  pickup probe that warps onto an item tests nothing. Walk into it
+  (+forward) like a player would.
+- A successful level exit is INVISIBLE in the logfile: the stat screen
+  isn't a map, so judging "did the exit fire" by the absence of the
+  next map's title line concludes 'broken' for working exits. Judge by
+  screenshot (the stat screen's flat teal is trivially detectable) or
+  by the next map's onmap debug line after advancing.
+- The WOLFDBG beacon's rng index wraps mod 256; a wrap (226 -> 1) reads
+  exactly like a fresh-map reset. The handler's own t counter resets
+  per level and the beacon prints both - t continuous + rng small means
+  WRAP, not reload.
+- `changemap` silently does nothing in single player here; `map` works
+  once sv_cheats is set.

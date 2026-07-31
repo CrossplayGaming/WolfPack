@@ -1568,13 +1568,8 @@ class SodStatic50 : Actor
 }
 
 // statinfo[51] sprite SPR_STAT_51: SPEAR OF DESTINY!
-class SodStatic51 : Actor
+class SodStatic51 : WolfSpearOfDestiny
 {
-    Default
-    {
-        +NOBLOCKMAP
-        +NOGRAVITY
-    }
     States
     {
     Spawn:

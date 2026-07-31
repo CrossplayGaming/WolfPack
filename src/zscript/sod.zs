@@ -237,3 +237,47 @@ class WolfSpark : WolfProjectile
     override int ProjFrames() { return 4; }
     States { Spawn: SPRK ABCD 6; Loop; }
 }
+
+
+// The Spear of Destiny itself (statinfo bo_spear, WL_AGENT.C:778-783 +
+// WL_GAME.C:1290-1315). id's flow: save the toucher's exact position,
+// play GETSPEARSND, and warp STRAIGHT to the Death Dimension (map 21)
+// with NO intermission, restoring that position - the hell floor
+// mirrors the chamber, which is what makes the transition read as the
+// room transforming around you. Was generated as an inert decoration
+// until the exit audit caught floor 18 as a soft-lock.
+class WolfSpearOfDestiny : Inventory
+{
+    Default
+    {
+        +SPECIAL
+        +NOGRAVITY
+        Radius 10;
+        Height 64;
+        Inventory.PickupMessage "";
+    }
+
+    override bool TryPickup(in out Actor toucher)
+    {
+        let gs = WolfGameState.Get();
+        if (gs == null || gs.spearTravel)
+            return false;
+        gs.spearTravel = true;
+        // every player returns at their own spot; id only had one
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            if (!playeringame[i] || players[i].mo == null)
+                continue;
+            gs.spearX[i] = players[i].mo.pos.x;
+            gs.spearY[i] = players[i].mo.pos.y;
+            gs.spearAngle[i] = players[i].mo.angle;
+        }
+        toucher.A_StartSound("sod/getspear", CHAN_ITEM);
+        let wp = WolfPlayer(toucher);
+        if (wp != null)
+            wp.bonusCount = 64;                  // StartBonusFlash
+        Level.ChangeLevel("MAP21", 0, CHANGELEVEL_NOINTERMISSION);
+        GoAwayAndDie();
+        return true;
+    }
+}

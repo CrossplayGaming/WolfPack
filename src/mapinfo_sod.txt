@@ -28,6 +28,7 @@ map MAP03 "Tunnels 3"
 map MAP04 "Tunnels 4"
 {
     levelnum = 4
+    secretnext = "MAP19"
     music = "XGETYOU"
     next = "MAP05"
     par = 210
@@ -92,6 +93,7 @@ map MAP11 "Castle 1"
 map MAP12 "Castle 2"
 {
     levelnum = 12
+    secretnext = "MAP20"
     music = "GETTHEM"
     next = "MAP13"
     par = 270
@@ -141,7 +143,7 @@ map MAP18 "Death Knight"
 {
     levelnum = 18
     music = "ULTIMATE"
-    next = "MAP19"
+    next = "MAP21"
     par = 0
 }
 
@@ -149,7 +151,7 @@ map MAP19 "Secret 1"
 {
     levelnum = 19
     music = "XJAZNAZI"
-    next = "MAP20"
+    next = "MAP05"
     par = 0
 }
 
@@ -157,7 +159,7 @@ map MAP20 "Secret 2"
 {
     levelnum = 20
     music = "XFUNKIE"
-    next = "MAP21"
+    next = "MAP13"
     par = 0
 }
 
