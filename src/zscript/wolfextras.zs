@@ -80,6 +80,8 @@ class WolfModernMenu : WolfWidgetMenu
         // mechanism; chasecam.zs reacts on the next tick.
         AddBindRow("  3rd-Person Key", "toggle wolf_mod_tp");
         AddToggleV("Floor + Ceiling Textures", "wolf_mod_flats", 1, 0);
+        AddToggleV("HD Textures (next launch)", "wolf_mod_hdtex", 1, 0);
+        AddToggleV("HD Sounds (next launch)", "wolf_mod_hdsfx", 1, 0);
         AddCommand("Crosshair Setup");
         AddCommand("Lighting Setup");
         winH = 13 * labels.Size() + 6;

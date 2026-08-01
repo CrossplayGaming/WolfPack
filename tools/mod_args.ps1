@@ -16,4 +16,15 @@ $out = @()
 foreach ($pair in @(@("jump", "sv_jump"), @("crouch", "sv_crouch"), @("freelook", "sv_freelook"))) {
     $out += "+set"; $out += $pair[1]; $out += $(if ($vals[$pair[0]]) { "2" } else { "1" })
 }
+# HD pack files: converted locally by tools/convert_hdpack.py from the
+# user's own RMST download; toggles apply at launch because the engine
+# cannot load wads mid-session.
+$root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+foreach ($pack in @(@("hdtex", "dist\hdtex.pk3"), @("hdsfx", "dist\hdsfx.pk3"))) {
+    $m = Select-String -Path $Ini -Pattern ("^wolf_mod_" + $pack[0] + "=(.+)$") -ErrorAction SilentlyContinue | Select-Object -First 1
+    $on = $m -and $m.Matches[0].Groups[1].Value.Trim() -notin @("0", "false")
+    if ($on -and (Test-Path (Join-Path $root $pack[1]))) {
+        $out += "-file"; $out += (Join-Path $root $pack[1])
+    }
+}
 $out -join " "
