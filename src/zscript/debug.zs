@@ -23,6 +23,13 @@ class WolfDebugHandler : EventHandler
                 TexMan.GetName(sc.GetTexture(Sector.floor)),
                 TexMan.GetName(sc.GetTexture(Sector.ceiling)));
         }
+        if (e.Name == "wolf_dbg_cvarcheck" && e.Player >= 0)
+        {
+            CVar c = CVar.GetCVar("wolf_mod_hdtex",
+                players[e.Player]);
+            Console.Printf("CVARCHECK wolf_mod_hdtex=%d",
+                c == null ? -99 : c.GetInt());
+        }
         if (e.Name == "wolf_dbg_fixture")
         {
             ThinkerIterator it = ThinkerIterator.Create("WolfStatic14");

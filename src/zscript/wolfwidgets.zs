@@ -17,6 +17,19 @@ class WolfWidgetMenu : WolfMenu
     String title;
     int winX, winY, winW, winH;
 
+    // Pages taller than MAXROWS rows scroll: the window box shrinks to
+    // the visible slice and the cursor drags the view along. 9 rows
+    // keeps the frame inside the 200-unit screen with the title above
+    // and breathing room below (Modernization hit 12 rows - user
+    // screenshot showed it overflowing the frame).
+    const MAXROWS = 9;
+    int scroll;
+
+    int VisRows() { return min(labels.Size(), MAXROWS); }
+    // effective box height: winH minus the hidden rows, so pages that
+    // pad winH for extras (crosshair preview) keep their padding
+    int EffH() { return winH - 13 * (labels.Size() - VisRows()); }
+
     override void Init(Menu parent, ListMenuDescriptor desc)
     {
         Super.Init(parent, desc);
@@ -75,7 +88,13 @@ class WolfWidgetMenu : WolfMenu
     {
         if (wCVar[i] == "")
             return null;
-        return CVar.GetCVar(wCVar[i], players[consoleplayer]);
+        // FindCVar, NOT GetCVar(player): GetCVar returns the per-player
+        // userinfo VIEW of a user cvar - writes to it apply in-session
+        // but are never archived, so every toggle silently reset on
+        // relaunch (autotoggle probe: in-session 1, ini 0). The base
+        // cvar is the archived one, and writing it propagates to the
+        // userinfo copy exactly like a console `set` does.
+        return CVar.FindCVar(wCVar[i]);
     }
 
     int ChoiceCount(int i)
@@ -102,12 +121,28 @@ class WolfWidgetMenu : WolfMenu
         if (title != "")
             WolfDraw.Text(big, 160 - big.StringWidth(title) / 2, 4, title,
                           WolfPal.Get(C_READH));
-        DrawWindowBox(winX, winY - 3, winW, winH);
+
+        // keep the selection inside the visible slice (works no matter
+        // how sel moved: keys, wrap-around, or mouse hover)
+        int n = labels.Size();
+        if (n > MAXROWS)
+        {
+            if (sel < scroll)
+                scroll = sel;
+            if (sel >= scroll + MAXROWS)
+                scroll = sel - MAXROWS + 1;
+            scroll = clamp(scroll, 0, n - MAXROWS);
+        }
+        else
+            scroll = 0;
+
+        DrawWindowBox(winX, winY - 3, winW, EffH());
 
         hitX = winX + 8; hitY = winY; hitPitch = 13;
-        for (int i = 0; i < labels.Size(); i++)
+        for (int r = 0; r < VisRows(); r++)
         {
-            int y = winY + i * 13;
+            int i = r + scroll;
+            int y = winY + r * 13;
             int pal = itemStates[i] == IT_DISABLED ? C_READH
                     : (i == sel ? C_HILITE : C_TEXT);
             int tx = winX + 8;
@@ -167,7 +202,27 @@ class WolfWidgetMenu : WolfMenu
                               WolfPal.Get(C_READH));
             }
         }
-        DrawGun(winX - 24 + 2, winY, 13);
+        // cursor base shifted up by the hidden rows so it tracks the
+        // on-screen position of sel
+        DrawGun(winX - 24 + 2, winY - scroll * 13, 13);
+
+        // scroll arrows float in the gutter outside the frame's right
+        // edge (mirroring the gun cursor's gutter on the left), so they
+        // never collide with the right-aligned key/value column
+        if (scroll > 0)
+            DrawScrollArrow(winX + winW + 9, winY + 1, false);
+        if (scroll + MAXROWS < n)
+            DrawScrollArrow(winX + winW + 9, winY + EffH() - 12, true);
+    }
+
+    // small triangle built from bars, same gold as the value text
+    void DrawScrollArrow(int cx, int y, bool down)
+    {
+        for (int r = 0; r < 3; r++)
+        {
+            int w = down ? 10 - r * 4 : 2 + r * 4;
+            WolfDraw.Bar(cx - w / 2, y + r * 2, w, 2, C_READH);
+        }
     }
 
     // ---- input -----------------------------------------------------------
@@ -235,8 +290,12 @@ class WolfWidgetMenu : WolfMenu
             return false;
         double ux = (x - WolfDraw.OrgX()) / WolfDraw.ScaleX();
         double uy = y / WolfDraw.ScaleY();
-        int idx = int((uy - hitY + 2) / hitPitch);
-        bool onRow = idx >= 0 && idx < labels.Size()
+        // screen row -> list row through the scroll offset; rows below
+        // the visible slice are frame, not items
+        int row = int((uy - hitY + 2) / hitPitch);
+        int idx = row + scroll;
+        bool onRow = row >= 0 && row < VisRows()
+                     && idx < labels.Size()
                      && uy >= hitY - 2
                      && itemStates[idx] != IT_DISABLED;
 

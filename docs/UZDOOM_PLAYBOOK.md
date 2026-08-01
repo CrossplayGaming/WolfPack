@@ -472,3 +472,36 @@ Reference implementation: F:\CrystalCavesFPS tools/build_base.py
   clicks read off `players[0].cmd.buttons` edges. Boot-verified; the
   physical click path itself still awaits a human hand -- input
   injection does not exist, so no harness can press fire.
+- **Menu writes to user cvars via `CVar.GetCVar(name, player)` apply
+  for the session but NEVER ARCHIVE.** That call returns the
+  per-player userinfo VIEW; SetInt on it updates the live value (and
+  replicates) but the base cvar - the one the ini dumper reads on
+  clean exit - keeps its old value. So every menu-set option silently
+  reset on relaunch while console `set` (which writes the base)
+  persisted fine. Menus must write through `CVar.FindCVar(name)`; the
+  base write propagates to the userinfo copy exactly like a console
+  set. Reads-after-write must also use the base: the view lags a sync
+  tick behind. Proven by an in-engine probe (below): in-session 1,
+  archived 0 before the fix; 1/1 after.
+- **SendKeys-style window automation does not reach this engine's
+  menus at all.** OS-level screen captures showed every scripted
+  keystroke landing in gameplay - months of "menu navigation" probes
+  were keys raining into the sim, returning plausible-looking but
+  meaningless results. Drive menu-path tests from INSIDE instead: a
+  dev cvar (`+set wolf_dbg_autotoggle 1`) makes the menu press its own
+  row via the exact Adjust path a real keypress takes, then Close();
+  `openmenu X` from an exec cfg opens it without any keystroke. Two
+  gotchas: console `wait` counts game tics, which freeze while a menu
+  pauses SP - the probe menu must close itself or the cfg's quit never
+  fires (and a forced kill skips the ini archive, ruining persistence
+  tests). And OS captures need `SetProcessDPIAware()` or a 125%-DPI
+  desktop crops the grab.
+- **Widget-menu scrolling (wolfwidgets.zs): clamp the scroll offset in
+  Drawer, not in input handlers.** Drawer-time clamping tracks sel no
+  matter how it moved (keys, wrap-around, mouse hover). Draw the
+  visible slice (`i = r + scroll`), shift the cursor base by
+  `-scroll * 13`, translate mouse hits by `+scroll`, and derive the
+  frame height as `winH - 13 * hiddenRows` so pages that pad winH for
+  extras (crosshair preview) keep their padding. Scroll arrows live in
+  the gutter OUTSIDE the frame edge - inside collides with the
+  right-aligned key/value column.

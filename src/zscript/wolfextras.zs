@@ -96,6 +96,39 @@ class WolfModernMenu : WolfWidgetMenu
             Menu.SetMenu("WolfLightMenu");
     }
 
+    // Dev probe: launching with `+set wolf_dbg_autotoggle 1` makes this
+    // menu press its own HD Textures row once (the exact Adjust path a
+    // real keypress takes) and close. Exists because window-automation
+    // keystrokes proved unable to reach the engine's menus at all -
+    // screenshots showed them landing in gameplay - so persistence
+    // bugs get tested from inside instead.
+    bool dbgFired;
+    override void Ticker()
+    {
+        Super.Ticker();
+        CVar dbg = CVar.FindCVar("wolf_dbg_autotoggle");
+        if (dbg && dbg.GetInt() == 1 && !dbgFired)
+        {
+            dbgFired = true;
+            for (int i = 0; i < wCVar.Size(); i++)
+                if (wCVar[i] == "wolf_mod_hdtex")
+                {
+                    Adjust(i, 1);
+                    Console.Printf("AUTOTOGGLE pressed row %d (%s)",
+                                   i, labels[i]);
+                    break;
+                }
+            Close();
+        }
+        // mode 2: park the cursor on the last row and stay open, so a
+        // screenshot can verify the scrolled-to-bottom state
+        if (dbg && dbg.GetInt() == 2 && !dbgFired)
+        {
+            dbgFired = true;
+            sel = labels.Size() - 1;
+        }
+    }
+
     override void Drawer()
     {
         // bind rows grey out while their feature is off
@@ -147,7 +180,7 @@ class WolfPlayerSetupMenu : WolfWidgetMenu
 
     static void SyncEngineColor(int v)
     {
-        CVar c = CVar.GetCVar("color", players[consoleplayer]);
+        CVar c = CVar.FindCVar("color");   // base cvar: view writes don't archive
         if (c != null)
             // static methods need the class-qualified name for
             // static const arrays
@@ -361,9 +394,10 @@ class WolfCrosshairMenu : WolfWidgetMenu
         winH = 13 * labels.Size() + 6 + 30;      // room for the preview
         sel = 0;
         // adopt whatever color is archived so the row shows the truth
+        // (FindCVar everywhere here: the userinfo view of a user cvar
+        // never archives writes and lags reads by a sync tick)
         CVar cc = CVar.FindCVar("crosshaircolor");
-        CVar idx = CVar.GetCVar("wolf_xhair_color",
-                                players[consoleplayer]);
+        CVar idx = CVar.FindCVar("wolf_xhair_color");
         if (cc != null && idx != null)
         {
             String cur = cc.GetString();
@@ -378,8 +412,7 @@ class WolfCrosshairMenu : WolfWidgetMenu
         Super.Adjust(i, dir);
         if (wCVar[i] == "wolf_xhair_color")
         {
-            CVar idx = CVar.GetCVar("wolf_xhair_color",
-                                    players[consoleplayer]);
+            CVar idx = CVar.FindCVar("wolf_xhair_color");
             CVar cc = CVar.FindCVar("crosshaircolor");
             if (idx != null && cc != null)
                 cc.SetString(colorVals[
@@ -403,8 +436,7 @@ class WolfCrosshairMenu : WolfWidgetMenu
             return;
         CVar sc = CVar.FindCVar("crosshairscale");
         double k = sc == null ? 1.0 : clamp(sc.GetFloat(), 0.25, 2.0);
-        CVar idx = CVar.GetCVar("wolf_xhair_color",
-                                players[consoleplayer]);
+        CVar idx = CVar.FindCVar("wolf_xhair_color");
         int ci = idx == null ? 0 : clamp(idx.GetInt(), 0,
                                          colorVals.Size() - 1);
         Color col = WolfCrosshairMenu.PresetColor(ci);
