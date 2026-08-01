@@ -373,3 +373,102 @@ Reference implementation: F:\CrystalCavesFPS tools/build_base.py
   - inside door slabs or stacked on a prior summon if aimed poorly.
   Two isolation tests were invalidated this way. Face open floor, one
   summon per run.
+
+## Solid 3D floors, driven and verified from outside (GameBuilder, 2026-08-01)
+
+- **Sector_Set3dFloor (160) type 1 solid, measured on 4.14.3: the
+  control sector's FLOOR height is the slab's bottom and its CEILING
+  height is the slab's top.** (Modder lore says "inverted sector" often
+  enough to doubt it; the engine's own numbers settle it - see the probe
+  below.) Args on the control line: arg0 tag, arg1 1, arg2 0, arg3 255.
+  Sides render from the control line's sidedef texture; the control
+  sector's flats paint the walking surface and underside - set both to
+  the slab texture and either mapping looks right.
+- Control-sector machine room: a strip strictly OUTSIDE the playable
+  bounds (one-quantum gap, boxes spaced a quantum apart) keeps the
+  coincident-linedef defect class impossible. UDMF `id = N` on the
+  target sector, no tag on the control sector itself.
+- **Geometry is verifiable from inside with no capture:**
+  `Level.PointInSector(pt)`, `sector.Get3DFloorCount()`,
+  `sector.Get3DFloor(i).bottom/.top.ZatPoint(pt)` (mapdata.zs), printed
+  as log markers. A harness asserts slab heights the engine itself
+  measured - this convicted/acquitted the height mapping above in one
+  run.
+- **VM-abort log signatures differ by hook.** An abort in `WorldTick`
+  logs `VM execution aborted: ...` to +logfile and the engine keeps
+  running (the fatal-pattern match catches it). The SAME abort in
+  `WorldLoaded` (map setup) never gets its headline into the logfile -
+  only the `Called from ...` stack line lands - and the engine dies or
+  hangs on its error dialog. Log-polling harnesses need all three
+  detection routes: fatal-pattern match, process-exit, marker timeout.
+- **Windows locks the loaded package: `os.replace` onto the ipk3 a
+  running engine holds raises PermissionError.** Live-reload by
+  swapping the file under the engine is impossible on top of all the
+  console-injection dead ends (changemap dead in SP, no external
+  command channel). Blink-reload is therefore relaunch-with-position:
+  versioned packages (preview-NNNN.ipk3), position captured from
+  periodic handler markers, passed back via `+set gb_spawn_*`
+  (noarchive cvars), restored first WorldTick with `SetOrigin(dest,
+  false)` + angle/pitch. Measured: restore is EXACT (delta 0.0 units /
+  0.0 deg); full blink terminate->standing-again ~2.6 s windowed.
+- Base-IWAD runs (same maps as -file over freedoom2/DOOM2) load the
+  same 3D-floor geometry with identical measured heights, zero script
+  errors - and the engine QUIETLY ADDS CONTENT: next to a Steam-owned
+  DOOM2.WAD it auto-loaded the rerelease's id24res.wad from the Steam
+  library; freedoom2 auto-applies its embedded DEHACKED. A preview
+  harness (or launcher) over user IWADs must expect extra lumps it
+  never asked for, and IWAD runs get the per-IWAD config, NOT the
+  shell's own Config namespace - per-session -config plus forced +set
+  is the only poisoning defence there.
+- **An unfocused engine window auto-pauses the sim: WorldTick stops,
+  so handler markers FREEZE while WorldLoaded still prints.** Symptom
+  (2026-08-01): an engine launched while another window held focus
+  logged map_loaded but never one GB_POS - reads exactly like a broken
+  marker/parse path, and it is intermittent because it depends on which
+  window Windows gives foreground to at spawn. Bites twice in an
+  editor-preview shape: harness engines spawned back-to-back, and the
+  REAL use case where the user clicks the app/console window to type
+  (preview backgrounds -> world freezes -> position stream goes
+  stale). Force `+set i_pauseinbackground 0` on every launch; a
+  preview loop requires a live sim by design. (The MP-headless note
+  above touched this cvar; this is the single-player, foreground-rules
+  form with the marker-freeze symptom.)
+
+## The connection layer: in-engine aim, ghost, clicks (GameBuilder, 2026-08-01)
+
+- **`Console.PrintfEx(PRINT_LOG, ...)` reaches the `+logfile` file
+  WITHOUT touching the on-screen notify area.** Machine markers at a
+  sub-second cadence were silently spamming the player's screen through
+  plain Printf; PRINT_LOG keeps the log-polling channel fully intact
+  (every harness marker still parses from the file) and the screen
+  clean. Player-facing feedback goes through `Console.MidPrint`.
+- **A play-scope helper called from a ui hook (RenderOverlay) dies at
+  load with "Can't call play function X from ui context."** Declare
+  shared helpers (cvar readers etc.) `clearscope static`.
+- **Asset-free hologram: `Level.SpawnParticle(FSpawnParticleParams)`
+  with absolute positions, no texture, STYLE_Add, SPF_FULLBRIGHT,
+  lifetime 2, respawned every WorldTick** draws a crisp wireframe box
+  (12 edges, a point every 8 units) with zero art and zero
+  interaction. Updates at tic rate: the ghost trails the view by at
+  most one tic (~29 ms); lifetime 2 leaves up to one tic of trail
+  during fast swings.
+- **Aim traces against live level geometry from ZScript with a
+  fixed-step march** (`Level.IsPointInLevel` + `PointInSector` +
+  plane `ZatPoint` + `Get3DFloor`), no AimLineAttack needed -- and the
+  semantics matter: IsPointInLevel is FALSE below a sector's floor and
+  above its ceiling, so a ray into a riser face stops at the riser's
+  base (the Minecraft side-face answer). Two measured traps: (1) a
+  sample landing EXACTLY on a boundary line counts as inside the open
+  sector for the engine while `floor(x/q)` cell math assigns it to the
+  far (wall) cell -- nudge the deciding sample half a unit back along
+  the ray before deriving the cell; (2) when a Python mirror of the
+  rule must agree with the ZScript (parity harness), compare SAME-TICK
+  marker pairs (pos + aim printed back to back): pairing makes the
+  check immune to a live human moving the mouse in the test window --
+  which happened repeatedly on this in-use desktop and once exposed a
+  real divergence a fixed pose would have missed.
+- A DoomPlayer subclass declaring its own `Player.StartItem` list
+  boots clean as a WEAPONLESS player, freeing fire/alt-fire for editor
+  clicks read off `players[0].cmd.buttons` edges. Boot-verified; the
+  physical click path itself still awaits a human hand -- input
+  injection does not exist, so no harness can press fire.
