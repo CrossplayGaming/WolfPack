@@ -224,6 +224,15 @@ class WolfWidgetMenu : WolfMenu
 
     override bool MouseEvent(int type, int x, int y)
     {
+        // A mouse event can arrive BEFORE the first Drawer has set
+        // hitPitch (one-frame window on menu open): division by zero,
+        // VM abort, session torn down. This was Eric's months... er,
+        // days-long "settings menu restarts my game" glitch - keyboard
+        // hunts never caught it because only the MOUSE path divides.
+        // The base class guard (wolfmenu.zs:195) existed all along;
+        // this override just never inherited the lesson.
+        if (hitPitch <= 0 || labels.Size() == 0)
+            return false;
         double ux = (x - WolfDraw.OrgX()) / WolfDraw.ScaleX();
         double uy = y / WolfDraw.ScaleY();
         int idx = int((uy - hitY + 2) / hitPitch);
