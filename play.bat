@@ -39,8 +39,10 @@ if exist dist\lastlog.txt copy /y dist\lastlog.txt dist\prevlog.txt >nul
 REM game select: "play.bat spear" runs Spear of Destiny when it
 REM was built (the compiler only produces it if you own SOD data)
 set "WPIWAD=wolf.ipk3"
+set "WPGAME=wl6"
 if /I "%~1"=="spear" (
     set "WPIWAD=spear.ipk3"
+    set "WPGAME=sod"
     shift
 )
 REM No screen wipe (Wolf has none between levels), and mouse is
@@ -50,7 +52,7 @@ REM because an archived config value overrides the DEFCVARS default.
 REM The wolf_dbg_ switches are forced off the same way: even declared
 REM nosave, a stale archived value still LOADS if the ini has the line,
 REM so one boss.bat session could leak the full arsenal into normal play.
-for /f "usebackq delims=" %%m in (`powershell -ExecutionPolicy Bypass -File tools\mod_args.ps1`) do set "MODARGS=%%m"
+for /f "usebackq delims=" %%m in (`powershell -ExecutionPolicy Bypass -File tools\mod_args.ps1 -Game %WPGAME%`) do set "MODARGS=%%m"
 "engine\uzdoom.exe" -iwad "dist\%WPIWAD%" -config "dist\playtest.ini" +logfile "dist\lastlog.txt" %MODARGS% +set m_forward 0 +set wipetype 0 +set wolf_dbg_arm 0 +set wolf_dbg_doortest 0 +set wolf_dbg_alert 0 +set wolf_dbg_forcefire 0 +set wolf_dbg_victory 0 +set wolf_dbg_boss 0 %*
 
 powershell -ExecutionPolicy Bypass -File tools\mp_dispatch.ps1

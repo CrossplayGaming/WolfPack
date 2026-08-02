@@ -3,7 +3,7 @@
 # tri-states never archive and cvar writes are menu/launch-only, so
 # every launcher translates the truth cvars into engine gates here.
 # 1 = force-deny (classic), 2 = force-allow (modern).
-param([string]$Ini = "")
+param([string]$Ini = "", [string]$Game = "wl6")
 if (-not $Ini) { $Ini = Join-Path (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)) "dist\playtest.ini" }
 $vals = @{ jump = 0; crouch = 0; freelook = 0 }
 if (Test-Path $Ini) {
@@ -18,9 +18,12 @@ foreach ($pair in @(@("jump", "sv_jump"), @("crouch", "sv_crouch"), @("freelook"
 }
 # HD pack files: converted locally by tools/convert_hdpack.py from the
 # user's own RMST download; toggles apply at launch because the engine
-# cannot load wads mid-session.
+# cannot load wads mid-session. The texture pack is per game - both
+# games number their walls and sprites from zero, so Spear's pack would
+# paint cobblestone over Wolf3D's doors.
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-foreach ($pack in @(@("hdtex", "dist\hdtex.pk3"), @("hdsfx", "dist\hdsfx.pk3"))) {
+$tex = if ($Game -eq "sod") { "dist\hdtex_sod.pk3" } else { "dist\hdtex.pk3" }
+foreach ($pack in @(@("hdtex", $tex), @("hdsfx", "dist\hdsfx.pk3"))) {
     $m = Select-String -Path $Ini -Pattern ("^wolf_mod_" + $pack[0] + "=(.+)$") -ErrorAction SilentlyContinue | Select-Object -First 1
     $on = $m -and $m.Matches[0].Groups[1].Value.Trim() -notin @("0", "false")
     if ($on -and (Test-Path (Join-Path $root $pack[1]))) {

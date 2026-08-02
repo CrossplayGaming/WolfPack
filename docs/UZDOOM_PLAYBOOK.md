@@ -745,3 +745,107 @@ Two probe facts from the same run, both cheap and both worth keeping:
   NOT hold back the lines below it (quit raced ahead of the shot -
   use one semicolon chain on one line); and an explicitly named shot
   ignores `screenshot_dir` and lands in the working directory.
+
+## Where the engine window is born (GameBuilder WIN-00, 2026-08-01, 4.14.3)
+
+Every blink-reload is a new PROCESS, so it is a new WINDOW - the user
+re-drags and re-sizes it every few seconds unless the launcher decides
+where it opens. Four boots, each reading the real rect back with
+`GetWindowRect` (tools/window_probe.py; `logs/win00-window-probe-*.txt`),
+settled which channels place it. Measured on a 1920x1080 work area:
+
+- **`-width` / `-height` DO NOT SIZE THE WINDOW.** They set
+  `vid_defwidth` / `vid_defheight`. With `-width 960 -height 600` and
+  nothing else the window is born **1536x864 at 192,108** - 80% of the
+  desktop, centred, i.e. the engine's own default. Any launcher that
+  believes `-width` controls the window is measuring nothing.
+- **`+set win_x / win_y / win_w / win_h / win_maximized` WORKS, and the
+  window is BORN there** - the first rect `GetWindowRect` ever returns
+  is the requested one, and it is the only rect the window ever has (no
+  visible jump/snap). These are archived GLOBAL cvars (they live in
+  `[GlobalSettings]`, not the game's own section) that video init reads.
+  **This does NOT contradict the launch-line `+bind` lesson - it bounds
+  it.** `+bind` loses because binding init runs AFTER the `+command`
+  batch and overwrites it; video init runs after `+set` and READS it.
+  "+commands run early" still does not mean "+commands win": which
+  wins is per-subsystem and has to be measured one subsystem at a time.
+  `win_x/win_y` are the WINDOW rect (outer, including frame), not the
+  client area: ask for 880x560 and `GetWindowRect` returns 880x560.
+- **A seeded config works too, and a partial `[GlobalSettings]` is
+  SAFE** - unlike `[<Config>.Bindings]`. Writing a config containing
+  nothing but `[GlobalSettings]` + the four `win_*` keys boots clean,
+  loads the map, and the editor-binds gate stays green (plain cvars
+  absent from the file keep their compiled-in defaults; only the
+  bindings reader treats "section present" as "defaults suppressed").
+  Useful when a config must carry the placement, but `+set` is the
+  simpler channel and needs no file.
+- **`SetWindowPos` with `SWP_NOACTIVATE | SWP_NOZORDER` is the
+  complement, and measurably does not move the foreground** - the
+  window jumps, focus does not. Use it only for what the creation
+  channel cannot cover (an engine-clamped rect, a remembered rect from
+  a monitor layout that no longer exists); a window placed at creation
+  never shows the snap.
+- Reads and writes both need `SetProcessDpiAwareness` first (Eric's
+  desktop is 125%) - the same lesson as the screenshot protocol, other
+  direction: an unaware process is fed virtualized coordinates and
+  lands the window wrong as well as measuring it wrong.
+
+**Focus across a blink, measured (`logs/harn10-focus-*.txt`):** with
+the engine window genuinely in the foreground, the window that comes
+back after the relaunch HOLDS the foreground - 4 of 4 measurable
+rounds. So the user keeps building without re-clicking, and that is
+inherent to the relaunch, not something the launcher does. Two
+measurement traps worth keeping: (1) `SetForegroundWindow` from a
+BACKGROUND process is a no-op, so a harness that just calls it and
+proceeds is measuring a state it never established - borrow the
+foreground thread's input queue (`AttachThreadInput`) and then VERIFY
+the window is actually in front, or honestly skip the round; (2) on a
+live desktop the user's own window steals the foreground mid-run (it
+did, once in three rounds) - report those rounds as unmeasured rather
+than as failures.
+
+Cost of all of the above on the blink: **none measurable.** Interleaved
+arms, four blinks each, same level and engine: 2.602 s mean before,
+2.598 s after (`logs/harn10-timing-*.txt`). The capture is one
+`EnumWindows` on a window that already exists, and the placement rides
+on the launch line that was being built anyway.
+- **Joining two engines' asset sets: use each side's OWN authored
+  tables, never filename arithmetic.** ECWolf names enemy sprites by
+  ROLE with letters its authors chose (GARD A stand, B-E walk, F-H
+  attack, I-J pain, K-N death); we name them by role too but split
+  across four sprite names (GRDS/GRDW/GRDA/GRDP/GRDD). Neither side
+  follows VSWAP order, so nothing relates the letters. Both DO publish
+  their role tables - theirs in DECORATE state blocks, ours in the
+  generated tables from WL_ACT2.C - so the join is state label to
+  state label (Spawn/Path/Missile/Pain/Death), taking each side's
+  DISTINCT poses in order of first appearance because both replay
+  poses within a state (our SS has nine SHOOT rows drawn from three
+  sprites). Same for sounds: match the actor, not the filename - our
+  Gretel's sight sound is whatever THEIR Gretel's seesound resolves to.
+- **Two games that both number from zero need two addon packs.**
+  Wolf3D tile 50 is a door at WALL098; Spear overrides tile 50 with
+  cobblestone, which is also WALL098 in its own build. One shared pack
+  would paint Spear's cobblestone onto Wolf3D's doors. Split the pack
+  per game and have the launcher pass which game it is starting.
+- **Sprite rot 0 and rots 1-8 cannot coexist for one frame.** When the
+  HD pack has a single unrotated image and our sprite is rotated
+  (a pain pose the original drew once), write that one image to all
+  eight of ours. In the reverse case take their ROTATION 1 only -
+  writing each of their rotations onto our single rot-0 lump leaves
+  whichever came last, which pointed the rocket away from the player.
+- **Audio cannot be verified the way art can, and must not be matched
+  by signal at all.** A remaster REPLACES recordings rather than
+  cleaning them up - a two-second MP40 burst stands in for a
+  half-second sample - so duration and loudness envelope prove nothing;
+  using them as a gate rejected two thirds of a correct map, and using
+  them to DISCOVER pairings confidently matched the machine gun to
+  BJ's grunt. Derive sound maps from role, and say plainly that they
+  rest on that alone.
+- **Image checks should be two-tier once the joins are authored.** A
+  systematic slip (the off-by-one class) lands the argmin on a
+  near-exact match; a repaint that merely drifted lands it in the same
+  neighbourhood as the intended lump. Withhold at the first, warn and
+  ship at the second - a single strict threshold threw away correct
+  art (a remastered pot really does look like a different pot). Also
+  treat known-equivalent groups as agreement: a wall's light/dark
+  sibling face, a weapon's five view frames, an enemy's poses.
