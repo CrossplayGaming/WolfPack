@@ -1190,3 +1190,41 @@ helper `clearscope static`.
 `<img>` does NOT decode in a pywebview/WebView2 frontend loaded from
 `file://` — 14 of 14 images rendered and 0 of 14 loaded, measured. Local
 pictures have to travel to such a page as `data:` URIs.
+
+## Driving the SKILL from outside, and what that exposes (GameBuilder JDG-16, measured 2026-08-02, 4.14.3)
+
+Follow-on to the skill-filtering section above; four facts, all measured
+on the same three-boot run.
+
+**`+set skill N` before `+map` works, and N is ZERO-BASED over the base
+game's own skill list.** Over DOOM II that makes 3 = Ultra-Violence
+(UDMF `skill4`) and 4 = Nightmare (`skill5`). This is the one channel
+needed to test difficulty filtering from a harness — no menu, no
+`-skill` argv slot, no config surgery. Same launch-order reasoning as
+the window cvars: the `+set` batch runs before the map is started.
+
+**Which skills EXIST is the base game's MAPINFO, not the engine's.** A
+standalone shell that says `clearskills` and defines one skill at
+`SpawnFilter = 1` has no Ultra-Violence at all, so a thing flagged
+`skill1..skill3` looks fine there forever. The same package over a real
+IWAD gets that IWAD's five skills and the same thing disappears. Worth
+holding onto as a general shape: **a standalone's reduced furniture can
+hide a defect that only the real base game can show**, so any check
+about difficulty, episodes or player classes has to run over the IWAD
+the user will actually use.
+
+**Player starts are NOT skill-filtered by default.** Their `skill*`
+flags are ignored unless the map opts in (`filterstarts`), so a
+generator emitting `skill1..skill3` for everything makes monsters, items
+and decor vanish on UV/NM but still lets the player enter the level.
+Measured by restoring the broken emission deliberately: the flagless
+monster was gone at Ultra-Violence, the player spawned normally.
+
+**An actor's class name can be spelled differently by the engine's
+source and by the running engine.** `GetClassName()` returned
+`Zombieman` where `zscript/actors/doom/possessed.zs` declares
+`ZombieMan`. ZScript identifiers are case-insensitive, so both are
+"right" and neither is wrong — but any harness comparing a name
+harvested from the source against a name printed by the running game
+must compare case-INSENSITIVELY, or it will report a thing as missing
+while its own log lists it standing in the correct place.
