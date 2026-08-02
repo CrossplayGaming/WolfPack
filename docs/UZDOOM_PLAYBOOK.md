@@ -1059,3 +1059,134 @@ floorZ+1)`): solid neighbour = a wall face, otherwise read
 ceiling-vs-floor. A Python mirror that tests openness in 2D never takes
 the wall branch at all, so the two implementations silently disagree
 there until a parity pose actually looks up.
+## The exit's NUMBER, and the field next to it that nobody writes (GameBuilder THINGS-04 follow-up, measured 2026-08-02, 4.14.3)
+
+The section above ("The level exit is a LINE special, not a thing")
+closed with one fact left honestly unmeasured: the numeric UDMF
+`special` that fires `Exit_Normal`. Measured now, seven engine boots,
+`F:/GameBuilder/tools/exit_probe.py`
+(`logs/exit-probe-20260802-074228.txt`, one `logs/harn03-exit-*.log`
+per boot, zero script errors throughout).
+
+**Exit_Normal = 243, Exit_Secret = 244**, `arg0 = 0`, as the UDMF
+`special` field in the `zdoom` namespace.
+
+- **The engine can be asked for a line special's number directly.** The
+  ZScript compiler resolves a line-special NAME to its C++ number - that
+  is how `zscript/level_compatibility.zs` writes
+  `SetLineSpecial(1970, Exit_Normal, 0)` with no constant defined
+  anywhere in the pk3. So `Console.PrintfEx(PRINT_LOG, "%d",
+  Exit_Normal)` makes the engine print the number itself. This
+  generalizes: **any line special's id is readable from inside a running
+  map by naming it**, which beats a wiki table and beats grepping the
+  package (the numbers are not in the package at all).
+- **The number alone does nothing. Activation is a SECOND, mandatory
+  UDMF field.** A linedef carrying `special = 243; arg0 = 0;` and no
+  activation flag was walked over repeatedly with the level never
+  ending. `playercross = true` reads back from the engine as
+  `line.activation = 1` (`SPAC_Cross`); `playeruse = true` reads back as
+  `2` (`SPAC_Use`) and then REFUSES the walk-over while firing on use.
+  This is the trap for any generator whose only prior experience of
+  `special` is `Sector_Set3dFloor` (160), which needs no activation and
+  therefore never taught the emitter to write one - GameBuilder's
+  compiler emits `special/arg0..arg3` and nothing else, so its first
+  exit line would have been silently inert.
+- **The vanilla numbers are a namespace trap, and they fail QUIETLY.**
+  `xlat/base.txt`'s `11/51/52/124/197/198` are `doom`-namespace line
+  TYPES; the translator does not run for a map that says
+  `namespace = "zdoom"`. Measured: `special = 52` (vanilla WALK
+  Exit_Normal) with `playercross = true` in a zdoom-namespace map is not
+  an exit - no error, no warning, the player just walks through.
+- **Tell the two exits apart by DESTINATION, not by name.** Give the map
+  a `next` and a different `secretnext` in MAPINFO; 243 goes to `next`,
+  244 to `secretnext`. Reading a name back proves nothing; the engine
+  going somewhere different does.
+- Walk-over exits are **not side-restricted by default**: the firing
+  crossing came from the linedef's BACK side of a two-sided line whose
+  `line.flags` read back as `4` (ML_TWOSIDED only, no
+  ML_FIRSTSIDEONLY).
+- Activation timing detail worth knowing when a harness asserts tics:
+  the special fires on the move that would put the player's CENTRE on
+  the line, and the level teardown happens before that tic's
+  `WorldTick` - so the last position sample is one step SHORT of the
+  line (184 with the line at 192, 8 units per tic) and `WorldUnloaded`
+  reports the tic before the crossing sample the control run logs. An
+  exit truncates its own position track; a validity check that demands
+  a sample past the line marks every working exit "unmeasured".
+
+**How to see an exit fire, unattended.** The old note in section 5 ("a
+successful level exit is INVISIBLE in the logfile") is now solved, not
+worked around: `StaticEventHandler.WorldUnloaded(WorldEvent e)` fires at
+the exit and `e.NextMap` carries where the engine is going, and a
+second `WorldLoaded` for a different `Level.MapName` corroborates it.
+Add `nointermission` to the map in an add-on MAPINFO or the stat screen
+waits for a keypress nothing can press. Two log-shaped gotchas cost a
+run each here: the corroborating marker needs ~2-8 s of extra polling
+(killing the engine 1.5 s after the unload loses it every time), and a
+marker regex written `next=(\S+) secretnext=(\S+)` silently drops the
+destination map's own line because ITS `secretnext` is empty - `\S*`.
+
+**Driving a player across a line on a desktop someone is using.** No
+input injection is needed and none should be used: set
+`players[0].mo.vel` to an absolute WORLD-space vector from `WorldTick`.
+A human turning the view cannot steer it (the drive is not
+forward-relative), and the engine's own `TryMove` path - the one a real
+player takes - collects and activates the crossed line specials. The
+run then proves its own validity from the position track: a control
+that reports "no exit" only counts if the same track shows the player
+reaching the line.
+
+Small pipeline lesson from the same session: **`version "4.14"` at the
+top of an `#include`d ZScript file is a parse error** ("Unexpected
+'version'"). The version line belongs in `zscript.txt` only. Symptom is
+the section-7 one - the log stops at `LoadActors` and one
+`Script error` line names the file.
+
+---
+
+## Placed things: skill filtering, ambush, and asking what actually spawned (GameBuilder V5, measured 2026-08-02, 4.14.3)
+
+**UDMF skill flags are honoured at SPAWN, and the compiler that omits
+them makes things vanish on Ultra-Violence.** A `thing { ... }` block
+carries `skill1`..`skill5` booleans; the engine filters as it spawns, so
+the map file can be perfectly correct and the actor still not exist.
+Measured with three monsters in one map, one boot: all-skills present,
+easy-only absent, hard-only absent (the engine ran at Hurt Me Plenty).
+The trap worth naming: a generator that emits only `skill1 = true;
+skill2 = true; skill3 = true;` — which is a natural-looking three-line
+default — puts NOTHING on Ultra-Violence or Nightmare. The Doom
+grouping is easy = skill1+skill2, medium = skill3, hard = skill4+skill5.
+
+**`ambush = true;` in UDMF lands on the actor as `bAMBUSH`**, readable
+from ZScript (`a.bAMBUSH`), so the deaf flag is verifiable from inside
+the running game rather than from the file.
+
+**Ask the engine what spawned, not the map what was written.** A
+`ThinkerIterator.Create("Actor")` sweep printing class, position, angle
+and flags is the honest gate for any placement feature — the file says
+what the compiler wrote, and everything interesting (skill filtering,
+spawn failure, an actor pushed out of a wall) happens after that.
+Two filters keep the output readable and honest: skip `PlayerPawn`, and
+skip `Inventory` whose `owner` is non-null (carried inventory is an
+Actor too and all of it sits at (0,0,0) inside its owner).
+
+**`out` is a ZScript KEYWORD.** `String out = "";` is a load-time parse
+error — "Unexpected 'out'", expecting `';'`. Symptom is the section-7
+one: the log stops at `LoadActors` and the `Script error` lines name the
+file and every line that touches the variable. Same family as the
+`version "4.14"` lesson: cheap to hit, invisible until the engine
+refuses to load.
+
+**The clearscope rule, earned a third time.** `RenderOverlay` is ui
+scope. A private helper that resolves a selection — even one that only
+reads generated `static` data — is play scope unless declared
+`clearscope static`, and calling it from `RenderOverlay` is a LOAD-TIME
+script error ("Can't call play function X from ui context"), followed by
+a cascade of "Unknown identifier" lines for whatever it assigned to.
+The rule is now three-for-three: HUD code touching any helper needs that
+helper `clearscope static`.
+
+**Adjacent, and not an engine fact but it cost a run:** a `file:///…`
+`<img>` does NOT decode in a pywebview/WebView2 frontend loaded from
+`file://` — 14 of 14 images rendered and 0 of 14 loaded, measured. Local
+pictures have to travel to such a page as `data:` URIs.
