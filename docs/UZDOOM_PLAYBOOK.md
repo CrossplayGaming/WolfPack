@@ -1326,3 +1326,149 @@ holding the foreground while the other is probed
   its `--selftest` PLANTS a real delivery for every key it watches and
   fails unless all of them are reported. A self-test that merely
   re-confirms "nothing arrived" proves nothing.
+
+## A frozen level does not age PARTICLES, and that is not the same fact as "particles keep drawing" (GameBuilder FREEZE-02, measured 2026-08-02, 4.14.3)
+
+Direct correction to the FREEZE-01 section above, earned the expensive
+way. That section says *"Particles keep drawing. `Level.SpawnParticle`
+respawned every WorldTick still renders under the freeze."* Both halves
+of that sentence are true and the conclusion drawn from them was wrong.
+
+- **`Level.SetFrozen(true)` stops particles AGEING, while `WorldTick`
+  keeps spawning them.** Anything that draws itself by respawning
+  short-lived particles every tic therefore ACCUMULATES without limit
+  the moment the level is frozen: nothing expires, every tic's drawing
+  is added to the pile. Measured on a particle-wireframe editor ghost
+  (60 points a tic, `lifetime 2`): unusable within a second, exactly the
+  bug the freeze feature shipped with.
+- **The fix is one flag: `SPF_NOTIMEFREEZE` (constants.zs, `1 << 5`).**
+  It makes a particle age whatever the world's clock is doing -- an
+  editor freeze, a TimeFreezer pickup lying in a user's own level, any
+  future time effect. Pair it with `SPF_REPLACE` (`1 << 7`) if the
+  drawing must never be denied a slot: a full pool then costs the OLDEST
+  particle instead of costing this frame's drawing. Measured before and
+  after on the same package, same level, same view sweep: broken frozen
+  vs. healthy frozen vs. healthy unfrozen, with the last two now
+  IDENTICAL (median 502 lit pixels each).
+- **There is no way to delete or count particles from ZScript.** Read
+  the engine's own surface before designing around one:
+  `LevelLocals.SpawnParticle` is a void native (doombase.zs), the flags
+  live in constants.zs, and there is no particle list, no handle, no
+  clear, and no count anywhere in uzdoom.pk3. Ageing is the ONLY expiry
+  there is, which is why the flag -- not "own your visuals properly" --
+  is the answer. `VisualThinker` (visualthinker.zs) is the mechanism
+  that CAN be enumerated and destroyed, and it can render as a particle
+  with no art (`SetParticleType(PT_ROUND)`); it was rejected here only
+  because swapping a measured-good look for an unmeasured one while a
+  user is blocked is the wrong trade, not because it would not work.
+- **Additive particles that stack SATURATE TO WHITE, and that is what a
+  leak looks like before it spreads.** With the view held still, every
+  generation lands on the same pixels: the area does not change at all,
+  the colour does. Measured on one still frame -- healthy 48
+  hologram-cyan + 17 white pixels, leaking 0 cyan + 65 white, the same
+  65 pixels. A colour-keyed detector that knows only the healthy colour
+  reports the smear as "nothing on screen", which is a false clean bill
+  in the exact case that matters.
+- **What still runs under the freeze, measured directly in the same
+  session:** `WorldTick` (so a handler's own tic counter, and everything
+  timed by it, is alive -- 40 `GB_POS` samples in 10 s and a 175-tic
+  self-releasing latch that fired at tic 211), and the console NOTIFY
+  area's message expiry (two self-clicking engine lives differing only
+  in the freeze produced identical text-pixel traces, rising and falling
+  the same way). So the freeze's blast radius is narrower than "time
+  stops": it is the level's thinkers plus particle ageing.
+
+Generalization worth more than the flag: **a feature that changes a
+GLOBAL condition owes a check to everything that lives under that
+condition.** The gate that shipped this bug proved its own claim
+completely -- monsters stop, play-test stays alive, the map file is
+untouched -- and never asked whether the editor still worked inside the
+world it had just stopped. When the change is to shared state, the
+question "what else runs in here?" is part of the gate, not part of the
+review.
+
+**Reading the screen as a harness channel, since the engine will not
+count for you.** Where a claim is about what the PLAYER SEES and the
+engine exposes no count (particles here), an OS-level grab of the
+engine's own client rect is a real measurement channel on this stack:
+`GetClientRect` + `ClientToScreen` after `SetProcessDpiAwareness`, then
+`ImageGrab.grab(bbox=..., all_screens=True)` -- 32 ms a frame, sampled
+three times a second for as long as you like. Three rules earned in one
+sitting: crop the status bar and your own HUD text OUT (cyan HUD text is
+indistinguishable from a cyan hologram), keep an arm in which the thing
+you are counting CANNOT be present (play-test draws no ghost -- it
+measured 0, which is what makes the other arms' numbers mean anything),
+and compare MEDIAN against MEDIAN over time, never a peak against a
+median: perspective alone swings an on-screen area by an order of
+magnitude while nothing is wrong.
+
+## Keyboard CHORDS in an editor, and what `+attack` is really bound to (GameBuilder VERB-07a, measured 2026-08-02, 4.14.3)
+
+Moving an editor's undo onto Ctrl+Z raises an old question, and the
+answer is not what folklore says:
+
+- **On a fresh Config-namespace ini this build binds `+attack` to
+  `Mouse1, Axis6Plus` ONLY.** The classic `Ctrl = +attack` is NOT in
+  the modern defbinds. Read straight out of the engine at boot with
+  `Bindings.GetKeysForCommand("+attack")` + `KeyBindings.NameKeys`,
+  which is worth doing on any build that is about to rely on what a
+  key means: a Ctrl chord does NOT fire by default here, and a guard
+  written against that trap is defence-in-depth, not a bug fix. Say
+  which it is; the difference matters when someone later asks what
+  the guard is for.
+- **`InputProcess` can swallow a MODIFIER whole, and that is the way
+  to make a chord safe without touching the user's config.** It sees
+  raw input before bindings and `return true` genuinely consumes
+  (already in this playbook). Consuming Ctrl outright in editor mode
+  costs nothing (no other editor job) and means the chord can never
+  reach the binding layer whatever the user has bound there. This is
+  strictly better than patching `[<Config>.Bindings]`, which this
+  playbook already warns is easy to get catastrophically wrong.
+- **Modifier state for a chord must live in `ui` scope.**
+  `InputProcess` is a ui hook and cannot read a play-scope field; a
+  `ui bool ctrlHeld;` field declared on the same StaticEventHandler
+  works, and is where the SHIFT flag for `Ctrl+Shift+Z` has to live
+  too. (The play side still needs its own copy if it acts on the
+  modifier -- they are two variables by construction, not one.)
+- **Gate the chord keys on the modifier, not the other way round.**
+  Claiming bare Z/Y in `InputProcess` eats keys a builder may walk
+  with; testing `ours = (scan == Z || scan == Y) && ctrlHeld` first
+  leaves them alone.
+- **A busy/debounce latch will swallow the second half of a probe.**
+  An undo that latches the handler makes the immediately following
+  redo answer "still building the last change" -- correct behaviour,
+  and a measurement that reads as a missing feature. Space chord
+  probes past the latch's own self-release (5 s here) or use a fresh
+  engine life per chord.
+
+## Asking the engine WHICH ACTOR is under the ray, cheaply (GameBuilder VERB-07, measured 2026-08-02, 4.14.3)
+
+For an editor that must delete what the reticle is on, a full
+`LineTrace` against actors is not needed and a per-tic
+`ThinkerIterator` is not wanted:
+
+- **Build the actor index ONCE per engine life** (`ThinkerIterator`
+  over "Actor", skipping `PlayerPawn` and owned `Inventory`, on tick
+  one so map actors have run `PostBeginPlay`). This is only safe when
+  the set cannot change inside a life -- in a blink-reload editor
+  every edit relaunches, so it cannot. Store the grid cell and the
+  radius, nothing else.
+- **When a Python mirror must agree with the ZScript about an actor,
+  compare only what both sides provably share.** The app knows a
+  thing from its description; the engine knows it from the actor it
+  spawned. Cell + radius are the same on both sides by construction;
+  spawn Z is not (a ceiling-hanger's is not derivable from the
+  description without duplicating the compiler). Testing a COLUMN
+  (radius in plan, that cell's floor to its ceiling) instead of a
+  cylinder makes parity exact and, as a bonus, means nobody has to
+  pixel-hunt a 16-unit-tall bonus.
+- **A standalone IPK3 shell spawns none of a base game's actors**, so
+  any parity arm that needs a real spawned thing has to boot the
+  add-on over a real IWAD. Splitting one harness into a shell arm and
+  an add-on arm is cheaper than making the shell define stand-ins.
+- **Particle colour is per-spawn, so one `Edge()` helper can draw two
+  differently-coloured overlays** from one code path (a build ghost in
+  hologram cyan, a delete outline in amber) by switching `color1`
+  behind a flag. Useful side effect for pixel-counting gates: a
+  detector that classifies only cyan-or-blown-white ignores the amber
+  entirely, so a second overlay can be added without re-baselining it.
