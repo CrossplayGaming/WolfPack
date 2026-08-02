@@ -903,3 +903,159 @@ Portfolio relevance: the voxel stack (CCFPS voxelize + WolfDoom KVX
 writer) is the sibling branch of the same import road; GameBuilder's
 blueprint road-marks sprite/voxel import with verdict-card sizing, and
 models slot into that same flow rather than needing a new concept.
+
+## Where the engine keeps its things table (GameBuilder THINGS-01, measured 2026-08-02, 4.14.3)
+
+Every fact a level editor needs about stock Doom things is machine-readable
+inside `uzdoom.pk3`. Read it; do not recall it.
+
+- **Editor numbers**: `mapinfo/doomitems.txt`, a `DoomEdNums { 3001 =
+  DoomImp ... }` block (294 numbers in 4.14.3, including port extensions).
+  This is the engine's own map-number → actor-class table.
+- **Footprints**: `zscript/actors/doom/*.zs`, `Default { Radius; Height; }`,
+  resolved up the inheritance chain. The base `Actor` default is
+  **Radius 20 / Height 16** (`zscript/actors/actor.zs`), which is what every
+  pickup inherits.
+- **Collision is the cylinder**, so radius/height is exactly what an editor's
+  footprint ghost must draw.
+
+**`Skip_Super` is the trap.** A class whose `Default` block contains
+`Skip_Super;` does NOT inherit its parent's properties — everything resets to
+`Actor`'s defaults. Doom's placeable corpses (`DeadZombieMan`, `DeadDoomImp`,
+`DeadDemon`, …) all use it, so a corpse is **20/16**, not the 20/56 of the live
+monster it inherits from. Walking the inheritance chain naively gives every
+corpse a 56-unit-tall footprint that the engine does not agree with. Same for
+flags: `Skip_Super` / `ClearFlags` drop `+SOLID`, which is why the corpses and
+the `Nonsolid*` gore variants are walk-through while their siblings block.
+
+**Sprite lumps must be SCANNED, never constructed.** A frame can live in a
+6-char lump (`TROOA1`) or a mirrored 8-char one (`SPIDA1D1` — one lump serving
+rotations 1 and 4), and different IWADs pack the same frame differently:
+measured 2026-08-02, id's DOOM2.WAD ships `BOS2A1C1` where Freedoom Phase 2
+ships `BOS2A1`. Build an index of the lumps between `S_START`/`S_END` and match
+prefix+frame against it, preferring rotation 1 (front view), then 0
+(rotationless), then the lowest rotation present, for a deterministic pick.
+
+**Doom II's roster really is absent from Doom 1 data**, measured across all four
+IWADs (DOOM.WAD, DOOM2.WAD, freedoom1.wad, freedoom2.wad): CPOS, BOS2, VILE,
+SKEL, FATT, BSPI, PAIN, SSWV, KEEN, BBRN, SGN2, MEGA, TLMP, TLP2, HDB1-6, POB1,
+POB2, BRS1 exist only in the Doom II pair. Freedoom's coverage matches its
+commercial counterpart exactly — 91 things for doom1 content, 114 for doom2 —
+so a per-content availability flag is honest for both. Two quirks worth
+remembering: `PIST` (a pistol pickup sprite) exists in BOTH Freedooms and in
+NEITHER commercial WAD, and `BON3`/`BON4` (the beta score items ZDoom still
+carries editor numbers for) exist in none of the four.
+
+## The level exit is a LINE special, not a thing (GameBuilder THINGS-04, measured 2026-08-02, 4.14.3)
+
+Measured in the engine's own vanilla→ZDoom translation table,
+`xlat/base.txt` (linedef section):
+
+```
+ 11 = USE,   Exit_Normal (0)      51 = USE,   Exit_Secret (0)
+ 52 = WALK,  Exit_Normal (0)     124 = WALK,  Exit_Secret (0)
+197 = SHOOT, Exit_Normal (0)     198 = SHOOT, Exit_Secret (0)
+```
+
+So an exit is a **linedef carrying an action special**, triggered by use
+(switch), walk-over, or gunshot. Nothing in `DoomEdNums` maps to an exit actor,
+and the engine's own repair code reaches for lines, not things
+(`zscript/level_compatibility.zs`: `SetLineSpecial(1970, Exit_Normal, 0)`).
+
+The one thing-shaped level-end in stock Doom is the **Icon of Sin**: killing
+`BossBrain` (editor number 88) runs `A_BrainDie` in its Death state, which ends
+the map. It is a boss script, not a placeable exit — and it only behaves as one
+alongside `BossEye` (89) and `BossTarget` (87) in a purpose-built room.
+
+Not measured here, and worth measuring before it is trusted: the numeric UDMF
+`special` id for `Exit_Normal` (the xlat table names the constant, and the
+constant is defined engine-side in C++, not in the pk3). Emit and boot one map
+to confirm, or drive the exit through a named special in the compiler.
+
+## Repainting a LIVE map, and why a generator still cannot (GameBuilder V4, 2026-08-02, 4.14.3)
+
+Asked because an approved design page promised that painting a texture
+would apply instantly, with none of the ~3 s rebuild every other edit
+costs. Measured with a four-boot probe (`tools/paint_probe.py`;
+`logs/paint-probe-*.txt`), both halves read back from the engine itself:
+
+- **Changing a texture on a running map WORKS.** `Sector.SetTexture(
+  Sector.floor, tex)` and `Side.SetTexture(Side.mid, tex)` both take
+  effect immediately (`TexMan.CheckForTexture` to resolve, then
+  `TexMan.GetName(sec.GetTexture(...))` reads the new value back).
+  Both are `play` scope; no reload, no map restart.
+- **And it is still a LIE for any generator that MERGES cells.** The
+  smallest surface the engine can repaint is one sector and one
+  sidedef — and a compiler that greedily merges equal cells into
+  rectangles and collinear boundaries into runs makes both of those
+  much bigger than the cell the user aimed at. Measured on a 16x8 test
+  level: the aimed cell's sector also covered two other probe cells,
+  and its "wall" was ONE 352-unit linedef spanning **11 cell widths**.
+  Painting live therefore repainted eleven cells of wall and a whole
+  room's floor; compiling the equivalent one-cell description edit
+  repainted one cell and split the run into three. Live and compiled
+  disagreed on 3 of 7 probe surfaces.
+- The control in the same probe is what makes that a measurement
+  rather than a preference: a cell deliberately built ALONE in its own
+  sector behind a one-cell wall run agreed on all 7 surfaces. So the
+  probe can report agreement; it reported disagreement for the merged
+  case because the merged case disagrees.
+- Splitting a sector or a linedef at runtime is not available — a
+  running map cannot grow geometry — so there is no way to narrow the
+  live change to match the compiled one. **Instant paint is available
+  only to a generator that emits one sector and one sidedef per cell,
+  and that trade (no merging) is far more expensive than the blink.**
+- Generalization worth keeping: *"can the engine change X live?" and
+  "will changing X live show what the next build produces?" are two
+  different questions, and only the second one decides whether the
+  feature can be sold as instant.*
+
+## Negative cvar values are silently DROPPED by `+set` on the launch line (GameBuilder, 2026-08-02, 4.14.3)
+
+Found because two aim-parity poses asking for a NEGATIVE view pitch
+came back as pitch 0 while every positive pitch restored exactly.
+Measured directly (`tools/cvar_sign_probe.py`) by setting cvars on the
+launch line and reading them back from inside the loaded map:
+
+    +set gb_spawn_pitch  -40.0  -> engine holds   0.0   LOST
+    +set gb_spawn_angle   40.0  -> engine holds  40.0   OK
+    +set gb_spawn_x      -64.0  -> engine holds   0.0   LOST
+    +set gb_floor_min      -96  -> engine holds -128.0  LOST (default)
+
+- **Cause:** `["+set", name, value]` puts the value in its own argv
+  slot, and a token beginning with `-` is how the engine's command-line
+  parser marks the start of a new PARAMETER. The `+set` command is cut
+  off before its argument and does nothing. Positive values are
+  unaffected, which is exactly why this hides: every launcher that
+  passes only positive cvars looks correct forever.
+- **Fix, same channel, no new mechanism:** emit the whole command as
+  ONE argv token — `"+set gb_spawn_pitch -40.0"`. Inside a console
+  command line the minus is just a number. Proven from both sides on
+  the same cvars minutes apart: LOST before, OK after.
+- **What it had been costing, invisibly:** the blink-reload restores
+  x/y/z/angle/pitch, and pitch is the one that can be negative — so
+  every rebuild while the user was LOOKING UP silently levelled their
+  view, and the "restore is EXACT" measurement had only ever been taken
+  with a non-negative pitch. A guard cvar (`gb_floor_min -128`) was
+  also never actually being forced; it went unnoticed because the value
+  it failed to set equalled the compiled-in default.
+- Lesson, adjacent to the `+bind`-is-inert entry: *a launch-line
+  channel that works for the values you happened to try is not a
+  channel that works. Probe the boundary values — signs, zero, empty —
+  by reading them back from inside the engine.*
+
+## `IsPointInLevel` false means TWO different things (GameBuilder V4, 2026-08-02, 4.14.3)
+
+Refinement of the aim-march entry above, surfaced when the aim payload
+grew a FACE identity (which surface, not just which cell). A fixed-step
+march breaks when `Level.IsPointInLevel(p)` goes false — and that is
+true both when the ray entered a WALL and when it left the room through
+a ceiling or below a floor. A payload that only names a cell cannot
+tell the difference and does not care; a payload that names the SURFACE
+must, or every upward aim reports the wrong face. Distinguish with the
+cell-solidity probe already in use (`IsPointInLevel(cellcentre,
+floorZ+1)`): solid neighbour = a wall face, otherwise read
+`sector.ceilingplane.ZatPoint` at the breaking sample and answer
+ceiling-vs-floor. A Python mirror that tests openness in 2D never takes
+the wall branch at all, so the two implementations silently disagree
+there until a parity pose actually looks up.
