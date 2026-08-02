@@ -162,9 +162,9 @@
   "WOOD2": "WALL023"
  },
  "weapons": {
-  "V_CG": "WCHN",
-  "V_KN": "WKNF",
-  "V_LU": "WPIS",
-  "V_MP": "WMGN"
+  "CHGG": "WCHN",
+  "KNIF": "WKNF",
+  "MCHG": "WMGN",
+  "PISG": "WPIS"
  }
 }

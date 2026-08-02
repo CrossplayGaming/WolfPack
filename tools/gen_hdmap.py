@@ -37,9 +37,13 @@ DOORS = {
     # ELEV2/DOOR2: elevator switch walls handled via tile table
 }
 
-# ECWolf view-weapon sprites -> ours (same frame letters, same VSWAP
-# order: READY,ATK1..4 = A..E)
-WEAPONS = {"V_KN": "WKNF", "V_LU": "WPIS", "V_MP": "WMGN", "V_CG": "WCHN"}
+# ECWolf view-weapon sprite names -> ours (same frame letters, same
+# VSWAP order: READY,ATK1..4 = A..E). These are the ECWolf-side sprite
+# NAMES, not the HD pack's file names: the pack maps its own art onto
+# these through its TEXTURES lump (Sprite PISGA0 { Patch V_LUGR_A }),
+# so the converter reads the frame->art join from the pack itself
+# rather than guessing it from filenames.
+WEAPONS = {"KNIF": "WKNF", "PISG": "WPIS", "MCHG": "WMGN", "CHGG": "WCHN"}
 
 
 def main():

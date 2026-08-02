@@ -505,3 +505,243 @@ Reference implementation: F:\CrystalCavesFPS tools/build_base.py
   extras (crosshair preview) keep their padding. Scroll arrows live in
   the gutter OUTSIDE the frame edge - inside collides with the
   right-aligned key/value column.
+
+## Key bindings from outside the engine (GameBuilder alt-fire hunt, 2026-08-01)
+
+Wanting to GUARANTEE two binds (mouse1 +attack / mouse2 +altattack are
+the editor's build/undo controls), three channels were measured; two
+are dead:
+
+- **Launch-line `+bind key cmd` is INERT.** Binding init runs after
+  the +command batch and overwrites it - a sabotage `+bind mouse2
+  +strafe` AND a protective bind both vanished; the engine reported
+  the default either way. (+commands-run-early does not mean they WIN.)
+- **`Bindings.SetBind` outside menu code is FATAL**, not a no-op:
+  "Attempt to change key bindings outside of menu code" kills the
+  engine mid-WorldLoaded. Same guard family as the userinfo-cvar-write
+  trap above. `GetBinding`/`GetKeysForCommand` READ fine from play
+  scope - report, don't heal, from handlers.
+- **The config's `[<Config>.Bindings]` section is the working
+  channel** - entries apply verbatim (a poisoned Mouse2=+strafe
+  demonstrably took effect). Patch the file BEFORE launch. Caution: a
+  bindings section REPLACES defaults, so never CREATE a partial one -
+  patch keys inside an existing section only; a config with no section
+  gets engine defaults, which on a virgin Config-namespace ini are the
+  WASD defbinds set (mouse1 +attack, mouse2 +altattack - measured, so
+  fresh-per-session configs are already correct).
+
+Related measurements from the same hunt:
+- **Launch-held button +commands (`+attack` as an arg) do not survive
+  into the map** - button states are cleared at level start, so
+  cmd.buttons cannot be pre-pressed for a harness. The physical click
+  really is untestable without a hand; instrument instead (a GB_BTN
+  marker on every cmd.buttons change convicts or clears the input
+  layer in one manual run).
+- **The engine's +logfile is opened write-SHARED, but external appends
+  get clobbered**: the engine keeps writing at its own tracked offset,
+  overwriting whatever another process appended. Log-line injection
+  into a live session is unreliable; unit-test the consumer with
+  synthetic text instead.
+
+## Add-on gameinfo over a real IWAD (GameBuilder SETUP-02, 2026-08-01, UZDoom 4.14.3)
+
+- **A `-file` add-on's MAPINFO `gameinfo { playerclasses = "X" }`
+  REPLACES the base game's player-class list over a real IWAD** -
+  measured: the GameBuilder preview add-on over freedoom2.wad spawns
+  `GBPreviewPlayer` (weaponless editor player), proven by a
+  first-tick `GetClassName()` log marker, zero script errors. So the
+  fire/alt-fire editor loop works identically over IWADs and the
+  standalone shell.
+- Same boots reconfirmed the isolation recipe for IWAD runs (no
+  IWADINFO Config namespace there): per-session `-config` + forced
+  `+set` -- with a fresh ini the engine's own defbinds land correct
+  (mouse1 +attack / mouse2 +altattack), so the binds gate stays green
+  with no bindings-section patch needed.
+- Corpus-adjacent detection fact (not engine behavior, recorded once:
+  Steam's BFG Edition DOOM.WAD/DOOM2.WAD carry **PWAD** magic yet the
+  engine treats them as IWADs by content -- identity tables must let a
+  blessed hash outrank the header magic).
+- **The converse, also measured (GameBuilder PLAY-01, 2026-08-01):
+  OMITTING `playerclasses` from an add-on's gameinfo leaves the base
+  game's own default player-class list in force** -- the play-test
+  flavour of the same add-on over freedoom2.wad spawns plain
+  `DoomPlayer` (first-tick GetClassName marker, zero script errors,
+  weapons/health as the base game ships them). So one add-on family
+  can swap player behaviour per build flavour with a one-line MAPINFO
+  difference and no ZScript: declare `playerclasses` to replace the
+  list, omit it to inherit the base game's.
+
+## Whole-map geometry dump probe (GameBuilder FMT-02, 2026-08-01, 4.14.3)
+
+Widening the single-point 3D-floor probe to the whole map, for verifying
+generated curved geometry (segment fans) from outside:
+
+- **`Level.Vertexes` is enumerable from ZScript** (`Level.Vertexes.Size()`,
+  `.Vertexes[i].p`) and holds MORE vertices than the UDMF file: the
+  engine's internal node build adds split vertices (measured: a 72-vertex
+  TEXTMAP reported 104). Harnesses must therefore assert their computed
+  vertices are a SUBSET of the engine's (within 0.01 u), never an exact
+  count match. Float UDMF vertices written at 3 decimals came back exact.
+- **Sector order and indices are preserved from TEXTMAP file order**
+  (`Level.Sectors[i]` is the i-th `sector{}` block) -- computed sector
+  indices can be compared against the engine's directly.
+- `plane.ZatPoint` reports a heightfloor of 0 as `-0.000000` in printf --
+  compare numerically, never by string.
+- One-sided hole loops (freestanding wall rings whose front sidedefs
+  reference the CONTAINING sector, playable on the right of v1->v2) and
+  3-decimal float vertices both load clean through the UDMF nodeless
+  path; per-segment tagged quad sectors each carrying their own
+  Sector_Set3dFloor control sector measured back at exactly the
+  described heights, nine per arc in one load.
+
+## InputProcess + injected input, measured (GameBuilder VERB-00, 2026-08-01, 4.14.3)
+
+The playbook's input facts said reading cmd.buttons works, injection is
+dead, and `InputProcess` was untested. Measured with a marker-pattern
+probe (tools/input_probe.py; logs/verb00-input-*.txt):
+
+- **`StaticEventHandler.InputProcess(InputEvent e)` WORKS** and sees
+  raw input BEFORE bindings: keyboard KeyDown/KeyUp with DIK scancodes
+  (number row 1..6 = 0x02..0x07), mouse buttons as scans 0x100+, and
+  the MOUSE WHEEL as KeyDown *and* KeyUp pairs of 0x198/0x199 per
+  notch. No IsUiProcessor needed (that gates UiProcess only).
+- **`return true` genuinely consumes** — proven observably, not by
+  reading the code: with the probe consuming mouse1, a real click was
+  logged by InputProcess yet never produced a cmd.buttons edge; with
+  consumption off, the same click set BT_ATTACK. Consume the KeyUp
+  half too or half-pairs leak.
+- InputProcess is **ui scope**: it cannot touch play state. The
+  `EventHandler.SendNetworkEvent -> NetworkProcess` bridge works from
+  inside it (measured round trip) — verb switching rides on it.
+- **OS-level SendInput reaches the engine** when its window is
+  foreground: keyboard via KEYEVENTF_SCANCODE, wheel via
+  MOUSEEVENTF_WHEEL, and mouse buttons — all arrived in InputProcess
+  AND (unconsumed) in cmd.buttons. This REFINES the earlier "SendKeys
+  never reaches the engine / no input injection exists" lessons: menu
+  navigation by synthetic keys remains dead (keys rain into the sim,
+  as measured before), but the SIM-side input path IS injectable. So
+  the physical click/keypress is now testable headlessly on an IDLE
+  desktop (front the window first; a human's real input mixes in and
+  contaminates aims). GameBuilder's tests/test_verbs_e2e.py carries
+  the pattern (real key -> verb switch, real wheel -> adjust, real
+  click -> command marker).
+- Cell-solidity is measurable from the live level with no doc access:
+  solid grid cells compile to VOID, so
+  `IsPointInLevel((cellcenter, floorZ_of_PointInSector + 1))` is true
+  exactly for open cells — used to tell "ray entered a wall" from
+  "ray left through a ceiling" when deriving edge-target payloads.
+
+## Sky, and "a sector record is not occupied space" (GameBuilder EVID-01, 2026-08-01, 4.14.3)
+
+Two facts from the scale-proof map (a 48x44 outdoor level loaded over
+a real DOOM II).
+
+**Sky is a FLAT NAME, and it comes from the base game.** A sector is
+outdoors when its ceiling flat is literally `F_SKY1` — no MAPINFO
+`sky1` line, no special linedef, no per-map setup. Measured over
+DOOM II: `TexMan.CheckForTexture("F_SKY1", TexMan.Type_Flat)`
+resolves, `TexMan.GetName(sec.GetTexture(Sector.ceiling))` reads back
+`F_SKY1`, and the engine draws sky there. A map lump can even be
+declared with a bare `map GBMAP04 "..." {}` in an add-on MAPINFO and
+still get the base game's sky. Corollary already in section 5: a
+STANDALONE with no `F_SKY1` logs the benign "Unknown texture: F_SKY1"
+instead — so an outdoor level is a base-game-backed thing, and the
+add-on-over-IWAD path is where outdoors actually works. A generator
+that passes ceiling-texture names straight through needs no sky
+feature at all; it needs the base game mounted.
+
+**A sector that carries a 3D floor is not proof that the sector owns
+any ground.** Measured the hard way: nine per-segment quad sectors all
+appeared in `Level.Sectors` with their 3D floors attached at exactly
+the described heights, and four of them occupied no space at all —
+`Level.PointInSector` at those segments' centroids returned the
+SURROUNDING room, with zero 3D floors. Cause: the quads' boundary
+linedefs were wound with the quad on the BACK side while the
+inter-quad lines put it on the FRONT, so the outline disagreed with
+itself and the node builder did not give the region to the sector that
+was tagged for it. Swapping `sidefront`/`sideback` on exactly the
+boundary lines fixed it, measured 0/4 -> 4/4.
+
+The harness lesson generalizes past this bug: **enumerating sector
+records is a weak geometry check.** Ask the engine which sector owns a
+POINT INSIDE the shape (`Level.PointInSector(centroid).Index()` plus
+`Get3DFloorCount()`), and for solid volumes ask
+`Level.IsPointInLevel` inside the body and just outside it. A gate
+built only on "do these sectors carry these slabs" passed a parapet
+that was missing four of its nine segments for a full day.
+
+Probe-point gotcha worth its own line: `PointInSector` on an exact
+sector boundary is ambiguous. Derived segment fans put VERTICES at
+segment joins, so probe at a segment MIDPOINT/centroid, never at the
+join — the first run of this probe blamed the geometry for what was,
+that time, a badly chosen sample point.
+## Winding disagreement is orientation-independent (GameBuilder FMT-02e, 2026-08-01, 4.14.3)
+
+Follow-up to the section above, and a correction to how its last
+paragraph reads as a recipe. "Swapping `sidefront`/`sideback` on the
+boundary lines fixed it" was true of that one shape and is NOT the
+general fix. Measured on the same generator, same engine, with the arc
+mirrored so its fan winds the other way:
+
+  * fan wound CLOCKWISE  -> 20 of 20 boundary edges on the wrong side,
+                            0 of 8 inter-segment edges;
+  * fan wound COUNTER-CW -> 0 of 20 boundary edges, 8 of 8 inter-segment
+                            edges.
+
+Two families of linedefs bound the same region, each hand-assigned in
+its own place, and they disagreed. Whichever way the region happened to
+wind, exactly one family was wrong — so a fix that swaps a named family
+just moves the breakage to the mirrored shape. The durable fix is to
+DERIVE each linedef's front/back from where the region actually lies
+(sign of the cross product of `v2-v1` against a point inside it; front
+is the RIGHT side) in one place that every edge goes through, and to
+refuse loudly if a two-sided edge's two regions do not land on opposite
+sides.
+
+Two probe facts from the same run, both cheap and both worth keeping:
+
+  * **Occupancy can be PARTIAL.** The broken parapet was present for
+    segments 0–4 and absent for 5–8: the node builder resolved half the
+    outline and gave up on the rest. A single probe point inside "the
+    shape" is a spot check that can land in the good half. Probe EVERY
+    segment.
+  * **Occupancy responds to winding in both directions**, which makes a
+    strong two-sided harness: on geometry that measures 4/4 present,
+    re-swapping the boundary lines in the emitted TEXTMAP takes it to
+    0/4. Breaking something that works, on purpose, proves the probe is
+    measuring the thing you think it is — the same trick that proved
+    the diagnosis originally, run in reverse.
+- **Converting another engine's HD pack: read its own TEXTURES/SNDINFO
+  as the join, and copy view-weapon geometry VERBATIM.** An ECWolf
+  pack maps its art onto engine sprite names in its own lumps
+  (`Sprite PISGA0 { Offset -95,-55 Patch V_LUGR_A }`), including which
+  painted image each of the five view frames uses and the per-frame
+  offsets that animate recoil - authored data that beats any filename
+  guess. ECWolf's view-sprite placement matches this engine's, so
+  copying size/scale/offset unchanged (renaming only the sprite) lands
+  each weapon exactly where its author intended. Deriving placement
+  instead - fitting their art onto our sprite's bounding box - drew a
+  pistol three times too big, because their art is cropped at the
+  canvas edge while ours floats inside a larger frame. Same principle
+  for sounds: their SNDINFO names which wav plays each logical event,
+  and lines its author left COMMENTED OUT (a whole set of remastered
+  enemy voices) stay off on our side too.
+- **Image-verifying sprite mappings: composite alpha onto one fixed
+  backdrop and crop to the art's bbox before comparing.** `.convert(
+  "RGB")` on a palette sprite fills transparent pixels with whatever
+  color sits at that index, so a ~95%-empty sprite gets compared on
+  its background - our knife lost its argmin to a Pac-Man ghost
+  easter egg. And raw canvases compare PLACEMENT, not art, when the
+  two packs frame on different canvas sizes. A weapon's five frames
+  must also count as interchangeable answers: HD idle art can resemble
+  our recoil frame more than our idle frame, which says nothing about
+  whether the right weapon was picked.
+- **In-engine screenshots beat OS screen grabs for verification.** A
+  `screenshot <name>` in an exec cfg captures the engine's own
+  framebuffer; an OS grab catches whatever window is in front (a stray
+  tool window blanked one run) and needs `SetProcessDPIAware()` to
+  avoid cropping on a scaled desktop. Two traps: each LINE of an
+  exec'd cfg is its own command buffer, so `wait` on its own line does
+  NOT hold back the lines below it (quit raced ahead of the shot -
+  use one semicolon chain on one line); and an explicitly named shot
+  ignores `screenshot_dir` and lands in the working directory.
