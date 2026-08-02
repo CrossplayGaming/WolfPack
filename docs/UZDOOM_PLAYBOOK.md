@@ -1228,3 +1228,101 @@ source and by the running engine.** `GetClassName()` returned
 harvested from the source against a name printed by the running game
 must compare case-INSENSITIVELY, or it will report a thing as missing
 while its own log lists it standing in the correct place.
+
+## Freezing the world for an EDITOR, and letting the builder walk through it (GameBuilder FREEZE-01, measured 2026-08-02, 4.14.3)
+
+Eric, hands-on with the level builder: *"when I place a monster, it
+immediately starts attacking and doesn't stay put."* An editor's world
+is a model, not a game -- and the engine already has exactly the right
+mechanism, in the last place you would look for an editor feature.
+
+- **`Level.SetFrozen(true)` + `players[0].timefreezer |= 1` is the whole
+  recipe.** The freeze stops every thinker; the `timefreezer` MASK is
+  what the TimeFreezer powerup sets so its owner keeps moving through
+  it (`zscript/actors/inventory/powerups.zs`, `freezemask = 1 <<
+  PlayerNumber()`). Set the mask for player 0 and the result is precisely
+  an editor: the builder walks, looks, aims and clicks while nothing
+  else in the world does anything. `timefreezer` is a plain
+  `native int` on PlayerInfo (`player.zs:2902`) and is writable from
+  play scope.
+- **A StaticEventHandler's `WorldTick` KEEPS RUNNING while the level is
+  frozen** -- measured, not assumed, and it is the fact the whole idea
+  rests on. The editor's aim march, its particle ghost, its HUD readout
+  and its click handling all live in WorldTick, so a freeze that stopped
+  it would have frozen the editor instead of the world. Measured over 10
+  actor sweeps at 35-tic intervals in a frozen level: markers flowed the
+  whole time.
+- **Particles keep drawing.** `Level.SpawnParticle` respawned every
+  WorldTick still renders under the freeze, so a particle-wireframe
+  ghost survives it. (This is consistent with WorldTick running, but it
+  is a separate observable and was checked as one.)
+- **Apply it on the FIRST TICK, not in `WorldLoaded`.** Map actors run
+  `PostBeginPlay` on tick one, after WorldLoaded -- the same ordering
+  trap as every other "mutate map-spawned actors" job in this playbook.
+- **Re-assert it cheaply rather than trusting one call.** Frozen-ness is
+  shared sim state; anything in a base game could in principle change it
+  (a TimeFreezer pickup lying in a user's own level would), and a world
+  that quietly came back to life mid-build is the defect this fixes.
+  Re-checking `Level.isFrozen()` every 10 tics costs nothing.
+- **Position is HALF a stillness check; frame is the other half.**
+  Measured against the real unfrozen state: an Imp facing away from the
+  player never woke and never moved one unit, so a position-only gate
+  called the unfrozen world "inert" and would have shipped a freeze that
+  did nothing. The engine's own `a.frame` / `a.tics` are what "thinking"
+  looks like from outside -- and a monster winding up a melee swing does
+  not move at all. Print both. **And face the subject AT the player**:
+  monsters only see what is in front of them, so a test monster placed
+  facing away is a test that never fires.
+- Freezing is a SESSION behaviour and must never become a map property.
+  Proven at the artifact level: the packaged `maps/*.wad` lump is
+  byte-identical between the frozen editor build and the play-test
+  build, and carries the compiler's own TEXTMAP text verbatim.
+
+## No app can drive a BACKGROUND engine window; the foreground round-trip is free (GameBuilder CONN-07, measured 2026-08-02, 4.14.3)
+
+The long-standing note in this project was "there is no live
+app-to-engine channel". VERB-00 had already refined the older
+"SendKeys never reaches the engine" lesson to *SendInput does reach it
+when its window is foreground*. What was never measured is whether a
+WINDOW MESSAGE could reach a backgrounded one -- which is what a desktop
+app clicking its own panel would need. Measured with two engines, one
+holding the foreground while the other is probed
+(`GameBuilder/tools/panel_channel_probe.py`), with both controls fired:
+
+- **Every posted-message channel is DEAD.**
+  `PostMessage(WM_KEYDOWN/WM_KEYUP)` to the engine's top-level window,
+  the same to its child windows, `SendMessageTimeout` of the same, and
+  `PostMessage(WM_MOUSEWHEEL)` -- none of them reaches a backgrounded
+  engine's `InputProcess`. The engine reads RAW INPUT, which follows the
+  foreground window; the legacy message path is not read at all.
+- The run proves it was measuring rather than merely silent: the SAME
+  keys arrive when the engine is fronted (positive control), and a
+  SendInput fired while it was backgrounded landed in the OTHER engine
+  that held the foreground (negative control).
+- **The FOREGROUND ROUND-TRIP is cheap and, more importantly, INERT.**
+  Handing the foreground to the engine, injecting, and taking it back
+  measured **63-78 ms**; focus returned to the app window every time;
+  and -- the fact that decides whether this is usable at all -- the
+  engine's own `GB_POS` markers reported the player's view moved
+  **0.000 degrees in angle and 0.000 in pitch**, with the mouse cursor
+  at the identical screen pixel afterwards. A focus hop that silently
+  spun the builder's aim would have been worse than no channel.
+- **Only the process that OWNS the foreground may give it away**, so
+  this works from an app the user has just clicked and does NOT work
+  from a background harness. Coming back needs `AttachThreadInput` on
+  the engine's thread (the HARN-10 focus lesson, other direction). Both
+  legs must be VERIFIED by reading `GetForegroundWindow` back: a
+  `SetForegroundWindow` that did nothing looks exactly like one that
+  worked.
+- Consequence for tooling: a desktop app CAN drive a running engine, and
+  the honest way to do it is to synthesise the gestures the engine
+  already understands rather than to invent a command surface. Plan the
+  gestures against what the engine last REPORTED, deliver them, then
+  make the ENGINE confirm the new state by marker -- never let the plan
+  grade itself. An off-by-one plan selects the neighbouring item, the
+  injection reports success, and everything looks fine.
+- Self-test shape worth copying: this probe's only real failure mode is
+  a FALSE NEGATIVE ("no channel" because the detector went blind), so
+  its `--selftest` PLANTS a real delivery for every key it watches and
+  fails unless all of them are reported. A self-test that merely
+  re-confirms "nothing arrived" proves nothing.
