@@ -759,11 +759,26 @@ settled which channels place it. Measured on a 1920x1080 work area:
   nothing else the window is born **1536x864 at 192,108** - 80% of the
   desktop, centred, i.e. the engine's own default. Any launcher that
   believes `-width` controls the window is measuring nothing.
-- **`+set win_x / win_y / win_w / win_h / win_maximized` WORKS, and the
-  window is BORN there** - the first rect `GetWindowRect` ever returns
-  is the requested one, and it is the only rect the window ever has (no
-  visible jump/snap). These are archived GLOBAL cvars (they live in
-  `[GlobalSettings]`, not the game's own section) that video init reads.
+- **Every launch creates a fixed stub window FIRST - 640x480 at
+  640,300 - then resizes ONCE to the final rect. The baseline does it
+  too.** So "born correct" is not literally reachable through any
+  channel, and a probe that samples too slowly reports a comforting
+  single rect and lets you believe it is: the first run of this probe
+  did exactly that on all four arms at 50 ms sampling. Sample as fast
+  as the loop allows and TIMESTAMP every distinct rect. The honest
+  question is not "was the FIRST rect right" but "once the engine has
+  sized the window, does it ever sit at any OTHER rect" - one settle
+  straight to the requested rect is the same single move the untouched
+  default path makes, just to the right place. (Both stages landed
+  inside the same millisecond sample here, so the stub is not
+  something a user sees; it is something a claim has to account for.)
+- **`+set win_x / win_y / win_w / win_h / win_maximized` WORKS, and it
+  IS that single settle** - stub, then straight to the requested rect,
+  then nothing for the rest of the window's life. These are archived
+  GLOBAL cvars (they live in `[GlobalSettings]`, not the game's own
+  section) that video init reads. `win_maximized 1` is honoured too
+  (`GetWindowPlacement` reports SW_SHOWMAXIMIZED), at the cost of one
+  extra stage: stub -> the win_w/win_h rect -> maximized.
   **This does NOT contradict the launch-line `+bind` lesson - it bounds
   it.** `+bind` loses because binding init runs AFTER the `+command`
   batch and overwrites it; video init runs after `+set` and READS it.
@@ -783,8 +798,8 @@ settled which channels place it. Measured on a 1920x1080 work area:
   complement, and measurably does not move the foreground** - the
   window jumps, focus does not. Use it only for what the creation
   channel cannot cover (an engine-clamped rect, a remembered rect from
-  a monitor layout that no longer exists); a window placed at creation
-  never shows the snap.
+  a monitor layout that no longer exists). It is a SECOND settle by
+  construction, so it is the fallback, never the primary.
 - Reads and writes both need `SetProcessDpiAwareness` first (Eric's
   desktop is 125%) - the same lesson as the screenshot protocol, other
   direction: an unaware process is fed virtualized coordinates and
@@ -849,3 +864,42 @@ on the launch line that was being built anyway.
   art (a remastered pot really does look like a different pot). Also
   treat known-equivalent groups as agreement: a wall's light/dark
   sibling face, a weapon's five view frames, an enemy's poses.
+
+**Window geometry does NOT move where a view-ray aim lands** (same
+session, `logs/harn10-aim-*.txt`). Worth measuring rather than
+assuming, because window size genuinely changes aspect and FOV and it
+is easy to argue yourself into either answer. Four engine lives at
+1536x864, 640x480, 700x900 and 1400x520, same map, same spawn pose:
+the engine's own aim markers report the identical target cell and the
+identical wall cell in all four. A ZScript fixed-step view-ray march
+is a function of the player's position/angle/pitch, so screen shape
+never enters it. Practical consequence for harnesses: cell assertions
+in aim e2e tests are safe across window changes - when one of them
+fails, suspect the human at the desk (a mouse over the test engine's
+window steers the aim, and that shows up as MORE THAN ONE distinct aim
+within a single run) before suspecting the geometry.
+
+## 3D model support in the pinned build (measured 2026-08-01, 4.14.3)
+
+Confirmed by string-probing `uzdoom.exe` itself (not recalled from
+GZDoom docs — the prime directive applies to capability claims too):
+
+- `MODELDEF` present — the lump that binds models to actor states.
+- `IDP2` / `IDP3` present — MD2 and MD3 magic numbers, so the classic
+  Quake model formats load.
+- `INTERQUAKEMODEL` / `IQM` present — **skeletal animation** is
+  available; this is what modern mods with real animated 3D characters
+  use, and it is the format to target for new work.
+- `A_ChangeModel` and `SetAnimation` present — runtime model swapping
+  and animation control from ZScript.
+- `VOXELDEF` present (already known; KVX remains the voxel route).
+
+Caveats that do NOT change with models: actor collision is still the
+cylinder (radius + height) — a mesh never drives collision. Art cost
+moves entirely to modeling/rigging. Mixing models with sprites reads
+badly; mods that use models generally commit fully.
+
+Portfolio relevance: the voxel stack (CCFPS voxelize + WolfDoom KVX
+writer) is the sibling branch of the same import road; GameBuilder's
+blueprint road-marks sprite/voxel import with verdict-card sizing, and
+models slot into that same flow rather than needing a new concept.
