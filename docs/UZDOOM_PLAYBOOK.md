@@ -2031,3 +2031,64 @@ arrived on attempt 1). Latch-poll the gesture and report the attempt count
 rather than asserting on one shot -- the playbook's own "never assert at a
 fixed tic" rule, applied to input delivery. A one-shot assertion here
 convicts docking of something the separate window does too.
+
+## ZScript trig is DEGREES and Python's is radians, and at the cardinals
+## they disagree in the last bits (GameBuilder FMT-07, measured 2026-08-03, 4.14.3)
+
+A rule that exists twice -- once in ZScript for the live ghost, once in
+Python for the pipeline -- can agree about a POINT and disagree about
+what that point ROUNDS TO. Measured by HARN-08 on the first run of a new
+aim payload (`logs/harn08-20260803-021928.txt`):
+
+- **`cos(270)` in ZScript is exactly 0. `math.cos(math.radians(270))` in
+  Python is -1.8e-16.** ZScript's trig takes and returns DEGREES and
+  special-cases the cardinals; Python converts to radians first and pi/2
+  is not representable. So a ray marched due south from x=112 stayed at
+  x=112.0 engine-side and drifted to 111.99999999999999 in Python.
+- **That is harmless until something SNAPS.** 112 is a cell centre, which
+  is exactly halfway between two 32-unit grid corners -- a tie -- so the
+  two sides snapped to corners a whole cell apart and the parity harness
+  (correctly) failed. The fix is to quantize the sample to a coarse step
+  (1/16 of a map unit) BEFORE snapping, with the same tie rule on both
+  sides: `floor(v * 16 + 0.5) / 16`. The tie the quantization introduces
+  of its own sits at 1/32-unit offsets, which no exact-arithmetic sample
+  lands on.
+- **And never `round()` in Python for a rule ZScript mirrors:** Python
+  breaks ties to EVEN (`round(3.5) == 4`, `round(4.5) == 4`), which no
+  other language here does. Write `floor(v/q + 0.5)` on both sides.
+
+The general lesson, worth more than the arithmetic: **a duplicated rule
+has to be tested at the values where the two implementations are most
+likely to differ, and for geometry those are the cardinals, the cell
+centres and the boundaries** -- not the "typical" cases. A parity harness
+whose poses are all off-axis will pass forever over this.
+
+## Driving a MULTI-CLICK editor gesture headlessly (GameBuilder FMT-07, measured 2026-08-03, 4.14.3)
+
+The interesting state of a two-click tool is the one BETWEEN the clicks,
+and nothing outside the engine can press a mouse button in its window
+(this playbook, CONN-07: no posted message reaches a background engine,
+and raw input follows the foreground). Three facts that made that state
+testable:
+
+- **Let the handler drive its own gates.** A harness-only cvar that makes
+  the StaticEventHandler call its OWN click entry points at scripted tics
+  exercises the real state machine -- the swallow window, the busy latch,
+  the aim validity, the click branches -- rather than a copy of it. The
+  probe should print only WHICH PHASE it is in; what happened must be
+  read back from the shipped markers, or the probe is grading itself.
+- **Two clicks need a MOVED AIM between them, and turning the pawn's
+  own `angle` from WorldTick does it** (then re-run the aim derivation
+  before the second click). Two clicks at one aim land on the same target
+  and a correct tool refuses the second -- so a drive that does not move
+  proves only that the refusal works.
+- **Give the second click RETRIES.** The corner a turn lands on may
+  legitimately be unbuildable, and a gate that failed on that would be
+  measuring the room's shape rather than the gesture. Three attempts,
+  spaced, and report which one took.
+- **Let the run LIVE long enough.** The first version of this gate asked
+  the smoke harness for 8 position markers and the engine was killed
+  after the second phase, which read as "the drive never reached the undo
+  phase". A run cut short is not a measurement -- size the wait from the
+  drive's last tic, not from habit.
+
