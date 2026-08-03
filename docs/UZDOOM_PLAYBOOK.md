@@ -434,6 +434,42 @@ Reference implementation: F:\CrystalCavesFPS tools/build_base.py
   above touched this cvar; this is the single-player, foreground-rules
   form with the marker-freeze symptom.)
 
+### Things ON 3D floors: UDMF `height` just works (GameBuilder, 2026-08-02)
+
+Measured on 4.14.3 over a real DOOM II IWAD, six planted cases, engine's
+own `GB_ACTOR` account - not reasoned about, because modder lore treats
+"things on 3D floors" as a known-awkward corner.
+
+- **A map thing given UDMF `height = N` in a sector carrying a
+  Sector_Set3dFloor slab whose TOP is at N SPAWNS RESTING ON THE SLAB.**
+  No special flag, no dummy sector, no post-spawn nudge. Measured:
+  single slab 0-32, `height = 32` -> actor `pos.z` 32.0; two-slab stack
+  0-32 + 32-64, `height = 64` -> 64.0. It also holds through the SPAWN
+  clamp - the actor's own `floorz` comes back as the SLAB TOP (32.0 /
+  64.0), not the sector floor, so the engine agrees the 3D floor is what
+  it is standing on. `pos.z == floorz` is the assertion worth making:
+  position alone cannot tell resting from hovering, and `floorz` can.
+- **It stays.** Same actors sampled again 105 tics later with the world
+  running: identical z. A thing merely POSITIONED at the right height
+  would have fallen within the second.
+- **A raised thing whose slab is later removed simply falls** - normal
+  gravity, no error, nothing special. That makes "leave it alone" a
+  legitimate editor answer to deleting the platform under something.
+- **`height` on a SPAWNCEILING actor measures DOWN from the ceiling.**
+  Measured: 52-tall Hanging Leg (`Meat5`), ceiling 256 -> `height` absent
+  gives z 204.0 (top flush on the ceiling); `height = 32` gives z 172.0.
+  So one key covers both directions and the engine picks which by the
+  actor's own flag - the description never has to name a convention.
+- **A raised thing on a TERRACE needs no `height` at all**: raised
+  ground is the sector's own floor, so the thing's anchor plane already
+  moved. `height` is only for surfaces the sector floor does not
+  describe.
+- `AActor.floorz` / `AActor.ceilingz` are readable from ZScript and worth
+  putting in any actor-probe marker for exactly this reason.
+- Watch the name, not the id: the catalog row for editor number 53 is
+  `Meat5`; "HangingLeg" is not a class in this engine. Same
+  a-name-is-not-a-name trap as `ZombieMan` / `Zombieman`.
+
 ## The connection layer: in-engine aim, ghost, clicks (GameBuilder, 2026-08-01)
 
 - **`Console.PrintfEx(PRINT_LOG, ...)` reaches the `+logfile` file
@@ -1472,3 +1508,247 @@ For an editor that must delete what the reticle is on, a full
   behind a flag. Useful side effect for pixel-counting gates: a
   detector that classifies only cyan-or-blown-white ignores the amber
   entirely, so a second overlay can be added without re-baselining it.
+
+## Ambient input really does steer a test engine, and there are three
+## ways to stop it (GameBuilder HARN-17, measured 2026-08-02, 4.14.3)
+
+This playbook has said for months that "a mouse over the test engine's
+window steers the aim" and told harnesses to *suspect the human at the
+desk* when a cell assertion fails. That was inference from a symptom.
+Measured now, eleven independent engine lives, one arm at a time
+(`F:/GameBuilder/tools/contamination_probe.py`;
+`logs/contamination-2026*.txt`), every number read out of the engine's
+own `GB_POS` markers:
+
+| arm | what was done to it | angle swing | distinct ghost cells |
+|---|---|---|---|
+| control | nothing | **0.000 deg** | 1 |
+| mouse, engine FOREGROUND | 42 SendInput moves over 5 s | **336.27 deg** | **20** |
+| mouse, engine BACKGROUND | the same 42 moves | **0.000 deg** | 1 |
+| focus hop | 6 verified foreground round-trips, no mouse | **0.000 deg** | 1 |
+| held W key | one keydown, 5 s, one keyup | 0.000 deg (position **351.98 units**) | 1 |
+
+So: the mechanism is real and it is LARGE; it needs the engine to hold
+the foreground (raw input follows it -- the CONN-07 finding, confirmed
+from the other side); **CONN-07's deliberate foreground hop contributes
+nothing** (0.000 over six hops, matching its original measurement); and
+the keyboard is a second, independent path that moves the BODY rather
+than the view. Any harness whose assertions depend on a pose is exposed
+to both.
+
+**Three isolation channels, measured, and only two of them work.**
+
+- **`use_mouse 0` WORKS and is total.** Same 42 injected moves, angle
+  swing **0.000**. It is not a look-scale knob -- with it set, the
+  engine's own `InputProcess` logged NO mouse scancodes at all: a wheel
+  notch and a left click that both arrive normally (scans 0x198/0x199
+  and 0x100, positive control in the same session) produce *nothing*.
+  So it is the right switch for a run that wants no mouse, and it is
+  **unusable as a global default** for any suite whose tests inject
+  wheel or click gestures.
+- **`in_mouse 1` DOES NOT WORK** -- 335.04 deg, i.e. no change. It
+  selects a mouse BACKEND, not an on/off. Worth recording because the
+  name reads like the opposite.
+- **`m_yaw 0` + `m_pitch 0`** also gives **0.000**, and unlike
+  `use_mouse 0` it leaves the wheel and buttons alive. It zeroes the
+  look SCALE only, so `m_forward`/`m_side` mouse movement is untouched.
+- **A SEPARATE WINDOWS DESKTOP WORKS.** `CreateDesktopW` +
+  `CreateProcessW` with `STARTUPINFOW.lpDesktop = "winsta0\<name>"`:
+  the engine boots there, the map loads and `GB_POS` markers flow, ready
+  in **2.9 s** -- the same cost as any other boot -- and user input
+  physically cannot reach it, because SendInput follows the calling
+  thread's desktop. The price is what the harness gives up: the window
+  is INVISIBLE to `EnumWindows` from a process on the default desktop
+  (measured false), so WIN-01 window placement, any OS-level pixel
+  census and CONN-07 injection all stop working unless the harness
+  itself switches desktops; `EnumDesktopWindows(hdesk, ...)` does find
+  it (13 windows for the pid). **Python trap that produced a false PASS
+  on the first run of this arm: `subprocess.STARTUPINFO` has NO
+  `lpDesktop` field.** Setting one is a plain Python attribute that
+  `CreateProcess` never sees, and the engine quietly launches on the
+  normal desktop -- which looks exactly like success. The real struct
+  has to go through ctypes.
+
+**The strongest fix is not an input switch at all: re-assert the pose
+from `WorldTick`.** A handler that holds `mo.angle` / `mo.pitch` (and
+optionally `mo.pos` / `mo.vel`) every tic before anything reads them
+makes the aim a function of what the run ASKED for, whatever arrived at
+the window -- mouse, keyboard, controller, any future channel. Measured
+against the identical 42-move attack: angle swing **0.000**, one ghost
+cell, while the engine reported **70 tics** on which it had to correct
+the view (worst single tic 15.12 deg of angle, 6.86 of pitch). That
+second number is the other half of the value: the lock is also the
+DETECTOR, because it knows the pose it asked for and the pose it found.
+
+**Tic ordering, measured, and it differs between angle and position.**
+The playbook already says WorldTick runs after PlayerThink has consumed
+the tic's cmd. Refined:
+
+  * the mouse's ANGLE change is already applied when WorldTick runs, so
+    re-asserting the angle CORRECTS a move that happened (hence 70
+    non-zero deltas above);
+  * the keyboard's movement is NOT. Setting `mo.vel = (0,0,0)` in
+    WorldTick PREVENTS the step -- the pawn never moves at all
+    (displacement 0.000 across a 5 s held W key, against **351.19
+    units** in the control arm that locked the angle but left position
+    free). Excellent for immunity, and it makes a displacement-based
+    detector permanently blind: the honest evidence is the VELOCITY the
+    lock is about to throw away (measured 0.78 units/tic, 175 tics).
+
+Two control arms are what make any of the above a measurement rather
+than a story, and both are cheap: an arm in which nothing is done
+(every "0.000" is meaningless without it), and an arm in which the
+thing you are suppressing is deliberately NOT suppressed (without
+`keys-lock-nopos`, "the player did not move" and "the key never
+arrived" are the same observation).
+
+## Unattended FRAME CAPTURE works after all -- the engine will photograph itself (GameBuilder VOXROT, measured 2026-08-02, 4.14.3)
+
+**This CORRECTS section 5**, which says "unattended FRAME CAPTURE does
+not [work]" and concludes that OS screen capture is the only route to
+pixels and must therefore be treated as attended. That entry measured
+`+map X +screenshot +quit`, where every `+` token is its own command
+buffer, so console `wait` defers nothing and the shot happens before a
+frame is drawn. Put the whole thing in ONE argv token and it works:
+
+    "+wait 175; screenshot F:/path/shot1.png; wait 35; " \
+    "screenshot F:/path/shot2.png; wait 14; quit"
+
+- **An ABSOLUTE path as the shot name is honoured** and the file lands
+  exactly there -- the older note that "an explicitly named shot ignores
+  `screenshot_dir` and lands in the working directory" is true of a bare
+  name and is simply sidestepped by naming the full path. `+set
+  screenshot_type png`.
+- **`screenshot_quiet 1` matters with more than one shot per life**: the
+  "Captured ..." console notify line from shot N is still on screen when
+  shot N+1 is taken, and it lands in the picture.
+- **No foreground, no DPI awareness, no window handling, and no fight
+  with whoever is using the desktop.** The frame is the engine's own
+  framebuffer, so it is also unaffected by another window covering it.
+- **The prize: two engine LIVES at the same pose are BYTE-IDENTICAL.**
+  Measured across 34 boots -- same package, same map, same locked pose,
+  window forced to a fixed rect: 0 differing pixels between separate
+  processes, and 0 between three shots inside one life. That makes
+  "compare what two different engine lives DREW" a legitimate
+  instrument, which is what lets a render question be answered one pose
+  per boot with no timing coupling at all.
+- **THE TRAP, hit twice: the console `wait` counter advances while the
+  engine is still LOADING.** A slow boot photographs the STARTUP SPLASH
+  (black, logo, progress bar) -- and all its shots agree with each
+  other, so an intra-run stability check sails straight past it. At 105
+  tics it caught 1 boot in 22; at 175 tics, 1 in 28. Two shots at a
+  fixed offset from a fixed wait are NOT a promise that the map is up.
+  What fixed it: spread five shots over ~9 s and use only the last
+  three, plus a validity check on the pixels themselves (the lit room
+  averaged 77 per channel, the splash 5) with a retry. **A frame needs
+  its own validity check exactly like a position track does** -- and
+  the failure mode is the dangerous direction: two arms that both
+  caught the splash would have been reported as "the same picture".
+- Second contamination source, caught by HARN-17's own detector: one
+  boot logged `GB_VIEWLOCK 8 5.80 4.75` (eight corrected tics, up to
+  5.8 deg) and its frame differed from the reference in 97.8% of the
+  crop. The lock CORRECTS the pose but the camera is interpolated
+  between tics, so a corrected nudge still lands in a frame. Retry any
+  boot whose lock reports a non-zero hit count, and add `+set
+  use_mouse 0` when the run injects no mouse gestures of its own.
+
+## `SpriteRotation` snaps a VOXEL's drawn facing; `SpriteAngle` does not (GameBuilder VOXROT, measured 2026-08-02, 4.14.3)
+
+Asked because Cheello's Voxel Doom is said to offer "rotate in 45-degree
+snaps like the original sprites". **The engine has no such option** --
+the whole VOXELDEF vocabulary is spin / placedspin / droppedspin /
+angleoffset / zoffset / overridepalette / pitchfrommomentum /
+useactorpitch / useactorroll, the only voxel cvar is `r_drawvoxels`
+(on/off), and neither local copy of that pack ships a cvar or menu for
+it. So it has to be built, and this is the mechanism, measured on 34
+engine lives (`F:/GameBuilder/tools/voxel_rot_probe.py`,
+`logs/voxrot-20260802-195134.txt`).
+
+- **`Actor.SpriteRotation` (native double, `zscript/actors/actor.zs:104`,
+  property :354, `A_SetSpriteRotation` :1029) REACHES THE VOXEL PATH.**
+  Held per tic at `round(angle / 45) * 45 - angle`, an asymmetric voxel
+  renders in eight discrete facings while `angle` -- what AI, aim and
+  movement read -- stays smooth. The engine's own marker on the deciding
+  frame reads `angle=40.000000 sprot=-40.000000` while the picture is
+  pixel-identical to the angle-0 picture: facing and rendering really do
+  part company.
+- **The signature, in differing pixels against each mode's own 0-degree
+  frame** (one pose per engine life):
+
+  | true angle | snap OFF | snap ON (floor 45) |
+  |---|---|---|
+  | 10 | 313 | **0** |
+  | 20 | 425 | **0** |
+  | 30 | 715 | **0** |
+  | 40 | 813 | **0** |
+  | 50 | 940 | 888 |
+
+- **Nearest-45 is the rule to ship, and its edge is where it should be.**
+  With `floor(a/45 + 0.5)*45`, true angles 0/20/22 draw as ONE facing
+  (0 differing pixels) and 23/30/44 as the NEXT (888, and 0 between
+  themselves) -- the bucket boundary sits at 22.5 deg, which is what the
+  original 8-rotation sprites do. `floor` was used only for the headline
+  table because it puts the jump at exactly 45.
+- **`+SPRITEANGLE` / `Actor.SpriteAngle` DOES NOT reach the voxel path,
+  and it is the property a reader reaches for first.** A voxel actor
+  declaring `+SPRITEANGLE` with `SpriteAngle` pinned at 0 turned with
+  `angle` anyway: 813 differing pixels over a 40-degree turn, the SAME
+  813 the ordinary voxel moves. (The arm is not broken -- at true angle
+  0 it is pixel-identical to the ordinary voxel.) So: SpriteRotation for
+  voxels, and do not spend an hour on SpriteAngle.
+- **VOXELDEF `AngleOffset` composes with the snap.** The same KVX
+  reached through `{ AngleOffset = 20 }` is drawn exactly as the plain
+  one at true angle 20 (425 differing pixels against the plain 0-degree
+  frame -- the identical 425 the plain voxel measures at true angle 20),
+  and with snapping on, true angles 20 and 40 remain pixel-identical to
+  0. A constant offset simply rotates the whole eight-facing set; it
+  does not break the snapping. Worth knowing because Cheello's pack puts
+  `AngleOffset = 270` on several items.
+- **Cost.** The whole recipe is one `floor`, one subtract and one double
+  field write per actor per tic -- no allocation, no state change, and
+  34 boots logged zero script errors. It was NOT benchmarked at scale
+  and should not be claimed to be free; the cheap form is to recompute
+  only when the actor's angle has changed since last tic.
+- **Blast radius: rendering only, as far as the package can show.**
+  Nothing in `uzdoom.pk3`'s ZScript reads `spriteRotation` except the
+  declaration, the property, `A_SetSpriteRotation` and a deprecated
+  `GetSpriteRotation` in `compatibility.zs`. `angle` is untouched, which
+  the measurement confirms from the other side.
+- **Not measured, and worth measuring before it is relied on:**
+  `+INTERPOLATEANGLES` (the flag exists -- exe string `INTERPOLATEANGLES`
+  -- and it is OFF by default; with it ON the drawn facing would slide
+  between snaps instead of jumping), and the software renderer
+  (`RenderVoxel@swrenderer` is a different code path from the
+  `FVoxelModel` one the hardware renderer uses; everything above was
+  measured on the default hardware renderer).
+
+**Say what this snapping IS, because it is not quite what "like the old
+sprites" implies.** `SpriteRotation` quantizes the actor's WORLD facing.
+That reproduces the effect people actually miss -- a monster that TURNS
+pops between eight facings instead of sliding round. It does NOT
+quantize the VIEWING angle: walking around a stationary snapped voxel
+still changes its picture continuously, because it is a 3D model in
+perspective. That follows directly from measurements already in hand
+(`r_drawvoxels` 1 vs 0 moves 9247 pixels, so the subject really is a
+model; and a 10-degree change in the relative orientation moves 313),
+so it needs no separate boot -- but it is the difference between this
+and a true 8-rotation sprite set, and a claim of "sprite-accurate" would
+be wrong. Quantizing the viewing angle instead WOULD need the viewer's
+own angle, and `SpriteRotation` is shared play-scope actor state -- the
+same trap as `player.camera` in the third-person-camera section, where
+a render preference derived from `consoleplayer` differs per node.
+Road-mark it; do not reach for it casually.
+
+Two pipeline facts from the same session, both cheap:
+
+- **A voxel probe does not need anyone else's art, and should not use
+  it.** `F:/WolfDoom/tools/voxel/kvx.py` writes KVX and was verified
+  byte-for-byte against 530 shipped models; a hand-built asymmetric grid
+  (a post with one arm) round-trips through that same parser and loads
+  in the engine. Asymmetry is the whole requirement -- a symmetric
+  subject cannot show rotation at all.
+- **Ship a real sprite lump for a voxel actor's frame even though the
+  voxel replaces it.** It costs nothing, guarantees the sprite NAME
+  registers, and hands the harness its best control: toggling
+  `r_drawvoxels` between 1 and 0 swapped 9247 pixels, which is what
+  proves the thing being measured is the voxel and not the fallback.
