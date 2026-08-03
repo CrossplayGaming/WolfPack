@@ -1811,3 +1811,120 @@ own.
 intermission screen waits for a keypress, and an unattended run has
 nobody to press one. `nointermission` on the map (or on `defaultmap`) is
 what makes a level transition observable without a human at the desk.
+
+## Making a PLAYER fly, and doing it inside a FROZEN level (GameBuilder FLY-01, measured 2026-08-02, 4.14.3)
+
+A first-person level editor has to let the builder leave the ground -- and
+this is a case where reading the engine's own `player.zs` answers the whole
+question, while two of the three obvious guesses are simply wrong. Measured
+with four engine lives, one probe handler driving all of them identically
+(`F:/GameBuilder/tools/fly_probe.py`; `logs/fly01-20260802-222518.txt`).
+
+**`bFly` + `bNoGravity` on the pawn IS the engine's own flight state, and
+every movement path already keys off exactly those two.** Read out of
+`zscript/actors/player/player.zs`:
+
+  * `ForwardThrust`: `if ((waterlevel || bNoGravity) && Pitch != 0)` pushes
+    `Vel.Z` by `-move * sin(pitch)` -- so look up, walk forward, and you
+    RISE. That is the Minecraft-creative feel for free, with no new key and
+    no new code.
+  * `CheckJump`: `else if (bNoGravity) Vel.Z = 3.;` -- jump becomes a steady
+    climb while held.
+  * `CheckMoveUpDown`: `if (waterlevel >= 2 || bFly || CF_NOCLIP2)` turns
+    `cmd.upmove` into `Vel.Z = Speed * upmove / 128.`
+  * `HandleMovement` skips the air-control clamp when `bNoGravity`, so a
+    hovering player steers at full speed instead of drifting.
+
+**Set BOTH flags or flight silently does not take.** `CheckCheats()` runs at
+the top of every `PlayerThink` and contains
+`else if (!bFly && !Default.bNoGravity) bNoGravity = false;` -- so
+`bNoGravity` alone is wiped one tic later, every tic. `bFly` is what makes
+the engine leave it alone. (`bFlyCheat` would additionally protect against
+`PowerFlight.EndEffect` clearing `bFly`, but nothing in uzdoom.pk3 ever
+WRITES that flag, so whether it is settable at all is unmeasured -- and an
+unsettable flag name is a load-time script error that takes the package
+down. Re-asserting the two flags per tic covers the same case without
+guessing.)
+
+**`player.cheats |= CF_FLY` DOES NOTHING when set from ZScript.** The bit
+exists (`constants.zs`, `1 << 4`) and nothing in uzdoom.pk3's ZScript reads
+it -- the handling is C++ somewhere the bit alone does not reach. Its arm
+was indistinguishable from the do-nothing control: `bFly` 0, `bNoGravity` 0,
+`onground` 1, and the player fell 128 -> 0 units exactly like the control.
+Worth recording because "just set the fly cheat" is the first thing anyone
+reaches for.
+
+**`mo.Gravity = 0` holds an altitude and CANNOT CLIMB.** Measured: 0.0 units
+of sag over six seconds, and `128.0 -> 128.0` under a full-speed
+`CheckMoveUpDown` drive, because `bFly` stays false and the engine's own
+vertical control then takes its no-flight branch. This is the
+`player.onground` lesson from section 4 in another costume -- replace a
+physics effect and you lose the engine state every other path keys off, and
+"does not fall" is not "can go up".
+
+**Flight WORKS UNDER `Level.SetFrozen(true)`, and so does the fall.** All
+four arms above ran in a frozen level with the builder's `timefreezer` mask
+set (the FREEZE-01 recipe), and every one of them behaved exactly as it does
+unfrozen: the control fell, the flight arm climbed and hovered, `frozen=1`
+throughout. That follows from what the freeze actually stops -- the level's
+thinkers and particle ageing -- and the exempt player's `Tick` still runs, so
+gravity still acts on the builder. The practical consequence for an editor:
+**an editor freeze does NOT give you a stationary builder, and flight is the
+thing that does.**
+
+**Through-walls must ride on the CHEAT BIT, not on `bNoClip`.** `CheckCheats`
+derives `bNoClip` from `player.cheats` every tic, so a direct `bNoClip` write
+is undone before the next move (the same trap `bNoGravity` has). Set
+`player.cheats |= CF_NOCLIP` instead -- unlike `CF_FLY`, this one demonstrably
+works, and it needs no `sv_cheats`. And **do not reach for `CF_NOCLIP2`** if
+the two are meant to be independent: it forces `bNoGravity` on, i.e. it
+bundles no-clip and flight. Measured, four combinations, one engine life
+each: the three engine flags follow the two requests exactly, and a drive
+into a level's border wall travelled 63.6 units solid against 1447.4 with
+no-clip on -- the EFFECT, not only the flag.
+
+**Driving a player UP from a harness: call the engine's own
+`CheckMoveUpDown()`.** No channel can press a key in a BACKGROUND engine
+window (raw input follows the foreground), so a scripted run has to drive
+the pawn -- and the honest way is `players[0].cmd.upmove = N;
+players[0].mo.CheckMoveUpDown();` from `WorldTick`, the same virtual
+`PlayerThink` calls on the same code path a real `+moveup` takes. The reason
+to prefer it over a velocity write is that it is also a CONTROL: with flight
+off, the engine's own else-branch looks for an `ArtiFly` in the player's
+inventory, finds none, and does nothing at all. The identical stimulus that
+lifts a flying player provably moves a walking one zero units.
+
+**And a body with no gravity COASTS.** Stopping such a drive at a target
+altitude overshot it by ~67 units, because the pawn keeps whatever `Vel.Z`
+it was last given until friction eats it. Enforce a target by taking the
+residual velocity away (`if (mo.vel.z > 0) mo.vel.z = 0;`), not by stopping
+the push -- an instrument that reports "hover at 96" while sitting at 163 is
+measuring something other than its claim.
+
+**Two bind facts, read out of the engine at boot rather than remembered**
+(`Bindings.GetBinding(scan)` for a key, `GetKeysForCommand` + `NameKeys` for
+a command -- both work from a `play`-scope handler):
+
+  * **F (DIK 0x21) and G (0x22) are UNBOUND** in this build's defbinds, which
+    is what made them safe as editor toggles.
+  * **`+moveup` is `PgUp` and `+movedown` is `Ins`** by default. So a player
+    who is `bNoGravity` already has working fly-up/fly-down keys, and a HUD
+    can name them -- provided the session starts from a fresh config, which
+    is the only way those defaults are guaranteed to be what the user has.
+
+**`stop` is a ZScript KEYWORD.** `double stop = cvarOr(...)` is a load-time
+parse error -- "Unexpected 'stop', expecting identifier" -- and the engine
+refuses the whole package with the section-7 signature (log ends at
+`LoadActors`, one `Script error` line names the file). It joins
+`action` / `auto` / `states` / `out` in the reserved-word list above. Same
+family, same cost: cheap to hit, invisible until the engine will not load.
+
+**Harness lesson from the same session, and it is the WIN-00 instrument
+family with the camera moved instead of the sampler.** A pixel-counting gate
+(HARN-15) was given a FLYING arm, and it passed with a median of **0**
+hologram pixels where the walking baseline measures 518: from three courses
+up, a level view draws the editor's ghost on distant ground, below the band
+that gate deliberately crops. Every assertion fired, and every one fired
+against nothing. *A change to the POSE is a change to the instrument's field
+of view; an arm that relocates the subject owes a check that the subject is
+still in frame.*
