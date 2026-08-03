@@ -1928,3 +1928,106 @@ that gate deliberately crops. Every assertion fired, and every one fired
 against nothing. *A change to the POSE is a change to the instrument's field
 of view; an arm that relocates the subject owes a check that the subject is
 still in frame.*
+
+## Putting the engine window INSIDE an app: SetParent loses, an OWNED window wins (GameBuilder WIN-04, measured 2026-08-02/03, 4.14.3)
+
+The obvious way to dock a game window into a host application is
+`SetParent` + `WS_CHILD`. On this engine it WORKS for everything except the
+one thing that matters, and the failure is total and unrecoverable. Eleven
+engine lives over a bare Win32 host window
+(`GameBuilder/tools/dock_probe.py`; `logs/win04-dock-probe-*.txt`), every
+number read out of the engine's own log or off the screen.
+
+**`SetParent` + `WS_CHILD`: everything but input.**
+
+- The reparent TAKES and HOLDS. Style bits stripped, `SetParent` to the
+  host, one `SetWindowPos` with `SWP_FRAMECHANGED`: the child sits exactly
+  in its pane, and over three seconds of sampling it reports **one distinct
+  rect** -- the engine does not fight it and does not resize itself back
+  out. Reparent AFTER the settle (the 640x480 creation stub, WIN-00) and
+  pre-size with `win_w`/`win_h` so the reparent is not also a resize.
+- It RENDERS. 826 252 painted pixels across the pane, **zero** pixels of
+  the host's background showing through, and 1 696 300 pixels changing
+  between two frames 0.45 s apart -- a live picture, not a frozen one.
+- The SIM stays alive (`GB_POS` keeps flowing), `SetWindowPos` refits it to
+  a new pane rect, and `SetParent(NULL)` + the saved styles put it back to
+  an ordinary top-level window at its old rect with input working.
+- **AND THEN: a `WS_CHILD` window can never be the foreground window, and
+  this engine reads RAW INPUT, which follows the foreground window.**
+  Immediately after the reparent the child is STILL the foreground window
+  (it inherited that state, so keyboard and wheel keep arriving, and it
+  even survives a blink that way). The first time the host is fronted --
+  i.e. the first time the user clicks any panel in the app -- the docked
+  engine goes deaf, and **nothing gets it back**:
+  `SetForegroundWindow(child)` leaves the host in front;
+  `AttachThreadInput` + `SetFocus` demonstrably DOES give the child
+  keyboard focus (`GetGUIThreadInfo` confirms it) and it still hears
+  nothing; and **a real physical left-click inside the child's own client
+  area does not even produce a scancode** -- the engine's log shows exactly
+  two events for the whole arm, the ones sent while it still had the
+  foreground. CONN-07's `push()` refuses honestly with `reason: "focus"`.
+  Focus is not the currency here; FOREGROUND is.
+- Corollary worth keeping: `front_and_focus()`-style helpers make it
+  WORSE. Handing the foreground to the child's own parent is what breaks
+  it. The measured recipe for a reparented window is *do not touch focus
+  at all* -- which is also the standing no-focus-fights rule, arriving at
+  the same answer from the other direction.
+
+**An OWNED top-level window wins, and is what shipped.**
+`SetWindowLongPtr(GWLP_HWNDPARENT, app_hwnd)` + stripped frame +
+`SetWindowPos` over the pane, with `SWP_NOACTIVATE`:
+
+- still TOP-LEVEL, so it can be the foreground window and raw input
+  reaches it exactly as before -- input, wheel and CONN-07's `push()` all
+  behave identically to the undocked case (`push()` measured ok, gesture
+  arrived, foreground returned to the app);
+- **clicking it fronts it**, which is the recovery WS_CHILD cannot do;
+- Windows keeps it permanently above its owner with **no z-order fight**:
+  with the owner fronted, the census still read 826 252 of the engine's own
+  pixels and **0** of the owner's showing through;
+- it hides with the owner when the owner is minimized and comes back on
+  restore, and it gets no taskbar button or alt-tab entry of its own;
+- across a blink the new window is re-attached and input arrives **with no
+  click of any kind**;
+- `SetWindowLongPtr(GWLP_HWNDPARENT, 0)` + the saved styles detaches it
+  cleanly, so the undocked fallback is a real path.
+- Trap for any code that FINDS the window: an owned window has an owner, so
+  the usual `EnumWindows` filter `not GetWindow(hwnd, GW_OWNER)` stops
+  finding it. Prefer unowned, then accept owned.
+- Trap for any code that ASKS whether it is a child: `GetParent` returns
+  the OWNER for a top-level owned window, so it reports "has a parent" for
+  exactly these windows. Only the `WS_CHILD` style bit distinguishes them.
+
+**THE ENGINE STOPS REDRAWING WHEN IT IS NOT THE FOREGROUND WINDOW, AND
+THAT MAKES EVERY PIXEL CENSUS A TIMING PROBLEM.** This is not new
+behaviour and it is not caused by docking -- `i_pauseinbackground 0` keeps
+the SIM running, not the renderer -- but docking is where it bites, because
+a docked window spends its life next to an app the user is clicking.
+Measured while adding a docked mode to the ghost census: the docked run
+reported **min == median == max == 936 lit pixels over 30 samples** where
+the undocked baseline the same night reported **80 / 652 / 1873** on the
+identical arm. The window was there, the crop was verifiably its own
+pixels, and every frame was the same held image.
+
+Two consequences for harness design, and the second one is the one that
+would have shipped:
+
+- *Ask whose pixels these are DIRECTLY.* `WindowFromPoint` at all four
+  corners and the centre of the crop, resolved to the window (or a child of
+  it), beats "is the right process in the foreground" -- it catches partial
+  occlusion the foreground test cannot see, and it keeps working for a
+  window that is not the foreground.
+- *That is necessary and NOT sufficient.* Region ownership answers WHERE;
+  it says nothing about WHEN. A census needs `owns_rect(...) AND the engine
+  is the foreground window`, and a run that cannot establish the second is
+  UNMEASURED, never a pass. Docked or not, front the engine and verify it
+  took before reading pixels.
+
+**One more measured oddity, worth knowing before it looks like a defect:**
+the first synthetic keystroke sent to a *freshly relaunched* engine is
+sometimes swallowed even though the engine already holds the foreground
+(arrived on attempt 2 of 4, repeatedly; the undocked arm in the same run
+arrived on attempt 1). Latch-poll the gesture and report the attempt count
+rather than asserting on one shot -- the playbook's own "never assert at a
+fixed tic" rule, applied to input delivery. A one-shot assertion here
+convicts docking of something the separate window does too.
