@@ -1752,3 +1752,62 @@ Two pipeline facts from the same session, both cheap:
   registers, and hands the harness its best control: toggling
   `r_drawvoxels` between 1 and 0 swapped 9247 pixels, which is what
   proves the thing being measured is the voxel and not the fallback.
+
+## An exit that WORKS, and the two ways it lies about working (GameBuilder V11, measured 2026-08-02, 4.14.3)
+
+Two sections above measured what a level exit IS (a LINE special) and
+what its number is (243 / 244, plus a mandatory activation field). This
+one is what a generator learns when it emits one for real and drives a
+player into it: `F:/GameBuilder/tools/exit_gate.py`, four engine lives
+over a real DOOM II, every number read out of the engine's own map data
+and its own `WorldUnloaded` event.
+
+The good news first: **it works exactly as the probe said.** A compiled
+UDMF line carrying `special = 243; arg0 = 0; playercross = true;` ends
+the level when the player walks over it, in PLAY-TEST mode, over a real
+IWAD, with `line.activation` reading back as `1` (`SPAC_Cross`); with
+`playeruse = true` it reads back `2` (`SPAC_Use`), the walk-over does
+NOTHING, and `Activate(player, 0, SPAC_Use)` ends the level.
+
+**`WorldUnloaded` is the honest signal for "the level ended", and its
+`e.NextMap` is the destination actually chosen.** Not `Level.NextMap` --
+the secret arm's `e.NextMap` came back as the SECRET destination while
+`Level.NextMap` still named the normal one. Two cautions that make it
+usable: the event ALSO fires when the engine shuts down, and then names
+no next map, so a non-empty destination is what separates a real exit
+from a quit; and the next map's own load is a second, independent route
+to "it really ended" that is worth waiting a full 8 s for (1.5 s lost it
+every time).
+
+**Trap 1: a line is crossed by the actor's BOUNDING BOX, not by its
+centre.** The level ended at tic 38 with the player's centre at x=156.0
+and the line at x=160.0 -- the player's own `radius` is 16. A crossing
+detector written against `pos.x >= lineX` therefore reports "the player
+never reached the line" about a run in which the exit demonstrably
+fired. Use the actor's own `radius`, read off the actor.
+
+**Trap 2, and it is the quiet one: if the map `secretnext` names DOES
+NOT EXIST, `Exit_Secret` silently becomes `Exit_Normal`.** Measured with
+everything else correct: the engine printed `Level.NextSecretMap` as
+`GBMAP03`, the line carried `special = 244`, the player crossed it, and
+`WorldUnloaded` reported `next=GBMAP02` -- the NORMAL destination --
+followed by `Unable to open map 'GBMAP02'`. Nothing warned that the
+secret exit had been demoted. So a harness that packages only the map
+under test cannot tell 243 from 244 at all: BOTH destinations have to be
+real maps in the package before the two specials are distinguishable.
+(This is also why "the two ids are told apart by DESTINATION" needs the
+destinations to exist, not merely to be declared.)
+
+**A pattern worth keeping for any gate over a SHIPPED package: put the
+stimulus in a second `-file`.** The engine takes several `-file`
+packages, and a later one's MAPINFO overrides an earlier one's `map`
+block. So a harness can add its own `StaticEventHandler` -- a scripted
+drive, a line census, a use-activation -- WITHOUT putting harness
+machinery into the shipped game, and then measure the shipped markers.
+The stimulus is instrumented; the signal being judged stays the product's
+own.
+
+**And the one that is only a nuisance until it costs you an hour:** the
+intermission screen waits for a keypress, and an unattended run has
+nobody to press one. `nointermission` on the map (or on `defaultmap`) is
+what makes a level transition observable without a human at the desk.
