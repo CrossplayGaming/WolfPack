@@ -2092,3 +2092,122 @@ testable:
   phase". A run cut short is not a measurement -- size the wait from the
   drive's last tic, not from habit.
 
+
+## Two walls that MEET destroy each other, unless the shared cap is not
+## emitted (GameBuilder join rule, measured 2026-08-03, 4.14.3)
+
+A freestanding full-height wall in this generator is a closed ring of
+ONE-SIDED linedefs whose front sidedef names the CONTAINING ROOM. That
+is the classic Doom pillar and it works perfectly -- alone. Measured
+what happens when two of them meet (`GameBuilder/tools/join_probe.py`,
+one engine life, ten arms in one open room, a control that stays clean,
+and a dense grid of samples classified twice: by `point_in_ring` against
+the compiler's own outlines, and by the engine's `IsPointInLevel`):
+
+| arm | what it is | result |
+|---|---|---|
+| two walls that do not meet | the CONTROL | clean |
+| shared endpoint, right angle | the commonest thing a builder draws | **BOTH walls walkable** |
+| shared endpoint, collinear (an extension) | + one COINCIDENT linedef pair | **BOTH walls walkable** |
+| shared endpoint, 45 deg | | **BOTH walls walkable** |
+| shared endpoint, 14 deg | | **BOTH walls walkable** |
+| crossing at their middles | | **21 of 168 samples wrong** |
+| overlapping along their length | | **BOTH walls punctured** |
+| a T (an end in the middle of another) | | **BOTH walls punctured** |
+| a cap sitting exactly ON the room's boundary line | | **the wall is walkable end to end** |
+| two PARTIAL-HEIGHT bands, same height | | **clean, corner square included** |
+| two bands at DIFFERENT heights | | the corner takes one wall's slab and the other has a HOLE there |
+
+**The mechanism, and it is worth more than the table.** A one-sided
+linedef tells the engine "the room is on my front side". Where one wall's
+ring passes through another wall's body, that statement is a lie the node
+builder BELIEVES: it hands the ground back to the room, the ring stops
+being a closed boundary, and the failure propagates along both walls.
+This is not a rendering artifact and it is not partial -- `PointInSector`
+and `IsPointInLevel` agree the wall is not there.
+
+**So "just relax the clearance rule" is the wrong fix**, and the probe's
+own prove-can-fail arm restores exactly that state to show it: with
+joining switched off and the clearance test merely disabled, every joined
+arm comes back broken.
+
+**What DOES work: emit the union, mitred, and drop the shared cap.**
+Each wall's ends move onto the union's own corner points (the
+intersection of the two faces' end segments, paired
++perpendicular-to--perpendicular), and the cap between them is NOT
+EMITTED AT ALL -- both of its sides are wall body, so there is no sector
+for a one-sided line to name. The two mitred outlines are then together
+the closed boundary of the union. Re-measured with the same probe: every
+joined arm clean, the junction square itself solid, and **zero coincident
+linedef pairs** where the collinear case previously produced one.
+
+Two constraints that fall out of the arithmetic rather than from taste:
+
+  * the mitre reach is `(thickness/2) / sin(phi/2)` -- 4 units at 180
+    degrees (a straight continuation), 5.66 at a right angle, 10.45 at
+    45, and unbounded as the angle closes. Capping it (one grid quantum
+    here) is the shallow-angle limit expressed in something a person can
+    see.
+  * compute that reach FROM THE ANGLE, never from where the mitre points
+    landed. Two walls leaving the shared point in the SAME direction --
+    one lying along the other -- have parallel faces exactly like a
+    straight extension does, so the intersection falls back to the
+    endpoint and reports a comfortable 4 units for geometry that is one
+    wall inside another.
+
+**Partial-height bands are a different animal and need none of this.** A
+band is a SECTOR carrying a 3D floor, not a void, so where two bands
+overlap the node builder simply gives the corner square to one of them
+and it still carries the described slab. Measured clean at the corner
+itself. That only holds while the two heights AGREE: with different
+bands the corner takes one and leaves the other a hole, so refuse it.
+
+## A ghost that tells the truth: what the ENGINE can judge for itself (GameBuilder, measured 2026-08-03, 4.14.3)
+
+An editor's preview should say whether a click will be accepted BEFORE
+it is clicked. The temptation is to mirror the app's guards in ZScript;
+the cheaper and more honest route is that the engine has the level
+loaded and can simply LOOK. What a `StaticEventHandler` can answer with
+no app round-trip, all of it used in GameBuilder's live verdict:
+
+  * **solid rock, another wall, off the map** -- one question:
+    `Level.IsPointInLevel((x, y, floorZ + 1))` sampled along the
+    proposed geometry. A wall body is a void, so this answers "something
+    is already there" without knowing what.
+  * **which ROOM a point is in** -- `Level.PointInSector(p).Index()`.
+    Sampling it along a proposed wall answers "does this cross a room
+    boundary" against the sectors the compiler ACTUALLY MERGED, with no
+    need to re-run the merge.
+  * **is there a LINE between these two cells** -- the same question:
+    two open cells that merged into ONE sector have no linedef between
+    them, so `PointInSector(a).Index() == PointInSector(b).Index()`
+    means "there is no wall there to paint" and "there is no line for an
+    exit to sit on".
+  * **platforms** -- `sector.Get3DFloorCount()`;
+    **headroom/bounds** -- the two planes' `ZatPoint`;
+    **what is standing here** -- a `ThinkerIterator` sweep.
+  * **what a surface is WEARING** -- `TexMan.GetName(sector.GetTexture(
+    Sector.floor))` and the sidedef equivalent, which is how a "that
+    already wears this family" refusal can be measured rather than
+    guessed.
+
+**Two traps, both found by the parity harness on its first outings.**
+
+  * `PointInSector` on an exact sector boundary is ambiguous, and a
+    generator's own outline points sit exactly ON boundaries (a wall's
+    ends snap to grid corners). The compiler's `floor(v/q)` cell maths
+    assigns such a point to the cell on the +x/+y side, so the engine
+    has to NUDGE THE DECIDING SAMPLE by half a unit the same way. Half a
+    unit is far below any real sample's distance from a boundary, so it
+    changes nothing except the case it is for.
+  * **stepping a sampler along a length by a fixed step SKIPS THE FAR
+    END** whenever the length is not a multiple of the step -- and the
+    ends are exactly where a wall meets whatever it is going to meet.
+    Sample the endpoint explicitly.
+
+**And the design rule the harness enforces:** it is fine for the engine
+to answer UNKNOWN. A standalone shell carries no thing roster and no
+texture pack, so it genuinely cannot judge a placement or a paint there
+-- and "I have not checked" is not a claim, so it can never contradict
+the commit. What must never happen is the reverse: green in the preview
+and refused at the commit.
