@@ -20,7 +20,18 @@ class WolfLevel : EventHandler
 
     int areaconnect[1369];      // 37x37 (NUMAREAS)
     bool abpG[37];
-    bool madenoise;             // reset each tick (WL_PLAY.C:1404)
+    // madenoise (WL_PLAY.C:1404) - set by the player's gun, read by
+    // every SightPlayer, cleared each frame. In the original the player
+    // is object zero, so it always fires BEFORE the actors think and
+    // they all see the flag within the same frame. Here thinker order
+    // is the engine's business, and measurement showed the enemies
+    // always run first: over 118 SightPlayer calls spanning a shot, not
+    // one saw the flag set, so firing woke nobody who could not already
+    // see you. Double-buffering fixes it order-independently - a shot
+    // raises noisePending, and WorldTick promotes that into madenoise
+    // for one whole tick, which every enemy then observes exactly once.
+    bool madenoise, noisePending;
+    int noiseTics;              // diagnostic: tics madenoise was set
     int playerAreas[MAXPLAYERS];    // one seed per player (co-op)
 
     int rngIndex;
@@ -44,6 +55,13 @@ class WolfLevel : EventHandler
 
     override void WorldLoaded(WorldEvent e)
     {
+        // Loading a save left the MENU song playing over the level
+        // (user report): the menu starts WONDERIN itself, and only
+        // BackOut puts the level song back - a path a save load never
+        // takes. Claim the level's music here, where every entry to a
+        // level passes, save loads included.
+        if (Level.MapName != "TITLEMAP" && Level.Music != "")
+            S_ChangeMusic(Level.Music, Level.musicorder, true);
         rngIndex = Random(0, 255);      // US_InitRndT(true)
         floorNum = ((Level.levelnum - 1) % 10) + 1;
         for (int i = 0; i < 4096; i++)
@@ -170,7 +188,10 @@ class WolfLevel : EventHandler
 
     override void WorldTick()
     {
-        madenoise = false;      // reset every frame (WL_PLAY.C:1404)
+        madenoise = noisePending;   // one full tick, whatever the order
+        noisePending = false;
+        if (madenoise)
+            noiseTics++;            // diagnostic (wolf_dbg_alertcount)
         // track every player's area (Thrust updates it each move)
         for (int pn = 0; pn < MAXPLAYERS; pn++)
         {

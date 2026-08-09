@@ -39,7 +39,7 @@ class WolfWeapon : Weapon abstract
             return;
         invoker.Ammo1.Amount--;
         invoker.AttackSnd();
-        wl.madenoise = true;
+        wl.noisePending = true;
 
         Actor target = FindCenterTarget(96.0, 999999.0);
         if (target == null)

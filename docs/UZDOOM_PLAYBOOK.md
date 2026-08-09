@@ -2211,3 +2211,94 @@ texture pack, so it genuinely cannot judge a placement or a paint there
 -- and "I have not checked" is not a claim, so it can never contradict
 the commit. What must never happen is the reverse: green in the preview
 and refused at the commit.
+
+### Telling YOUR OWN generated void from the map's solid rock (GameBuilder, 2026-08-03)
+
+A generator that emits a thin free-standing wall as a closed ring of
+one-sided linedefs makes a region that is **VOID to the engine**:
+`Level.IsPointInLevel(p)` is false inside it, exactly as it is inside
+the map's own solid rock. A ray march therefore stops there -- which is
+right -- but the handler cannot tell WHAT it stopped in, and "you are
+aiming at a wall you drew" and "you are aiming at the level's rock" are
+different answers to the same click.
+
+**Two facts separate them, and both are read rather than assumed.**
+
+  * `Level.PointInSector((x, y))` returns **null** inside a generated
+    void, and returns the room's own sector for a point that is merely
+    ABOVE A CEILING or BELOW A FLOOR -- where `IsPointInLevel` is also
+    false. So `PointInSector == null` is the discriminator between "in
+    a body" and "out through a flat", and using `IsPointInLevel` alone
+    conflates them.
+  * WHICH object the void belongs to is not in the map at all, so it
+    has to be **baked per compile as a generated ZScript lump** (the
+    same channel a project's palette and its placed machinery already
+    ride: the cvar channel is floats-only). Carrying CELLS rather than
+    geometry is enough and is much cheaper to keep in step -- the cells
+    come from the compiler's own ring, so the engine's answer and the
+    app's come from one derivation instead of two that agree today.
+
+**And the trap that follows:** a partial-height band emitted as a sector
+carrying a 3D floor is the OPPOSITE case -- `IsPointInLevel` is TRUE
+inside one, so the march does not stop, and a `Get3DFloorCount` sweep
+reads it as a platform. A handler that identifies objects by geometry
+has to know which of its own emissions are void and which are sectors;
+they are not interchangeable and no single probe covers both.
+
+
+
+## ZScript has a PER-FUNCTION register limit (GameBuilder, 2026-08-03)
+
+A generated `switch` returning hundreds of string literals exhausts it,
+and the engine REFUSES TO START -- which presents to a user as "the
+window won't open", with the reason only in the log:
+
+```
+Script error, "zscript/gbpalette.zs" line 591:
+Register limit exceeded in GBPal.Face
+```
+
+- **Measured boundary:** a 64-case String switch boots clean; 577 does
+  not. Four functions were over at once (three String accessors and a
+  577-branch name->index if-chain).
+- **INT accessors are unaffected** at the same size. It is the string
+  literals that cost registers.
+- **The limit is per FUNCTION, not per class.** Splitting into chunks of
+  48 with a dispatcher on top fixes it completely -- measured, the same
+  577 entries then boot. So a large generated table does NOT have to be
+  trimmed to a working set; it has to be split.
+- **Nothing in a Python test suite can see this.** The lump generates
+  fine, the package builds fine, and only a real boot fails. Any change
+  to the SIZE of a generated ZScript table must be booted before it is
+  believed.
+- **A per-frame flag set by the player and read by actors is dead on
+  arrival if the actors think first.** Wolf3D's `madenoise` (the gun
+  waking everything in the connected area without line of sight) works
+  because the player is object zero and always fires before the actor
+  loop. Here map actors are spawned before the player pawn, so they
+  tick first: instrumenting SightPlayer showed 118 calls spanning a
+  shot and NOT ONE saw the flag set - the whole mechanism had never
+  fired, which is what "enemies feel unresponsive when I open fire"
+  turned out to mean. Fix by double-buffering rather than by chasing
+  thinker order: writers raise `pending`, the level's WorldTick
+  promotes it to the live flag for one whole tick, and every reader
+  observes it exactly once whatever the order. Costs one tick of
+  latency and stays deterministic for lockstep netplay.
+- **Sprite facing must be refreshed every tick, not on state change.**
+  The original re-reads `dirangle[ob->dir]` while drawing each frame
+  (CalcRotate). A port that sets Angle only where the state changes
+  draws the OLD facing for as long as the state lasts - and the turn
+  usually happens INSIDE a walk state (SelectChaseDir), so enemies
+  spend up to twenty tics visibly facing the wrong way. The symptom is
+  vague ("it doesn't feel right"), so look for it structurally: find
+  every write to the sim's direction and make sure the rendered angle
+  is derived after the think, not at state entry.
+- **Check that the source function you are porting is actually
+  CALLED.** Our guard drops copied `DropItem` (WL_STATE.C:778), which
+  tries the death tile then scans a 3x3 for a free one. It is dead
+  code - nothing in the released source calls it. Real drops go
+  through `PlaceItemType` at the death tile with no occupancy test at
+  all. Copying the unused version cost measured behaviour: 3 of 12
+  kills lost their clip entirely and others landed a tile off the
+  body. `grep -rn "FuncName ("` across the source before porting a
+  helper is a five-second check.

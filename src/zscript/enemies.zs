@@ -165,6 +165,14 @@ class WolfEnemySim : Actor abstract
     {
         sprite = GetSpriteIndex(StateSpr(stateIdx));
         frame = StateFrm(stateIdx);
+        FaceDir();
+    }
+
+    // dirangle[ob->dir] (WL_MAIN.C:48) - dirtype E,NE,N,NW,W,SW,S,SE
+    // is exactly 45 degrees a step, and the map converter's Y flip
+    // leaves the sense unchanged (Wolf north is -y there, +y here).
+    void FaceDir()
+    {
         Angle = dir == NODIR ? 0 : dir * 45.0;
     }
 
@@ -209,6 +217,7 @@ class WolfEnemySim : Actor abstract
             DoThink(StateThink(stateIdx));
             if (dead) return;
             wl.ClaimTile(tileX, tileY, self);
+            FaceDir();
             return;
         }
         ticcount -= 2;
@@ -241,6 +250,15 @@ class WolfEnemySim : Actor abstract
         DoThink(StateThink(stateIdx));
         if (dead) return;
         wl.ClaimTile(tileX, tileY, self);
+        // Facing follows dir EVERY tick, not only on a state change.
+        // The original re-reads dirangle[ob->dir] while drawing each
+        // frame (CalcRotate, WL_DRAW.C:1036); ours refreshed it in
+        // UpdateSprite alone, so an actor that turned mid-state -
+        // which is most turns, since SelectChaseDir runs inside a walk
+        // state - kept drawing its OLD facing until the next state
+        // change: up to twenty tics of an enemy visibly facing the
+        // wrong way (user report).
+        FaceDir();
         SyncPos();
     }
 
@@ -401,8 +419,16 @@ class WolfEnemySim : Actor abstract
         return pm != null && CheckSight(pm);
     }
 
+    int sightCalls, noiseSeen;      // diagnostic (wolf_dbg_alertcount)
+
     bool SightPlayer()
     {
+        sightCalls++;
+        {
+            WolfLevel wlx = WolfLevel.Get();
+            if (wlx != null && wlx.madenoise)
+                noiseSeen++;
+        }
         WolfLevel wl = WolfLevel.Get();
         if (temp2 != 0)
         {
@@ -1119,7 +1145,7 @@ class WolfEnemySim : Actor abstract
         if (dead)
             return 0;
         WolfLevel wl = WolfLevel.Get();
-        wl.madenoise = true;
+        wl.noisePending = true;
         if (!attackMode)
             damage <<= 1;           // sneak attack (ECOMBAT-008)
         hitpoints -= damage;
@@ -1162,46 +1188,22 @@ class WolfEnemySim : Actor abstract
 
     void PlaceDrop(class<Actor> cls)
     {
-        // PlaceItemType (WL_STATE.C:783-803): the death tile FIRST, and
-        // only if that is occupied does it scan the 3x3 � x outer, y
-        // inner. Blocking statics count as occupied (they set actorat=1),
-        // otherwise a drop can land inside a lamp and be unreachable.
-        int tx = wolfX >> 16, ty = wolfY >> 16;
-        if (TileFree(tx, ty))
-        {
-            SpawnDrop(cls, tx, ty);
-            return;
-        }
-        for (int x = tx - 1; x <= tx + 1; x++)
-            for (int y = ty - 1; y <= ty + 1; y++)
-                if (TileFree(x, y))
-                {
-                    SpawnDrop(cls, x, y);
-                    return;
-                }
+        // KillActor (WL_STATE.C:816-827) drops on the DEATH TILE and
+        // nowhere else: `tilex = ob->tilex = ob->x >> TILESHIFT` then
+        // PlaceItemType, with no occupancy test at all.
+        //
+        // This used to model DropItem (WL_STATE.C:778) instead, which
+        // tries the death tile and falls back to a 3x3 scan. That
+        // function is never called anywhere in the released source -
+        // it is dead code - and copying it cost real behaviour: a
+        // clip whose tile looked occupied slid a tile away from the
+        // body, and when all nine tiles looked occupied (a firefight
+        // in a small room) the drop vanished. Measured: 3 of 12 kills
+        // lost their clip, others landed 90 units off (user report:
+        // "ammo lands rather far from where their body lands").
+        SpawnDrop(cls, wolfX >> 16, wolfY >> 16);
     }
 
-    bool TileFree(int tx, int ty)
-    {
-        WolfLevel wl = WolfLevel.Get();
-        if (wl == null)
-            return false;
-        int st;
-        WolfDoor dd;
-        [st, dd] = wl.TileState(tx, ty);
-        if (st != 0)
-            return false;
-        // solid decorations (barrels, lamps, tables...) block the tile
-        BlockThingsIterator it = BlockThingsIterator.CreateFromPos(
-            tx * 64 + 32, 4096.0 - (ty * 64 + 32), 0, 0, 24, false);
-        while (it.Next())
-        {
-            Actor a = it.thing;
-            if (a != null && a.bSolid && !a.bIsMonster && a != self)
-                return false;
-        }
-        return true;
-    }
 
     void SpawnDrop(class<Actor> cls, int tx, int ty)
     {

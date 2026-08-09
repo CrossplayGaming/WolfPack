@@ -30,6 +30,81 @@ class WolfDebugHandler : EventHandler
             Console.Printf("CVARCHECK wolf_mod_hdtex=%d",
                 c == null ? -99 : c.GetInt());
         }
+        // How far does a dropped clip land from the body it came from?
+        // KillActor (WL_STATE.C:816) drops on the DEATH TILE's centre
+        // while the corpse stays where it fell, so some offset is
+        // authentic - this measures whether ours exceeds that.
+        // `kill monsters` finds nothing here - the sim actors are not
+        // engine monsters - so the probe kills through the sim's own
+        // path, the one a bullet takes.
+        if (e.Name == "wolf_dbg_killall")
+        {
+            ThinkerIterator it = ThinkerIterator.Create("WolfEnemySim");
+            Actor a;
+            while (a = Actor(it.Next()))
+            {
+                WolfEnemySim es = WolfEnemySim(a);
+                if (es != null && !es.dead)
+                    es.KillActor_(players[0].mo);
+            }
+        }
+        // Does firing wake enemies that cannot see the player? That is
+        // `madenoise` (WL_PLAY.C:1404 clears it each frame, GunAttack
+        // sets it, SightPlayer reads it) - the mechanism behind Wolf3D
+        // feeling instantly alert when you open fire in a room.
+        if (e.Name == "wolf_dbg_alertcount")
+        {
+            WolfLevel wl = WolfLevel.Get();
+            ThinkerIterator it = ThinkerIterator.Create("WolfEnemySim");
+            Actor a;
+            int live, awake, inArea;
+            while (a = Actor(it.Next()))
+            {
+                WolfEnemySim es = WolfEnemySim(a);
+                if (es == null || es.dead)
+                    continue;
+                live++;
+                if (wl != null && wl.AreaByPlayer(es.areanumber))
+                {
+                    inArea++;
+                    Console.Printf("  inArea %s st=%d temp2=%d "
+                                   "active=%d dist=%.0f sight=%d noise=%d",
+                                   es.GetClassName(), es.stateIdx,
+                                   es.temp2, es.activeFlag,
+                                   es.Distance2D(players[0].mo),
+                                   es.sightCalls, es.noiseSeen);
+                }
+                if (es.attackMode)
+                    awake++;
+            }
+            Console.Printf("ALERTCOUNT awake=%d inArea=%d live=%d "
+                           "noiseTics=%d", awake, inArea, live,
+                           wl == null ? -1 : wl.noiseTics);
+        }
+        if (e.Name == "wolf_dbg_drop")
+        {
+            ThinkerIterator bodies = ThinkerIterator.Create("WolfEnemySim");
+            Actor b;
+            while (b = Actor(bodies.Next()))
+            {
+                WolfEnemySim es = WolfEnemySim(b);
+                if (es == null || !es.dead)
+                    continue;
+                ThinkerIterator drops =
+                    ThinkerIterator.Create("WolfStatic48");
+                Actor d, best = null;
+                double bd = 1e9;
+                while (d = Actor(drops.Next()))
+                {
+                    double dd = b.Distance2D(d);
+                    if (dd < bd) { bd = dd; best = d; }
+                }
+                Console.Printf(
+                    "DROP %s body(%.1f,%.1f) clip(%.1f,%.1f) dist=%.1f",
+                    b.GetClassName(), b.pos.x, b.pos.y,
+                    best ? best.pos.x : -1.0, best ? best.pos.y : -1.0, bd);
+            }
+        }
         if (e.Name == "wolf_dbg_fixture")
         {
             ThinkerIterator it = ThinkerIterator.Create("WolfStatic14");
