@@ -24,6 +24,7 @@ class WolfDoor : Actor
     bool vertical;
     int lock;           // 0 normal, 1-4 keyed, 5 elevator
     int tileX, tileY;   // Wolf tile coords
+    bool inited;        // PostBeginPlay has run; tile coords are real
     int homeX, homeY;   // closed-position polyobject origin (start spot)
     bool areasJoined;   // DOOR-008/009 bookkeeping
 
@@ -59,6 +60,18 @@ class WolfDoor : Actor
         ticcount = 0;
         FindGateLines();
         A_SetSolid(true);           // closed doors block the tile
+        // Register with the walk grid HERE, where tileX/tileY finally
+        // exist. WolfLevel's WorldLoaded sweep runs a tick earlier (see
+        // the note above), so every door registered itself at tile
+        // 0,0 and the sim saw a door-marked tile with no door object -
+        // which TryWalk_ treated as open floor. Enemies walked through
+        // every closed door in the game. Registering from both ends
+        // covers both entries: this for a fresh level, the sweep for a
+        // save load, where PostBeginPlay never runs again.
+        inited = true;
+        WolfLevel wlr = WolfLevel.Get();
+        if (wlr != null)
+            wlr.RegisterDoor(self);
 
     }
 

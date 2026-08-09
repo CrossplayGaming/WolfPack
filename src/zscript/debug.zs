@@ -116,6 +116,35 @@ class WolfDebugHandler : EventHandler
                            "offArea=%d csum=%d", live, moved, atDoor,
                            offArea, csum);
         }
+        // Every door actor against the tile grid the sim walks on: a
+        // door tile the grid does not mark, or marks without a door
+        // registered, is one an actor strolls straight through.
+        if (e.Name == "wolf_dbg_doors")
+        {
+            WolfLevel wl = WolfLevel.Get();
+            ThinkerIterator dit = ThinkerIterator.Create("WolfDoor");
+            WolfDoor d;
+            int n, bad, moving;
+            while (d = WolfDoor(dit.Next()))
+            {
+                n++;
+                if (d.doorAction != WolfDoor.DR_CLOSED)
+                    moving++;
+                int st;
+                WolfDoor at;
+                [st, at] = wl.TileState(d.tileX, d.tileY);
+                if (st != 2 || at == null)
+                {
+                    bad++;
+                    Console.Printf("  DOORBAD tile=%d,%d state=%d "
+                                   "registered=%d lock=%d act=%d",
+                                   d.tileX, d.tileY, st, at != null,
+                                   d.lock, d.doorAction);
+                }
+            }
+            Console.Printf("DOORS %d actors, %d unregistered, "
+                           "%d not closed", n, bad, moving);
+        }
         if (e.Name == "wolf_dbg_drop")
         {
             ThinkerIterator bodies = ThinkerIterator.Create("WolfEnemySim");
@@ -378,10 +407,31 @@ class WolfDebugHandler : EventHandler
 
         CVar apv = CVar.FindCVar("wolf_dbg_check");
         if (t == 12 && apv != null && apv.GetInt() != 0)
+        {
             Console.Printf("WOLFDBG allow: jump=%d crouch=%d freelook=%d",
                            Level.IsJumpingAllowed(),
                            Level.IsCrouchingAllowed(),
                            Level.IsFreelookAllowed());
+            // Every door must be findable from the tile the sim walks
+            // on. This shipped broken for a long time and nothing
+            // caught it: the grid said "door here", the lookup said
+            // "no door", and TryWalk read the pair as open floor, so
+            // enemies walked through every closed door in the game.
+            WolfLevel wl = WolfLevel.Get();
+            ThinkerIterator dit = ThinkerIterator.Create("WolfDoor");
+            WolfDoor dr;
+            int total, bad;
+            while (dr = WolfDoor(dit.Next()))
+            {
+                total++;
+                int st;
+                WolfDoor at;
+                [st, at] = wl.TileState(dr.tileX, dr.tileY);
+                if (st != 2 || at != dr)
+                    bad++;
+            }
+            Console.Printf("DOORREG total=%d unregistered=%d", total, bad);
+        }
 
         // jump probe: hold BT_JUMP via cmd injection for a few tics, then
         // report every CheckJump precondition plus the resulting Vel.Z

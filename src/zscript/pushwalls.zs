@@ -18,6 +18,7 @@ class WolfPushwall : Actor
     int polyId;
     int maxTravel[4];       // tiles, indexed by dir: 0=E 1=N 2=W 3=S
     int tileX, tileY;       // current Wolf tile
+    bool inited;            // PostBeginPlay has run; tile coords are real
     int state_;             // 0 idle, 1 moving, 2 done
     int dirIdx;
     int unitsMoved;
@@ -38,6 +39,12 @@ class WolfPushwall : Actor
         maxTravel[3] = args[4];
         tileX = int(pos.x) / 64;
         tileY = 63 - (int(pos.y) / 64);
+        // same one-tick ordering trap as the doors: WorldLoaded's sweep
+        // runs before this, so register from here too
+        inited = true;
+        WolfLevel wlr = WolfLevel.Get();
+        if (wlr != null)
+            wlr.RegisterPushwall(self);
     }
 
     // dir deltas in WOLF tile coords (y grows south)

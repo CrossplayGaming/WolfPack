@@ -2328,3 +2328,27 @@ Register limit exceeded in GBPal.Face
   several times shows whether the sim is still RUNNING; that is what
   proved patrols circulate for a thousand tics instead of taking one
   step and stopping.
+- **PostBeginPlay runs on the level's FIRST TICK, after WorldLoaded.**
+  Any registry an event handler builds by sweeping actors in
+  WorldLoaded reads their fields one tick too early. Doors here filed
+  themselves into the walk grid from WorldLoaded, when every door's
+  tile coordinates were still 0,0 - so all 22 doors on a map landed on
+  one wrong tile and every real door tile had no door behind it. Have
+  actors register THEMSELVES at the end of PostBeginPlay, and keep the
+  handler sweep as the save-load path (PostBeginPlay never runs again
+  on restored actors, but their coordinates come back already set) -
+  guard the sweep with an `inited` flag so it skips the ones that have
+  not initialised yet.
+- **Make lookups fail CLOSED.** The grid said "door on this tile" and
+  the door lookup returned null; TryWalk treated that pair as open
+  floor, so enemies strolled through shut doors. The same code failing
+  closed would have blocked the move, been noticed in a day, and cost
+  nothing. When a lookup disagrees with the map data, take the
+  restrictive branch.
+- **A bug that hides behind another bug needs its own gate.** Enemies
+  had been walking through every closed door for months, invisible
+  because a separate defect froze every actor the player was not
+  connected to - fixing the freeze exposed it immediately. When a fix
+  makes new behaviour reachable, add a check for the newly-exercised
+  path, not just for the thing you fixed: build.py --check now asserts
+  every door is findable from its own tile.

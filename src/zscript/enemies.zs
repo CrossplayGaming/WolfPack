@@ -561,7 +561,15 @@ class WolfEnemySim : Actor abstract
             WolfDoor dd;
             [s, dd] = wl.TileState(tileX + dx, tileY + dy);
             if (s == 1) return 0;
-            if (s == 2) doorRef = dd;
+            if (s == 2)
+            {
+                // fail CLOSED: a door tile whose door object is missing
+                // must block, never read as open floor. When door
+                // registration was broken this branch silently granted
+                // the move and enemies strolled through shut doors.
+                if (dd == null) return 0;
+                doorRef = dd;
+            }
         }
 
         tileX += dx;

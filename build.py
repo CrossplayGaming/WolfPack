@@ -224,6 +224,21 @@ def check():
     elif loaded and "DOORTEST nodoors" not in text:
         errors.append("DOORTEST never started (handler not running?)")
 
+    # Every door must be findable from the tile the actor sim walks on.
+    # This shipped broken and nothing caught it: doors registered a tick
+    # before their coordinates existed, so the grid said "door here",
+    # the lookup said "no door", and enemies walked through shut doors.
+    reg = re.search(r"DOORREG total=(\d+) unregistered=(\d+)", text)
+    if reg:
+        total, bad = int(reg.group(1)), int(reg.group(2))
+        if bad:
+            errors.append(f"DOORREG {bad} of {total} doors not registered "
+                          "on their own tile")
+        else:
+            print(f"  doorreg: {total} doors registered — OK")
+    elif loaded:
+        errors.append("DOORREG never reported (handler not running?)")
+
     # machine-gun cadence (WEAP-003): 1 shot per 12 Wolf tics = 6 engine
     # tics -> 40 shots in the 240-tic soak. Also proves no refire recursion.
     m = re.search(r"weapon soak: shots=(\d+) tics=(\d+)", text)

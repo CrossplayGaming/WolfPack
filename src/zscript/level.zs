@@ -125,15 +125,24 @@ class WolfLevel : EventHandler
             players[i].mo.TakeInventory("WolfSilverKey", 99);
         }
 
-        // register doors and pushwalls by tile
+        // Register doors and pushwalls by tile - but ONLY those whose
+        // PostBeginPlay has already run. On a fresh level this sweep
+        // is a tick too early (PostBeginPlay runs on the first tick,
+        // after WorldLoaded), so every door still reads tile 0,0 and
+        // registering them here filed the whole map's doors under one
+        // wrong tile. They register themselves instead; this pass is
+        // what covers a SAVE LOAD, where PostBeginPlay never runs
+        // again but the coordinates come back already set.
         ThinkerIterator dit = ThinkerIterator.Create("WolfDoor");
         WolfDoor d;
         while ((d = WolfDoor(dit.Next())) != null)
-            doorAt[d.tileY * 64 + d.tileX] = d;
+            if (d.inited)
+                RegisterDoor(d);
         ThinkerIterator pit = ThinkerIterator.Create("WolfPushwall");
         WolfPushwall p;
         while ((p = WolfPushwall(pit.Next())) != null)
-            pwAt[p.tileY * 64 + p.tileX] = p;
+            if (p.inited)
+                RegisterPushwall(p);
 
         // stat totals (spawn-time counting like the original)
         ThinkerIterator eit = ThinkerIterator.Create("WolfEnemySim");
@@ -340,6 +349,18 @@ class WolfLevel : EventHandler
             if (p.tileX == tx && p.tileY == ty && p.state_ != 1)
                 return p;
         return null;
+    }
+
+    void RegisterDoor(WolfDoor d)
+    {
+        if (d.tileX >= 0 && d.tileX <= 63 && d.tileY >= 0 && d.tileY <= 63)
+            doorAt[d.tileY * 64 + d.tileX] = d;
+    }
+
+    void RegisterPushwall(WolfPushwall p)
+    {
+        if (p.tileX >= 0 && p.tileX <= 63 && p.tileY >= 0 && p.tileY <= 63)
+            pwAt[p.tileY * 64 + p.tileX] = p;
     }
 
     // actorat[tx][ty] - the sim's claim, which an actor takes on its
