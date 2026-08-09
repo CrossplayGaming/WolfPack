@@ -395,8 +395,49 @@ class WolfPickup : Inventory abstract
         WolfPlayer wp = WolfPlayer(toucher);
         if (wp != null)
             wp.bonusCount = 18;
+        if (deathmatch)
+        {
+            // Deathmatch only, and a deliberate break from the original:
+            // Wolf3D never respawns anything, but a campaign floor is
+            // played once while an arena runs until the frag limit. The
+            // campaign path below is untouched - GoAwayAndDie is final
+            // there, so nothing about a single-player or co-op run
+            // changes.
+            Hide();
+            respawnIn = RespawnDelay();
+            return true;
+        }
         GoAwayAndDie();
         return true;
+    }
+
+    // seconds x 35: the chaingun is the map's tempo, so it is the one
+    // number worth tuning first when a match feels wrong
+    int respawnIn;
+
+    virtual int RespawnDelay()
+    {
+        switch (BonusKind())
+        {
+        case BO_CHAINGUN:  return 30 * 35;
+        case BO_MACHINEGUN: return 20 * 35;
+        case BO_FULLHEAL:  return 60 * 35;
+        case BO_FIRSTAID:  return 20 * 35;
+        default:           return 10 * 35;
+        }
+    }
+
+    override void Tick()
+    {
+        Super.Tick();
+        if (respawnIn > 0 && --respawnIn == 0)
+        {
+            // no telefrag risk: pickups are non-solid, so a player
+            // standing on the spot simply takes it again
+            bInvisible = false;
+            bSpecial = true;
+            A_StartSound("wolf/getammo", CHAN_ITEM, volume: 0.4);
+        }
     }
 
     static void GiveAmmo_(Actor toucher, int amount)

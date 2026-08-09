@@ -157,6 +157,34 @@ map DM1 "Kesselring"
     next = "DM1"
 }
 
+map DM2 "Kanalstrasse"
+{
+    levelnum = 91
+    music = "SEARCHN"
+    next = "DM2"
+}
+
+map DM3 "Zwillingshalle"
+{
+    levelnum = 92
+    music = "POW"
+    next = "DM3"
+}
+
+map DM4 "Der Kaefig"
+{
+    levelnum = 93
+    music = "SUSPENSE"
+    next = "DM4"
+}
+
+map DM5 "Sankt Kreuz"
+{
+    levelnum = 94
+    music = "WARMARCH"
+    next = "DM5"
+}
+
 map LOBBY "Lobby"
 {
     levelnum = 99

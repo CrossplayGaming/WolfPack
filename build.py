@@ -150,6 +150,10 @@ def check_exits():
     reachable exit and a resolving MAPINFO chain - the inert Spear of
     Destiny soft-locked SoD floor 18 for weeks without any other gate
     noticing."""
+    rd = subprocess.run([sys.executable, "tools/audit_dmmaps.py"],
+                        cwd=str(ROOT))
+    if rd.returncode:
+        sys.exit("deathmatch arena audit failed")
     rc = subprocess.run([sys.executable, "tools/audit_exits.py"],
                         capture_output=True, text=True)
     tail = "\n".join(rc.stdout.strip().split("\n")[-3:])

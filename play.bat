@@ -20,7 +20,8 @@ if not exist "build\assets\PLAYPAL" (
     python tools\extract_audio.py || goto :fail
     python tools\extract_vgagraph.py || goto :fail
     python tools\extract_text.py || goto :fail
-    python tools\convert_udmf.py || goto :fail
+    python tools\gen_dmmaps.py || goto :fail
+python tools\convert_udmf.py || goto :fail
     python tools\gen_flats.py || goto :fail
     python tools\import_bj_sheet.py || goto :fail
 
