@@ -146,6 +146,17 @@ include "mapinfo_maps.txt"
 // Multiplayer lobby: Hans's level with the fight stripped, all players
 // spawning in the pillared hall. No exit yet - episode doors and skill
 // switches arrive with the lobby flow. Menu music: it's a staging area.
+// Deathmatch arenas - our own layouts (docs/data/dm), not derived
+// from either game's map data. levelnum 90+ keeps them clear of the
+// campaign floors; each loops back to itself so a match never ends by
+// walking somewhere.
+map DM1 "Kesselring"
+{
+    levelnum = 90
+    music = "GETTHEM"
+    next = "DM1"
+}
+
 map LOBBY "Lobby"
 {
     levelnum = 99

@@ -347,7 +347,15 @@ def convert(level, ceiling_color):
 
     for o in level["objects"]:
         k = o["kind"]
-        if k == "player_start":
+        if k == "dm_start":
+            # our own arenas (gen_dmmaps.py) place every start by hand,
+            # so the max-spread search below never runs on them. The
+            # first one doubles as the single-player start, which is
+            # what lets an arena be walked and screenshotted solo.
+            thing(o["x"], o["y"], 11, o.get("angle", 0))
+            if o.get("primary"):
+                thing(o["x"], o["y"], ED_PLAYER1, o.get("angle", 0))
+        elif k == "player_start":
             thing(o["x"], o["y"], ED_PLAYER1, ANGLES[o["dir"]])
             spots = coop_spots(o["x"], o["y"], 7)
             for i, (cx, cy) in enumerate(spots[:7]):
@@ -587,6 +595,18 @@ def main():
                 (out / "LOBBY.manifest.json").write_text(json.dumps(lman))
                 (out / "LOBBY.grid.txt").write_text(lgrid)
                 print(f"{setname}: + LOBBY (from MAP{level['map']:02d})")
+        # our own deathmatch arenas, compiled by gen_dmmaps.py from the
+        # ASCII sources in docs/data/dm - not derived from anyone's
+        # game data, so they go through the same writer and nothing
+        # downstream has to know the difference
+        if setname == "wl6":
+            for f in sorted(src.glob("DM*.json")):
+                lv = json.loads(f.read_text())
+                tm, man, gr = convert(lv, ceilings["wl6"][1])
+                (out / f"{f.stem}.textmap").write_text(tm)
+                (out / f"{f.stem}.manifest.json").write_text(json.dumps(man))
+                (out / f"{f.stem}.grid.txt").write_text(gr)
+                print(f"{setname}: + {f.stem} ({lv['name']})")
         print(f"{setname}: converted {len(list(src.glob('MAP*.json')))} maps")
     if not total:
         sys.exit("no extracted levels; run extract_levels.py first")

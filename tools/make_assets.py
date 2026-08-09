@@ -753,6 +753,17 @@ sector { heightfloor = 0; heightceiling = 64; texturefloor = "FLOOR19";
             shutil.copy(flats, ASSETS / "wolfdata" / f"{mapname}.flats")
         nmaps += 1
 
+    # our own deathmatch arenas (docs/data/dm -> gen_dmmaps.py). WL6
+    # only: they are original layouts, not derived from either game.
+    if SET == "wl6":
+        for tm in sorted(UDMF.glob("DM*.textmap")):
+            (ASSETS / "maps" / f"{tm.stem.lower()}.wad").write_bytes(
+                wrap_wad(tm.stem, tm.read_bytes()))
+            gr = UDMF / f"{tm.stem}.grid.txt"
+            if gr.exists():
+                shutil.copy(gr, ASSETS / "wolfdata" / f"{tm.stem}.txt")
+            nmaps += 1
+
     # multiplayer lobby (convert_udmf LOBBY variant of Hans's level)
     lobby = UDMF / "LOBBY.textmap"
     if lobby.exists():
