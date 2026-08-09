@@ -81,6 +81,41 @@ class WolfDebugHandler : EventHandler
                            "noiseTics=%d", awake, inArea, live,
                            wl == null ? -1 : wl.noiseTics);
         }
+        // Are actors outside the player's area alive at all? Counts how
+        // many have left their spawn tile and how many are parked
+        // waiting on a door (distance < 0) - what a guard pinned
+        // against a closed door looks like from the sim's side.
+        if (e.Name == "wolf_dbg_patrol")
+        {
+            WolfLevel wl = WolfLevel.Get();
+            ThinkerIterator pit = ThinkerIterator.Create("WolfEnemySim");
+            Actor pa;
+            int live, moved, atDoor, offArea, csum;
+            while (pa = Actor(pit.Next()))
+            {
+                WolfEnemySim es = WolfEnemySim(pa);
+                if (es == null || es.dead)
+                    continue;
+                live++;
+                if (es.tileX != es.spawnTX || es.tileY != es.spawnTY)
+                    moved++;
+                csum += es.tileX * 64 + es.tileY;
+                if (es.distance < 0)
+                {
+                    atDoor++;
+                    Console.Printf("  atDoor %s tile=%d,%d door=%s",
+                                   es.GetClassName(), es.tileX, es.tileY,
+                                   es.waitDoor == null ? "NONE" :
+                                   String.Format("act%d",
+                                                 es.waitDoor.doorAction));
+                }
+                if (wl != null && !wl.AreaByPlayer(es.areanumber))
+                    offArea++;
+            }
+            Console.Printf("PATROL live=%d moved=%d waitingDoor=%d "
+                           "offArea=%d csum=%d", live, moved, atDoor,
+                           offArea, csum);
+        }
         if (e.Name == "wolf_dbg_drop")
         {
             ThinkerIterator bodies = ThinkerIterator.Create("WolfEnemySim");

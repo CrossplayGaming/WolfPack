@@ -2302,3 +2302,29 @@ Register limit exceeded in GBPal.Face
   kills lost their clip entirely and others landed a tile off the
   body. `grep -rn "FuncName ("` across the source before porting a
   helper is a five-second check.
+- **Don't gate an actor's THINK on what the original gated its SIGHT
+  on.** Wolf3D runs DoActor over every object every frame
+  (WL_PLAY.C:1409); the `areabyplayer` test lives inside SightPlayer,
+  deciding what an actor can SEE. Porting it up into the tick as a
+  cheap "skip distant actors" optimisation froze every actor in a room
+  the player was not connected to - mid-animation, mid-step. Patrols
+  stopped patrolling, and a guard walking toward a closed door never
+  got the tick that calls OpenDoor, so it stood pinned against it
+  indefinitely (that was the user's screenshot). The optimisation was
+  not even needed: the expensive part is the sight trace, and the
+  original's own area test already guards exactly that.
+- **A tile-reservation sim needs every consumer to read the
+  reservation, not the positions.** Wolf3D actors claim their
+  DESTINATION tile in `actorat` the instant TryWalk grants the move,
+  a whole tile before arriving, and `CloseDoor` refuses on
+  `actorat[tilex][tiley]` first of all (WL_ACT1.C:425). A door-close
+  check written against where bodies physically ARE looks equivalent
+  and is not: it misses the whole traverse window, so the door shuts
+  on an actor already committed to walking through it and the actor
+  then crosses a closed door.
+- **Probe for liveness with a checksum, not a boolean.** "Did anything
+  move?" saturates - an actor that stepped once still reads as moved
+  forever. Summing tile coordinates across all actors and sampling it
+  several times shows whether the sim is still RUNNING; that is what
+  proved patrols circulate for a thousand tics instead of taking one
+  step and stopping.

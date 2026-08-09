@@ -342,6 +342,16 @@ class WolfLevel : EventHandler
         return null;
     }
 
+    // actorat[tx][ty] - the sim's claim, which an actor takes on its
+    // DESTINATION tile the moment TryWalk grants the move, before it
+    // has physically travelled there (DoActor, WL_PLAY.C:1338)
+    Actor ActorAt(int tx, int ty)
+    {
+        if (tx < 0 || tx > 63 || ty < 0 || ty > 63)
+            return null;
+        return enemyAt[ty * 64 + tx];
+    }
+
     void ClaimTile(int tx, int ty, Actor who)
     {
         if (tx >= 0 && tx <= 63 && ty >= 0 && ty <= 63)

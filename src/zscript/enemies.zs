@@ -204,8 +204,14 @@ class WolfEnemySim : Actor abstract
             return;
         if (!simInit)
             LazyInit(wl);
-        if (!activeFlag && !wl.AreaByPlayer(areanumber))
-            return;
+        // No area gate here. PlayLoop runs DoActor over EVERY object
+        // each frame (WL_PLAY.C:1409) - the area test lives inside
+        // SightPlayer/CheckSight, deciding what an actor can SEE, not
+        // whether it thinks. Gating the think froze every actor in a
+        // room the player was not connected to, mid-animation: patrols
+        // stopped patrolling, and a guard walking at a closed door
+        // never got the tick that would have called OpenDoor, so it
+        // stood pinned against it forever (user screenshot, E1M1).
         if (attackMode)
             PickNearestTarget();        // co-op: hunt the nearest live
 

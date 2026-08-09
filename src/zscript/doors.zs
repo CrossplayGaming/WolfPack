@@ -182,6 +182,17 @@ class WolfDoor : Actor
     // CloseDoor checks (WL_ACT1.C:417-460): refuse if blocked
     bool TileBlocked()
     {
+        // CloseDoor's FIRST test is `if (actorat[tilex][tiley]) return;`
+        // (WL_ACT1.C:425) - the sim's tile claim, which an actor takes
+        // on its DESTINATION tile the instant TryWalk grants the move,
+        // a whole tile before it arrives there. Testing only where
+        // bodies physically are (below) misses exactly that window, so
+        // a door could shut on an enemy already committed to walking
+        // through it, and the enemy then crossed a closed door (user
+        // report: back out, door closes, enemy comes through it).
+        WolfLevel wlv = WolfLevel.Get();
+        if (wlv != null && wlv.ActorAt(tileX, tileY) != null)
+            return true;
         // anything shootable (or a player) whose bounding box overlaps the
         // door tile, expanded by MINDIST (0x5800 -> 22 units) per DOOR-006
         double x1 = tileX * 64 - 22, x2 = tileX * 64 + 64 + 22;
