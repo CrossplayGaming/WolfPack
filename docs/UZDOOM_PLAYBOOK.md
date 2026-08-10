@@ -2387,3 +2387,20 @@ Register limit exceeded in GBPal.Face
   defaults you depend on in DEFCVARS, and measure them from a FRESH
   config file rather than the one you have been testing with - yours
   has been carrying values your own probes set.
+- **"Co-op has its own AI" is usually false, and worth checking before
+  fixing anything twice.** Here the netgame adaptation is a targeting
+  LAYER on the single sim - a target index plus three helpers - not a
+  parallel implementation, so single-player fixes land in both. Verify
+  it rather than assume: grep the sim for `multiplayer`/`netgame`
+  branches (none is the answer you want), then RUN the probes inside a
+  real two-node session. `-host 2` plus a `-join localhost` process,
+  each with its own config and exec cfg, drives a genuine netgame
+  headlessly; the host's log carries the netevent output.
+- **The co-op-specific bug class is STALE TARGET STATE, not the logic
+  the fixes touched.** Waking an actor and choosing whom it wakes ONTO
+  are different steps, and the original never had to separate them.
+  Ours woke on damage without recording who dealt it, so the shot
+  player got no reaction while the nearest player inherited the fight.
+  Anywhere a single-player original says "the player", check whether
+  the port answers "which one" at every branch - and remember a
+  per-tick retarget can silently undo whatever the wake decided.

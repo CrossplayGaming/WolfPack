@@ -212,7 +212,9 @@ class WolfEnemySim : Actor abstract
         // stopped patrolling, and a guard walking at a closed door
         // never got the tick that would have called OpenDoor, so it
         // stood pinned against it forever (user screenshot, E1M1).
-        if (attackMode)
+        if (grudge > 0)
+            grudge -= 2;                // sim cadence: 2 Wolf tics a tick
+        if (attackMode && grudge <= 0)
             PickNearestTarget();        // co-op: hunt the nearest live
 
         wl.ReleaseTile(tileX, tileY, self);
@@ -355,6 +357,16 @@ class WolfEnemySim : Actor abstract
             }
         return players[targetPlayer].mo;    // last resort: a corpse
     }
+
+    // Co-op only in effect: how long an enemy stays fixed on whoever
+    // just hurt it before nearest-target takes over again. Without it
+    // an enemy shot by the far player instantly turned on the nearer
+    // one - the shooter got no reaction at all, and the sneak-attack
+    // double damage rewarded the wrong player. 3 seconds at the sim's
+    // 2-tics-per-tick cadence. Single player cannot tell the
+    // difference: there is only ever one candidate.
+    const GRUDGE_TICS = 105;
+    int grudge;
 
     void PickNearestTarget()
     {
@@ -1160,6 +1172,16 @@ class WolfEnemySim : Actor abstract
             return 0;
         WolfLevel wl = WolfLevel.Get();
         wl.noisePending = true;
+        // Hunt whoever just shot you. FirstSighting wakes the actor but
+        // says nothing about WHOM, so targetPlayer kept its old value -
+        // 0, the host - and the next tick's nearest-target pass could
+        // hand the enemy to a player who had not fired at all. The
+        // original has one player and no such question.
+        if (source != null && source.player != null)
+        {
+            targetPlayer = source.PlayerNumber();
+            grudge = GRUDGE_TICS;
+        }
         if (!attackMode)
             damage <<= 1;           // sneak attack (ECOMBAT-008)
         hitpoints -= damage;
