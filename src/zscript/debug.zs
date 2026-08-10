@@ -437,7 +437,27 @@ class WolfDebugHandler : EventHandler
     void ClipWatch()
     {
         CVar cv = CVar.FindCVar("wolf_dbg_clip");
-        if (cv == null || cv.GetInt() == 0 || (Level.maptime % 5) != 0)
+        if (cv == null || cv.GetInt() == 0)
+            return;
+        // heartbeat: a probe that reports nothing proves nothing unless
+        // you can see it ran at all
+        if (Level.maptime == 100)
+        {
+            int props, foes;
+            ThinkerIterator hit = ThinkerIterator.Create("Actor");
+            Actor ha;
+            while (ha = Actor(hit.Next()))
+            {
+                if (ha is "WolfEnemySim")
+                    foes++;
+                else if (ha.bSolid && ha.player == null
+                         && !(ha is "WolfDoor") && !(ha is "WolfPushwall"))
+                    props++;
+            }
+            Console.Printf("CLIPWATCH active: %d enemies vs %d solid props",
+                           foes, props);
+        }
+        if ((Level.maptime % 5) != 0)
             return;
         WolfLevel wlc = WolfLevel.Get();
         ThinkerIterator eit = ThinkerIterator.Create("WolfEnemySim");
