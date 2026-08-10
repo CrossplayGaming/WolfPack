@@ -15,6 +15,23 @@ class WolfCheatMenu : WolfWidgetMenu
     enum ECheat { CH_GOD, CH_NOCLIP, CH_ARSENAL, CH_HEALTH, CH_SKIP };
 
     bool ingame;
+    // Floor warp. The original has no such cheat - its debug keys did
+    // this - but "start on floor 7" is the difference between testing a
+    // fix in ten seconds and replaying six floors, and the console
+    // route (`map MAP07`) is not something to ask a player to type.
+    int warpEp, warpFloor;
+
+    int FloorCount() { return WolfDraw.IsSpear() ? 21 : 10; }
+
+    String WarpLabel()
+    {
+        if (WolfDraw.IsSpear())
+            return String.Format("  Warp: Floor %d", warpFloor + 1);
+        return String.Format("  Warp: E%d Floor %d", warpEp + 1,
+                             warpFloor + 1);
+    }
+
+    int WarpMap() { return warpEp * 10 + warpFloor + 1; }
 
     override void Init(Menu parent, ListMenuDescriptor desc)
     {
@@ -27,6 +44,13 @@ class WolfCheatMenu : WolfWidgetMenu
         AddRow(W_COMMAND, "Full Arsenal", "", st);
         AddRow(W_COMMAND, "Full Health", "", st);
         AddRow(W_COMMAND, "Skip This Floor", "", st);
+        // seed the picker with where we are, so it reads as a jump
+        // FROM here rather than a blank form
+        int cur = Level.levelnum > 0 ? Level.levelnum - 1 : 0;
+        warpEp = WolfDraw.IsSpear() ? 0 : cur / 10;
+        warpFloor = WolfDraw.IsSpear() ? cur : cur % 10;
+        AddRow(W_COMMAND, WarpLabel(), "", st);
+        AddRow(W_COMMAND, "Go To That Floor", "", st);
         AddToggle("Reveal Automap", "am_cheat");
         winH = 13 * labels.Size() + 6;
         sel = ingame ? 0 : labels.Size() - 1;
@@ -48,7 +72,30 @@ class WolfCheatMenu : WolfWidgetMenu
 
     override void OnChoose(int index)
     {
-        if (!ingame || index > CH_SKIP)
+        if (!ingame)
+            return;
+        String lab = labels[index];
+        if (lab.IndexOf("Warp:") >= 0)
+        {
+            // one row cycles the destination; Spear has no episodes
+            warpFloor++;
+            if (warpFloor >= FloorCount())
+            {
+                warpFloor = 0;
+                if (!WolfDraw.IsSpear())
+                    warpEp = (warpEp + 1) % 6;
+            }
+            labels[index] = WarpLabel();
+            MenuSound("menu/change");
+            return;
+        }
+        if (lab == "Go To That Floor")
+        {
+            EventHandler.SendNetworkEvent("wolf_warp", WarpMap());
+            BackOut();
+            return;
+        }
+        if (index > CH_SKIP)
             return;
         EventHandler.SendNetworkEvent("wolf_cheat", index);
         if (index == CH_SKIP)

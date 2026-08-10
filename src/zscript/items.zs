@@ -153,6 +153,16 @@ eliminated your chances of
             DoCheat(e.Args[0], clamp(e.Player, 0, MAXPLAYERS - 1));
             return;
         }
+        if (e.Name == "wolf_warp")
+        {
+            // straight to a floor, keeping what the player carries.
+            // NOINTERMISSION: a warp is not a floor you finished, so
+            // there is no tally to show.
+            int n = clamp(e.Args[0], 1, 60);
+            Level.ChangeLevel(String.Format("MAP%02d", n), 0,
+                              CHANGELEVEL_NOINTERMISSION);
+            return;
+        }
         if (e.Name == "wolf_newgame")
         {
             // reset only: the map change itself goes through the
