@@ -246,6 +246,50 @@ class WolfDebugHandler : EventHandler
                     Console.Printf("STATIC %s n=%d solid=%d", cn, n, sol);
             }
         }
+        // Stand where the trouble is and run this: it prints the
+        // 3x3 of tiles around you as the SIM sees them, plus every
+        // solid prop nearby and the tile each one claims. That turns
+        // "enemies walk through these pillars" into an answer from the
+        // player's own session instead of my guess about which tiles
+        // they mean.
+        if (e.Name == "wolf_dbg_here" && e.Player >= 0
+            && players[e.Player].mo != null)
+        {
+            WolfLevel wl = WolfLevel.Get();
+            Actor pm = players[e.Player].mo;
+            int ptx = int(pm.pos.x) / 64;
+            int pty = 63 - (int(pm.pos.y) / 64);
+            Console.Printf("HERE map=%s player tile %d,%d  (0 open, "
+                           "1 solid, 2 door)", Level.MapName, ptx, pty);
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                String row = "  ";
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    int st;
+                    WolfDoor dd;
+                    [st, dd] = wl.TileState(ptx + dx, pty + dy);
+                    row = row .. String.Format("%d ", st);
+                }
+                Console.Printf("%s   (row y=%d)", row, pty + dy);
+            }
+            ThinkerIterator it = ThinkerIterator.Create("Actor");
+            Actor a;
+            while (a = Actor(it.Next()))
+            {
+                if (a.player != null || a is "WolfEnemySim"
+                    || a.Distance2D(pm) > 130)
+                    continue;
+                if (!a.bSolid && !(a is "WolfStatic00"))
+                    continue;
+                int ax = int(a.pos.x) / 64, ay = 63 - (int(a.pos.y) / 64);
+                int st2;
+                WolfDoor dd2;
+                [st2, dd2] = wl.TileState(ax, ay);
+                Console.Printf("  NEAR %s tile %d,%d solid=%d simState=%d",
+                               a.GetClassName(), ax, ay, a.bSolid, st2);
+            }
+        }
         if (e.Name == "wolf_dbg_drop")
         {
             ThinkerIterator bodies = ThinkerIterator.Create("WolfEnemySim");
@@ -388,13 +432,14 @@ class WolfDebugHandler : EventHandler
 
     // Overlap watcher (`+set wolf_dbg_clip 1`): grid checks prove what
     // the sim BELIEVES; this measures where the bodies actually are.
-    int clipHits;
+    int clipHits, westSeen;
 
     void ClipWatch()
     {
         CVar cv = CVar.FindCVar("wolf_dbg_clip");
         if (cv == null || cv.GetInt() == 0 || (Level.maptime % 5) != 0)
             return;
+        WolfLevel wlc = WolfLevel.Get();
         ThinkerIterator eit = ThinkerIterator.Create("WolfEnemySim");
         Actor ea;
         while (ea = Actor(eit.Next()))
@@ -402,6 +447,16 @@ class WolfDebugHandler : EventHandler
             WolfEnemySim es = WolfEnemySim(ea);
             if (es == null || es.dead)
                 continue;
+            // did anyone reach the WEST side of the pillar wall?
+            // (x<38 on E1M7 means they got past it or came round)
+            if (wlc != null && es.attackMode && es.tileX <= 37
+                && es.tileY >= 20 && es.tileY <= 40)
+            {
+                westSeen++;
+                if (westSeen <= 6)
+                    Console.Printf("WEST %s at tile %d,%d", ea.GetClassName(),
+                                   es.tileX, es.tileY);
+            }
             ThinkerIterator bit = ThinkerIterator.Create("Actor");
             Actor ba;
             while (ba = Actor(bit.Next()))
