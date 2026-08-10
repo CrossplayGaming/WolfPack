@@ -2369,3 +2369,21 @@ Register limit exceeded in GBPal.Face
   proved anything about the keyboard path. When a probe and the
   shipped behaviour disagree, the resolution is to remove the risky
   call from the path entirely rather than to keep tuning the probe.
+- **A GLDEFS light attachment is unconditional forever.** `object X {
+  frame Y { light Z } }` binds the light to that sprite frame at load;
+  no cvar, no menu, and no script can switch it off. Anything meant to
+  be OPTIONAL must be attached at runtime with `A_AttachLight(tag,
+  ...)` and dropped with `A_RemoveLight(tag)` - keep the light table as
+  data and let the handler apply it. Two catches: actors spawned later
+  (projectiles) need the same attach from `WorldThingSpawned`, and
+  `A_RemoveLight` RETURNS whether one was there, which makes it a free
+  probe for "how many lights are actually attached right now".
+- **Check the ENGINE's default, not just your own cvar's.** Every
+  option on our Lighting page defaulted off, and the feature still
+  half-applied on a fresh install: this fork ships `gl_lightmode 1`
+  (Software falloff), which is exactly what the Enhanced Lighting
+  option turns ON. Our menu only set it while being toggled, so a new
+  player got half an option they never enabled. Pin engine-side
+  defaults you depend on in DEFCVARS, and measure them from a FRESH
+  config file rather than the one you have been testing with - yours
+  has been carrying values your own probes set.

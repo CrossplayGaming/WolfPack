@@ -145,6 +145,35 @@ class WolfDebugHandler : EventHandler
             Console.Printf("DOORS %d actors, %d unregistered, "
                            "%d not closed", n, bad, moving);
         }
+        // How many dynamic lights are actually attached right now?
+        // A_RemoveLight returns true only if there was one, so this
+        // both counts and clears - run it to prove the Lighting toggle
+        // owns them (with the option off the answer must be zero).
+        if (e.Name == "wolf_dbg_lights")
+        {
+            ThinkerIterator it = ThinkerIterator.Create("Actor");
+            Actor a;
+            int lit, seen;
+            while (a = Actor(it.Next()))
+            {
+                seen++;
+                if (a.A_RemoveLight("wolfmod"))
+                    lit++;
+            }
+            CVar w = CVar.FindCVar("wolf_mod_light");
+            Console.Printf("LIGHTS attached=%d of %d actors (option=%d)",
+                           lit, seen, w == null ? -1 : w.GetInt());
+            // the whole Lighting page, as the engine currently has it
+            String names[] = { "wolf_mod_light", "gl_lightmode",
+                               "gl_light_shadowmap", "gl_ssao",
+                               "gl_bloom", "gl_lights" };
+            for (int i = 0; i < 6; i++)
+            {
+                CVar c = CVar.FindCVar(names[i]);
+                Console.Printf("  LIGHTCVAR %s = %s", names[i],
+                               c == null ? "?" : c.GetString());
+            }
+        }
         if (e.Name == "wolf_dbg_drop")
         {
             ThinkerIterator bodies = ThinkerIterator.Create("WolfEnemySim");

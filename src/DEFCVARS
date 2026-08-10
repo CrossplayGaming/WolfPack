@@ -11,3 +11,11 @@ crosshair 0
 // engine obituaries render in the hardwired console font; the Wolf
 // kill feed (lobby.zs) replaces them in netgames
 show_obituaries 0
+// Classic falloff on a fresh install. This engine ships gl_lightmode 1
+// (Software) as ITS default, which is the mode the Enhanced Lighting
+// option turns ON - so a new player got half of an option they never
+// enabled. The option still sets 1/0 as it is toggled; this only fixes
+// where a fresh config starts. (Measured defaults for the rest of the
+// Lighting page are already off: gl_light_shadowmap false, gl_ssao 0,
+// gl_bloom false, wolf_mod_light 0.)
+gl_lightmode 0

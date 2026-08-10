@@ -29,6 +29,17 @@ class WolfLighting : EventHandler
     Array<String> swapClasses;      // fixture classes with a pool-less
     Array<String> swapSprites;      // ...sprite name (XPnn), paired
 
+    // Lights are ATTACHED AT RUNTIME, not declared in GLDEFS. A GLDEFS
+    // `object X { frame Y { light Z } }` binds the light to the sprite
+    // permanently - nothing about it can be conditional - so the lamps
+    // and the projectiles kept glowing with enhanced lighting switched
+    // off (user report: "some dynamic light setting stuck on"). The
+    // table now ships as wolfdata/lights.txt and this attaches or
+    // removes the lights with the option.
+    const LIGHTTAG = "wolfmod";
+    Array<String> litClass;
+    Array<int> litR, litG, litB, litSize, litZ;
+
     static bool Wanted()
     {
         CVar cv = CVar.GetCVar("wolf_mod_light", players[0]);
@@ -61,8 +72,63 @@ class WolfLighting : EventHandler
                 }
             }
         }
+        litClass.Clear(); litR.Clear(); litG.Clear();
+        litB.Clear(); litSize.Clear(); litZ.Clear();
+        int llump = Wads.CheckNumForFullName("wolfdata/lights.txt");
+        if (llump >= 0)
+        {
+            Array<String> rows;
+            Wads.ReadLump(llump).Split(rows, "\n");
+            for (int i = 0; i < rows.Size(); i++)
+            {
+                String r = rows[i];
+                int L = r.Length();
+                if (L > 0 && r.ByteAt(L - 1) == 13)
+                    r = r.Left(L - 1);          // CRLF, the flats lesson
+                Array<String> f;
+                r.Split(f, " ");
+                if (f.Size() < 6)
+                    continue;
+                litClass.Push(f[0]);
+                litR.Push(f[1].ToInt()); litG.Push(f[2].ToInt());
+                litB.Push(f[3].ToInt());
+                litSize.Push(f[4].ToInt()); litZ.Push(f[5].ToInt());
+            }
+        }
         if (Wanted())
             Apply(true);
+    }
+
+    // index into the light table for an actor's class, or -1
+    int LightFor(Actor a)
+    {
+        for (int i = 0; i < litClass.Size(); i++)
+            if (a is litClass[i])
+                return i;
+        return -1;
+    }
+
+    void SetLight(Actor a, int i, bool on)
+    {
+        if (!on)
+        {
+            a.A_RemoveLight(LIGHTTAG);
+            return;
+        }
+        a.A_AttachLight(LIGHTTAG, DynamicLight.PointLight,
+                        Color(255, litR[i], litG[i], litB[i]),
+                        litSize[i], litSize[i], 0,
+                        (0, 0, litZ[i]));
+    }
+
+    // projectiles are spawned mid-match, long after Apply ran
+    override void WorldThingSpawned(WorldEvent e)
+    {
+        if (!appliedNow || e.Thing == null)
+            return;
+        int i = LightFor(e.Thing);
+        if (i >= 0)
+            SetLight(e.Thing, i, true);
     }
 
     override void WorldTick()
@@ -105,6 +171,15 @@ class WolfLighting : EventHandler
                 else
                     a.SetState(a.SpawnState);   // exact original look
             }
+        }
+
+        // attach or strip the dynamic lights themselves
+        for (int i = 0; i < litClass.Size(); i++)
+        {
+            ThinkerIterator it = ThinkerIterator.Create(litClass[i]);
+            Actor a;
+            while ((a = Actor(it.Next())) != null)
+                SetLight(a, i, on);
         }
         appliedNow = on;
     }
