@@ -224,6 +224,28 @@ class WolfDebugHandler : EventHandler
                            "sim too, %d enemies standing on one",
                            solid, agreed, onTop);
         }
+        // Which statics actually SPAWNED, and are they solid?
+        if (e.Name == "wolf_dbg_statics")
+        {
+            for (int i = 0; i < 64; i++)
+            {
+                String cn = String.Format("WolfStatic%02d", i);
+                class<Actor> cls = cn;
+                if (cls == null)
+                    continue;
+                ThinkerIterator it = ThinkerIterator.Create(cn);
+                int n, sol;
+                Actor a;
+                while (a = Actor(it.Next()))
+                {
+                    n++;
+                    if (a.bSolid)
+                        sol++;
+                }
+                if (n > 0)
+                    Console.Printf("STATIC %s n=%d solid=%d", cn, n, sol);
+            }
+        }
         if (e.Name == "wolf_dbg_drop")
         {
             ThinkerIterator bodies = ThinkerIterator.Create("WolfEnemySim");
@@ -364,8 +386,49 @@ class WolfDebugHandler : EventHandler
         }
     }
 
+    // Overlap watcher (`+set wolf_dbg_clip 1`): grid checks prove what
+    // the sim BELIEVES; this measures where the bodies actually are.
+    int clipHits;
+
+    void ClipWatch()
+    {
+        CVar cv = CVar.FindCVar("wolf_dbg_clip");
+        if (cv == null || cv.GetInt() == 0 || (Level.maptime % 5) != 0)
+            return;
+        ThinkerIterator eit = ThinkerIterator.Create("WolfEnemySim");
+        Actor ea;
+        while (ea = Actor(eit.Next()))
+        {
+            WolfEnemySim es = WolfEnemySim(ea);
+            if (es == null || es.dead)
+                continue;
+            ThinkerIterator bit = ThinkerIterator.Create("Actor");
+            Actor ba;
+            while (ba = Actor(bit.Next()))
+            {
+                if (!ba.bSolid || ba.player != null
+                    || ba is "WolfEnemySim" || ba is "WolfDoor"
+                    || ba is "WolfPushwall")
+                    continue;
+                double d = ea.Distance2D(ba);
+                if (d < 48)
+                {
+                    clipHits++;
+                    if (clipHits <= 8)
+                        Console.Printf("CLIP %s at (%.0f,%.0f) tile %d,%d "
+                                       "inside %s at (%.0f,%.0f) d=%.0f",
+                                       ea.GetClassName(), ea.pos.x, ea.pos.y,
+                                       es.tileX, es.tileY,
+                                       ba.GetClassName(), ba.pos.x,
+                                       ba.pos.y, d);
+                }
+            }
+        }
+    }
+
     override void WorldTick()
     {
+        ClipWatch();
         t++;
         // forced-alert soak: wolf_dbg_alert 1 puts every enemy in chase
         CVar av = CVar.FindCVar("wolf_dbg_alert");
