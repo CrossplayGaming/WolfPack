@@ -51,3 +51,4 @@ user int wolf_xhair_color = 0;  // crosshair color preset index (menu)
 user int wolf_mod_light = 0;    // enhanced lighting (lighting.zs)
 user int wolf_mod_hdtex = 0;    // RMST HD textures (next launch, mod_args)
 user int wolf_mod_hdsfx = 0;    // RMST HD sounds (next launch, mod_args)
+server string wolf_dbg_openmenu = "";   // dev probe: open a submenu from menu code

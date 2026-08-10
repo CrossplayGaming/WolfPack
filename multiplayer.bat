@@ -21,12 +21,34 @@ exit /b 0
 :local
 if exist build.py python build.py || (echo Build failed & pause & exit /b 1)
 choice /c CD /n /m "  (C)o-op lobby or (D)eathmatch arena? "
-if errorlevel 2 (
-    powershell -ExecutionPolicy Bypass -File tools\mp_launch.ps1 -Mode local -Deathmatch
-) else (
-    powershell -ExecutionPolicy Bypass -File tools\mp_launch.ps1 -Mode local
-)
+if errorlevel 2 goto localdm
+powershell -ExecutionPolicy Bypass -File tools\mp_launch.ps1 -Mode local
 exit /b 0
+:localdm
+echo.
+echo   Which arena?
+echo     1 - Kesselring      four corner halls around a pillared keep
+echo     2 - Kanalstrasse    a street with uneven side rooms
+echo     3 - Zwillingshalle  twin halls, two unequal links
+echo     4 - Der Kaefig      nine cells, every one doored on all sides
+echo     5 - Sankt Kreuz     a pillared nave with side aisles
+echo     6 - Hans's Level    the arena that shipped before these
+echo.
+set "PICK="
+set /p PICK="  Arena (1-6, Enter = 1): "
+REM plain if/else, not choice+errorlevel: errorlevel means "N or above",
+REM and the descending-test dance it needs is exactly the sort of thing
+REM that works here and misfires on someone else's machine
+set "ARENA=DM1"
+if "%PICK%"=="2" set "ARENA=DM2"
+if "%PICK%"=="3" set "ARENA=DM3"
+if "%PICK%"=="4" set "ARENA=DM4"
+if "%PICK%"=="5" set "ARENA=DM5"
+if "%PICK%"=="6" set "ARENA=MAP09"
+echo   Arena: %ARENA%
+powershell -ExecutionPolicy Bypass -File tools\mp_launch.ps1 -Mode local -Deathmatch -Arena %ARENA%
+exit /b 0
+
 :join
 set /p CODE="  Invite code (Enter = use clipboard): "
 powershell -ExecutionPolicy Bypass -File tools\mp_launch.ps1 -Mode join -Code "%CODE%"

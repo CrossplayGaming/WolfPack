@@ -3,7 +3,11 @@
 # Join: takes a code (or reads the clipboard), launches -join.
 param([string]$Mode, [int]$Players = 2, [string]$Code = "",
       [switch]$Deathmatch, [int]$FragLimit = -1, [int]$TimeLimit = -1,
-      [string]$Iwad = "wolf.ipk3", [switch]$Quiet)
+      [string]$Iwad = "wolf.ipk3", [switch]$Quiet,
+      # Deathmatch arena: DM1..DM5 are our own (wolf.ipk3 only); MAP09
+      # is Hans's level, the arena that shipped before them. Spear has
+      # no arenas of its own, so it always uses its own floor.
+      [string]$Arena = "DM1")
 
 function New-WolfButton([string]$text, [int]$x, [int]$y, [int]$w) {
     $b = New-Object System.Windows.Forms.Button
@@ -89,6 +93,8 @@ function Show-Msg([string]$text) {
 $ErrorActionPreference = "SilentlyContinue"
 $root = Split-Path -Parent $PSScriptRoot
 $port = 5029
+# Spear ships no arenas of its own - its DM stays on its own floor
+$dmMap = if ($Iwad -eq "spear.ipk3") { "MAP09" } else { $Arena }
 
 if ($Mode -eq "host") {
     # try to open the port automatically (UPnP; most home routers)
@@ -146,7 +152,7 @@ if ($Mode -eq "host") {
             if ($tl -notmatch "^[0-9]+$") { $tl = 0 }
         }
     }
-    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "sv_itemrespawn", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { $(if ($Iwad -eq "spear.ipk3") { @("+map", "MAP01") } else { @("+map", "LOBBY") }) }
+    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "sv_itemrespawn", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", $dmMap) } else { $(if ($Iwad -eq "spear.ipk3") { @("+map", "MAP01") } else { @("+map", "LOBBY") }) }
     $svargs = ((& "$root\tools\mod_args.ps1") -split " ")
     & "$root\engine\uzdoom.exe" -host $Players @modeargs @svargs -iwad "$root\dist\$Iwad" -config "$root\dist\playtest.ini" +set wolf_dbg_arm 0 +set show_obituaries 0 +set i_pauseinbackground 0
 }
@@ -171,7 +177,7 @@ elseif ($Mode -eq "local") {
         if ($tl -notmatch "^[0-9]+$") { $tl = 0 }
         Write-Host "  Rules: $(if ([int]$fl) { "first to $fl frags" } else { "no frag limit" })$(if ([int]$tl) { ", $tl minute cap" })"
     }
-    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "sv_itemrespawn", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", "MAP09") } else { $(if ($Iwad -eq "spear.ipk3") { @("+map", "MAP01") } else { @("+map", "LOBBY") }) }
+    $modeargs = if ($Deathmatch) { @("-deathmatch", "-nomonsters", "+set", "sv_spawnfarthest", "1", "+set", "sv_samelevel", "1", "+set", "sv_itemrespawn", "1", "+set", "fraglimit", "$fl", "+set", "timelimit", "$tl", "+map", $dmMap) } else { $(if ($Iwad -eq "spear.ipk3") { @("+map", "MAP01") } else { @("+map", "LOBBY") }) }
     Write-Host ""
     Write-Host "  Launching host window (left)..."
     $svargs = ((& "$root\tools\mod_args.ps1") -split " ")

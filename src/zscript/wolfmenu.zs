@@ -17,6 +17,7 @@
 
 class WolfMenu : ListMenu
 {
+
     const MENU_X = 76;
     const MENU_Y = 55;
     const MENU_W = 178;
@@ -118,6 +119,13 @@ class WolfMenu : ListMenu
                      cursorAlt ? "C_CURS2" : "C_CURS1");
     }
 
+    // Dev probe: `+set wolf_dbg_openmenu <Class>` opens that menu
+    // through Menu.SetMenu from MENU CODE, the path a keypress takes.
+    // The console's `openmenu` is NOT that path: userinfo cvar writes
+    // are refused there, so a probe driven that way reports a crash a
+    // player would never actually see.
+    bool dbgOpened;
+
     override void Ticker()
     {
         // cursor flash: 8 Wolf tics = 4 engine tics per phase
@@ -125,6 +133,13 @@ class WolfMenu : ListMenu
         {
             cursorTics = 0;
             cursorAlt = !cursorAlt;
+        }
+        CVar d = CVar.FindCVar("wolf_dbg_openmenu");
+        if (!dbgOpened && d && d.GetString() != ""
+            && GetClassName() != Name(d.GetString()))
+        {
+            dbgOpened = true;
+            Menu.SetMenu(d.GetString());
         }
     }
 
@@ -227,6 +242,7 @@ class WolfMenu : ListMenu
 
 class WolfMainMenu : WolfMenu
 {
+
     // ECWolf order (D-006)
     enum EItem { MI_NEWGAME, MI_OPTIONS, MI_MULTI, MI_LOAD, MI_SAVE,
                  MI_READ, MI_ENDGAME, MI_BACKTO, MI_QUIT };

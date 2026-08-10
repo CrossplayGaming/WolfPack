@@ -180,7 +180,14 @@ class WolfPlayerSetupMenu : WolfWidgetMenu
 
     static void SyncEngineColor(int v)
     {
-        CVar c = CVar.FindCVar("color");   // base cvar: view writes don't archive
+        // NOT FindCVar here. `color` is one of the ENGINE's userinfo
+        // cvars, and writing its base from script is refused outright
+        // ("Attempt to change CVAR 'color' outside of menu code") -
+        // which killed the session the moment the Multiplayer menu
+        // opened. The per-player view is the supported way in, and
+        // unlike our own user cvars it needs no archiving from here:
+        // the engine syncs userinfo itself.
+        CVar c = CVar.GetCVar("color", players[consoleplayer]);
         if (c != null)
             // static methods need the class-qualified name for
             // static const arrays
@@ -253,6 +260,22 @@ class WolfMPMenu : WolfMenu
             : String.Format("  DM Frag Limit: %d", FRAGV[fragIdx]);
     }
 
+    // Deathmatch arenas. DM1-DM5 are ours (docs/data/dm), MAP09 is
+    // Hans's level - the arena that shipped before them, kept because
+    // people know it. Spear has none of its own, so the row hides
+    // there rather than offering maps that are not in that build.
+    static const String ARENAMAP[] = { "DM1", "DM2", "DM3", "DM4", "DM5",
+                                       "MAP09" };
+    static const String ARENANAME[] = { "Kesselring", "Kanalstrasse",
+                                        "Zwillingshalle", "Der Kaefig",
+                                        "Sankt Kreuz", "Hans's Level" };
+    int arenaIdx;
+
+    String ArenaLabel()
+    {
+        return "  DM Arena: " .. ARENANAME[arenaIdx];
+    }
+
     String TimeLabel()
     {
         return TIMEV[timeIdx] == 0 ? "  DM Time Limit: None"
@@ -262,13 +285,17 @@ class WolfMPMenu : WolfMenu
     override void Init(Menu parent, ListMenuDescriptor desc)
     {
         Super.Init(parent, desc);
-        // entering the MP menu syncs the scoreboard swatch to the
-        // uniform (userinfo writes are menu-code-only)
-        CVar skv = CVar.GetCVar("wolf_skin", players[consoleplayer]);
-        if (skv != null)
-            WolfPlayerSetupMenu.SyncEngineColor(skv.GetInt());
+        // NO swatch sync here. Writing the engine's `color` userinfo
+        // cvar is refused unless the VM is running menu code, and
+        // opening this menu does not reliably count as that - it
+        // aborted the session with "Attempt to change CVAR 'color'
+        // outside of menu code". The swatch is set where the uniform
+        // is actually CHANGED (WolfPlayerSetupMenu.Adjust, driven by a
+        // keypress, which does count), so it is already correct; this
+        // was only a refresh.
         fragIdx = 1;                             // first to 10
         timeIdx = 0;
+        arenaIdx = 0;
         labels.Clear(); itemStates.Clear();
         labels.Push("Host Co-op: 2 Players");    itemStates.Push(IT_NORMAL);
         labels.Push("Host Co-op: 3 Players");    itemStates.Push(IT_NORMAL);
@@ -277,16 +304,21 @@ class WolfMPMenu : WolfMenu
         labels.Push("Host Deathmatch: 4");       itemStates.Push(IT_NORMAL);
         labels.Push(FragLabel());                itemStates.Push(IT_NORMAL);
         labels.Push(TimeLabel());                itemStates.Push(IT_NORMAL);
+        if (!WolfDraw.IsSpear())
+        {
+            labels.Push(ArenaLabel());           itemStates.Push(IT_NORMAL);
+        }
         labels.Push("Join a Game");             itemStates.Push(IT_NORMAL);
         labels.Push("Player Setup");             itemStates.Push(IT_NORMAL);
         labels.Push("Back");                     itemStates.Push(IT_RETURN);
         sel = 0;
     }
 
-    // ten rows outgrow the standard MENU_Y start: from 55 the box ran
-    // to y 188, colliding with the note at 172 (user repro). Start
-    // higher; box bottom lands at 163.
-    const MP_TOP = 30;
+    // Eleven rows outgrow the standard MENU_Y start: from 55 the box
+    // ran to y 188, colliding with the note at 172 (user repro). Start
+    // higher; with the arena row the box bottom lands at 167, one line
+    // clear of the first note at 168.
+    const MP_TOP = 18;
 
     override void Drawer()
     {
@@ -333,32 +365,44 @@ class WolfMPMenu : WolfMenu
 
     String DMRules()
     {
-        return String.Format("f%d t%d", FRAGV[fragIdx], TIMEV[timeIdx]);
+        // arena rides as m<MAP>, read back by tools/mp_dispatch.ps1
+        return String.Format("f%d t%d m%s", FRAGV[fragIdx], TIMEV[timeIdx],
+                             ARENAMAP[arenaIdx]);
     }
 
     override void OnChoose(int index)
     {
-        switch (index)
+        // dispatch on the LABEL: the arena row is absent in Spear, so
+        // fixed indices would have silently shifted every row under it
+        String lab = labels[index];
+        if (lab == "Host Co-op: 2 Players")      Request("host 2");
+        else if (lab == "Host Co-op: 3 Players") Request("host 3");
+        else if (lab == "Host Co-op: 4 Players") Request("host 4");
+        else if (lab == "Host Deathmatch: 2")
+            Request("hostdm 2 " .. DMRules());
+        else if (lab == "Host Deathmatch: 4")
+            Request("hostdm 4 " .. DMRules());
+        else if (lab.IndexOf("Frag Limit") >= 0)
         {
-        case 0: Request("host 2");    break;
-        case 1: Request("host 3");    break;
-        case 2: Request("host 4");    break;
-        case 3: Request("hostdm 2 " .. DMRules());  break;
-        case 4: Request("hostdm 4 " .. DMRules());  break;
-        case 5:
             fragIdx = (fragIdx + 1) % 4;
-            labels[5] = FragLabel();
+            labels[index] = FragLabel();
             MenuSound("menu/change");
-            break;
-        case 6:
-            timeIdx = (timeIdx + 1) % 4;
-            labels[6] = TimeLabel();
-            MenuSound("menu/change");
-            break;
-        case 7: Request("join");      break;
-        case 8: Menu.SetMenu("WolfPlayerSetupMenu"); break;
-        case 9: Close();              break;
         }
+        else if (lab.IndexOf("Time Limit") >= 0)
+        {
+            timeIdx = (timeIdx + 1) % 4;
+            labels[index] = TimeLabel();
+            MenuSound("menu/change");
+        }
+        else if (lab.IndexOf("DM Arena") >= 0)
+        {
+            arenaIdx = (arenaIdx + 1) % ARENAMAP.Size();
+            labels[index] = ArenaLabel();
+            MenuSound("menu/change");
+        }
+        else if (lab == "Join a Game")  Request("join");
+        else if (lab == "Player Setup") Menu.SetMenu("WolfPlayerSetupMenu");
+        else Close();
     }
 }
 

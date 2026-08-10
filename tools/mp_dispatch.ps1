@@ -17,14 +17,16 @@ $mpl = Join-Path $root "tools\mp_launch.ps1"
 switch ($parts[0]) {
     "host"   { & $mpl -Mode host -Players ([int]$parts[1]) -Iwad $iwad -Quiet }
     "hostdm" {
-        $fl = 10; $tl = 0
+        $fl = 10; $tl = 0; $arena = "DM1"
         if ($parts.Count -gt 2) {
             foreach ($p in $parts[2..($parts.Count - 1)]) {
                 if ($p -match '^f([0-9]+)$') { $fl = [int]$Matches[1] }
                 if ($p -match '^t([0-9]+)$') { $tl = [int]$Matches[1] }
+                # arena rides as m<MAP>; the menu writes the map name
+                if ($p -match '^m([A-Za-z0-9]+)$') { $arena = $Matches[1] }
             }
         }
-        & $mpl -Mode host -Players ([int]$parts[1]) -Deathmatch -FragLimit $fl -TimeLimit $tl -Iwad $iwad -Quiet
+        & $mpl -Mode host -Players ([int]$parts[1]) -Deathmatch -FragLimit $fl -TimeLimit $tl -Arena $arena -Iwad $iwad -Quiet
     }
     "join"   { & $mpl -Mode join -Iwad $iwad -Quiet }
 }

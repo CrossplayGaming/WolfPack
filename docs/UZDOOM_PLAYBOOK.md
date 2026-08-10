@@ -2352,3 +2352,20 @@ Register limit exceeded in GBPal.Face
   makes new behaviour reachable, add a check for the newly-exercised
   path, not just for the thing you fixed: build.py --check now asserts
   every door is findable from its own tile.
+- **Writing an ENGINE userinfo cvar (`color`, `name`, `team`) from
+  script is refused unless the VM is running menu code**, and neither
+  `openmenu` from the console nor `Menu.SetMenu` from a Ticker counts
+  as menu code - both abort the session with "Attempt to change CVAR
+  'color' outside of menu code". `CVar.GetCVar(name, player)` does not
+  help; the view write is refused too and reports an EMPTY cvar name,
+  which makes the error look like a different bug. Do these writes only
+  from a path a keypress drives (an Adjust/OnChoose handler), never
+  from a menu's Init as a convenience refresh. Note this is the exact
+  opposite of OUR OWN user cvars, which must use FindCVar to archive -
+  the same file needs both idioms, so comment each one.
+- **A probe that cannot reach the real code path can report a crash
+  the player never sees - and can hide one they do.** Two different
+  programmatic ways of opening a menu both aborted here, and neither
+  proved anything about the keyboard path. When a probe and the
+  shipped behaviour disagree, the resolution is to remove the risky
+  call from the path entirely rather than to keep tuning the probe.
