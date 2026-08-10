@@ -318,9 +318,16 @@ class WolfMPMenu : WolfMenu
                                         "Sankt Kreuz", "Hans's Level" };
     int arenaIdx;
 
+    // The name is NOT in the label: "DM Arena: Zwillingshalle" in the
+    // big font runs past the window frame (user screenshot). It is
+    // drawn right-aligned instead, the way the Modernization page
+    // shows its values. Measured in the real font: the label is 96
+    // units, the frame 238, and the widest name (Kanalstrasse) 115 -
+    // so the value starts at 165 against a label ending at 156, clear
+    // for every name in the list.
     String ArenaLabel()
     {
-        return "  DM Arena: " .. ARENANAME[arenaIdx];
+        return "  Arena";
     }
 
     String TimeLabel()
@@ -387,6 +394,35 @@ class WolfMPMenu : WolfMenu
                           WolfPal.Get(C_READ));
             WolfDraw.Text(sm, 160 - sm.StringWidth(note2) / 2, 179, note2,
                           WolfPal.Get(C_READ));
+        }
+        // arena name, right-aligned inside the frame
+        int arow = -1;
+        for (int i = 0; i < labels.Size(); i++)
+            if (labels[i] == "  Arena")
+                arow = i;
+        if (arow >= 0)
+        {
+            // Right-aligned, and it must not run into the label. Rows
+            // are drawn with a 24-unit indent, so the label really ends
+            // at x+24+width - the arithmetic I got wrong first time,
+            // which put "Kanalstrasse" through the middle of "Arena".
+            String v = ARENANAME[arenaIdx];
+            int boxR = MENU_X - 24 + MENU_W + 60;
+            int labR = MENU_X - 16 + 24 + big.StringWidth(labels[arow]) + 6;
+            int vx = boxR - 8 - big.StringWidth(v);
+            if (vx >= labR)
+                WolfDraw.Text(big, vx, MP_TOP + arow * 13, v,
+                              WolfPal.Get(C_READH));
+            else
+            {
+                // no room in the big font: the small one always fits,
+                // and a name nobody can read is worse than a mixed row
+                Font sm2 = Font.GetFont("wolfprop");
+                if (sm2 != null)
+                    WolfDraw.Text(sm2, boxR - 8 - sm2.StringWidth(v),
+                                  MP_TOP + arow * 13 + 2, v,
+                                  WolfPal.Get(C_READH));
+            }
         }
         DrawGun(MENU_X - 16, MP_TOP, 13);
     }
