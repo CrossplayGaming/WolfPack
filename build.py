@@ -232,6 +232,17 @@ def check():
     # This shipped broken and nothing caught it: doors registered a tick
     # before their coordinates existed, so the grid said "door here",
     # the lookup said "no door", and enemies walked through shut doors.
+    blk = re.search(r"BLOCKREG total=(\d+) blocking=(\d+)", text)
+    if blk:
+        tot, ok = int(blk.group(1)), int(blk.group(2))
+        if tot != ok:
+            errors.append(f"BLOCKREG {tot - ok} of {tot} solid decorations "
+                          "do not block the tile sim")
+        else:
+            print(f"  blockreg: {tot} solid decorations block - OK")
+    elif loaded:
+        errors.append("BLOCKREG never reported (handler not running?)")
+
     reg = re.search(r"DOORREG total=(\d+) unregistered=(\d+)", text)
     if reg:
         total, bad = int(reg.group(1)), int(reg.group(2))

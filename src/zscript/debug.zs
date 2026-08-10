@@ -174,6 +174,56 @@ class WolfDebugHandler : EventHandler
                                c == null ? "?" : c.GetString());
             }
         }
+        // Do the tile sim and the engine agree about what is solid?
+        // A blocking decoration is +SOLID to the player; it also has to
+        // read as blocked in TileState or actors walk through it.
+        if (e.Name == "wolf_dbg_blockers")
+        {
+            WolfLevel wl = WolfLevel.Get();
+            ThinkerIterator it = ThinkerIterator.Create("Actor");
+            Actor a;
+            int solid, agreed;
+            while (a = Actor(it.Next()))
+            {
+                if (!a.bSolid || a.player != null || a is "WolfEnemySim"
+                    || a is "WolfDoor" || a is "WolfPushwall")
+                    continue;
+                solid++;
+                int tx = int(a.pos.x) / 64;
+                int ty = 63 - (int(a.pos.y) / 64);
+                int st;
+                WolfDoor dd;
+                [st, dd] = wl.TileState(tx, ty);
+                if (st == 1)
+                    agreed++;
+                else
+                    Console.Printf("  BLOCKBAD %s tile=%d,%d state=%d",
+                                   a.GetClassName(), tx, ty, st);
+            }
+            // and nobody should be STANDING on one
+            ThinkerIterator eit = ThinkerIterator.Create("WolfEnemySim");
+            Actor ea;
+            int onTop;
+            while (ea = Actor(eit.Next()))
+            {
+                WolfEnemySim es = WolfEnemySim(ea);
+                if (es == null || es.dead)
+                    continue;
+                int st;
+                WolfDoor dd;
+                [st, dd] = wl.TileState(es.tileX, es.tileY);
+                // its own claim reads as blocked, so ask the grid directly
+                if (wl.blockG[es.tileY * 64 + es.tileX])
+                {
+                    onTop++;
+                    Console.Printf("  ONBLOCK %s at %d,%d",
+                                   es.GetClassName(), es.tileX, es.tileY);
+                }
+            }
+            Console.Printf("BLOCKERS %d solid decorations, %d block the "
+                           "sim too, %d enemies standing on one",
+                           solid, agreed, onTop);
+        }
         if (e.Name == "wolf_dbg_drop")
         {
             ThinkerIterator bodies = ThinkerIterator.Create("WolfEnemySim");
@@ -460,6 +510,27 @@ class WolfDebugHandler : EventHandler
                     bad++;
             }
             Console.Printf("DOORREG total=%d unregistered=%d", total, bad);
+            // and every solid decoration must block the tile sim too,
+            // or actors walk through pillars (user report, E1M7)
+            ThinkerIterator bit2 = ThinkerIterator.Create("Actor");
+            Actor ba2;
+            int bsolid, bagree;
+            while (ba2 = Actor(bit2.Next()))
+            {
+                if (!ba2.bSolid || ba2.player != null
+                    || ba2 is "WolfEnemySim" || ba2 is "WolfDoor"
+                    || ba2 is "WolfPushwall")
+                    continue;
+                bsolid++;
+                int st2;
+                WolfDoor dd2;
+                [st2, dd2] = wl.TileState(int(ba2.pos.x) / 64,
+                                          63 - (int(ba2.pos.y) / 64));
+                if (st2 == 1)
+                    bagree++;
+            }
+            Console.Printf("BLOCKREG total=%d blocking=%d",
+                           bsolid, bagree);
         }
 
         // jump probe: hold BT_JUMP via cmd injection for a few tics, then

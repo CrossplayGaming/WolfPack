@@ -2404,3 +2404,20 @@ Register limit exceeded in GBPal.Face
   Anywhere a single-player original says "the player", check whether
   the port answers "which one" at every branch - and remember a
   per-tick retarget can silently undo whatever the wake decided.
+- **A tile sim needs its OWN idea of solid; the engine's +SOLID flag is
+  invisible to it.** Blocking decorations (pillars, tables, barrels)
+  stopped the player because they carry +SOLID, and stopped nothing
+  else because the sim's TileState only knew about walls, doors,
+  pushwalls and enemy claims - so actors walked straight through them
+  for the entire life of the project. The original has no such split:
+  SpawnStatic writes `actorat[tilex][tiley] = 1` for a `block` static
+  (WL_ACT1.C:107) and CHECKSIDE reads that same array. Mirror it: build
+  the blocker grid at level load and consult it in the sim's own
+  solidity test. Note this sweep CAN run in WorldLoaded, unlike the
+  door registry, because it reads positions (set at spawn) rather than
+  fields computed in PostBeginPlay.
+- **When two systems both answer "is this solid?", gate their
+  agreement.** build.py --check now asserts every +SOLID decoration
+  also reads as blocked in TileState, the same shape as the door
+  registration gate. Both bugs were invisible for months because
+  nothing ever compared the two answers.

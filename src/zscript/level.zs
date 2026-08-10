@@ -14,6 +14,14 @@ class WolfLevel : EventHandler
     int areaG[4096];            // -1 = none
     bool ambushG[4096];         // AMBUSHTILE marks (TILE-003)
     bool elevG[4096];           // ELEVATORTILE switch walls (EXIT-001)
+    // Blocking decorations - pillars, tables, barrels. SpawnStatic
+    // writes `actorat[tilex][tiley] = (objtype *)1` for a `block`
+    // static (WL_ACT1.C:107), and CHECKSIDE reads any nonzero actorat
+    // under 128 as solid, so these stop actors exactly like a wall.
+    // Ours were solid to the PLAYER (an engine +SOLID flag) but
+    // invisible to the tile sim, so enemies strolled through pillars
+    // (user report, E1M7's pillared openings).
+    bool blockG[4096];
     WolfDoor doorAt[4096];
     WolfPushwall pwAt[4096];
     Actor enemyAt[4096];        // moving-actor claims (DoActor marks)
@@ -133,6 +141,28 @@ class WolfLevel : EventHandler
         // wrong tile. They register themselves instead; this pass is
         // what covers a SAVE LOAD, where PostBeginPlay never runs
         // again but the coordinates come back already set.
+        // Blocking decorations. Read from the actors' POSITIONS, which
+        // are set at spawn, so this sweep is safe here even though
+        // PostBeginPlay has not run yet (the trap that filed every
+        // door under tile 0,0). Doors, pushwalls, enemies and players
+        // are all solid too and are tracked by their own machinery.
+        for (int i = 0; i < 4096; i++)
+            blockG[i] = false;
+        ThinkerIterator bit = ThinkerIterator.Create("Actor");
+        Actor ba;
+        while ((ba = Actor(bit.Next())) != null)
+        {
+            if (!ba.bSolid || ba.player != null)
+                continue;
+            if (ba is "WolfEnemySim" || ba is "WolfDoor"
+                || ba is "WolfPushwall")
+                continue;
+            int bx = int(ba.pos.x) / 64;
+            int by = 63 - (int(ba.pos.y) / 64);
+            if (bx >= 0 && bx <= 63 && by >= 0 && by <= 63)
+                blockG[by * 64 + bx] = true;
+        }
+
         ThinkerIterator dit = ThinkerIterator.Create("WolfDoor");
         WolfDoor d;
         while ((d = WolfDoor(dit.Next())) != null)
@@ -335,6 +365,8 @@ class WolfLevel : EventHandler
         // dynamic: a parked/done cube may now occupy this tile
         WolfPushwall q = PwActive(tx, ty);
         if (q != null)
+            return 1, null;
+        if (blockG[idx])
             return 1, null;
         if (enemyAt[idx] != null && enemyAt[idx].health > 0)
             return 1, null;
