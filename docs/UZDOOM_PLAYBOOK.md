@@ -2421,3 +2421,108 @@ Register limit exceeded in GBPal.Face
   also reads as blocked in TileState, the same shape as the door
   registration gate. Both bugs were invisible for months because
   nothing ever compared the two answers.
+
+## A missing PLAYPAL cannot be caught by ERROR PATTERNS, only by positive
+## progress markers (Blake Stone Phase 2, measured 2026-08-11, 4.14.3)
+
+Confirms the "standalone IPK3 minimum furniture" entry on a second project, and
+adds the harness consequence, which is the part that bites.
+
+Removing `PLAYPAL` from an otherwise-working standalone ipk3 produces a log that
+ends after the wad-add lines:
+
+    W_Init: Init WADfiles.
+    adding .../uzdoom.pk3, 694 lumps
+    adding .../game_support.pk3, 3308 lumps
+    adding .../blakestone.ipk3, 38 lumps
+    adding .../game_widescreen_gfx.pk3, 214 lumps
+    <nothing further, ever>
+
+There is **no error string anywhere** -- not "Fatal error", not "Execution could
+not continue", nothing. So a check harness built only on ERROR_PATTERNS reports a
+clean run: it scans for bad lines, finds none, and passes. The engine never
+started and the harness says PASS.
+
+**The fix is a list of positive markers the run must REACH**, failing on absence
+rather than only on presence of bad strings. Blake Stone's `build.py` uses four,
+each proving a distinct stage got past:
+
+| Marker | Proves |
+|---|---|
+| `blakestone.ipk3` in the wad-add lines | the IWAD mounted |
+| `R_Init: Init <Config> refresh subsystem` | IWADINFO's `Config` took, i.e. the game has its OWN cvar namespace |
+| `LoadActors: Load actor definitions` | ZScript compiled |
+| `M_Init: Init menus` | MENUDEF parsed |
+| `D_CheckNetGame` | reached game start |
+
+The `R_Init` one is free and worth taking everywhere: the engine echoes the
+IWADINFO `Config` value into that line, so it doubles as proof the config-namespace
+trap is not active.
+
+Proven able to fail both ways on Blake Stone: an unknown actor property in ZScript
+truncates the log at `LoadActors` (three markers MISS, exit 1), and a removed
+PLAYPAL truncates it at the wad-adds (four markers MISS, exit 1). Neither emits a
+matchable error string.
+
+Corollary, fourth occurrence of the over-broad-pattern lesson: WolfDoom's
+`build.py` ERROR_PATTERNS still include bare `script error` and bare `missing`.
+Those are per-lump warnings a standalone shell emits normally; carried into a new
+project they fail every run. Blake Stone demotes both to warnings and keeps only
+"execution could not continue" / "vm execution aborted" / "fatal error" /
+"died with fatal" as fatal.
+
+## `write_text(encoding="ascii")` on a PROSE file DESTROYS it (Blake Stone, 2026-08-11)
+
+The existing pipeline entry says Windows `write_text` defaults to cp1252, so an
+em-dash in GENERATED CODE becomes 0x97 and breaks the file, and to keep generated
+source ASCII or pass an encoding. This is the same bug pointed the other way, and
+it is worse:
+
+    p.write_text(text, encoding="ascii")   # text is markdown containing em-dashes
+    UnicodeEncodeError: 'ascii' codec can't encode characters in position 947-949
+
+`write_text` **opens (truncating) before it encodes**, so the failed write does not
+leave the file alone -- it leaves it at **zero bytes**. A `git add -A` immediately
+afterwards committed the empty file, and the loss was only noticed because a later
+`grep` for a heading came back empty.
+
+Rules:
+- Pin `encoding="ascii"` on GENERATED SOURCE only (where a stray em-dash really does
+  break a parser). Never on prose, docs, or anything hand-written.
+- Patch prose with an editor tool, not a read-modify-write script.
+- If a script must rewrite a file it did not generate, write to a temp path and
+  rename, so a mid-write failure cannot truncate the original.
+
+Related shell trap, same session: backticks inside a `git commit -m "..."` message in
+bash are COMMAND SUBSTITUTION. `` `tilehit` `` in a commit message silently ran
+`tilehit` and left `( in the renderer)` in the log. Use `git commit -F -` with a
+quoted heredoc (`<<'EOF'`) for any message containing backticks.
+
+## A save load does NOT call WorldLoaded on a plain EventHandler
+
+Symptom: the menu song kept playing over a level loaded from a save. The fix --
+re-claim `Level.Music` in `WolfLevel.WorldLoaded` -- looked obviously right and did
+nothing, twice, across two releases.
+
+Measured (build/xhair/mus4.txt), on `load <save>`:
+
+| handler kind        | WorldLoaded | PlayerEntered |
+|---------------------|-------------|---------------|
+| `EventHandler`      | **no**      | no            |
+| `StaticEventHandler`| yes (`IsSaveGame` true) | no |
+
+A level-scoped `EventHandler` is serialized INTO the savegame and restored as data;
+the engine does not re-run its level-entry events. A `StaticEventHandler` outlives
+the level, so it gets a real `WorldLoaded` on the load.
+
+Rules:
+- Anything that must happen on **every** entry to a level -- claiming music, clearing
+  a screen overlay, resetting session state -- belongs on a `StaticEventHandler`.
+- The mirror-image trap is in the same file pair: static handlers keep their fields
+  across a load, so state like `active` has to be CLEARED there for the same reason.
+- Print the event and its `IsSaveGame` under a debug cvar before believing a hook
+  fires. Both bugs here were "the code is correct and never ran".
+
+`S_ChangeMusic(name, order, looping, force)`: pass `force = true`. Without it the call
+no-ops when the engine already believes that track is current -- exactly the state a
+save load restores while a different song is actually playing.

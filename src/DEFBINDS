@@ -8,3 +8,8 @@
 wheelup "weapprev"
 wheeldown "weapnext"
 space "+use"
+// F1 is the original's help key: it opens the Read This article
+// (HelpScreens, WL_MENU.C:349). Without this the engine's own F1
+// binding looks for a HELP graphic we do not ship and draws the
+// missing-texture check pattern.
+F1 "openmenu WolfReadMenu"

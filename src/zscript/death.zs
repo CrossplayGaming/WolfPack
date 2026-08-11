@@ -40,7 +40,7 @@ class WolfDeathHandler : StaticEventHandler
     int  startTic;
 
     // ui-side progress. DEC-005: the dissolve runs the real LFSR but
-    // marks 4x4 cells rather than single pixels — 64000 per-pixel draw
+    // marks 4x4 cells rather than single pixels ï¿½ 64000 per-pixel draw
     // calls per frame is not viable, and canvas textures abort this
     // engine build's texture manager. Same pseudorandom pattern and
     // timing, coarser grain.
@@ -55,13 +55,25 @@ class WolfDeathHandler : StaticEventHandler
 
     // Rate, not duration: pixperframe = 64000/70 = 914 LFSR steps per
     // 1/70s frame -> 1828 per engine tic. The fade ends when the LFSR
-    // completes its full 131071-step period, i.e. 2.05 s (71.7 tics) —
+    // completes its full 131071-step period, i.e. 2.05 s (71.7 tics) ï¿½
     // NOT the 70 frames the call's parameter suggests (ID_VH.C:483-540).
     const STEPS_PER_TIC = 1828;
 
     clearscope static WolfDeathHandler Get()
     {
         return WolfDeathHandler(StaticEventHandler.Find("WolfDeathHandler"));
+    }
+
+    // A StaticEventHandler outlives the level, so `active` survived a
+    // save load taken DURING the death fade - and RenderOverlay went on
+    // painting the finished red screen over the game that loaded
+    // underneath it (user repro). Every entry to a level clears it, and
+    // measured, a static handler DOES get WorldLoaded on a save load.
+    override void WorldLoaded(WorldEvent e)
+    {
+        // `started` is ui scope and cannot be touched from here - it
+        // resets itself the first frame RenderOverlay sees !active
+        active = false;
     }
 
     void Begin()                    // play scope

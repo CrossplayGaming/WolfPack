@@ -63,13 +63,10 @@ class WolfLevel : EventHandler
 
     override void WorldLoaded(WorldEvent e)
     {
-        // Loading a save left the MENU song playing over the level
-        // (user report): the menu starts WONDERIN itself, and only
-        // BackOut puts the level song back - a path a save load never
-        // takes. Claim the level's music here, where every entry to a
-        // level passes, save loads included.
-        if (Level.MapName != "TITLEMAP" && Level.Music != "")
-            S_ChangeMusic(Level.Music, Level.musicorder, true);
+        // (the level song is claimed by WolfMusic, a STATIC handler:
+        // measured, a plain EventHandler gets no WorldLoaded at all when
+        // a savegame is loaded, which is why the claim that used to sit
+        // here never fixed the reported bug)
         rngIndex = Random(0, 255);      // US_InitRndT(true)
         floorNum = ((Level.levelnum - 1) % 10) + 1;
         for (int i = 0; i < 4096; i++)
