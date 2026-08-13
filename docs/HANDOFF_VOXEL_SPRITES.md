@@ -1,5 +1,13 @@
 # Handoff: automated Cheello-class voxelization of the Wolf3D sprite set
 
+> **2026-08-13: partially superseded.** The production pipeline this
+> document speculated about now EXISTS and is proven end to end — see
+> `HANDOFF_VOXEL_PIPELINE.md` (tools, modes, engine wiring, a complete
+> six-state character shipped in CCFPS). Read that first; this document
+> remains valuable for its Wolf-specific fidelity ideas (space carving
+> from the 8 rotation sprites, the pixel-diff harness, the lathe for
+> symmetric props) which the new pipeline does not cover.
+
 Written 2026-08-02 in the Crystal Caves FPS conversation, for the WolfDoom
 conversation to pick up. Eric asked whether Cheello's Voxel Doom result --
 pixel-faithful voxel models replacing sprites -- can be approached in an
