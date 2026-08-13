@@ -296,6 +296,29 @@ def check():
     print(f"self-check: OK ({len(warns)} warnings)")
 
 
+# The voxel packs are add-on files, never part of an ipk3: the
+# Modernization toggle loads one with -file at launch (mod_args.ps1),
+# because the engine cannot load a wad mid-session. Built here so the
+# toggle always has something to load - it takes about a fifth of a
+# second, and a pack the menu offers but that does not exist on disk is
+# a toggle that silently does nothing.
+def build_voxel_packs():
+    packs = [("wl6", "dist/wolfvox.pk3")]
+    if (ROOT / "build" / "udmf" / "sod").is_dir():
+        packs.append(("sod", "dist/wolfvox_sod.pk3"))
+    for gset, out in packs:
+        r = subprocess.run(
+            [sys.executable, str(ROOT / "tools/voxel/build_pack.py"),
+             "--set", gset, "--out", out],
+            capture_output=True, text=True)
+        if r.returncode != 0:
+            print(f"voxel pack ({gset}): FAILED\n{r.stdout}{r.stderr}")
+            continue
+        tail = [ln for ln in r.stdout.splitlines() if ln.startswith("wrote")]
+        print(tail[-1].replace(str(ROOT) + "\\", "") if tail
+              else f"voxel pack ({gset}): built")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
@@ -307,6 +330,7 @@ def main():
     # converter only emits build/udmf/sod when SOD files were found)
     if (ROOT / "build" / "udmf" / "sod").is_dir() and not args.nospear:
         build(spear=True)
+    build_voxel_packs()
     if args.check:
         check_assets()
         check_exits()
