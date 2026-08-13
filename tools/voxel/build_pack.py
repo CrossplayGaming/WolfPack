@@ -160,11 +160,19 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--set", default="wl6", choices=("wl6", "sod"))
     ap.add_argument("--out", default="dist/wolfvox.pk3")
+    # The lathed props are OFF by default: that archetype is superseded
+    # by the tools/voxel model pipeline, and the owner does not want its
+    # output shipped. The judging code stays - it is still the report
+    # that decides which sprites a future archetype has to handle.
     ap.add_argument("--report", action="store_true",
                     help="judge only; do not write the pack")
+    ap.add_argument("--statics", action="store_true",
+                    help="also ship the lathed props (off by default)")
     a = ap.parse_args()
 
-    accepted, rejected = judge(a.set)
+    accepted, rejected = judge(a.set) if (a.statics or a.report) else ([], [])
+    if not (a.statics or a.report):
+        print("statics: skipped (--statics to include the lathed props)")
 
     print(f"LATHE accepted {len(accepted)} / "
           f"{len(accepted) + len(rejected)} statics\n")

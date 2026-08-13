@@ -23,12 +23,10 @@ foreach ($pair in @(@("jump", "sv_jump"), @("crouch", "sv_crouch"), @("freelook"
 # paint cobblestone over Wolf3D's doors.
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $tex = if ($Game -eq "sod") { "dist\hdtex_sod.pk3" } else { "dist\hdtex.pk3" }
-# The voxel pack is per game for the same reason: its statics are lathed
-# from that game's own sprite numbering. The player models inside are
-# shared, so either pack carries the character.
-$vox = if ($Game -eq "sod") { "dist\wolfvox_sod.pk3" } else { "dist\wolfvox.pk3" }
+# The voxel pack is NOT per game: it holds only the player character,
+# which is game-independent.
 foreach ($pack in @(@("hdtex", $tex), @("hdsfx", "dist\hdsfx.pk3"),
-                    @("vox", $vox))) {
+                    @("vox", "dist\wolfvox.pk3"))) {
     $m = Select-String -Path $Ini -Pattern ("^wolf_mod_" + $pack[0] + "=(.+)$") -ErrorAction SilentlyContinue | Select-Object -First 1
     $on = $m -and $m.Matches[0].Groups[1].Value.Trim() -notin @("0", "false")
     if ($on -and (Test-Path (Join-Path $root $pack[1]))) {

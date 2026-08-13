@@ -303,20 +303,19 @@ def check():
 # second, and a pack the menu offers but that does not exist on disk is
 # a toggle that silently does nothing.
 def build_voxel_packs():
-    packs = [("wl6", "dist/wolfvox.pk3")]
-    if (ROOT / "build" / "udmf" / "sod").is_dir():
-        packs.append(("sod", "dist/wolfvox_sod.pk3"))
-    for gset, out in packs:
-        r = subprocess.run(
-            [sys.executable, str(ROOT / "tools/voxel/build_pack.py"),
-             "--set", gset, "--out", out],
-            capture_output=True, text=True)
-        if r.returncode != 0:
-            print(f"voxel pack ({gset}): FAILED\n{r.stdout}{r.stderr}")
-            continue
-        tail = [ln for ln in r.stdout.splitlines() if ln.startswith("wrote")]
-        print(tail[-1].replace(str(ROOT) + "\\", "") if tail
-              else f"voxel pack ({gset}): built")
+    # One pack for both games. It was per game while it carried lathed
+    # props (each game numbers its sprites from zero), but the props are
+    # gone and the character models are game-independent.
+    out = "dist/wolfvox.pk3"
+    r = subprocess.run(
+        [sys.executable, str(ROOT / "tools/voxel/build_pack.py"),
+         "--out", out], capture_output=True, text=True)
+    if r.returncode != 0:
+        print(f"voxel pack: FAILED\n{r.stdout}{r.stderr}")
+        return
+    tail = [ln for ln in r.stdout.splitlines() if ln.startswith("wrote")]
+    print(tail[-1].replace(str(ROOT) + "\\", "") if tail
+          else "voxel pack: built")
 
 
 def main():
