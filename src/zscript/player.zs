@@ -157,24 +157,41 @@ class WolfPlayer : DoomPlayer
     int sprTint[18];
     bool skinInit;
 
+    void InitSkinTable()
+    {
+        if (skinInit)
+            return;
+        for (int k = 0; k < 6; k++)
+        {
+            sprGrey[k] = GetSpriteIndex(SKINBASE[k]);
+            for (int vi = 0; vi < 3; vi++)
+                sprTint[vi * 6 + k] = GetSpriteIndex(SKINVAR[vi * 6 + k]);
+        }
+        skinInit = true;
+    }
+
+    int SkinVariant()
+    {
+        CVar cv = CVar.GetCVar("wolf_skin", player);
+        return cv == null ? 0 : clamp(cv.GetInt(), 0, 3);
+    }
+
+    // sprite id for one of the six kinds under the chosen uniform
+    int SkinSprite(int kind)
+    {
+        InitSkinTable();
+        int v = SkinVariant();
+        return v == 0 ? sprGrey[kind] : sprTint[(v - 1) * 6 + kind];
+    }
+
     void ApplySkin()
     {
         if (player == null)
             return;
-        CVar cv = CVar.GetCVar("wolf_skin", player);
-        int v = cv == null ? 0 : clamp(cv.GetInt(), 0, 3);
+        int v = SkinVariant();
         if (v == 0)
             return;
-        if (!skinInit)
-        {
-            for (int k = 0; k < 6; k++)
-            {
-                sprGrey[k] = GetSpriteIndex(SKINBASE[k]);
-                for (int vi = 0; vi < 3; vi++)
-                    sprTint[vi * 6 + k] = GetSpriteIndex(SKINVAR[vi * 6 + k]);
-            }
-            skinInit = true;
-        }
+        InitSkinTable();
         for (int k = 0; k < 6; k++)
         {
             if (sprite == sprGrey[k])
@@ -185,6 +202,76 @@ class WolfPlayer : DoomPlayer
                 return;
             }
         }
+    }
+
+    // ---- voxel body (optional pack) -------------------------------------
+    // See voxelbody.zs: the KVX sets carry longer cycles than the sprite
+    // states, and those extra frames cannot be named in the States block
+    // because the pack is an optional download and a state naming a
+    // missing frame is a load error. So drive sprite+frame directly -
+    // the renderer resolves the voxel at draw time, not at compile time.
+    int voxTic;
+    int voxKind;        // 0 none, 1 idle, 2 run, 3 shoot, 4 death
+    bool voxChecked, voxOn;
+
+    void ApplyVoxelBody()
+    {
+        if (player == null)
+            return;
+        if (!voxChecked)
+        {
+            voxChecked = true;
+            voxOn = WolfVoxBody.Present();
+        }
+        if (!voxOn)
+            return;
+
+        int kind = 0;
+        if (InStateSequence(CurState, ResolveState("Death")))
+            kind = 4;
+        else if (InStateSequence(CurState, ResolveState("Missile")))
+            kind = 3;
+        else if (InStateSequence(CurState, ResolveState("See")))
+            kind = 2;
+        else if (InStateSequence(CurState, ResolveState("Spawn")))
+            kind = 1;
+        // Pain is left alone: two sprite frames, two voxel poses, the
+        // state already walks them.
+        if (kind == 0)
+        {
+            voxKind = 0;
+            return;
+        }
+        if (kind != voxKind)
+        {
+            voxKind = kind;
+            voxTic = 0;
+        }
+        else
+            voxTic++;
+
+        int pose;
+        if (kind == 1)
+            pose = (voxTic / WolfVoxBody.IDLE_TICS) % WolfVoxBody.IDLE_POSES;
+        else if (kind == 2)
+            pose = (voxTic / WolfVoxBody.RUN_TICS) % WolfVoxBody.RUN_POSES;
+        else if (kind == 3)
+        {
+            pose = min(voxTic / WolfVoxBody.SHOOT_TICS,
+                       WolfVoxBody.SHOOT_POSES - 1);
+            // the shoot set was built as the ATTACK sprite (BJ?A); the
+            // Missile state names the single fire frame (BJ?F), so point
+            // at the set that actually has models
+            int id = SkinSprite(4);
+            if (id > 0)
+                sprite = id;
+        }
+        else
+        {
+            pose = min(voxTic / WolfVoxBody.DEATH_TICS,
+                       WolfVoxBody.DEATH_POSES - 1);
+        }
+        frame = pose;
     }
 
     bool bIsRunning;
@@ -444,6 +531,9 @@ class WolfPlayer : DoomPlayer
         // uniform recolor runs even through death: the corpse keeps the
         // chosen color
         ApplySkin();
+        // and then the voxel pack's longer cycle, if it is loaded: it
+        // only picks the FRAME within the uniform ApplySkin just chose
+        ApplyVoxelBody();
         // Netgame client prediction re-runs the local player's Tick
         // several times per frame and restores the PAWN afterward - but
         // not global state. Everything below mutates shared sim state

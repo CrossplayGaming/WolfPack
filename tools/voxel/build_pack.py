@@ -105,6 +105,57 @@ def judge(setname):
     return accepted, rejected
 
 
+# ---------------------------------------------------------------------
+# The player character. Unlike the statics these are not lathed from game
+# sprites - they come from the owner's own animated models through
+# tools/voxel (glb_to_obj -> voxelize -> vox_to_kvx), staged under
+# build/bjvox/kvx. Four uniform colours are baked, because the recolor
+# rides WolfPlayer.ApplySkin's SPRITE-INDEX swap: VOXELDEF binds a voxel
+# to a sprite+frame token, so BJ2SA is picked by the same swap that
+# already selects the blue sprite - no new engine code for the colours.
+#
+# Scale: measured against the art, not derived from the collision box.
+# The handoff doc's 0.58 comes from 96 voxels over a 56-unit collision
+# height, but nothing in this game is drawn at its collision height --
+# every figure is a 64x64 sprite with about 48 painted rows, so a guard
+# (GRDSA1) and BJ's own run sprite (BJRNA0) both stand 48-49 units tall
+# on screen. 96 voxels at 0.58 would have made the player 16% taller
+# than every guard he walks past. 48/96 = 0.50 puts him in the cast.
+CHAR_DIR = ROOT / "build/bjvox/kvx"
+CHAR_SPR = ROOT / "build/bjvox/kvx_spr"
+CHAR_SCALE = 0.50
+
+
+def add_character(z, voxeldef):
+    if not CHAR_DIR.is_dir():
+        print("\nno character models staged (build/bjvox/kvx) - statics only")
+        return 0
+    kvx = sorted(CHAR_DIR.glob("*.kvx"))
+    if not kvx:
+        return 0
+    voxeldef.append("")
+    voxeldef.append("// player character (tools/voxel pipeline)")
+    for f in kvx:
+        lump = f.stem.lower()
+        z.writestr(f"voxels/{lump}.kvx", f.read_bytes())
+        voxeldef.append(f'{lump} = "{lump}" {{ Scale = {CHAR_SCALE} }}')
+    # Placeholder sprites for the frames the base game has no art for: a
+    # voxel only replaces a sprite frame's RENDERING, so the frame has to
+    # exist for there to be anything to replace.
+    nspr = 0
+    if CHAR_SPR.is_dir():
+        for f in sorted(CHAR_SPR.glob("*.png")):
+            z.writestr(f"sprites/{f.name}", f.read_bytes())
+            nspr += 1
+    # Marker lump. The base game never requires this pack, so the longer
+    # voxel-only cycles have to be switched on by asking whether it is
+    # loaded (voxelbody.zs) rather than by referencing frames that would
+    # be missing without it.
+    z.writestr("WOLFVOX", "player voxel set present\n")
+    print(f"\ncharacter: {len(kvx)} models, {nspr} placeholder sprites")
+    return len(kvx)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--set", default="wl6", choices=("wl6", "sod"))
@@ -141,9 +192,11 @@ def main():
             z.writestr(f"voxels/{name}.kvx", k.to_bytes())
             voxeldef.append(f'{name.lower()} = "{name.lower()}" {{}}'
                             f'   // {label}')
+        nchar = add_character(z, voxeldef)
         z.writestr("VOXELDEF", "\n".join(voxeldef) + "\n")
     kb = out.stat().st_size / 1024
-    print(f"\nwrote {out} - {len(accepted)} models, {kb:.0f} KB")
+    print(f"\nwrote {out} - {len(accepted)} statics + {nchar} character "
+          f"models, {kb:.0f} KB")
 
 
 if __name__ == "__main__":

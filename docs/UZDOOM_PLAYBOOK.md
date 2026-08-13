@@ -2716,3 +2716,34 @@ Third lesson, cheaper: **the `--sprite` palette flag is luminance-only.** Aimed 
 a Wolf sprite it maps grey uniform and tan skin to the same entries and returns a
 brown character with blue confetti. For a full-colour source model, voxelize in
 true colour; if the palette must match the game's, do it by nearest RGB.
+
+## Voxel scale comes from the ART, not the collision box
+
+The handoff doc derives a character's VOXELDEF `Scale` from its collision height
+(96 voxels over a 56-unit player = 0.58). That is wrong for this game, and the
+error is the kind you only see standing next to someone:
+
+    GRDSA1 (guard, standing)   64x64 sprite, 48 painted rows
+    BJRNA0 (BJ, victory run)   64x64 sprite, 49 painted rows
+
+Nothing here is drawn at its collision height. Every figure is a 64x64 sprite
+with ~48 painted rows, so the cast stands 48-49 map units tall on screen. At 0.58
+the voxel player was 16% taller than every guard he walked past. **48/96 = 0.50**
+puts him in the cast. Measure the sprites the model has to stand beside.
+
+## Longer voxel cycles without making the pack mandatory
+
+The KVX sets carry more poses than the sprite states (7-pose idle against a
+one-frame `Spawn`). Those frames cannot be named in the States block: the voxel
+pack is an optional download, and a state naming a frame that is not present is a
+load error for everyone who never downloads it.
+
+Drive `sprite` and `frame` directly from `Tick` instead. The renderer resolves a
+voxel from the sprite+frame token at DRAW time, so a frame assigned by script
+needs no state entry -- only the pack's placeholder sprites, which ship with the
+voxels. Gate the whole thing on a marker lump (`Wads.CheckNumForFullName`) so a
+plain build behaves exactly as before; verified by screenshot both ways.
+
+The same hook is where per-state redirection belongs: BJ's shoot models were
+built as the ATTACK sprite (BJ?A) while `Missile` names the single fire frame
+(BJ?F), so the driver points the sprite at the set that actually has models.
