@@ -2747,3 +2747,34 @@ plain build behaves exactly as before; verified by screenshot both ways.
 The same hook is where per-state redirection belongs: BJ's shoot models were
 built as the ATTACK sprite (BJ?A) while `Missile` names the single fire frame
 (BJ?F), so the driver points the sprite at the set that actually has models.
+
+## Attaching a weapon to an animated character: bone space is not metres
+
+Parenting a prop to a hand bone is how a weapon gets into a character without the
+model generator having to understand weapons: the prop rides the bone through
+every pose of every clip, including clips exported later. `glb_to_obj.py --attach`
+does it with a `CHILD_OF` constraint whose inverse matrix is left at identity, so
+the prop's own transform reads directly in bone space (Blender bone space: origin
+at the bone head, +Y along the bone). Default bone parenting would offset the
+numbers by the bone's rest matrix AND by its length -- children land at the tail --
+which makes a calibrated grip meaningless on the next rig.
+
+**The trap:** a glTF character arrives with the armature scaled. Measured on BJ,
+the hand bone's world scale is exactly **0.0100**, so a 0.5 m gun parented raw
+exported as a **1 cm speck** -- present in the OBJ, invisible in the render. Divide
+the bone's world scale out and the grip numbers mean what they say: translations in
+metres along the bone's axes, scale 1 = the mesh at its authored size.
+
+That bug was caught by the calibration strip, not by reading the code: the strip
+came back with no gun in any candidate. Which is the point of building the review
+surface before trusting the feature.
+
+`calib_grip.py` sweeps one grip field across a range and renders the candidates
+side by side THROUGH THE VOXELIZER, so what you judge is what the game will draw:
+
+    python tools/voxel/calib_grip.py char.glb gun.glb --time 0 --sweep y=0:0.16:5
+
+Rig note for this project: BJ's Meshy rig is 24 bones named Hips/Spine/RightHand
+(no `mixamorig:` prefix, no finger bones). `find_bone` matches on the bare name so
+one grip file works across Meshy and Mixamo rigs. No fingers is not a problem --
+at 96 voxels tall a hand is about two voxels, so grip detail is below resolution.

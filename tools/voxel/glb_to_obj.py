@@ -11,10 +11,30 @@
 # Also supports --sample-frames N: if the GLB carries an animation
 # (a Meshy preset), export N evenly spaced posed frames as separate
 # OBJs -- the no-posing-needed path for enemy walk cycles.
+#
+# --attach <mesh> [--bone NAME] [--grip x,y,z,rx,ry,rz,s]
+#   Parent a prop (a gun) to a hand bone so it rides the animation. This
+#   is how a weapon gets into the character WITHOUT the generator having
+#   to understand weapons: nothing about the clip changes, the prop just
+#   follows the bone through every pose of every clip, now and later.
+#
+#   Measured on this project's own models (BJ Idle.glb): a 24-bone
+#   humanoid rig named Hips/Spine/LeftHand/RightHand - so the default
+#   bone is RightHand and no re-rigging is needed. There are no finger
+#   bones, which is fine: at 96 voxels tall a hand is about two voxels,
+#   so grip detail is below the resolution either way.
+#
+#   The grip is 7 numbers in BONE SPACE (Blender bone space: origin at
+#   the bone head, +Y along the bone) - translation, XYZ-euler rotation
+#   in degrees, uniform scale. They cannot be derived, because a mesh's
+#   own origin and axis convention are arbitrary; calibrate once with
+#   calib_grip.py and reuse forever.
+import math
 import sys
 from pathlib import Path
 
 import bpy
+from mathutils import Euler, Matrix, Vector
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 src = Path(argv[0]).resolve()
@@ -25,10 +45,85 @@ frames = int(argv[argv.index("--sample-frames") + 1]) \
 # (Eric picks poses by eye; seconds are unambiguous across fps guesses)
 times = [float(t) for t in argv[argv.index("--times") + 1].split(",")] \
     if "--times" in argv else []
+attach = Path(argv[argv.index("--attach") + 1]).resolve() \
+    if "--attach" in argv else None
+bone_name = argv[argv.index("--bone") + 1] if "--bone" in argv else None
+grip = [float(v) for v in argv[argv.index("--grip") + 1].split(",")] \
+    if "--grip" in argv else [0, 0, 0, 0, 0, 0, 1]
 out_dir.mkdir(parents=True, exist_ok=True)
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(src))
+
+
+def find_bone(arm, wanted):
+    """Mixamo prefixes bones 'mixamorig:'; Meshy's rig does not. Match on
+    the bare name so one grip file works across both."""
+    names = [b.name for b in arm.data.bones]
+    for n in names:
+        if n == wanted or n.split(":")[-1] == wanted:
+            return n
+    return None
+
+
+def attach_prop(path, wanted_bone, g):
+    arms = [o for o in bpy.data.objects if o.type == "ARMATURE"]
+    if not arms:
+        sys.exit("--attach: the character GLB has no armature to bind to")
+    arm = arms[0]
+    bone = find_bone(arm, wanted_bone or "RightHand")
+    if bone is None:
+        sys.exit(f"--attach: no bone '{wanted_bone or 'RightHand'}' in "
+                 f"{[b.name for b in arm.data.bones]}")
+
+    before = set(bpy.data.objects)
+    suf = path.suffix.lower()
+    if suf in (".glb", ".gltf"):
+        bpy.ops.import_scene.gltf(filepath=str(path))
+    elif suf == ".obj":
+        bpy.ops.wm.obj_import(filepath=str(path))
+    else:
+        sys.exit(f"--attach: unsupported mesh type {suf}")
+    new = [o for o in bpy.data.objects if o not in before
+           and o.type == "MESH"]
+    if not new:
+        sys.exit(f"--attach: no mesh found in {path.name}")
+
+    # One CHILD_OF per imported piece, with the inverse matrix left at
+    # identity so the object's own transform reads directly in bone
+    # space. That is what makes the grip numbers stable and tunable -
+    # Blender's default bone parenting would offset them by the bone's
+    # rest matrix and by its LENGTH (children land at the tail), which
+    # makes calibration numbers mean nothing between rigs.
+    # Bone space is not metres. A glTF character arrives with the
+    # armature scaled (measured on BJ: the hand bone's world scale is
+    # ~0.02), so a 0.5 m gun parented raw came out a 1 cm speck -
+    # caught because the calibration strip showed no gun at all. Divide
+    # the bone's world scale out so the grip numbers mean what they say:
+    # translations in metres along the bone's own axes, scale 1 = the
+    # mesh at its authored size.
+    bpy.context.view_layer.update()
+    pb = arm.pose.bones[bone]
+    k = (arm.matrix_world @ pb.matrix).to_scale()
+    k = (k.x + k.y + k.z) / 3.0
+    if k == 0:
+        sys.exit("--attach: the target bone has zero scale")
+    m = (Matrix.Translation(Vector(g[0:3]) / k)
+         @ Euler([math.radians(v) for v in g[3:6]], "XYZ").to_matrix().to_4x4()
+         @ Matrix.Scale(g[6] / k, 4))
+    for o in new:
+        con = o.constraints.new("CHILD_OF")
+        con.target = arm
+        con.subtarget = bone
+        con.inverse_matrix = Matrix.Identity(4)
+        o.matrix_basis = m
+    print(f"ATTACH {path.name}: {len(new)} mesh(es) -> bone '{bone}' "
+          f"(bone world scale {k:.4f}) grip loc={g[0:3]} rot={g[3:6]} "
+          f"scale={g[6]}")
+
+
+if attach:
+    attach_prop(attach, bone_name, grip)
 
 # unpack any embedded images so path_mode COPY has real files to copy
 for img in bpy.data.images:
