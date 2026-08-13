@@ -237,6 +237,19 @@ class WolfPlayer : DoomPlayer
             kind = 1;
         // Pain is left alone: two sprite frames, two voxel poses, the
         // state already walks them.
+
+        // HELD FIRE. The pawn's Missile state is a one-shot: it runs ten
+        // tics and returns to Spawn, which is right for the pistol
+        // (Cmd_Fire is edge-triggered, WEAPON.NOAUTOFIRE) and wrong for
+        // anything that keeps firing while the button is down - BJ
+        // twitched into the firing pose and dropped straight out of it
+        // mid-burst. Keyed on the weapon's own declaration rather than a
+        // list of class names, so a future bazooka behaves per its flag.
+        bool sustained = player.ReadyWeapon != null
+            && !player.ReadyWeapon.bNoAutofire
+            && (player.cmd.buttons & BT_ATTACK) != 0;
+        if (sustained && (kind == 1 || kind == 2 || kind == 3))
+            kind = 3;
         if (kind == 0)
         {
             voxKind = 0;
@@ -257,8 +270,10 @@ class WolfPlayer : DoomPlayer
             pose = (voxTic / WolfVoxBody.RUN_TICS) % WolfVoxBody.RUN_POSES;
         else if (kind == 3)
         {
-            pose = min(voxTic / WolfVoxBody.SHOOT_TICS,
-                       WolfVoxBody.SHOOT_POSES - 1);
+            // held fire stops at the FIRE pose (B) and stays there; the
+            // recover pose (C) belongs to a shot that ended
+            int last = sustained ? 1 : WolfVoxBody.SHOOT_POSES - 1;
+            pose = min(voxTic / WolfVoxBody.SHOOT_TICS, last);
             // the shoot set was built as the ATTACK sprite (BJ?A); the
             // Missile state names the single fire frame (BJ?F), so point
             // at the set that actually has models
