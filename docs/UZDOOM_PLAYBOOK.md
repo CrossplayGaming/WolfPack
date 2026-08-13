@@ -2625,3 +2625,13 @@ Third-Person-Camera (MIT, github.com/Boondorl/Third-Person-Camera) for
 the camera-actor + LineTracer collision scaffold (its rotation still
 follows player aim, though), and ZDoom forum "Toggle-able Mouse Control"
 (t=57887) for InputProcess mouse capture.
+
+Addendum (built same day, CCFPS): the engine ENFORCES that InputProcess
+is UI CONTEXT -- "Can't call play function OrbitHeld from ui context",
+and play-scope fields are not modifiable from it. The working shape:
+accumulate raw deltas in `ui` fields, flush once per tic from UiTick via
+`SendNetworkEvent("cc_orbit", dx, dy)`, apply them to play-scope orbit
+state in NetworkProcess, decay in WorldTick. Read-only helpers shared by
+both sides go `clearscope`. One tic of camera latency, imperceptible;
+and the net-event bridge is exactly what a lockstep-multiplayer port
+would need anyway.
