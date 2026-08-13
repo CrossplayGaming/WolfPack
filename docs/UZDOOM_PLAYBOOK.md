@@ -2526,3 +2526,102 @@ Rules:
 `S_ChangeMusic(name, order, looping, force)`: pass `force = true`. Without it the call
 no-ops when the engine already believes that track is current -- exactly the state a
 save load restores while a different song is actually playing.
+
+## `ListMenu.Init`'s `desc = NULL` DEFAULT IS A LIE, and a boot-only check will
+## never find out (Blake Stone, measured 2026-08-11, 4.14.3)
+
+```
+virtual void Init(Menu parent = NULL, ListMenuDescriptor desc = NULL)   // listmenu.zs:89
+{
+    Super.Init(parent);
+    mDesc = desc;
+    AnimatedTransition = mDesc.mAnimatedTransition;    // <-- line 93, unconditional
+```
+
+The signature advertises a NULL default; the body dereferences `mDesc` on the very next
+line. Constructing a submenu by hand with `m.Init(self, null)` aborts the VM with
+**"tried to read from address zero"** the instant that page opens, and the trace points
+at `listmenu.zs:93` rather than at the caller that passed the null.
+
+Fix: hand submenus the PARENT's descriptor (`m.Init(self, mDesc)`). A custom page that
+draws itself never reads the descriptor's item list; it only has to be non-null.
+
+**The harness lesson is the bigger one.** A headless check built on "engine boots +
+map loads" reports PASS on a build where every submenu crashes, because it never opens
+a menu. Blake Stone now arms a cvar (`blake_menutest`), has its StaticEventHandler call
+the clearscope `Menu.SetMenu("MainMenu")` at `WorldLoaded`, and has the main menu walk
+every page class, construct it and `Init` it, printing a marker the harness requires:
+
+```
+BLAKEMENUTEST: ok BlakeMainMenu (12 items, cursor 0)
+...
+BLAKEMENUTEST: 6 pages ok, 0 failed
+```
+
+Proven able to fail: reinstating the null descriptor reproduces the exact
+address-zero abort.
+
+Two constraints found building it:
+- `Drawer()` CANNOT be called outside a draw pass -- "Attempt to draw to screen outside
+  a draw function". The smoke test covers construction and Init only; first-frame draw
+  errors still need a real playtest.
+- The test class must be declared `class Foo ui`. A plain class is "data context" and
+  cannot call ui functions or read ui fields at all ("Can't call ui function Init from
+  data context").
+
+Related: a `static const` ARRAY at class scope is rejected ("Unknown identifier"); the
+engine's own code declares them inside functions, so do the same.
+
+## Run->idle for players lives in the FRICTION code, so replacing friction
+## silently breaks it (Crystal Caves FPS, measured 2026-08-13, 4.14.3)
+
+`PlayRunning()` fires from `PlayerPawn.MovePlayer` whenever there is input,
+but NOTHING in the player think chain calls `PlayIdle()` when movement
+stops. The only zscript callers are `A_Stop` and weapon code; the real
+transition happens in the NATIVE friction path, which calls `PlayIdle()`
+at the moment ITS friction zeroes the velocity -- and P_XYMovement returns
+early when velocity is already zero, never reaching that call.
+
+Consequence: any player class that takes direct authority over grounded
+velocity (CCFPS's ramp model, anything that writes `vel.xy` and stops the
+player itself) permanently sticks the pawn in its See state -- the run
+cycle loops while standing still. Invisible in first person; found the
+first time the pawn was rendered (third-person voxel session).
+
+Fix is one line at the spot where YOUR code stops the player, mirroring
+the engine's own contract:
+
+```
+vel.xy = (0, 0);
+if (!(player.cheats & CF_PREDICTING))
+    PlayIdle();    // safe every tic: no-ops unless in the See sequence
+```
+
+## Mouse capture for a FREE ORBIT camera: InputProcess receives Type_Mouse
+## deltas and can eat them (researched 2026-08-13, 4.14.3 + gzdoom master)
+
+For a camera that rotates around the player independent of aim (modern
+third person), the engine-supported capture point exists and is
+documented, not folklore:
+
+- `InputEvent` (zscript/engine/inputevents.zs, `native play`) carries
+  `Type_Mouse` events with `MouseX` / `MouseY` position DIFFERENTIALS.
+- `EventManager::Responder` (src/events.cpp) hands every non-GUI event to
+  `InputProcess` handlers BEFORE `G_Responder`; returning `true` consumes
+  the event, so the player's view does not turn. That pair -- read deltas,
+  eat event -- is the whole decoupling mechanism.
+- Caveat one: when any UI-mode handler is active, mouse events are blocked
+  from InputProcess entirely (`isInputMouseEvent && uiProcessorsFound`).
+- Caveat two: the deltas arrive PRE-SCALED by the user's sensitivity
+  settings (forum: "Unscaled mouse input for InputProcess"), so an orbit
+  should apply its own factor on top rather than assuming raw counts.
+- Caveat three: InputProcess runs on the LOCAL node outside the sim.
+  Single player: fine. Lockstep multiplayer (WolfDoom): orbit state fed
+  from it is local-only -- replicate via the wolf_skin cvar pattern or
+  keep orbit SP-only.
+
+Precedent confirming the approach in the wild: Boondorl's
+Third-Person-Camera (MIT, github.com/Boondorl/Third-Person-Camera) for
+the camera-actor + LineTracer collision scaffold (its rotation still
+follows player aim, though), and ZDoom forum "Toggle-able Mouse Control"
+(t=57887) for InputProcess mouse capture.
