@@ -2671,3 +2671,48 @@ player's `oyaw` at -80.0 on the same tic, with the host's own orbit untouched.
 Related: returning `true` from `InputProcess` really does eat the delta before the
 view turns -- with ambient mouse input present, the player's `angle` stayed frozen
 for exactly the tics the orbit was held, and resumed drifting the tic it released.
+
+## Voxel character sets: two ways a clip lies about where the body is
+
+Both found while converting BJ's five animation clips, both invisible in the
+review sheet, both wrong in-engine.
+
+**1. A clip can be authored floating.** BJ's pain clip never puts a sole on the
+floor and never varies -- lowest vertex +0.081 to +0.090 in every pose, against
+-0.031 for the idle. A constant offset across all poses is authoring, not
+animation. It pushed the rig origin OUTSIDE the union box (`origin_z = -4.70`,
+where idle/run/death are +1.78/+4.24/+3.05), so pivoting there would have lifted
+the character ~6.6 voxels the instant he was hit and dropped him back.
+
+Check every clip before voxelizing:
+
+    lowest vertex per pose, per set -- expect ~0, expect it to VARY where feet lift
+
+Fix by setting that set's `origin_voxel[2]` to the reference set's, so the soles
+land on one plane in every state.
+
+**2. A per-pose set has no frame, so the box is not a landmark.** Registered sets
+pivot at the rig origin from `frame.json`. Per-pose sets (travelling clips) have
+no shared frame, and `vox_to_kvx` used to fall back to the bounding-box centre --
+but the box grows whenever a gun or limb extends forward. Measured on BJ's
+shooting clip (1.32 m of root motion across five poses), a box-centre pivot
+drifted the hips 4.5 voxels and swung the feet 12.4 (~7 map units): the character
+skates under himself.
+
+`anchor_poses.py` now writes a `frames.json` of per-pose PELVIS anchors (XY
+centroid of a hip-height band) and `vox_to_kvx` reads it, printing the pivot used
+for each pose. Anchors compared on the same set:
+
+| anchor | result |
+|---|---|
+| box centre | feet swing 12.4 voxels -- gun extension moves the box |
+| feet | hips lurch backwards as the trailing leg swings forward |
+| **pelvis** | hips hold still, feet stride through -- walking in place |
+
+Walking in place is the goal for any travelling clip: the ENGINE supplies the
+real movement, and the animation must not double it.
+
+Third lesson, cheaper: **the `--sprite` palette flag is luminance-only.** Aimed at
+a Wolf sprite it maps grey uniform and tan skin to the same entries and returns a
+brown character with blue confetti. For a full-colour source model, voxelize in
+true colour; if the palette must match the game's, do it by nearest RGB.

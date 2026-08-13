@@ -199,19 +199,38 @@ def main():
     spr_dir = Path(a.sprite_dir) if a.sprite_dir else out_dir
     spr_dir.mkdir(parents=True, exist_ok=True)
 
+    import json
+    base = src if src.is_dir() else src.parent
+
     origin = None
-    fj = (src if src.is_dir() else src.parent) / "frame.json"
+    fj = base / "frame.json"
     if fj.exists():
-        import json
         origin = json.loads(fj.read_text())["origin_voxel"]
         print(f"pivot from frame.json: rig origin at "
               f"({origin[0]:.1f}, {origin[1]:.1f}, {origin[2]:.1f})")
+
+    # PER-POSE pivots. A per-pose set has no shared frame: every pose is
+    # boxed on its own extents, so the box bears no fixed relationship
+    # to the body -- extend the gun and the box grows forward, sliding
+    # the body backwards under a box-centre pivot. Measured on BJ's
+    # shooting clip: the feet moved 12.4 voxels (~7 map units) across
+    # five poses, i.e. he skated. frames.json (from anchor_poses.py)
+    # carries one origin per pose so the anchor can be a body landmark.
+    per_pose = {}
+    pj = base / "frames.json"
+    if pj.exists():
+        per_pose = json.loads(pj.read_text())
+        print(f"per-pose pivots from frames.json ({len(per_pose)} poses)")
 
     for i, vp in enumerate(voxes):
         frame = chr(ord("A") + i)
         solid, dims = vox_solid(vp)
         kvx = out_dir / f"{a.name}{frame}.kvx"
-        ncol = to_kvx(solid, dims, kvx, origin)
+        org = per_pose.get(vp.stem, origin)
+        if vp.stem in per_pose:
+            print(f"  {vp.stem}: pivot ({org[0]:.1f}, {org[1]:.1f}, "
+                  f"{org[2]:.1f})")
+        ncol = to_kvx(solid, dims, kvx, org)
         verify(solid, dims, kvx)
         sprite_png(solid, dims, spr_dir / f"{a.name}{frame}0.png")
         print(f"{vp.name} -> {kvx.name}  {len(solid)} voxels, "
