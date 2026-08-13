@@ -120,10 +120,40 @@ def attach_prop(path, wanted_bone, g):
     print(f"ATTACH {path.name}: {len(new)} mesh(es) -> bone '{bone}' "
           f"(bone world scale {k:.4f}) grip loc={g[0:3]} rot={g[3:6]} "
           f"scale={g[6]}")
+    return new
 
 
-if attach:
-    attach_prop(attach, bone_name, grip)
+def muzzle_world(objs, ax):
+    """Where the barrel ENDS, in world metres, for the current pose.
+
+    A muzzle flash cannot be baked into the body poses - the fire rate is
+    the weapon's, not the animation's - so it is drawn as its own actor,
+    and that actor needs to know where the barrel tip is. Recording it
+    here is free: the gun is already attached and posed, so the tip is
+    just its furthest vertex along its own long axis."""
+    best, bestd = None, None
+    for o in objs:
+        ev = o.evaluated_get(bpy.context.evaluated_depsgraph_get())
+        for v in ev.data.vertices:
+            w = ev.matrix_world @ v.co
+            d = w.dot(ax)
+            if bestd is None or d > bestd:
+                bestd, best = d, w.copy()
+    return best
+
+
+gun_objs = attach_prop(attach, bone_name, grip) if attach else []
+# the gun's long axis, in ITS OWN space, after the grip rotation - the
+# barrel points along this once posed
+muzzle_axis = None
+if gun_objs:
+    import math as _m
+    from mathutils import Euler as _E
+    _ax = {"x": Vector((1, 0, 0)), "y": Vector((0, 1, 0)),
+           "z": Vector((0, 0, 1))}[
+        argv[argv.index("--gun-axis") + 1] if "--gun-axis" in argv else "x"]
+    muzzle_axis = _ax
+muzzles = []
 
 # unpack any embedded images so path_mode COPY has real files to copy
 for img in bpy.data.images:
@@ -147,6 +177,11 @@ if times:
         scene.frame_set(scene.frame_start + round(t * fps))
         bpy.context.evaluated_depsgraph_get()
         export(out_dir / f"{src.stem}_p{i:02d}.obj")
+        if gun_objs:
+            w = muzzle_world(gun_objs, muzzle_axis)
+            muzzles.append({"pose": f"{src.stem}_p{i:02d}",
+                            "muzzle_world": [w.x, w.y, w.z]})
+            print(f"MUZZLE p{i:02d} ({w.x:.3f},{w.y:.3f},{w.z:.3f})")
         print(f"OK pose {i} at {t}s (frame {scene.frame_current})")
 elif frames <= 0:
     export(out_dir / (src.stem + ".obj"))
@@ -162,4 +197,8 @@ else:
         deps = bpy.context.evaluated_depsgraph_get()
         export(out_dir / f"{src.stem}_f{i:02d}.obj")
         print(f"OK frame {i} (timeline {f})")
+if muzzles:
+    import json
+    (out_dir / "muzzle.json").write_text(json.dumps(muzzles, indent=1))
+    print(f"wrote muzzle.json ({len(muzzles)} poses)")
 print("DONE")
