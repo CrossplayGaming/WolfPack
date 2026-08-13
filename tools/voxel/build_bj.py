@@ -78,6 +78,30 @@ def voxelize(objdir, voxdir, per_pose, frame_ref=None):
     run(cmd)
 
 
+def ground_fix(voxdir):
+    """A clip authored FLOATING puts its rig origin outside the union box
+    - BJ's pain clip never lands a sole (lowest vertex +0.081 to +0.090
+    in every pose, against -0.031 for the idle), which came out as
+    origin_z = -4.70 and would have hopped him ~6.6 voxels the instant he
+    was hit. It was corrected by hand once and then quietly lost the
+    first time this driver re-voxelized, which is why it belongs here.
+
+    A NEGATIVE origin means the geometry never reaches the floor plane;
+    legitimate variation between clips (feet lifting in a run) is
+    positive and is left alone."""
+    fj = Path(voxdir) / "frame.json"
+    if not fj.exists():
+        return
+    d = json.loads(fj.read_text())
+    if d["origin_voxel"][2] >= 0:
+        return
+    ref = json.loads(REF.read_text())["origin_voxel"][2]
+    print(f"  ground fix: origin_z {d['origin_voxel'][2]:.2f} -> {ref:.2f} "
+          f"(clip is authored floating)")
+    d["origin_voxel"][2] = ref
+    fj.write_text(json.dumps(d, indent=1))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--clips", default=",".join(CLIPS))
@@ -99,6 +123,7 @@ def main():
         bake(glb, bodyobj, times, False)
         bake(glb, gunobj, times, True)
         voxelize(bodyobj, bodyvox, per_pose)
+        ground_fix(bodyvox)
         voxelize(gunobj, gunvox, per_pose)
         if per_pose:
             run([sys.executable, ROOT / "tools/voxel/anchor_poses.py", bodyvox])

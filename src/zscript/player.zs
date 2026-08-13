@@ -231,7 +231,13 @@ class WolfPlayer : DoomPlayer
         // class up by name so a plain build simply finds nothing.
         if (gunBody == null && health > 0)
         {
-            class<Actor> gc = "WolfGunBody";
+            // a class literal is resolved at COMPILE time, and the
+            // pack's classes are not visible to the base game's
+            // compilation unit ("Unknown class name 'WolfGunBody'").
+            // Casting from a Name VARIABLE defers it to runtime, which
+            // is what an optional add-on requires.
+            Name gn = 'WolfGunBody';
+            class<Actor> gc = (class<Actor>)(gn);
             if (gc != null)
             {
                 gunBody = Spawn(gc, pos);

@@ -53,7 +53,9 @@ class WolfGunBody : Actor
         // no Super.Tick(): position and frame are a pure function of the
         // player's, recomputed here
         let p = WolfPlayer(master);
-        if (p == null || p.player == null || p.player.mo != p)
+        if (p == null)
+            return;                 // summoned standalone: just sit there
+        if (p.player == null || p.player.mo != p)
         {
             Destroy();
             return;
