@@ -110,6 +110,10 @@ example. The state-machine shapes:
   keep the rest on disk.
 - **Death**: last frame held at `-1` IS the corpse (never model it
   twice); scream/noblocking at the stock beats.
+  **Cover XDeath too** (alias `XDeath: Goto Death` until a gib set
+  exists): massive damage -- including the `kill` test key's ~1M --
+  routes there, and an inherited XDeath with absent sprites is an
+  invisible corpse that looks exactly like a rendering bug.
 - **THE TRAP — run→idle lives in the engine's FRICTION code.** Native
   `P_XYMovement` calls `PlayIdle()` only when ITS friction zeroes the
   velocity. Any player class with direct velocity authority (CCFPS's
