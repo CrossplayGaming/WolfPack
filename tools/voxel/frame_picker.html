@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Frame Picker — pick poses for voxelization</title>
+<style>
+  :root{
+    --bg:#16130f; --panel:#211c16; --line:#3a3128;
+    --text:#e8dcc4; --dim:#9c8f7a; --amber:#e8a13a; --cyan:#4fd6d6;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+    font:14px/1.5 "Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #app{display:grid;grid-template-columns:1fr 300px;height:100%}
+  #stage{position:relative;min-width:0}
+  canvas{display:block}
+  #drop{position:absolute;inset:0;display:flex;align-items:center;
+    justify-content:center;flex-direction:column;gap:10px;text-align:center;
+    background:rgba(22,19,15,.94);border:2px dashed var(--line);
+    margin:18px;border-radius:10px;cursor:pointer;z-index:5}
+  #drop.hide{display:none}
+  #drop b{color:var(--amber);font-size:17px}
+  #drop span{color:var(--dim);max-width:380px}
+  #bar{position:absolute;left:0;right:0;bottom:0;background:var(--panel);
+    border-top:1px solid var(--line);padding:10px 14px;
+    display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  #scrub{flex:1;min-width:220px;accent-color:var(--amber)}
+  button{background:#2c251c;color:var(--text);border:1px solid var(--line);
+    border-radius:6px;padding:7px 12px;cursor:pointer;font-size:13px}
+  button:hover{border-color:var(--amber);color:#fff}
+  button.primary{background:var(--amber);color:#1a1510;border-color:var(--amber);
+    font-weight:600}
+  button.primary:hover{background:#ffb64d}
+  select,input[type=number]{background:#2c251c;color:var(--text);
+    border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+  #side{background:var(--panel);border-left:1px solid var(--line);
+    display:flex;flex-direction:column;min-height:0}
+  #side h2{margin:0;padding:12px 14px;font-size:12px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--cyan);border-bottom:1px solid var(--line)}
+  #marks{flex:1;overflow:auto;padding:8px}
+  .mark{display:flex;gap:8px;align-items:center;padding:6px;border-radius:6px;
+    border:1px solid transparent}
+  .mark:hover{border-color:var(--line);background:#191410}
+  .mark img{width:56px;height:56px;object-fit:cover;border-radius:4px;
+    background:#0d0b09;border:1px solid var(--line);cursor:pointer}
+  .mark .meta{flex:1;font-size:12px;color:var(--dim)}
+  .mark .meta b{display:block;color:var(--text);font-size:13px}
+  .mark .x{color:var(--dim);cursor:pointer;padding:0 6px;font-size:16px}
+  .mark .x:hover{color:#ff8a6a}
+  #out{border-top:1px solid var(--line);padding:12px 14px}
+  #cmd{width:100%;height:74px;background:#0f0d0a;color:var(--cyan);
+    border:1px solid var(--line);border-radius:6px;padding:8px;
+    font:12px/1.45 Consolas,monospace;resize:none;white-space:pre-wrap}
+  .row{display:flex;gap:8px;margin-top:8px}
+  .row button{flex:1}
+  .hint{color:var(--dim);font-size:12px;padding:0 14px 10px}
+  kbd{background:#2c251c;border:1px solid var(--line);border-bottom-width:2px;
+    border-radius:4px;padding:1px 5px;font:11px Consolas,monospace}
+</style>
+<script type="importmap">
+{"imports":{
+  "three":"https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <div id="drop">
+      <b>Drop a .glb here</b>
+      <span>Animated or static. Scrub to a pose you like, mark it, and the
+        command below bakes exactly those poses into voxels.</span>
+      <button class="primary" id="browse">Choose file…</button>
+    </div>
+    <div id="bar">
+      <button id="play">▶ Play</button>
+      <button id="prev" title="Step back (←)">◀|</button>
+      <button id="next" title="Step forward (→)">|▶</button>
+      <input id="scrub" type="range" min="0" max="1000" value="0">
+      <span id="time" style="color:var(--dim);font:12px Consolas,monospace">0.00s</span>
+      <select id="clip"></select>
+      <label style="color:var(--dim);font-size:12px">fps
+        <input id="fps" type="number" value="30" min="1" max="120" style="width:62px">
+      </label>
+      <button class="primary" id="mark" title="Mark pose (M)">＋ Mark pose</button>
+    </div>
+  </div>
+  <div id="side">
+    <h2>Marked poses</h2>
+    <div id="marks"></div>
+    <div class="hint"><kbd>←</kbd><kbd>→</kbd> step · <kbd>space</kbd> play ·
+      <kbd>M</kbd> mark · drag to orbit</div>
+    <div id="out">
+      <textarea id="cmd" readonly placeholder="Mark poses to build the command…"></textarea>
+      <div class="row">
+        <button id="copy">Copy command</button>
+        <button id="clear">Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({antialias:true, preserveDrawingBuffer:true});
+renderer.setPixelRatio(devicePixelRatio);
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x16130f);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x30281e, 2.2));
+const key = new THREE.DirectionalLight(0xffffff, 2.0);
+key.position.set(3,6,4); scene.add(key);
+const grid = new THREE.GridHelper(4, 8, 0x3a3128, 0x272119);
+scene.add(grid);
+
+function resize(){
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w,h);          // updateStyle ON: canvas must fill #stage
+  camera.aspect = w/h; camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+
+let mixer=null, clips=[], action=null, root=null, duration=0, playing=false;
+let fileName='model.glb', filePath='';
+const marks=[];
+
+const el = id => document.getElementById(id);
+
+function frameModel(obj){
+  const box = new THREE.Box3().setFromObject(obj);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const maxDim = Math.max(size.x,size.y,size.z) || 1;
+  grid.scale.setScalar(maxDim/2);
+  grid.position.set(center.x, box.min.y, center.z);
+  controls.target.copy(center);
+  camera.position.set(center.x + maxDim*1.1, center.y + maxDim*0.55,
+                      center.z + maxDim*1.6);
+  camera.near = maxDim/100; camera.far = maxDim*100;
+  camera.updateProjectionMatrix();
+}
+
+function loadBuffer(buf, name){
+  fileName = name;
+  new GLTFLoader().parse(buf, '', gltf => {
+    if(root) scene.remove(root);
+    root = gltf.scene; scene.add(root);
+    frameModel(root);
+    clips = gltf.animations || [];
+    mixer = clips.length ? new THREE.AnimationMixer(root) : null;
+    el('clip').innerHTML = clips.length
+      ? clips.map((c,i)=>`<option value="${i}">${c.name||('clip '+i)}</option>`).join('')
+      : '<option>no animation</option>';
+    el('clip').disabled = !clips.length;
+    selectClip(0);
+    el('drop').classList.add('hide');
+    resize();
+  }, err => alert('Could not read that GLB:\n'+err));
+}
+
+function selectClip(i){
+  if(!mixer || !clips[i]){ duration = 0; setTime(0); return; }
+  mixer.stopAllAction();
+  action = mixer.clipAction(clips[i]);
+  action.reset();
+  // Do NOT pause: a paused action's time scale is zero, so it ignores
+  // mixer.setTime() and holds frame 0 forever while the clock advances.
+  // We scrub by driving mixer.setTime() ourselves every render instead.
+  action.play();
+  duration = clips[i].duration;
+  setTime(0);
+}
+
+function setTime(t){
+  t = Math.max(0, Math.min(duration || 0, t));
+  // setTime() rewinds every action to 0 then advances by t -- exact
+  // scrubbing, and the only thing that must run for the pose to update
+  if(mixer && duration){ mixer.setTime(Math.min(t, duration - 1e-4)); }
+  el('scrub').value = duration ? (t/duration)*1000 : 0;
+  const fps = +el('fps').value || 30;
+  el('time').textContent = `${t.toFixed(2)}s  ·  f${Math.round(t*fps)}`;
+  current = t;
+}
+let current = 0;
+
+el('scrub').oninput = e => { playing=false; el('play').textContent='▶ Play';
+  setTime(duration * (e.target.value/1000)); };
+el('clip').onchange = e => selectClip(+e.target.value);
+el('play').onclick = () => { playing = !playing;
+  el('play').textContent = playing ? '❚❚ Pause' : '▶ Play'; };
+const step = d => { playing=false; el('play').textContent='▶ Play';
+  setTime(current + d/(+el('fps').value || 30)); };
+el('prev').onclick = ()=>step(-1);
+el('next').onclick = ()=>step(1);
+el('fps').onchange = ()=>setTime(current);
+
+// ---- marking ----------------------------------------------------------
+function addMark(){
+  renderer.render(scene, camera);
+  const thumb = renderer.domElement.toDataURL('image/png');
+  marks.push({t: current, thumb});
+  marks.sort((a,b)=>a.t-b.t);
+  drawMarks();
+}
+function drawMarks(){
+  el('marks').innerHTML = marks.map((m,i)=>`
+    <div class="mark">
+      <img src="${m.thumb}" data-go="${i}" title="jump to this pose">
+      <div class="meta"><b>pose ${i}</b>${m.t.toFixed(3)}s</div>
+      <div class="x" data-del="${i}">✕</div>
+    </div>`).join('');
+  el('cmd').value = marks.length ? buildCmd() : '';
+}
+function buildCmd(){
+  const times = marks.map(m=>m.t.toFixed(3)).join(',');
+  const stem = fileName.replace(/\.glb$/i,'');
+  return `blender --background --python tools/voxel/glb_to_obj.py -- ` +
+    `"${filePath||fileName}" out\\${stem} --times ${times}`;
+}
+el('marks').onclick = e => {
+  const go = e.target.dataset.go, del = e.target.dataset.del;
+  if(go !== undefined){ playing=false; el('play').textContent='▶ Play';
+    setTime(marks[+go].t); }
+  if(del !== undefined){ marks.splice(+del,1); drawMarks(); }
+};
+el('mark').onclick = addMark;
+el('clear').onclick = ()=>{ marks.length=0; drawMarks(); };
+el('copy').onclick = ()=>{ el('cmd').select();
+  navigator.clipboard?.writeText(el('cmd').value);
+  el('copy').textContent='Copied ✓'; setTimeout(()=>el('copy').textContent='Copy command',1200); };
+
+addEventListener('keydown', e => {
+  if(e.target.tagName==='INPUT') return;
+  if(e.key==='ArrowLeft') step(-1);
+  if(e.key==='ArrowRight') step(1);
+  if(e.key===' '){ e.preventDefault(); el('play').click(); }
+  if(e.key.toLowerCase()==='m') addMark();
+});
+
+// ---- file input -------------------------------------------------------
+function takeFile(f){
+  filePath = f.path || f.name;      // full path when the browser exposes it
+  f.arrayBuffer().then(b => loadBuffer(b, f.name));
+}
+const picker = document.createElement('input');
+picker.type='file'; picker.accept='.glb,.gltf';
+picker.onchange = ()=> picker.files[0] && takeFile(picker.files[0]);
+el('browse').onclick = ()=>picker.click();
+el('drop').onclick = e => { if(e.target.id==='drop') picker.click(); };
+addEventListener('dragover', e=>{e.preventDefault();});
+addEventListener('drop', e=>{ e.preventDefault();
+  const f=e.dataTransfer.files[0]; if(f) takeFile(f); });
+
+// ---- loop -------------------------------------------------------------
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(()=>{
+  const d = clock.getDelta();
+  if(playing && duration){ setTime((current + d) % duration); }
+  controls.update();
+  renderer.render(scene, camera);
+});
+resize();
+</script>
+</body>
+</html>

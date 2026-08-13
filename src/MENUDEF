@@ -71,6 +71,11 @@ LISTMENU "WolfLightMenu"
     Class "WolfLightMenu"
 }
 
+LISTMENU "WolfCameraMenu"
+{
+    Class "WolfCameraMenu"
+}
+
 LISTMENU "WolfCrosshairMenu"
 {
     Class "WolfCrosshairMenu"

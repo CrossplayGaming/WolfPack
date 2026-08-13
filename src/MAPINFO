@@ -8,7 +8,7 @@ gameinfo
                     "WolfGameState", "WolfDeathHandler",
                     "WolfScreenFX", "WolfDeathCam", "WolfAttract",
                     "WolfLobby", "WolfFlats", "WolfChaseXhair", "WolfLighting",
-                    "WolfMusic"
+                    "WolfMusic", "WolfOrbit"
     // DrawPlayBorder (WL_GAME.C:841): palette 127 surround with a 1-unit
     // inset bevel, not Doom's 8-unit decorative border.
     borderflat = "FLOOR7F"

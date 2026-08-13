@@ -2635,3 +2635,39 @@ state in NetworkProcess, decay in WorldTick. Read-only helpers shared by
 both sides go `clearscope`. One tic of camera latency, imperceptible;
 and the net-event bridge is exactly what a lockstep-multiplayer port
 would need anyway.
+
+## `netevent` from the console is SPACE-separated; the comma form silently does nothing
+
+Probing the chase-camera orbit, `netevent wolf_orbit,400,0` produced no change --
+and produced no error either. It reads like a clean negative result. It is not:
+
+    netevent wolf_orbit,400,0     // parsed as one event name, no args, no complaint
+    netevent wolf_orbit 400 0     // works: Args[0]=400, Args[1]=0
+
+The comma form cost a two-node netgame probe that "proved" orbit state does not
+replicate. Re-run with spaces, same harness: it replicates exactly.
+
+Rule: when a console-driven probe reports nothing happened, prove the probe FIRED
+before believing it -- print the value the handler received, not just the effect.
+Same family as the heartbeat rule.
+
+## The chase camera's free orbit, replicated (WolfOrbit)
+
+Crystal Caves keeps orbit state in local-node fields because it is single player.
+Here the camera is shared sim state, so:
+
+- **Mouse deltas** cannot reach play scope directly (`InputProcess` is ui). Accumulate
+  in `ui` fields, flush once per tic with `SendNetworkEvent`, apply in `NetworkProcess`
+  keyed by `e.Player` -- every node processes the same events in the same order.
+- **Held state needs no bridge**: `+user1` arrives in the replicated ticcmd, so
+  `players[pn].cmd.buttons & BT_USER1` is already true on every node. A release
+  swallowed by an open menu therefore cannot wedge the orbit on.
+- **Framing cvars must be `user`**, not `client`: every node places every player's
+  camera, so a per-node value would place the same player's camera differently.
+
+Measured on a real two-node session: the joiner sends, and BOTH nodes show that
+player's `oyaw` at -80.0 on the same tic, with the host's own orbit untouched.
+
+Related: returning `true` from `InputProcess` really does eat the delta before the
+view turns -- with ambient mouse input present, the player's `angle` stayed frozen
+for exactly the tics the orbit was held, and resumed drifting the tic it released.

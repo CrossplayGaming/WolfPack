@@ -126,6 +126,7 @@ class WolfModernMenu : WolfWidgetMenu
         // time). `toggle` on the replicated user cvar is the whole
         // mechanism; chasecam.zs reacts on the next tick.
         AddBindRow("  3rd-Person Key", "toggle wolf_mod_tp");
+        AddCommand("  Camera Setup");
         AddToggleV("Floor + Ceiling Textures", "wolf_mod_flats", 1, 0);
         AddToggleV("HD Textures (next launch)", "wolf_mod_hdtex", 1, 0);
         AddToggleV("HD Sounds (next launch)", "wolf_mod_hdsfx", 1, 0);
@@ -137,7 +138,9 @@ class WolfModernMenu : WolfWidgetMenu
 
     override void OnChoose(int index)
     {
-        if (labels[index] == "Crosshair Setup")
+        if (labels[index] == "  Camera Setup")
+            Menu.SetMenu("WolfCameraMenu");
+        else if (labels[index] == "Crosshair Setup")
             Menu.SetMenu("WolfCrosshairMenu");
         else if (labels[index] == "Lighting Setup")
             Menu.SetMenu("WolfLightMenu");
@@ -602,6 +605,26 @@ class WolfCrosshairMenu : WolfWidgetMenu
 // (lighting.zs: depth shading + painted-pool swap, host-controlled)
 // and pushes the local render half (dynamic lights + Doom light mode)
 // so one switch does the whole look; the rest are per-player taste.
+// Camera Setup: the chase camera's framing and the free orbit. Split
+// out of Modernization the way Crosshair and Lighting are - that page
+// already scrolls, and these are settings you tune once.
+class WolfCameraMenu : WolfWidgetMenu
+{
+    override void Init(Menu parent, ListMenuDescriptor desc)
+    {
+        Super.Init(parent, desc);
+        title = "Camera";
+        AddSlider("Distance", "wolf_tp_dist", 48, 192, 8);
+        AddSlider("Height", "wolf_tp_lift", -16, 80, 4);
+        AddBindRow("Orbit Key (hold)", "+user1");
+        AddSlider("  Orbit Speed", "wolf_tp_orbsens", 0.05, 1.0, 0.05);
+        AddToggleV("  Invert Orbit X", "wolf_tp_orbinvx", 1, 0);
+        AddToggleV("  Invert Orbit Y", "wolf_tp_orbinvy", 1, 0);
+        winH = 13 * labels.Size() + 6;
+        sel = 0;
+    }
+}
+
 class WolfLightMenu : WolfWidgetMenu
 {
     override void Init(Menu parent, ListMenuDescriptor desc)
