@@ -143,6 +143,18 @@ def muzzle_world(objs, ax):
 
 
 gun_objs = attach_prop(attach, bone_name, grip) if attach else []
+# --attach-only: export the PROP alone, posed by the animation. The gun
+# is a separate actor in-engine, so it is baked as its own voxel set in
+# the body's exact voxel grid (voxelize --frame-from). Keeping it out of
+# the body models means the uniform recolor cannot paint it - measured:
+# 338 of the gun's 1147 voxels fall inside the uniform's colour band -
+# and one gun serves all four uniforms instead of four baked copies.
+if "--attach-only" in argv and gun_objs:
+    keep = set(gun_objs)
+    for o in [o for o in bpy.data.objects if o.type == "MESH"]:
+        if o not in keep:
+            bpy.data.objects.remove(o, do_unlink=True)
+    print(f"ATTACH-ONLY: exporting the prop alone ({len(keep)} mesh)")
 # the gun's long axis, in ITS OWN space, after the grip rotation - the
 # barrel points along this once posed
 muzzle_axis = None

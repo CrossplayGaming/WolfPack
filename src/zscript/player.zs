@@ -211,7 +211,8 @@ class WolfPlayer : DoomPlayer
     // missing frame is a load error. So drive sprite+frame directly -
     // the renderer resolves the voxel at draw time, not at compile time.
     int voxTic;
-    int voxKind;        // 0 none, 1 idle, 2 run, 3 shoot, 4 death
+    int voxKind;        // 0 none, 1 idle, 2 run, 3 shoot, 4 death, 5 pain
+    Actor gunBody;
     bool voxChecked, voxOn;
 
     void ApplyVoxelBody()
@@ -225,6 +226,19 @@ class WolfPlayer : DoomPlayer
         }
         if (!voxOn)
             return;
+        // The gun is a separate actor and it lives in the PACK, not
+        // here, because its sprite frames only exist there. Look the
+        // class up by name so a plain build simply finds nothing.
+        if (gunBody == null && health > 0)
+        {
+            class<Actor> gc = "WolfGunBody";
+            if (gc != null)
+            {
+                gunBody = Spawn(gc, pos);
+                if (gunBody != null)
+                    gunBody.master = self;
+            }
+        }
 
         int kind = 0;
         if (InStateSequence(CurState, ResolveState("Death")))
@@ -233,10 +247,10 @@ class WolfPlayer : DoomPlayer
             kind = 3;
         else if (InStateSequence(CurState, ResolveState("See")))
             kind = 2;
+        else if (InStateSequence(CurState, ResolveState("Pain")))
+            kind = 5;      // frames left to the state: two poses, two frames
         else if (InStateSequence(CurState, ResolveState("Spawn")))
             kind = 1;
-        // Pain is left alone: two sprite frames, two voxel poses, the
-        // state already walks them.
 
         // HELD FIRE. The pawn's Missile state is a one-shot: it runs ten
         // tics and returns to Spawn, which is right for the pistol
@@ -253,6 +267,11 @@ class WolfPlayer : DoomPlayer
         if (kind == 0)
         {
             voxKind = 0;
+            return;
+        }
+        if (kind == 5)          // pain: the state drives the frame
+        {
+            voxKind = 5;
             return;
         }
         if (kind != voxKind)

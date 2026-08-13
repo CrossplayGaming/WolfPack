@@ -259,6 +259,11 @@ def main():
     ap.add_argument("--sprite", help="quantize to this sprite PNG's own "
                                      "colours, shading stretched by "
                                      "luminance")
+    ap.add_argument("--frame-from", help="another set's OUTPUT DIR: reuse "
+                    "its exact grid (mins, maxs, scale) and pivot, so a "
+                    "companion model - a weapon posed with the body - "
+                    "lands in the same voxel space and needs no offset "
+                    "table in the engine")
     ap.add_argument("--match", help="another set's frame.json: reuse its "
                                     "scale so the character stays ONE size "
                                     "across sets (a jump clip's union span "
@@ -292,8 +297,23 @@ def main():
         bounds = [obj_bounds(v) for v, _, _ in parsed]
         mins = tuple(min(b[0][i] for b in bounds) for i in range(3))
         maxs = tuple(max(b[1][i] for b in bounds) for i in range(3))
-        if a.match:
-            import json
+        import json
+        ref = None
+        if a.frame_from:
+            refdir = Path(a.frame_from)
+            fj = refdir / "frame.json"
+            bj = refdir / "frames_box.json"
+            if fj.exists():
+                ref = json.loads(fj.read_text())
+                mins = tuple(ref["mins"]); maxs = tuple(ref["maxs"])
+                scale = ref["scale"]
+            elif bj.exists():
+                ref = json.loads(bj.read_text())
+                scale = ref["scale"]
+            else:
+                sys.exit(f"--frame-from: no frame.json or frames_box.json "
+                         f"in {refdir}")
+        elif a.match:
             scale = json.loads(Path(a.match).read_text())["scale"]
         else:
             scale = (a.height - 1) / max(maxs[2] - mins[2], 1e-9)
@@ -302,11 +322,22 @@ def main():
         if a.per_pose:
             print(f"per-pose frames at matched scale {scale:.2f} vox/unit, "
                   f"{len(objs)} poses")
+            boxes = {}
             for p, ((verts, uvs, faces), (bmin, bmax)) in zip(
                     objs, zip(parsed, bounds)):
+                if ref is not None and "boxes" in ref:
+                    # companion set: take the BODY's box for this pose so
+                    # both land in one voxel space
+                    key = p.stem.split("__")[0]
+                    if key in ref["boxes"]:
+                        bmin, bmax = (tuple(ref["boxes"][key][0]),
+                                      tuple(ref["boxes"][key][1]))
                 solid, dims = voxelize(verts, uvs, faces, a.height,
                                        frame=(bmin, bmax, scale))
+                boxes[p.stem] = [list(bmin), list(bmax)]
                 finish(solid, dims, str(out_dir / p.stem))
+            (out_dir / "frames_box.json").write_text(json.dumps(
+                {"scale": scale, "boxes": boxes}, indent=1))
             return
         # Record where the RIG ORIGIN (Blender scene origin: feet
         # center) lands in voxel coords. A pose set's union box is
@@ -314,12 +345,12 @@ def main():
         # box-center pivot would shift every standing frame sideways;
         # the KVX converter pivots on this origin instead, keeping all
         # sets of one character mutually registered.
-        import json
+        origin = ref["origin_voxel"] if ref else [
+            (0 - mins[0]) * scale, (0 - mins[1]) * scale,
+            (0 - mins[2]) * scale]
         (out_dir / "frame.json").write_text(json.dumps({
-            "origin_voxel": [(0 - mins[0]) * scale,
-                             (0 - mins[1]) * scale,
-                             (0 - mins[2]) * scale],
-            "scale": scale, "height": a.height}, indent=1))
+            "origin_voxel": origin, "scale": scale, "height": a.height,
+            "mins": list(mins), "maxs": list(maxs)}, indent=1))
         print(f"set frame: z-span {maxs[2] - mins[2]:.2f} -> "
               f"{a.height} voxels, {len(objs)} poses")
         for p, (verts, uvs, faces) in zip(objs, parsed):

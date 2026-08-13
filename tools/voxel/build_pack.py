@@ -147,6 +147,18 @@ def add_character(z, voxeldef):
         for f in sorted(CHAR_SPR.glob("*.png")):
             z.writestr(f"sprites/{f.name}", f.read_bytes())
             nspr += 1
+    # The gun ACTOR ships here too, not in the base game: its sprite
+    # frames only exist in this pack, and a state naming a frame that is
+    # absent is a load error for everyone who never downloads it. The
+    # base game spawns it by dynamic class lookup, so a plain build
+    # simply finds nothing.
+    gz = ROOT / "src/pack/gunbody.zs"
+    if gz.exists():
+        ver = (ROOT / "src/zscript.zs").read_text(
+            errors="replace").splitlines()[0]
+        z.writestr("zscript.txt", ver + "\n\n" + gz.read_text())
+        print("character: + gun actor (zscript.txt)")
+
     # Marker lump. The base game never requires this pack, so the longer
     # voxel-only cycles have to be switched on by asking whether it is
     # loaded (voxelbody.zs) rather than by referencing frames that would
