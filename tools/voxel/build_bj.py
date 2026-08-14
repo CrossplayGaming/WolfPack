@@ -258,10 +258,59 @@ def emit(voxdir, keep, sprite, kvx, spr):
     print("  %s: %d models" % (sprite, out.count("[verified]")))
 
 
+def build_clip(name, kvx, spr):
+    glb, times, keep, bspr, per_pose, weps = CLIPS[name]
+    base = ROOT / "build/bjvox" / name
+    bodyobj, bodyvox = base / "body_obj", base / "body_vox"
+    print(f"\n=== {name}: {glb}")
+
+    bake(glb, bodyobj, times)
+    voxelize(bodyobj, bodyvox, per_pose)
+    ground_fix(bodyvox)
+    if per_pose:
+        run([sys.executable, ROOT / "tools/voxel/anchor_poses.py", bodyvox])
+
+    jobs = [(bodyvox, bspr)]
+    for w in weps:
+        gunobj = base / ("gun_obj_" + w)
+        gunvox = base / ("gun_vox_" + w)
+        bake(glb, gunobj, times, w, name)
+        voxelize(gunobj, gunvox, per_pose)
+        run([sys.executable, ROOT / "tools/voxel/align_anchors.py",
+             bodyvox, gunvox])
+        jobs.append((gunvox, GUNPREFIX[w] + bspr[3]))
+        if name in FIRECLIPS and w in FLASHPREFIX:
+            fobj = base / ("flash_obj_" + w)
+            fvox = base / ("flash_vox_" + w)
+            bake(glb, fobj, times, w, name, flash=True)
+            voxelize(fobj, fvox, per_pose)
+            run([sys.executable, ROOT / "tools/voxel/align_anchors.py",
+                 bodyvox, fvox])
+            jobs.append((fvox, FLASHPREFIX[w] + bspr[3]))
+
+    for voxdir, sprite in jobs:
+        emit(voxdir, keep, sprite, kvx, spr)
+    # uniform recolors of the BODY set (guns are never recolored).
+    # Done here so a re-run cannot leave stale recolors behind - the
+    # hand-run recolor pass predating this was exactly that trap.
+    for v in (2, 3, 4):
+        rc = bodyvox.parent / ("body_vox_v%d" % v)
+        run([sys.executable, ROOT / "tools/voxel/recolor_vox.py",
+             bodyvox, rc, "--variant", str(v)])
+        emit(rc, keep, "BJ%d%s" % (v, bspr[3]), kvx, spr)
+    print("  recolors: BJ2/3/4" + bspr[3])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--clips", default=",".join(CLIPS))
     ap.add_argument("--out", default="build/bjvox/kvx")
+    ap.add_argument("--jobs", type=int, default=4,
+                    help="clips baked concurrently. Clips are fully "
+                         "independent (own work dirs, distinct KVX names), "
+                         "and the work is process-parallel - Blender "
+                         "launches and the voxelizer - so wall clock "
+                         "scales close to linearly until cores run out.")
     a = ap.parse_args()
 
     kvx = ROOT / a.out
@@ -269,47 +318,16 @@ def main():
     spr = ROOT / "build/bjvox/kvx_spr"
     spr.mkdir(parents=True, exist_ok=True)
 
-    for name in a.clips.split(","):
-        glb, times, keep, bspr, per_pose, weps = CLIPS[name]
-        base = ROOT / "build/bjvox" / name
-        bodyobj, bodyvox = base / "body_obj", base / "body_vox"
-        print(f"\n=== {name}: {glb}")
-
-        bake(glb, bodyobj, times)
-        voxelize(bodyobj, bodyvox, per_pose)
-        ground_fix(bodyvox)
-        if per_pose:
-            run([sys.executable, ROOT / "tools/voxel/anchor_poses.py", bodyvox])
-
-        jobs = [(bodyvox, bspr)]
-        for w in weps:
-            gunobj = base / ("gun_obj_" + w)
-            gunvox = base / ("gun_vox_" + w)
-            bake(glb, gunobj, times, w, name)
-            voxelize(gunobj, gunvox, per_pose)
-            run([sys.executable, ROOT / "tools/voxel/align_anchors.py",
-                 bodyvox, gunvox])
-            jobs.append((gunvox, GUNPREFIX[w] + bspr[3]))
-            if name in FIRECLIPS and w in FLASHPREFIX:
-                fobj = base / ("flash_obj_" + w)
-                fvox = base / ("flash_vox_" + w)
-                bake(glb, fobj, times, w, name, flash=True)
-                voxelize(fobj, fvox, per_pose)
-                run([sys.executable, ROOT / "tools/voxel/align_anchors.py",
-                     bodyvox, fvox])
-                jobs.append((fvox, FLASHPREFIX[w] + bspr[3]))
-
-        for voxdir, sprite in jobs:
-            emit(voxdir, keep, sprite, kvx, spr)
-        # uniform recolors of the BODY set (guns are never recolored).
-        # Done here so a re-run cannot leave stale recolors behind - the
-        # hand-run recolor pass predating this was exactly that trap.
-        for v in (2, 3, 4):
-            rc = bodyvox.parent / ("body_vox_v%d" % v)
-            run([sys.executable, ROOT / "tools/voxel/recolor_vox.py",
-                 bodyvox, rc, "--variant", str(v)])
-            emit(rc, keep, "BJ%d%s" % (v, bspr[3]), kvx, spr)
-        print("  recolors: BJ2/3/4" + bspr[3])
+    names = a.clips.split(",")
+    if a.jobs <= 1:
+        for name in names:
+            build_clip(name, kvx, spr)
+        return
+    import concurrent.futures as cf
+    with cf.ThreadPoolExecutor(max_workers=a.jobs) as ex:
+        futs = {ex.submit(build_clip, n, kvx, spr): n for n in names}
+        for f in cf.as_completed(futs):
+            f.result()          # propagate the first failure loudly
 
 
 if __name__ == "__main__":
