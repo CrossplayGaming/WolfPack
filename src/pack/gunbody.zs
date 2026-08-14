@@ -74,7 +74,20 @@ class WolfGunBody : Actor
             bInvisible = true;       // no gun set for this state
             return;
         }
-        bInvisible = false;
+        // FIRST PERSON: the engine hides a player's own pawn from his
+        // own camera, but this is a separate actor, so his gun hung in
+        // the middle of his own view. Hide it for exactly one viewer -
+        // the node whose local player is looking through his own eyes.
+        //
+        // Per NODE deliberately, not per player: hiding it from the
+        // owner's SIM state would also hide it from everyone else
+        // watching him, and in a netgame the man in first person is
+        // precisely the one whose weapon other players need to see.
+        // bInvisible on a NOINTERACTION actor is render-only - it
+        // cannot collide, think or influence anything - so a value that
+        // differs between nodes cannot move the simulation apart.
+        bInvisible = (p.player == players[consoleplayer]
+                      && p.player.camera == p);
         sprite = sprGun[k];
         frame = p.frame;
         angle = p.angle;

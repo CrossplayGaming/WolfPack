@@ -26,7 +26,10 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 BLENDER = Path(r"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe")
 SRC = Path(r"C:\Users\cross\Desktop\HD BJ")
 GUN = Path(r"C:\Users\cross\Desktop\Machine Gun Model.glb")
-GRIP = "0.0436,0.1427,-0.0290,-17,-169,73,0.3993"
+# slid forward along the barrel so the HAND sits on the grip:
+# at the solver's default the receiver rode up his forearm
+# (owner report). gripfrac 0.06 instead of 0.30.
+GRIP = "0.0960,0.3139,-0.0638,-17,-169,73,0.3993"
 HEIGHT = 96
 
 # clip -> (glb, times, kept pose indices, body sprite, gun sprite, per_pose)

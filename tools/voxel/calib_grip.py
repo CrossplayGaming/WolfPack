@@ -46,8 +46,12 @@ def main():
     ap.add_argument("gun")
     ap.add_argument("--time", type=float, default=0.0,
                     help="which moment of the clip to pose, in seconds")
-    ap.add_argument("--sweep", required=True,
+    ap.add_argument("--sweep",
                     help="field=lo:hi:steps, e.g. y=-0.08:0.08:5")
+    ap.add_argument("--grips",
+                    help="explicit candidates, semicolon separated - for "
+                         "when the thing being varied is a VECTOR (a grip "
+                         "offset along the barrel) rather than one field")
     ap.add_argument("--grip", default="0,0,0,0,0,0,1",
                     help="base grip x,y,z,rx,ry,rz,s")
     ap.add_argument("--bone", default="RightHand")
@@ -58,6 +62,13 @@ def main():
                          "at the same scale as the shipped models")
     a = ap.parse_args()
 
+    if a.grips:
+        cands = [[float(v) for v in g.split(",")] for g in a.grips.split(";")]
+        run_candidates(a, cands, "grips",
+                       [f"cand{i}" for i in range(len(cands))])
+        return
+    if not a.sweep:
+        sys.exit("need --sweep or --grips")
     field, spec = a.sweep.split("=", 1)
     if field not in FIELDS:
         sys.exit(f"--sweep field must be one of {FIELDS}")
@@ -68,18 +79,22 @@ def main():
         sys.exit("--grip needs 7 numbers: x,y,z,rx,ry,rz,s")
     idx = FIELDS.index(field)
 
-    out = ROOT / a.out
+    values = [lo + (hi - lo) * i / max(1, steps - 1) for i in range(steps)]
+    print(f"sweeping {field} over {values}")
+
+    run_candidates(a, [[(base[j] if j != idx else v) for j in range(7)]
+                       for v in values], field,
+                   ["%+.4f" % v for v in values])
+
+
+def run_candidates(a, grips, field, labels):
+    ROOT_ = ROOT
+    out = ROOT_ / a.out
     merged = out / "obj"
     if out.exists():
         shutil.rmtree(out)
     merged.mkdir(parents=True)
-
-    values = [lo + (hi - lo) * i / max(1, steps - 1) for i in range(steps)]
-    print(f"sweeping {field} over {values}")
-
-    for i, v in enumerate(values):
-        g = list(base)
-        g[idx] = v
+    for i, g in enumerate(grips):
         stage = out / f"stage{i:02d}"
         run([str(BLENDER), "--background", "--python",
              str(ROOT / "tools/voxel/glb_to_obj.py"), "--",
@@ -102,7 +117,7 @@ def main():
         (merged / f"{name}.obj").write_text(text)
         for tex in stage.glob("*.png"):
             shutil.copy(tex, merged / tex.name)
-        print(f"  {field}={v:+.4f} -> {name}.obj")
+        print(f"  {field}[{labels[i]}] -> {name}.obj")
 
     vox = out / "vox"
     cmd = [sys.executable, str(ROOT / "tools/voxel/voxelize.py"),
@@ -115,7 +130,7 @@ def main():
     run([sys.executable, str(ROOT / "tools/voxel/cycle_sheet.py"),
          str(vox), str(sheet)])
     print(f"\nstrip: {sheet}")
-    print(f"candidates, left to right: {[round(v, 4) for v in values]}")
+    print(f"candidates, left to right: {labels}")
 
 
 if __name__ == "__main__":
