@@ -321,6 +321,10 @@ class WolfPlayer : DoomPlayer
         }
         if (kind != voxKind)
         {
+            CVar dbg = CVar.FindCVar("wolf_dbg_check");
+            if (dbg != null && dbg.GetInt() != 0)
+                Console.Printf("KINDSWAP t=%d %d -> %d",
+                               Level.maptime, voxKind, kind);
             voxKind = kind;
             voxTic = 0;
         }

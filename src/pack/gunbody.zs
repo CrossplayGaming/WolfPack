@@ -165,6 +165,11 @@ class WolfGunBody : Actor
         // differs between nodes cannot move the simulation apart.
         bInvisible = (p.player == players[consoleplayer]
                       && p.player.camera == p);
+        // transition probe (wolf_dbg_check): log the tic whenever the
+        // gun's set changes, to measure lag against the body's switch
+        CVar dbg = CVar.FindCVar("wolf_dbg_check");
+        if (dbg != null && dbg.GetInt() != 0 && sprite != id)
+            Console.Printf("GUNSWAP t=%d -> %s", Level.maptime, sn);
         sprite = id;
         frame = p.frame;
         angle = p.angle;
