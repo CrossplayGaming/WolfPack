@@ -212,6 +212,7 @@ class WolfPlayer : DoomPlayer
     // the renderer resolves the voxel at draw time, not at compile time.
     int voxTic;
     int voxKind;        // 0 none, 1 idle, 2 run, 3 shoot, 4 death, 5 pain
+    int fireHold;       // aim-pose hysteresis after the last shot
     Actor gunBody;
     bool voxChecked, voxOn;
 
@@ -288,7 +289,26 @@ class WolfPlayer : DoomPlayer
                 kind = 8;
             else
                 kind = movingBack ? 7 : 6;
+            fireHold = 18;      // ~0.5 s at the aim before lowering
         }
+        else if (fireHold > 0 && (kind == 1 || kind == 2 || kind == 3)
+                 && VoxWeapon() != 3)
+        {
+            // FIRE-POSE HYSTERESIS (owner report: the gun visibly
+            // re-seats at every carry<->aim switch, and the pistol -
+            // edge-triggered, ten tics per shot - snapped twice per
+            // trigger pull). Hold the aim for a beat after the last
+            // shot: taps merge into one sustained aim, and the re-seat
+            // happens once on the way in and once on the way out.
+            // Replicated state only (fireHold is a pawn field advanced
+            // in Tick), so every node holds identically. The knife is
+            // exempt: the stab plays once and holding its final pose
+            // would freeze the lunge.
+            fireHold--;
+            kind = movingBack ? 7 : 6;
+        }
+        else
+            fireHold = 0;
         if (kind == 0)
         {
             voxKind = 0;
