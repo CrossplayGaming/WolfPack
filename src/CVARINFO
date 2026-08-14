@@ -52,8 +52,12 @@ user int wolf_mod_flats = 0;    // textured floors/ceilings (flats.zs)
 // node derives every player's camera from that player's own replicated
 // values - the wolf_skin pattern. A plain client cvar would have each
 // node compute a different camera for the same player.
-user float wolf_tp_dist = 96;       // stand-off behind the player
-user float wolf_tp_lift = 24;       // height above eye level at rest
+// Defaults: the owner's approved framing, backed off just a touch for
+// the open roof (was 96/24). The big numbers live in the SLIDER RANGES
+// (to 400/320), not here - the point of the roof change is overhead
+// freedom via the orbit, not a distant default.
+user float wolf_tp_dist = 112;      // stand-off behind the player
+user float wolf_tp_lift = 36;      // height above eye level at rest
 user float wolf_tp_orbsens = 0.2;   // orbit degrees per mouse unit
 user int wolf_tp_orbinvx = 0;
 user int wolf_tp_orbinvy = 0;
