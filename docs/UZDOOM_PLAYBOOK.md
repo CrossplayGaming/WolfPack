@@ -2795,3 +2795,24 @@ OWNER's call, not the pipeline's. The converging tool is a LABELED GRID of real
 voxelized candidates around the current value (calib_grip --grips + turntable
 crops, letters burned into each cell) - the owner answers with a cell name, which
 is one round instead of a guess-check-regress loop.
+
+## Grip Lab: the owner places the weapon; the pipeline takes a matrix
+
+After four remote iterations on one knife grip, the placement loop moved to the
+owner's hands: `tools/voxel/grip_lab.html` (browser, three.js, same scaffold as
+frame_picker.html). Drop the character clip GLB, drop the weapon GLB, drag the
+gizmo (G/R/S, X toggles local/world), scrub the clip to check every pose - the
+weapon rides the hand bone - then Copy grip.
+
+The design dodge that makes the numbers trustworthy: the tool does NOT try to
+emit bone-space values. Blender's pose-bone frame (+Y along bone, importer-chosen
+roll) is not the glTF node frame three.js sees, and reconciling them per bone is
+the convention math that produced the barrel-backwards gun. Instead the tool
+exports the weapon's WORLD matrix (glTF axes, character-root relative) at a
+captured clip time, and `grip_convert.py` replays that instant in Blender and
+solves inv(bone_world) @ weapon_world - which IS the CHILD_OF basis - then
+decomposes it into the legacy 7-number line. One convention crossing (the fixed
+Y-up to Z-up rotation), in one script.
+
+Proven by exact round trip before first use: a known grip pushed forward to a
+synthetic capture and back reproduced every digit.

@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Grip Lab — position a weapon in the hand by dragging</title>
+<style>
+  :root{
+    --bg:#16130f; --panel:#211c16; --line:#3a3128;
+    --text:#e8dcc4; --dim:#9c8f7a; --amber:#e8a13a; --cyan:#4fd6d6;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+    font:14px/1.5 "Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #app{display:grid;grid-template-columns:1fr 320px;height:100%}
+  #stage{position:relative;min-width:0}
+  canvas{display:block}
+  #drop{position:absolute;inset:0;display:flex;align-items:center;
+    justify-content:center;flex-direction:column;gap:10px;text-align:center;
+    background:rgba(22,19,15,.94);border:2px dashed var(--line);
+    margin:18px;border-radius:10px;cursor:pointer;z-index:5}
+  #drop.hide{display:none}
+  #drop b{color:var(--amber);font-size:17px}
+  #drop span{color:var(--dim);max-width:420px}
+  #bar{position:absolute;left:0;right:0;bottom:0;background:var(--panel);
+    border-top:1px solid var(--line);padding:10px 14px;
+    display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  #scrub{flex:1;min-width:200px;accent-color:var(--amber)}
+  button{background:#2c251c;color:var(--text);border:1px solid var(--line);
+    border-radius:6px;padding:7px 12px;cursor:pointer;font-size:13px}
+  button:hover{border-color:var(--amber);color:#fff}
+  button.primary{background:var(--amber);color:#1a1510;border-color:var(--amber);
+    font-weight:600}
+  button.primary:hover{background:#ffb64d}
+  button.on{border-color:var(--cyan);color:var(--cyan)}
+  select,input[type=number]{background:#2c251c;color:var(--text);
+    border:1px solid var(--line);border-radius:6px;padding:6px 8px;max-width:150px}
+  #side{background:var(--panel);border-left:1px solid var(--line);
+    display:flex;flex-direction:column;min-height:0;overflow:auto}
+  #side h2{margin:0;padding:12px 14px;font-size:12px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--cyan);border-bottom:1px solid var(--line)}
+  #side .sec{padding:10px 14px;border-bottom:1px solid var(--line)}
+  #side .sec p{margin:6px 0;color:var(--dim);font-size:12.5px}
+  #side label{display:block;margin:8px 0 3px;color:var(--dim);font-size:12px}
+  textarea{width:100%;height:110px;background:#16130f;color:var(--text);
+    border:1px solid var(--line);border-radius:6px;padding:8px;
+    font:12px/1.4 Consolas,monospace;resize:vertical}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+  kbd{background:#2c251c;border:1px solid var(--line);border-radius:4px;
+    padding:0 5px;font:12px Consolas,monospace}
+  #status{color:var(--amber);font-size:12.5px;min-height:18px;padding:4px 14px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <div id="drop"><b>1. Drop the CHARACTER clip here</b>
+      <span>an animated GLB (e.g. "BJ Idle.glb"). Then drop the WEAPON GLB
+      anywhere. Drag the gizmo to place it; scrub to check other moments of
+      the clip; Copy grip when it looks right from every angle.</span></div>
+    <div id="bar">
+      <button id="play">Play</button>
+      <input id="scrub" type="range" min="0" max="1" step="0.001" value="0">
+      <span id="tlabel" style="color:var(--dim);min-width:70px">t=0.000</span>
+      <button id="modeT" class="on">Move <kbd>G</kbd></button>
+      <button id="modeR">Rotate <kbd>R</kbd></button>
+      <button id="modeS">Scale <kbd>S</kbd></button>
+      <button id="space">Space: local <kbd>X</kbd></button>
+    </div>
+  </div>
+  <div id="side">
+    <h2>Grip Lab</h2>
+    <div class="sec">
+      <label>Hand bone</label>
+      <select id="bones"></select>
+      <p>The weapon rides this bone, so scrubbing the clip carries it
+      through every pose. Orbit: drag; zoom: wheel; pan: right-drag.</p>
+    </div>
+    <div class="sec">
+      <div class="row">
+        <button id="copy" class="primary">Copy grip</button>
+        <button id="save">Save grip.json</button>
+      </div>
+      <label>…or paste a saved grip and Apply</label>
+      <textarea id="pastebox" placeholder='{"t":0.30,"bone":"RightHand",...}'></textarea>
+      <div class="row"><button id="apply">Apply pasted grip</button></div>
+      <p>Convert to the pipeline's numbers with:<br>
+      <kbd>blender --background --python tools/voxel/grip_convert.py --
+      "&lt;character.glb&gt;" grip.json</kbd></p>
+    </div>
+    <div id="status"></div>
+  </div>
+</div>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {TransformControls} from 'three/addons/controls/TransformControls.js';
+
+const stage = document.getElementById('stage');
+const status = m => document.getElementById('status').textContent = m;
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(devicePixelRatio);
+stage.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x16130f);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 100);
+camera.position.set(1.6, 1.4, 2.2);
+scene.add(new THREE.HemisphereLight(0xfff4e0, 0x33291d, 1.1));
+const dl = new THREE.DirectionalLight(0xffffff, 1.4);
+dl.position.set(2, 4, 3);
+scene.add(dl);
+scene.add(new THREE.GridHelper(4, 16, 0x3a3128, 0x2a231b));
+
+const orbit = new OrbitControls(camera, renderer.domElement);
+orbit.target.set(0, 0.9, 0);
+const gizmo = new TransformControls(camera, renderer.domElement);
+gizmo.addEventListener('dragging-changed', e => orbit.enabled = !e.value);
+gizmo.setSize(0.8);
+scene.add(gizmo);
+
+function resize(){
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage);
+
+let charRoot = null, charFile = null, mixer = null, clipDur = 0, playing = false;
+let weapon = null, weaponFile = null, bone = null;
+const clock = new THREE.Clock();
+const loader = new GLTFLoader();
+
+function listBones(root){
+  const sel = document.getElementById('bones');
+  sel.innerHTML = '';
+  const bones = [];
+  root.traverse(o => { if (o.isBone) bones.push(o); });
+  for (const b of bones){
+    const opt = document.createElement('option');
+    opt.value = b.name; opt.textContent = b.name;
+    if (/(^|:)RightHand$/i.test(b.name)) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  pickBone();
+}
+
+function pickBone(){
+  if (!charRoot) return;
+  const name = document.getElementById('bones').value;
+  charRoot.traverse(o => { if (o.isBone && o.name === name) bone = o; });
+  if (weapon && bone) bone.attach(weapon) || gizmo.attach(weapon);
+  status('bone: ' + name);
+}
+document.getElementById('bones').onchange = pickBone;
+
+function loadGLB(file){
+  const url = URL.createObjectURL(file);
+  loader.load(url, g => {
+    URL.revokeObjectURL(url);
+    if (!charRoot){
+      charRoot = g.scene;
+      charFile = file.name;
+      scene.add(charRoot);
+      if (g.animations.length){
+        mixer = new THREE.AnimationMixer(charRoot);
+        const act = mixer.clipAction(g.animations[0]);
+        act.play(); act.paused = true;
+        clipDur = g.animations[0].duration;
+        mixer.setTime(0);
+      }
+      listBones(charRoot);
+      document.getElementById('drop').classList.add('hide');
+      status('character: ' + file.name + ' — now drop the weapon GLB');
+    } else {
+      if (weapon){ gizmo.detach(); weapon.parent.remove(weapon); }
+      weapon = g.scene;
+      weaponFile = file.name;
+      // start at a graspable size and at the hand, then let the human take over
+      weapon.scale.setScalar(0.2);
+      scene.add(weapon);
+      if (bone){
+        bone.updateWorldMatrix(true, false);
+        weapon.position.setFromMatrixPosition(bone.matrixWorld);
+        bone.attach(weapon);
+      }
+      gizmo.attach(weapon);
+      status('weapon: ' + file.name + ' — drag to place (G/R/S switch modes)');
+    }
+  }, undefined, err => status('load failed: ' + err));
+}
+
+addEventListener('dragover', e => e.preventDefault());
+addEventListener('drop', e => {
+  e.preventDefault();
+  for (const f of e.dataTransfer.files)
+    if (/\.(glb|gltf)$/i.test(f.name)) loadGLB(f);
+});
+document.getElementById('drop').onclick = () => {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.glb,.gltf'; inp.multiple = true;
+  inp.onchange = () => { for (const f of inp.files) loadGLB(f); };
+  inp.click();
+};
+
+// ---- transport ------------------------------------------------------------
+const scrub = document.getElementById('scrub');
+function setTime(t){
+  if (!mixer) return;
+  mixer.setTime(Math.min(t, Math.max(0, clipDur - 1e-4)));
+  document.getElementById('tlabel').textContent = 't=' + t.toFixed(3);
+  scrub.value = clipDur ? (t / clipDur) : 0;
+}
+scrub.oninput = () => setTime(parseFloat(scrub.value) * clipDur);
+document.getElementById('play').onclick = function(){
+  playing = !playing;
+  this.textContent = playing ? 'Pause' : 'Play';
+};
+
+// ---- gizmo modes ----------------------------------------------------------
+const modes = {modeT:'translate', modeR:'rotate', modeS:'scale'};
+function setMode(id){
+  gizmo.setMode(modes[id]);
+  for (const k in modes)
+    document.getElementById(k).classList.toggle('on', k === id);
+}
+for (const k in modes) document.getElementById(k).onclick = () => setMode(k);
+document.getElementById('space').onclick = function(){
+  const s = gizmo.space === 'local' ? 'world' : 'local';
+  gizmo.setSpace(s);
+  this.textContent = 'Space: ' + s;
+};
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'g' || e.key === 'G') setMode('modeT');
+  if (e.key === 'r' || e.key === 'R') setMode('modeR');
+  if (e.key === 's' || e.key === 'S') setMode('modeS');
+  if (e.key === 'x' || e.key === 'X') document.getElementById('space').click();
+});
+
+// ---- export ---------------------------------------------------------------
+function gripJSON(){
+  if (!charRoot || !weapon || !bone){ status('need character + weapon first'); return null; }
+  charRoot.updateWorldMatrix(true, true);
+  weapon.updateWorldMatrix(true, false);
+  // weapon world matrix relative to the CHARACTER's root, in glTF axes -
+  // grip_convert.py replays this exact clip time in Blender and works
+  // back to the pipeline's bone-space numbers
+  const rel = new THREE.Matrix4()
+    .copy(charRoot.matrixWorld).invert()
+    .multiply(weapon.matrixWorld);
+  const t = mixer ? mixer.time : 0;
+  return JSON.stringify({
+    tool: 'grip_lab', clip: charFile, weapon: weaponFile,
+    bone: bone.name, t: +t.toFixed(4),
+    world_gltf: rel.toArray()          // column-major, three.js convention
+  });
+}
+document.getElementById('copy').onclick = async () => {
+  const j = gripJSON();
+  if (j){ await navigator.clipboard.writeText(j); status('grip copied to clipboard'); }
+};
+document.getElementById('save').onclick = () => {
+  const j = gripJSON();
+  if (!j) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([j], {type:'application/json'}));
+  a.download = 'grip.json';
+  a.click();
+  status('grip.json saved');
+};
+document.getElementById('apply').onclick = () => {
+  try {
+    const d = JSON.parse(document.getElementById('pastebox').value);
+    if (!charRoot || !weapon){ status('load character + weapon first'); return; }
+    if (d.bone){ document.getElementById('bones').value = d.bone; pickBone(); }
+    if (typeof d.t === 'number') setTime(d.t);
+    charRoot.updateWorldMatrix(true, true);
+    const world = new THREE.Matrix4().fromArray(d.world_gltf)
+      .premultiply(charRoot.matrixWorld);
+    // place in world, then re-attach under the bone so it rides again
+    scene.attach(weapon);
+    world.decompose(weapon.position, weapon.quaternion, weapon.scale);
+    bone.attach(weapon);
+    status('grip applied - scrub to inspect');
+  } catch (e){ status('bad grip JSON: ' + e.message); }
+};
+
+// ---- main loop ------------------------------------------------------------
+renderer.setAnimationLoop(() => {
+  const dt = clock.getDelta();
+  if (playing && mixer && clipDur){
+    let t = mixer.time + dt;
+    if (t > clipDur) t = 0;
+    setTime(t);
+  }
+  orbit.update();
+  renderer.render(scene, camera);
+});
+resize();
+</script>
+</body>
+</html>
