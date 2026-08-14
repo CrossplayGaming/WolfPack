@@ -74,7 +74,9 @@
       <label>Hand bone</label>
       <select id="bones"></select>
       <p>The weapon rides this bone, so scrubbing the clip carries it
-      through every pose. Orbit: drag; zoom: wheel; pan: right-drag.</p>
+      through every pose. Orbit: drag; zoom: wheel; pan: right-drag.
+      Click a model to select it; <kbd>Ctrl+Z</kbd> undoes a drag,
+      <kbd>Ctrl+X</kbd>/<kbd>Del</kbd> deletes the selection.</p>
     </div>
     <div class="sec">
       <div class="row">
@@ -139,6 +141,60 @@ let charRoot = null, charFile = null, mixer = null, clipDur = 0, playing = false
 let weapon = null, weaponFile = null, bone = null;
 const clock = new THREE.Clock();
 const loader = new GLTFLoader();
+
+// ---- undo + selection -----------------------------------------------------
+const undoStack = [];
+function pushUndo(obj){
+  if (!obj) return;
+  undoStack.push({obj, p: obj.position.clone(), q: obj.quaternion.clone(),
+                  s: obj.scale.clone(), parent: obj.parent});
+  if (undoStack.length > 100) undoStack.shift();
+}
+function undo(){
+  const u = undoStack.pop();
+  if (!u || !u.obj.parent){ status(u ? 'cannot undo a deleted object' : 'nothing to undo'); return; }
+  u.obj.position.copy(u.p); u.obj.quaternion.copy(u.q); u.obj.scale.copy(u.s);
+  status('undone');
+}
+gizmo.addEventListener('mouseDown', () => pushUndo(gizmo.object));
+
+const ray = new THREE.Raycaster();
+function pickAt(ev){
+  if (gizmo.dragging) return;
+  const r = renderer.domElement.getBoundingClientRect();
+  const v = new THREE.Vector2(((ev.clientX - r.left) / r.width) * 2 - 1,
+                              -((ev.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(v, camera);
+  const roots = [weapon, charRoot].filter(Boolean);
+  for (const root of roots){
+    if (ray.intersectObject(root, true).length){
+      gizmo.attach(root);
+      status('selected: ' + (root === weapon ? weaponFile : charFile) +
+             '  (Ctrl+X deletes)');
+      return;
+    }
+  }
+}
+renderer.domElement.addEventListener('pointerdown', pickAt);
+
+function deleteSelected(){
+  const sel = gizmo.object;
+  if (!sel){ status('nothing selected'); return; }
+  gizmo.detach();
+  if (sel === weapon){
+    weapon.parent.remove(weapon);
+    weapon = null; weaponFile = null;
+    status('prop deleted - drop another GLB to replace it');
+  } else if (sel === charRoot){
+    scene.remove(charRoot);
+    charRoot = null; charFile = null; mixer = null; clipDur = 0;
+    playing = false; bone = null;
+    if (weapon){ scene.attach(weapon); gizmo.attach(weapon); }
+    document.getElementById('bones').innerHTML = '';
+    document.getElementById('drop').classList.remove('hide');
+    status('base deleted - drop a new base GLB');
+  }
+}
 
 function listBones(root){
   const sel = document.getElementById('bones');
@@ -257,6 +313,9 @@ document.getElementById('space').onclick = function(){
 };
 addEventListener('keydown', e => {
   if (e.target.tagName === 'TEXTAREA') return;
+  if (e.ctrlKey && (e.key === 'z' || e.key === 'Z')){ e.preventDefault(); undo(); return; }
+  if ((e.ctrlKey && (e.key === 'x' || e.key === 'X')) || e.key === 'Delete'){
+    e.preventDefault(); deleteSelected(); return; }
   if (e.key === 'g' || e.key === 'G') setMode('modeT');
   if (e.key === 'r' || e.key === 'R') setMode('modeR');
   if (e.key === 's' || e.key === 'S') setMode('modeS');
@@ -306,6 +365,7 @@ document.getElementById('apply').onclick = () => {
     const world = new THREE.Matrix4().fromArray(d.world_gltf)
       .premultiply(charRoot.matrixWorld);
     // place in world, then re-attach under the bone so it rides again
+    pushUndo(weapon);
     scene.attach(weapon);
     world.decompose(weapon.position, weapon.quaternion, weapon.scale);
     if (bone) bone.attach(weapon);
