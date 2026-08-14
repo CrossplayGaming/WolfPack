@@ -331,11 +331,27 @@ class WolfPlayer : DoomPlayer
         else
             voxTic++;
 
+        // EVERY kind sets its sprite explicitly. The pack-only kinds
+        // (3/6/7/8) override `sprite` each tic, and the state machine
+        // only reassigns it on a state CHANGE - so stopping fire while
+        // already standing left the body cycling the stale walk-fire
+        // set on idle timing while the gun correctly went to idle
+        // (owner's screenshots: gun at rest, BJ still marching).
         int pose;
         if (kind == 1)
+        {
             pose = (voxTic / WolfVoxBody.IDLE_TICS) % WolfVoxBody.IDLE_POSES;
+            int id = SkinSprite(0);
+            if (id > 0)
+                sprite = id;
+        }
         else if (kind == 2)
+        {
             pose = (voxTic / WolfVoxBody.RUN_TICS) % WolfVoxBody.RUN_POSES;
+            int id = SkinSprite(1);
+            if (id > 0)
+                sprite = id;
+        }
         else if (kind == 3)
         {
             // plain backward walk (BJ?B) - pack-only set, so the sprite
@@ -374,6 +390,9 @@ class WolfPlayer : DoomPlayer
         {
             pose = min(voxTic / WolfVoxBody.DEATH_TICS,
                        WolfVoxBody.DEATH_POSES - 1);
+            int id = SkinSprite(5);
+            if (id > 0)
+                sprite = id;
         }
         frame = pose;
     }
