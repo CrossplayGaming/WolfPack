@@ -268,8 +268,22 @@ class WolfPlayer : DoomPlayer
         bool sustained = player.ReadyWeapon != null
             && !player.ReadyWeapon.bNoAutofire
             && (player.cmd.buttons & BT_ATTACK) != 0;
-        if (sustained && (kind == 1 || kind == 2 || kind == 3))
-            kind = 3;
+        bool firing = sustained || kind == 3;
+        if (firing && kind != 4 && kind != 5)
+        {
+            // Firing states are per WEAPON. The pistol has directional
+            // walk-fire cycles; direction comes from replicated state
+            // (this game rebuilds vel from held input every tic), so
+            // every node picks the same cycle. Standing still fires the
+            // forward cycle - its first strides read fine in place.
+            if (VoxWeapon() == 2)
+            {
+                Vector2 fwd = AngleToVector(angle);
+                kind = (vel.xy dot fwd) < -0.1 ? 7 : 6;
+            }
+            else
+                kind = 3;       // MG/chaingun: the advancing-fire set
+        }
         if (kind == 0)
         {
             voxKind = 0;
@@ -306,12 +320,63 @@ class WolfPlayer : DoomPlayer
             if (id > 0)
                 sprite = id;
         }
+        else if (kind == 6 || kind == 7)
+        {
+            // pistol walk-fire: a full stride, looped while it lasts
+            pose = (voxTic / WolfVoxBody.PFIRE_TICS)
+                   % WolfVoxBody.PFIRE_POSES;
+            int id = FireSprite(kind == 7);
+            if (id > 0)
+                sprite = id;
+        }
         else
         {
             pose = min(voxTic / WolfVoxBody.DEATH_TICS,
                        WolfVoxBody.DEATH_POSES - 1);
         }
         frame = pose;
+    }
+
+    // Which weapon the voxel driver should dress him with:
+    // 0 none/knife, 1 long gun, 2 pistol.
+    int VoxWeapon()
+    {
+        let w = player.ReadyWeapon;
+        if (w == null)
+            return 0;
+        Name cn = w.GetClassName();
+        if (cn == 'WolfPistol')
+            return 2;
+        if (cn == 'WolfKnife')
+            return 0;
+        return 1;
+    }
+
+    // The pistol fire sets (BJ?G/BJ?K) exist ONLY in the voxel pack -
+    // base art has no such frames, so they cannot appear in SkinReg (a
+    // state naming a missing frame is a load error for anyone without
+    // the pack). The PACK's gun actor registers the names; these
+    // lookups run only when the pack is present (voxOn), by which time
+    // registration has happened.
+    static const name FIREG[] = { 'BJ1G', 'BJ2G', 'BJ3G', 'BJ4G' };
+    static const name FIREK[] = { 'BJ1K', 'BJ2K', 'BJ3K', 'BJ4K' };
+    int fireG[4];
+    int fireK[4];
+    bool fireInit;
+
+    int FireSprite(bool back)
+    {
+        if (!fireInit)
+        {
+            fireInit = true;
+            for (int i = 0; i < 4; i++)
+            {
+                fireG[i] = GetSpriteIndex(FIREG[i]);
+                fireK[i] = GetSpriteIndex(FIREK[i]);
+            }
+        }
+        int v = SkinVariant();
+        return back ? fireK[v] : fireG[v];
     }
 
     bool bIsRunning;

@@ -15,12 +15,6 @@
 // The follower only has to mirror which frame the body is showing.
 class WolfGunBody : Actor
 {
-    // WolfPlayer.voxKind -> the gun set posed by that clip. The kinds
-    // are the player's own, so nothing here has to reverse-engineer a
-    // sprite name, and the uniform recolor (which moves the BODY to
-    // BJ2/3/4 and leaves the gun alone) cannot confuse it.
-    static const name GUNSPR[] = { 'WGNS', 'WGNW', 'WGNA', 'WGNP', 'WGND' };
-
     Default
     {
         +NOBLOCKMAP
@@ -30,22 +24,68 @@ class WolfGunBody : Actor
         +DONTSPLASH
     }
 
-    int sprGun[5];
-    bool inited;
-
     States
     {
     // Sprite-name registration only, never entered: GetSpriteIndex
-    // returns -1 for a name no state ever mentions, even when the sprite
-    // lumps are present. This class lives in the voxel pack precisely so
-    // these frames are guaranteed to exist alongside it.
+    // returns -1 for a name no state ever mentions, even when the
+    // sprite lumps are present. This class lives in the voxel pack
+    // precisely so these frames are guaranteed to exist alongside it.
+    // The BJ?G/BJ?K body fire sets register here too - their frames are
+    // pack-only, so the base game's SkinReg cannot name them without
+    // becoming a load error for everyone without the pack.
     Spawn:
         WGNS ABCDEFG -1;
         WGNW ABCDEF -1;
         WGNA ABC -1;
         WGNP AB -1;
         WGND ABCDEFG -1;
+        WPSS ABCDEFG -1;
+        WPSW ABCDEF -1;
+        WPSP AB -1;
+        WPSD ABCDEFG -1;
+        WPSG ABCDEFG -1;
+        WPSK ABCDEFG -1;
+        BJ1G ABCDEFG -1;
+        BJ2G ABCDEFG -1;
+        BJ3G ABCDEFG -1;
+        BJ4G ABCDEFG -1;
+        BJ1K ABCDEFG -1;
+        BJ2K ABCDEFG -1;
+        BJ3K ABCDEFG -1;
+        BJ4K ABCDEFG -1;
         Stop;
+    }
+
+    // kind (1..7) x weapon (1 long gun, 2 pistol) -> gun sprite. The
+    // kinds are the player's own, so nothing here reverse-engineers a
+    // sprite name, and the uniform recolor (which moves the BODY to
+    // BJ2/3/4 and leaves the gun alone) cannot confuse it.
+    name GunSprName(int kind, int wep)
+    {
+        if (wep == 2)
+        {
+            switch (kind)
+            {
+            case 1: return 'WPSS';
+            case 2: return 'WPSW';
+            case 4: return 'WPSD';
+            case 5: return 'WPSP';
+            case 6: return 'WPSG';
+            case 7: return 'WPSK';
+            }
+        }
+        else if (wep == 1)
+        {
+            switch (kind)
+            {
+            case 1: return 'WGNS';
+            case 2: return 'WGNW';
+            case 3: return 'WGNA';
+            case 4: return 'WGND';
+            case 5: return 'WGNP';
+            }
+        }
+        return 'None';
     }
 
     override void Tick()
@@ -60,18 +100,14 @@ class WolfGunBody : Actor
             Destroy();
             return;
         }
-        if (!inited)
-        {
-            inited = true;
-            for (int i = 0; i < 5; i++)
-                sprGun[i] = GetSpriteIndex(GUNSPR[i]);
-        }
-        // voxKind: 1 idle, 2 run, 3 shoot, 4 death, 5 pain
-        int k = p.voxKind - 1;
         SetOrigin(p.Vec3Offset(0, 0, 0), true);
-        if (k < 0 || k > 4 || sprGun[k] <= 0)
+
+        // the knife shows no gun at all
+        name sn = GunSprName(p.voxKind, p.VoxWeapon());
+        int id = sn == 'None' ? -1 : GetSpriteIndex(sn);
+        if (id <= 0)
         {
-            bInvisible = true;       // no gun set for this state
+            bInvisible = true;      // no gun set for this state/weapon
             return;
         }
         // FIRST PERSON: the engine hides a player's own pawn from his
@@ -88,9 +124,8 @@ class WolfGunBody : Actor
         // differs between nodes cannot move the simulation apart.
         bInvisible = (p.player == players[consoleplayer]
                       && p.player.camera == p);
-        sprite = sprGun[k];
+        sprite = id;
         frame = p.frame;
         angle = p.angle;
     }
-
 }

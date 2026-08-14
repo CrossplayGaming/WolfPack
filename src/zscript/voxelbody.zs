@@ -41,6 +41,11 @@ class WolfVoxBody
     const SHOOT_TICS = 3;
     const DEATH_TICS = 5;
 
+    // the pistol walk-fire cycles (BJ?G forward / BJ?K backward): a full
+    // stride, paced like the run so movement speed matches the feet
+    const PFIRE_POSES = 7;
+    const PFIRE_TICS  = 4;
+
     static bool Present()
     {
         return Wads.CheckNumForFullName("WOLFVOX") >= 0;
