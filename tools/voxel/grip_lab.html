@@ -53,10 +53,11 @@
 <body>
 <div id="app">
   <div id="stage">
-    <div id="drop"><b>1. Drop the CHARACTER clip here</b>
-      <span>an animated GLB (e.g. "BJ Idle.glb"). Then drop the WEAPON GLB
-      anywhere. Drag the gizmo to place it; scrub to check other moments of
-      the clip; Copy grip when it looks right from every angle.</span></div>
+    <div id="drop"><b>1. Drop the BASE here</b>
+      <span>a character clip GLB for weapon grips, or a static weapon GLB
+      for muzzle-flash placement. Then drop the PROP (weapon or flash)
+      anywhere. Drag the gizmo; scrub if animated; Copy grip when it looks
+      right from every angle.</span></div>
     <div id="bar">
       <button id="play">Play</button>
       <input id="scrub" type="range" min="0" max="1" step="0.001" value="0">
@@ -144,6 +145,17 @@ function listBones(root){
   sel.innerHTML = '';
   const bones = [];
   root.traverse(o => { if (o.isBone) bones.push(o); });
+  if (!bones.length){
+    // PROP MODE: the base is a static mesh (a weapon), the draggable is
+    // a prop for it (a muzzle flash). No bones, no animation - the
+    // export is simply the prop's transform in the base's frame.
+    const opt = document.createElement('option');
+    opt.value = ''; opt.textContent = '(static prop mode - no bones)';
+    sel.appendChild(opt);
+    bone = null;
+    status('static base loaded - drop the prop (e.g. the muzzle flash)');
+    return;
+  }
   for (const b of bones){
     const opt = document.createElement('option');
     opt.value = b.name; opt.textContent = b.name;
@@ -156,6 +168,7 @@ function listBones(root){
 function pickBone(){
   if (!charRoot) return;
   const name = document.getElementById('bones').value;
+  if (!name){ bone = null; return; }
   charRoot.traverse(o => { if (o.isBone && o.name === name) bone = o; });
   if (weapon && bone) bone.attach(weapon) || gizmo.attach(weapon);
   status('bone: ' + name);
@@ -189,7 +202,7 @@ function loadGLB(file){
       weapon = g.scene;
       weaponFile = file.name;
       // start at a graspable size and at the hand, then let the human take over
-      weapon.scale.setScalar(0.2);
+      weapon.scale.setScalar(bone ? 0.2 : 0.3);
       scene.add(weapon);
       if (bone){
         bone.updateWorldMatrix(true, false);
@@ -252,7 +265,7 @@ addEventListener('keydown', e => {
 
 // ---- export ---------------------------------------------------------------
 function gripJSON(){
-  if (!charRoot || !weapon || !bone){ status('need character + weapon first'); return null; }
+  if (!charRoot || !weapon){ status('need base + prop first'); return null; }
   charRoot.updateWorldMatrix(true, true);
   weapon.updateWorldMatrix(true, false);
   // weapon world matrix relative to the CHARACTER's root, in glTF axes -
@@ -264,7 +277,8 @@ function gripJSON(){
   const t = mixer ? mixer.time : 0;
   return JSON.stringify({
     tool: 'grip_lab', clip: charFile, weapon: weaponFile,
-    bone: bone.name, t: +t.toFixed(4),
+    bone: bone ? bone.name : null,     // null = static prop mode
+    t: +t.toFixed(4),
     world_gltf: rel.toArray()          // column-major, three.js convention
   });
 }
@@ -286,6 +300,7 @@ document.getElementById('apply').onclick = () => {
     const d = JSON.parse(document.getElementById('pastebox').value);
     if (!charRoot || !weapon){ status('load character + weapon first'); return; }
     if (d.bone){ document.getElementById('bones').value = d.bone; pickBone(); }
+    else bone = null;
     if (typeof d.t === 'number') setTime(d.t);
     charRoot.updateWorldMatrix(true, true);
     const world = new THREE.Matrix4().fromArray(d.world_gltf)
@@ -293,7 +308,7 @@ document.getElementById('apply').onclick = () => {
     // place in world, then re-attach under the bone so it rides again
     scene.attach(weapon);
     world.decompose(weapon.position, weapon.quaternion, weapon.scale);
-    bone.attach(weapon);
+    if (bone) bone.attach(weapon);
     status('grip applied - scrub to inspect');
   } catch (e){ status('bad grip JSON: ' + e.message); }
 };
