@@ -40,6 +40,13 @@ class WolfWeapon : Weapon abstract
         invoker.Ammo1.Amount--;
         invoker.AttackSnd();
         wl.noisePending = true;
+        // the voxel pack's muzzle flash blinks for the couple of tics
+        // after each ACTUAL shot - set here, where the shot really
+        // happens, so dry-fire and wind-up never flash. Plain pawn
+        // field: replicated sim state, harmless without the pack.
+        let wp = WolfPlayer(self);
+        if (wp != null)
+            wp.voxFlash = 3;
 
         Actor target = FindCenterTarget(96.0, 999999.0);
         if (target == null)

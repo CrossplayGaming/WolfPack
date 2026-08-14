@@ -213,7 +213,9 @@ class WolfPlayer : DoomPlayer
     int voxTic;
     int voxKind;        // 0 none, 1 idle, 2 run, 3 shoot, 4 death, 5 pain
     int fireHold;       // aim-pose hysteresis after the last shot
+    int voxFlash;       // tics of muzzle flash left (set per shot fired)
     Actor gunBody;
+    Actor flashBody;
     bool voxChecked, voxOn;
 
     void ApplyVoxelBody()
@@ -246,6 +248,19 @@ class WolfPlayer : DoomPlayer
                     gunBody.master = self;
             }
         }
+        if (flashBody == null && health > 0)
+        {
+            Name fn = 'WolfFlashBody';
+            class<Actor> fc = (class<Actor>)(fn);
+            if (fc != null)
+            {
+                flashBody = Spawn(fc, pos);
+                if (flashBody != null)
+                    flashBody.master = self;
+            }
+        }
+        if (voxFlash > 0)
+            voxFlash--;
 
         // Kinds: 1 idle, 2 walk fwd, 3 walk BACK, 4 death, 5 pain,
         // 6 fire fwd, 7 fire back, 8 stab. Direction comes from

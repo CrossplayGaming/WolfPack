@@ -189,3 +189,89 @@ class WolfGunBody : Actor
         angle = p.angle;
     }
 }
+
+// The muzzle flash: a third follower, visible only for the couple of
+// tics after a shot actually fires (WolfPlayer.voxFlash, set inside
+// A_WolfGun where ammo is spent - dry-fire and wind-up never flash).
+// The flash sets (FMG/FPS/FBZ, fwd/back) were posed by the owner's
+// flash-on-gun captures composed onto each fire clip's gun grip, so
+// drawing at the player's position and angle puts the flash on the
+// muzzle in every pose by construction - the same contract as the gun.
+// One shot, one blink; the chaingun's rate makes it strobe by itself.
+class WolfFlashBody : Actor
+{
+    Default
+    {
+        +NOBLOCKMAP
+        +NOINTERACTION
+        +NOGRAVITY
+        +NOTONAUTOMAP
+        +DONTSPLASH
+        // the flash should read as light, not as a lit object
+        RenderStyle "Add";
+    }
+
+    name FlashSprName(int kind, int wep)
+    {
+        bool back = kind == 7;
+        if (kind != 6 && kind != 7)
+            return 'None';
+        if (wep == 1) return back ? 'FMGM' : 'FMGL';
+        if (wep == 2) return back ? 'FPSK' : 'FPSG';
+        if (wep == 4) return back ? 'FBZM' : 'FBZL';
+        return 'None';
+    }
+
+    bool lit;
+
+    override void Tick()
+    {
+        let p = WolfPlayer(master);
+        if (p == null)
+            return;
+        if (p.player == null || p.player.mo != p)
+        {
+            Destroy();
+            return;
+        }
+        SetOrigin(p.Vec3Offset(0, 0, 0), true);
+
+        name sn = p.voxFlash > 0
+            ? FlashSprName(p.voxKind, p.VoxWeapon()) : 'None';
+        int id = sn == 'None' ? -1 : GetSpriteIndex(sn);
+        bool show = id > 0;
+
+        // Muzzle light, on the frames the flash shows. Rides the
+        // FIRING player's own replicated wolf_mod_light, so every node
+        // computes the same attach - and classic-mode players never
+        // see it. Offset approximates the muzzle (forward and chest
+        // high); the visual flash carries the precision, the light
+        // just has to come from roughly the right place.
+        CVar lc = CVar.GetCVar("wolf_mod_light", p.player);
+        bool wantLight = show && lc != null && lc.GetInt() != 0;
+        if (wantLight && !lit)
+        {
+            A_AttachLight('wflash', DynamicLight.PointLight,
+                          Color(255, 255, 200, 120), 56, 0,
+                          DYNAMICLIGHT.LF_ATTENUATE, (26, 0, 30));
+            lit = true;
+        }
+        else if (!wantLight && lit)
+        {
+            A_RemoveLight('wflash');
+            lit = false;
+        }
+
+        if (!show)
+        {
+            bInvisible = true;
+            return;
+        }
+        // hidden from the first-person viewer only, like the gun
+        bInvisible = (p.player == players[consoleplayer]
+                      && p.player.camera == p);
+        sprite = id;
+        frame = p.frame;
+        angle = p.angle;
+    }
+}
