@@ -2816,3 +2816,23 @@ Y-up to Z-up rotation), in one script.
 
 Proven by exact round trip before first use: a known grip pushed forward to a
 synthetic capture and back reproduced every digit.
+
+## A round-trip test built from your own inverse proves nothing
+
+The Grip Lab converter shipped with a "proven exact" round trip: a known grip
+pushed forward to a synthetic capture and back reproduced every digit. Then the
+owner's first real capture batch baked every weapon with the same fixed local
+twist ("all upside down, in the left hand"). The synthetic capture was generated
+by INVERTING the converter's own math, so any systematic frame error cancelled
+identically in both directions. A round trip validates internal consistency;
+correspondence with the foreign system (three.js) is only tested by a capture
+that system actually produced.
+
+The error itself, found by measuring rather than reasoning: Blender's glTF
+importer does not rotate objects to convert Y-up - it rewrites MESH DATA to
+Z-up (armature imports at pure scale, a plain mesh at identity, raw vertices
+already converted). The world map is still the +90-about-X, but an attached
+weapon's geometry is already-converted data, so the basis needs a trailing
+inverse: inv(B) @ Y @ W @ inv(Y). Omitting it is invisible to solver-derived
+grips - the solver searches in the baked space and absorbs any fixed offset -
+and systematic for every externally-authored one.

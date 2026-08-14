@@ -65,11 +65,20 @@ W_gltf = Matrix([[m[0], m[4], m[8],  m[12]],
                  [m[2], m[6], m[10], m[14]],
                  [m[3], m[7], m[11], m[15]]])
 
-# glTF is Y-up; Blender's importer turns the scene +90 degrees about X
+# glTF is Y-up. Blender's importer does NOT rotate objects to convert -
+# it rewrites the MESH DATA to Z-up (measured: armature imports at pure
+# scale, a plain weapon mesh at identity, raw vertices already Z-up).
+# So the world map is the +90-about-X, but the attached weapon's
+# geometry is already-converted data, which costs a trailing inverse:
+#
+#   basis = inv(B) @ Y @ W_gltf @ inv(Y)
+#
+# The first fix omitted the trailing inv(Y): every weapon baked with the
+# same fixed local twist (owner: "all upside down, in the left hand").
+# The synthetic round-trip test could not catch it - it generated its
+# capture by inverting this very code, so the error cancelled.
 YUP2ZUP = Matrix.Rotation(math.radians(90), 4, 'X')
-W = YUP2ZUP @ W_gltf
-
-basis = B.inverted() @ W
+basis = B.inverted() @ YUP2ZUP @ W_gltf @ YUP2ZUP.inverted()
 loc, rot, scl = basis.decompose()
 eul = rot.to_euler('XYZ')
 
