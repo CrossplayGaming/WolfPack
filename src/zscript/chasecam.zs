@@ -178,10 +178,17 @@ class WolfChaseCam : Actor
         // trace stops describing where it is going. TRF_THRUACTORS so
         // other players and enemies never shove the camera; walls only.
         FLineTraceData t;
-        if (p.LineTrace(yaw, dist + CAM_PAD, -el,
+        bool hit = p.LineTrace(yaw, dist + CAM_PAD, -el,
                         TRF_THRUACTORS | TRF_ABSOFFSET,
                         eyez - p.pos.z, data: t)
-            && t.HitType != TRACE_HitNone)
+            && t.HitType != TRACE_HitNone;
+        // open-roof mode (skyceil.zs): a sky ceiling is a window, not a
+        // wall - ignore hits on it so the camera can rise out of the map
+        if (hit && t.HitType == TRACE_HitCeiling && t.HitSector != null
+            && t.HitSector.GetTexture(Sector.ceiling)
+               == TexMan.CheckForTexture("F_SKY1", TexMan.Type_Flat))
+            hit = false;
+        if (hit)
             dist = max(8, t.Distance - CAM_PAD);
 
         Vector3 want = p.Vec3Offset(
@@ -192,7 +199,11 @@ class WolfChaseCam : Actor
         // glides at any framerate even though this runs per tic.
         SetOrigin(want, true);
         // clamp into the sector's vertical space
-        if (pos.z > ceilingz - 4) SetZ(ceilingz - 4);
+        // the ceiling clamp stands down while the roof is open
+        if (CurSector.GetTexture(Sector.ceiling)
+            != TexMan.CheckForTexture("F_SKY1", TexMan.Type_Flat)
+            && pos.z > ceilingz - 4)
+            SetZ(ceilingz - 4);
         if (pos.z < floorz + 4) SetZ(floorz + 4);
         // Look back at the player: yaw+180 lands on p.angle when the
         // orbit is at rest, so the at-rest view is the old one; pitch

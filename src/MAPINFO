@@ -8,7 +8,7 @@ gameinfo
                     "WolfGameState", "WolfDeathHandler",
                     "WolfScreenFX", "WolfDeathCam", "WolfAttract",
                     "WolfLobby", "WolfFlats", "WolfChaseXhair", "WolfLighting",
-                    "WolfMusic", "WolfOrbit"
+                    "WolfMusic", "WolfOrbit", "WolfSkyCeil"
     // DrawPlayBorder (WL_GAME.C:841): palette 127 surround with a 1-unit
     // inset bevel, not Doom's 8-unit decorative border.
     borderflat = "FLOOR7F"
@@ -153,6 +153,7 @@ include "mapinfo_maps.txt"
 // walking somewhere.
 map DM1 "Kesselring"
 {
+    sky1 = "CEIL1D"
     levelnum = 90
     music = "GETTHEM"
     next = "DM1"
@@ -160,6 +161,7 @@ map DM1 "Kesselring"
 
 map DM2 "Kanalstrasse"
 {
+    sky1 = "CEIL1D"
     levelnum = 91
     music = "SEARCHN"
     next = "DM2"
@@ -167,6 +169,7 @@ map DM2 "Kanalstrasse"
 
 map DM3 "Zwillingshalle"
 {
+    sky1 = "CEIL1D"
     levelnum = 92
     music = "POW"
     next = "DM3"
@@ -174,6 +177,7 @@ map DM3 "Zwillingshalle"
 
 map DM4 "Der Kaefig"
 {
+    sky1 = "CEIL1D"
     levelnum = 93
     music = "SUSPENSE"
     next = "DM4"
@@ -181,6 +185,7 @@ map DM4 "Der Kaefig"
 
 map DM5 "Sankt Kreuz"
 {
+    sky1 = "CEIL1D"
     levelnum = 94
     music = "WARMARCH"
     next = "DM5"
@@ -188,6 +193,7 @@ map DM5 "Sankt Kreuz"
 
 map LOBBY "Lobby"
 {
+    sky1 = "CEIL1D"
     levelnum = 99
     music = "WONDERIN"
     next = "LOBBY"

@@ -618,8 +618,9 @@ class WolfCameraMenu : WolfWidgetMenu
     {
         Super.Init(parent, desc);
         title = "Camera";
-        AddSlider("Distance", "wolf_tp_dist", 48, 192, 8);
-        AddSlider("Height", "wolf_tp_lift", -16, 80, 4);
+        // ranges sized for the open roof: pull far back and high
+        AddSlider("Distance", "wolf_tp_dist", 48, 400, 8);
+        AddSlider("Height", "wolf_tp_lift", -16, 320, 8);
         AddBindRow("Orbit Key (hold)", "+user1");
         AddSlider("  Orbit Speed", "wolf_tp_orbsens", 0.05, 1.0, 0.05);
         AddToggleV("  Invert Orbit X", "wolf_tp_orbinvx", 1, 0);

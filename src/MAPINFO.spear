@@ -8,7 +8,7 @@ gameinfo
                     "WolfGameState", "WolfDeathHandler",
                     "WolfScreenFX", "WolfDeathCam", "WolfAttract",
                     "WolfLobby", "WolfFlats", "WolfChaseXhair", "WolfLighting",
-                    "WolfMusic", "WolfOrbit"
+                    "WolfMusic", "WolfOrbit", "WolfSkyCeil"
     // DrawPlayBorder (WL_GAME.C:841): palette 127 surround with a 1-unit
     // inset bevel, not Doom's 8-unit decorative border.
     borderflat = "FLOOR7F"
@@ -134,6 +134,7 @@ include "mapinfo_sod.txt"
 // Spear's wall set. Skill only - Spear is a single campaign.
 map LOBBY "Lobby"
 {
+    sky1 = "CEIL1D"
     levelnum = 99
     music = "XTIPTOE"
     next = "LOBBY"
