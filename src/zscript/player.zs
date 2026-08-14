@@ -398,7 +398,9 @@ class WolfPlayer : DoomPlayer
     }
 
     // Which weapon the voxel driver should dress him with:
-    // 0 none, 1 long gun, 2 pistol, 3 knife.
+    // 0 none, 1 machine gun, 2 pistol, 3 knife, 4 chaingun.
+    // (The chaingun's model set is keyed "bazooka" in the grip data -
+    // the owner's name for the slot-4 gun; same weapon.)
     int VoxWeapon()
     {
         let w = player.ReadyWeapon;
@@ -409,6 +411,8 @@ class WolfPlayer : DoomPlayer
             return 2;
         if (cn == 'WolfKnife')
             return 3;
+        if (cn == 'WolfChaingun')
+            return 4;
         return 1;
     }
 

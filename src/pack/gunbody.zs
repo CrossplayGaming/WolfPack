@@ -82,7 +82,8 @@ class WolfGunBody : Actor
         Stop;
     }
 
-    // kind (1..8) x weapon (1 long gun, 2 pistol, 3 knife) -> weapon
+    // kind (1..8) x weapon (1 MG, 2 pistol, 3 knife, 4 chaingun)
+    // -> weapon
     // sprite. The kinds are the player's own, so nothing here
     // reverse-engineers a sprite name, and the uniform recolor (which
     // moves the BODY to BJ2/3/4 and leaves the weapon alone) cannot
@@ -125,6 +126,19 @@ class WolfGunBody : Actor
             case 4: return 'WKND';
             case 5: return 'WKNP';
             case 8: return 'WKNT';
+            }
+        }
+        else if (wep == 4)      // chaingun ("bazooka" in the grip data)
+        {
+            switch (kind)
+            {
+            case 1: return 'WBZS';
+            case 2: return 'WBZW';
+            case 3: return 'WBZB';
+            case 4: return 'WBZD';
+            case 5: return 'WBZP';
+            case 6: return 'WBZL';
+            case 7: return 'WBZM';
             }
         }
         return 'None';
