@@ -247,12 +247,16 @@ class WolfFlashBody : Actor
         // see it. Offset approximates the muzzle (forward and chest
         // high); the visual flash carries the precision, the light
         // just has to come from roughly the right place.
+        CVar fc = CVar.GetCVar("wolf_flash", p.player);
+        double f = fc != null ? fc.GetFloat() : 1.0;
         CVar lc = CVar.GetCVar("wolf_mod_light", p.player);
-        bool wantLight = show && lc != null && lc.GetInt() != 0;
+        bool wantLight = show && f > 0 && lc != null && lc.GetInt() != 0;
         if (wantLight && !lit)
         {
+            // radius rides the slider; re-attached per blink, so a
+            // slider change takes effect on the next shot
             A_AttachLight('wflash', DynamicLight.PointLight,
-                          Color(255, 255, 200, 120), 56, 0,
+                          Color(255, 255, 200, 120), int(56 * f), 0,
                           DYNAMICLIGHT.LF_ATTENUATE, (26, 0, 30));
             lit = true;
         }
@@ -267,6 +271,8 @@ class WolfFlashBody : Actor
             bInvisible = true;
             return;
         }
+        // the additive glow dims below 1.0 and saturates above it
+        alpha = clamp(0.4 + 0.6 * f, 0.0, 1.0);
         // hidden from the first-person viewer only, like the gun
         bInvisible = (p.player == players[consoleplayer]
                       && p.player.camera == p);

@@ -46,7 +46,12 @@ class WolfWeapon : Weapon abstract
         // field: replicated sim state, harmless without the pack.
         let wp = WolfPlayer(self);
         if (wp != null)
-            wp.voxFlash = 3;
+        {
+            CVar fc = CVar.GetCVar("wolf_flash", wp.player);
+            double f = fc != null ? fc.GetFloat() : 1.0;
+            // 1.0 -> 3 tics (the default blink); 2.0 -> 5; 0 disables
+            wp.voxFlash = f <= 0 ? 0 : 1 + int(f * 2);
+        }
 
         Actor target = FindCenterTarget(96.0, 999999.0);
         if (target == null)

@@ -150,6 +150,14 @@ def matmul(A, B):
             for i in range(4)]
 
 
+# The owner's verdict on the first in-game flash: "way more pronounced".
+# Bake the flash models 40% larger than his captures; the Lighting
+# menu's Muzzle Flash slider tunes light/glow/duration live around this
+# baseline. Scales about the flash's own centre, so it stays on the
+# muzzle.
+FLASH_SCALE = 1.4
+
+
 def flash_grip(weapon, clip_key):
     """Compose the owner's flash-on-gun placement onto that clip's gun
     grip: basis_flash = basis_gun @ Y @ F_gltf @ inv(Y), with Y the
@@ -157,9 +165,9 @@ def flash_grip(weapon, clip_key):
     7-number format, so the bake path needs nothing new."""
     gun = GRIPS["grips"]["%s/%s" % (weapon, clip_key)]
     F = GRIPS["flash"][weapon]          # column-major, three.js
-    Fm = [[F[0], F[4], F[8],  F[12]],
-          [F[1], F[5], F[9],  F[13]],
-          [F[2], F[6], F[10], F[14]],
+    Fm = [[F[0]*FLASH_SCALE, F[4]*FLASH_SCALE, F[8]*FLASH_SCALE,  F[12]],
+          [F[1]*FLASH_SCALE, F[5]*FLASH_SCALE, F[9]*FLASH_SCALE,  F[13]],
+          [F[2]*FLASH_SCALE, F[6]*FLASH_SCALE, F[10]*FLASH_SCALE, F[14]],
           [0, 0, 0, 1]]
     Y = [[1, 0, 0, 0], [0, 0, -1, 0], [0, 1, 0, 0], [0, 0, 0, 1]]
     Yi = [[1, 0, 0, 0], [0, 0, 1, 0], [0, -1, 0, 0], [0, 0, 0, 1]]

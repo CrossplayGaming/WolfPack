@@ -640,6 +640,12 @@ class WolfLightMenu : WolfWidgetMenu
         AddMulti("Ambient Occlusion", "gl_ssao",
                  "Off,Low,Medium,High");
         AddToggle("Bloom", "gl_bloom");
+        // muzzle-flash intensity (voxel pack): drives the flash light's
+        // radius, the glow's brightness and how long each blink lasts.
+        // Lives here permanently per the tuning-slider rule - flash
+        // "feel" is exactly the kind of constant that should never need
+        // a build round-trip.
+        AddSlider("Muzzle Flash", "wolf_flash", 0.0, 2.0, 0.1);
         winH = 13 * labels.Size() + 6;
         sel = 0;
     }
