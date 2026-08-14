@@ -64,9 +64,12 @@ WEAPONS = {
     # idle-biased blend of the two poses' world-forward (built from
     # measured bone frames, not solved), so it reads forward at rest
     # and near-forward in the thrust. Handle slid 3 cm out of the
-    # wrist into the fist.
+    # wrist into the fist, then raised 15 mm along bone -X - the
+    # owner's stab zoom showed the fist closed OVER the knife,
+    # which hung beneath the hand. Bone -X maps near world-up in
+    # BOTH poses (measured), so one offset seats it everywhere.
     "knife":  (Path(r"C:\Users\cross\Desktop\HD BJ\Knife.glb"),
-               "0.0051,0.0011,0.0349,127.4,-49.9,-80.0,0.1997"),
+               "-0.0100,0.0011,0.0349,127.4,-49.9,-80.0,0.1997"),
 }
 HEIGHT = 96
 
