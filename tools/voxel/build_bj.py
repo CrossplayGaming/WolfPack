@@ -56,11 +56,17 @@ WEAPONS = {
     # and re-slid: handle in fist, blade down-forward at rest,
     # forward in the thrust - and then handle/blade were still
     # swapped end-for-end (owner). The FOURTH of the four 180-
-    # degree orientation states is the correct one; there is no
-    # fifth, so this cannot regress the same way again. Verified
-    # on both poses.
+    # degree orientation states fixed the swap - and then the blade
+    # still ran along the FINGERS (down, in a hanging hand). MEASURED
+    # why: the hand bone rotates ~65 degrees between the hanging idle
+    # and the flexed thrust, so no fixed bone-space direction is
+    # forward in both. The adopted rotation aims the blade at an
+    # idle-biased blend of the two poses' world-forward (built from
+    # measured bone frames, not solved), so it reads forward at rest
+    # and near-forward in the thrust. Handle slid 3 cm out of the
+    # wrist into the fist.
     "knife":  (Path(r"C:\Users\cross\Desktop\HD BJ\Knife.glb"),
-               "-0.0030,-0.0430,-0.0148,-80,19,-94,0.1997"),
+               "0.0051,0.0011,0.0349,127.4,-49.9,-80.0,0.1997"),
 }
 HEIGHT = 96
 
