@@ -39,18 +39,24 @@ WEAPONS = {
     # grip buried in his forearm; the slide strip put the fist ON
     # the grip at +0.10, then nudged 0.025 m sideways toward the
     # palm - it clipped through the back of his hand (owner
-    # report; the five-way perpendicular strip picked x-0.025).
+    # report). Final position: owner picked cell B2 from the 4x3
+    # labeled grid - x-0.025 had overshot to the far side.
     "pistol": (Path(r"C:\Users\cross\Desktop\Pistol.glb"),
-               "-0.0394,0.2054,-0.0144,172,-4,-86,0.1471"),
+               "-0.0020,0.2054,-0.0140,172,-4,-86,0.1471"),
     # knife: solved on the stab clip thrust pose (t=2.288), blade
     # forward and level, err 0.0100. Strong grip signal (0.09 m)
     # so the roll needed no override. Translation NOT taken from
     # the solver: its gripfrac put the knife 11 cm up the forearm,
     # which reads fine mid-thrust and floats at elbow height in a
     # hanging hand (owner report). Re-derived on the IDLE carry:
-    # fist lands on the handle at frac 0.62.
+    # fist lands on the handle at frac 0.62 - and then the BLADE
+    # DIRECTION was still 180 degrees off in bone space (owner:
+    # blade up the forearm, handle behind the arm; the thrust pose
+    # hid it because the wrist flexes there). Flipped about bone Z
+    # and re-slid: handle in fist, blade down-forward at rest,
+    # forward in the thrust. Verified on BOTH poses.
     "knife":  (Path(r"C:\Users\cross\Desktop\HD BJ\Knife.glb"),
-               "0.0030,-0.0430,0.0149,280,199,94,0.1997"),
+               "-0.0030,0.0430,0.0148,100,-19,94,0.1997"),
 }
 HEIGHT = 96
 

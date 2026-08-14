@@ -2778,3 +2778,20 @@ Rig note for this project: BJ's Meshy rig is 24 bones named Hips/Spine/RightHand
 (no `mixamorig:` prefix, no finger bones). `find_bone` matches on the bare name so
 one grip file works across Meshy and Mixamo rigs. No fingers is not a problem --
 at 96 voxels tall a hand is about two voxels, so grip detail is below resolution.
+
+## Weapon grips: what each pose can and cannot tell you
+
+Three grip corrections on one character taught the same lesson three ways. A grip
+has three independent parts, and each is only JUDGEABLE in a specific pose:
+
+| part | judge it on | why the other pose lies |
+|---|---|---|
+| rotation (aim) | the FIRING pose | that is the only pose with an aim line to check |
+| translation (hand-on-grip) | the CARRY pose | the extended arm hides along-axis error; the hanging hand exposes it |
+| blade/edge FLIP (180 about the axis) | BOTH | the stab pose hid a fully reversed knife, because the wrist flexes there - it read "blade forward" while the carry showed blade up the forearm |
+
+And the meta-lesson, learned by mis-picking twice: sub-voxel placement is the
+OWNER's call, not the pipeline's. The converging tool is a LABELED GRID of real
+voxelized candidates around the current value (calib_grip --grips + turntable
+crops, letters burned into each cell) - the owner answers with a cell name, which
+is one round instead of a guess-check-regress loop.
