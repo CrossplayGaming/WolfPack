@@ -142,6 +142,23 @@ def muzzle_world(objs, ax):
     return best
 
 
+# --drop-unskinned: some exports carry loose geometry that is not part
+# of the character. BJ's pistol-backward clip ships an "Icosphere"
+# spanning +/-1.0 m centred on the origin - a 2 m ball around him. Baked,
+# it would have doubled the set's bounding box and halved his apparent
+# size, silently, because the voxelizer normalises to whatever it is
+# given. Keep only what the armature actually drives.
+if "--drop-unskinned" in argv:
+    arms = [o for o in bpy.data.objects if o.type == "ARMATURE"]
+    if arms:
+        for o in [o for o in bpy.data.objects if o.type == "MESH"]:
+            skinned = (o.parent in arms) or any(
+                m.type == "ARMATURE" for m in o.modifiers)
+            if not skinned:
+                print(f"DROP unskinned mesh '{o.name}' "
+                      f"({len(o.data.vertices)} verts)")
+                bpy.data.objects.remove(o, do_unlink=True)
+
 gun_objs = attach_prop(attach, bone_name, grip) if attach else []
 # --attach-only: export the PROP alone, posed by the animation. The gun
 # is a separate actor in-engine, so it is baked as its own voxel set in

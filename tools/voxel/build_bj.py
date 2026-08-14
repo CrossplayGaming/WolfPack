@@ -25,30 +25,44 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 BLENDER = Path(r"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe")
 SRC = Path(r"C:\Users\cross\Desktop\HD BJ")
-GUN = Path(r"C:\Users\cross\Desktop\Machine Gun Model.glb")
-# slid forward along the barrel so the HAND sits on the grip:
-# at the solver's default the receiver rode up his forearm
-# (owner report). gripfrac 0.06 instead of 0.30.
-GRIP = "0.0960,0.3139,-0.0638,-17,-169,73,0.3993"
+# WEAPONS: each is (model, calibrated grip). The grip is per weapon and
+# per rig, never per clip - solve_grip.py once, reuse forever. The body
+# clips that HOLD a given weapon reference it by key.
+WEAPONS = {
+    # machine gun: slid forward along the barrel so the HAND sits on the
+    # grip - at the solver's default the receiver rode up his forearm
+    # (owner report). gripfrac 0.06 instead of 0.30.
+    "mg":     (Path(r"C:\Users\cross\Desktop\Machine Gun Model.glb"),
+               "0.0960,0.3139,-0.0638,-17,-169,73,0.3993"),
+    # pistol: same solve, roll 180 chosen from the A/B (slide on top).
+    "pistol": (Path(r"C:\Users\cross\Desktop\Pistol.glb"),
+               "-0.0074,0.1059,-0.0074,172,-4,-86,0.1471"),
+}
 HEIGHT = 96
 
-# clip -> (glb, times, kept pose indices, body sprite, gun sprite, per_pose)
+# clip -> (glb, times, kept poses, body sprite, gun sprite, per_pose,
+#           weapon key)
 CLIPS = {
     "idle":  ("BJ Idle.glb",
               "0.000,0.253,0.496,0.787,1.085,1.438,1.704,1.900",
-              [0, 1, 2, 3, 4, 5, 6], "BJ1S", "WGNS", False),
+              [0, 1, 2, 3, 4, 5, 6], "BJ1S", "WGNS", False, "mg"),
     "run":   ("BJ Running.glb",
               "0.000,0.103,0.203,0.271,0.377,0.481,0.602",
-              [0, 1, 2, 3, 4, 6], "BJ1W", "WGNW", False),
+              [0, 1, 2, 3, 4, 6], "BJ1W", "WGNW", False, "mg"),
     "shoot": ("BJ Shooting.glb",
               "0.000,0.142,0.295,0.456,0.592",
-              [0, 2, 4], "BJ1A", "WGNA", True),
+              [0, 2, 4], "BJ1A", "WGNA", True, "mg"),
     "pain":  ("BJ Pain.glb",
               "0.000,0.546,1.162,1.835,2.478,3.033",
-              [2, 5], "BJ1P", "WGNP", False),
+              [2, 5], "BJ1P", "WGNP", False, "mg"),
     "death": ("BJ Death.glb",
               "0.000,0.354,0.882,1.392,1.929,2.523,3.000",
-              [0, 1, 2, 3, 4, 5, 6], "BJ1D", "WGND", False),
+              [0, 1, 2, 3, 4, 5, 6], "BJ1D", "WGND", False, "mg"),
+    # firing while walking BACKWARD, pistol (per-pose: 1.39 m of travel).
+    # The forward twin arrives as its own clip -> BJ1G / WPSG.
+    "pistol_back": ("BJ Pistol Backward.glb",
+                    "0.000,0.156,0.347,0.519,0.686,0.863,1.001",
+                    [0, 1, 2, 3, 4, 5, 6], "BJ1K", "WPSK", True, "pistol"),
 }
 REF = ROOT / "build/bjvox/idle_true/frame.json"       # the scale reference
 
@@ -63,12 +77,13 @@ def run(cmd, quiet=True):
     return r.stdout
 
 
-def bake(glb, out, times, gun_only):
+def bake(glb, out, times, gun_only, weapon):
+    gun, grip = WEAPONS[weapon]
     cmd = [BLENDER, "--background", "--python",
            ROOT / "tools/voxel/glb_to_obj.py", "--",
-           SRC / glb, out, "--times", times]
+           SRC / glb, out, "--times", times, "--drop-unskinned"]
     if gun_only:
-        cmd += ["--attach", GUN, "--grip", GRIP, "--attach-only"]
+        cmd += ["--attach", gun, "--grip", grip, "--attach-only"]
     run(cmd)
 
 
@@ -117,14 +132,14 @@ def main():
     spr.mkdir(parents=True, exist_ok=True)
 
     for name in a.clips.split(","):
-        glb, times, keep, bspr, gspr, per_pose = CLIPS[name]
+        glb, times, keep, bspr, gspr, per_pose, weapon = CLIPS[name]
         base = ROOT / "build/bjvox" / name
         bodyobj, gunobj = base / "body_obj", base / "gun_obj"
         bodyvox, gunvox = base / "body_vox", base / "gun_vox"
         print(f"\n=== {name}: {glb}")
 
-        bake(glb, bodyobj, times, False)
-        bake(glb, gunobj, times, True)
+        bake(glb, bodyobj, times, False, weapon)
+        bake(glb, gunobj, times, True, weapon)
         voxelize(bodyobj, bodyvox, per_pose)
         ground_fix(bodyvox)
         voxelize(gunobj, gunvox, per_pose)
