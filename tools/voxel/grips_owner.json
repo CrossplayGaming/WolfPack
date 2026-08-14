@@ -1,0 +1,195 @@
+{
+ "grips": {
+  "bazooka/longgun_back": {
+   "line": "0.0519,0.4224,-0.0874,-104.4,0.1,-95.5,0.4422",
+   "bone": "RightHand",
+   "src": "Attacking/Bazooka/Bazooka Backwards Shooting.json"
+  },
+  "bazooka/longgun_fwd": {
+   "line": "0.0420,0.3348,-0.1230,-109.3,-10.0,-98.5,0.4968",
+   "bone": "RightHand",
+   "src": "Attacking/Bazooka/Bazooka Forward Shooting.json"
+  },
+  "knife/stab": {
+   "line": "0.0397,0.1507,-0.0471,48.0,-156.9,48.8,0.2000",
+   "bone": "RightHand",
+   "src": "Attacking/Knife/Knife Stab.json"
+  },
+  "mg/longgun_back": {
+   "line": "0.0541,0.2344,-0.0574,-104.4,0.1,-95.3,0.3633",
+   "bone": "RightHand",
+   "src": "Attacking/Machine Gun/Machine Gun Backward Shooting.json"
+  },
+  "mg/longgun_fwd": {
+   "line": "0.0405,0.2242,-0.0794,-109.5,-9.3,-96.0,0.4294",
+   "bone": "RightHand",
+   "src": "Attacking/Machine Gun/Machine Gun Forward Shooting.json"
+  },
+  "pistol/pistol_fwd": {
+   "line": "0.1651,0.2658,-0.0667,-102.8,-3.6,-89.1,0.1549",
+   "bone": "RightHand",
+   "src": "Attacking/Pistol/Pistol Forward & Backward Shooting.json"
+  },
+  "pistol/pistol_back": {
+   "line": "0.1651,0.2658,-0.0667,-102.8,-3.6,-89.1,0.1549",
+   "bone": "RightHand",
+   "src": "Attacking/Pistol/Pistol Forward & Backward Shooting.json"
+  },
+  "bazooka/walk_back": {
+   "line": "0.0379,0.3480,-0.1848,-83.5,-19.9,-93.4,0.4048",
+   "bone": "RightHand",
+   "src": "Not Attacking/Bazooka/Backwards Bazooka.json"
+  },
+  "bazooka/idle": {
+   "line": "0.1215,0.4042,-0.0670,-93.0,-3.3,-104.2,0.3916",
+   "bone": "RightHand",
+   "src": "Not Attacking/Bazooka/Bazooka Idle.json"
+  },
+  "bazooka/pain": {
+   "line": "0.1168,0.3902,0.0213,-55.5,9.2,-98.7,0.4332",
+   "bone": "RightHand",
+   "src": "Not Attacking/Bazooka/Bazooka Pain.json"
+  },
+  "bazooka/run": {
+   "line": "0.0667,0.4137,-0.0199,-91.9,5.8,-94.8,0.4072",
+   "bone": "RightHand",
+   "src": "Not Attacking/Bazooka/Running Bazooka.json"
+  },
+  "knife/walk_back": {
+   "line": "0.0388,0.1111,-0.0562,-78.0,-53.3,-104.2,0.2000",
+   "bone": "RightHand",
+   "src": "Not Attacking/Knife/Knife Backwards.json"
+  },
+  "knife/idle": {
+   "line": "0.0327,0.1207,-0.0548,-98.9,-40.1,-114.7,0.2000",
+   "bone": "RightHand",
+   "src": "Not Attacking/Knife/Knife Idle.json"
+  },
+  "knife/pain": {
+   "line": "0.0393,0.1102,-0.0427,46.1,-122.1,-48.4,0.2000",
+   "bone": "RightHand",
+   "src": "Not Attacking/Knife/Knife Pain.json"
+  },
+  "knife/run": {
+   "line": "0.0458,0.1548,-0.0450,-60.1,-21.5,-82.1,0.2000",
+   "bone": "RightHand",
+   "src": "Not Attacking/Knife/Knife Run.json"
+  },
+  "mg/walk_back": {
+   "line": "0.0700,0.2534,-0.0470,-74.8,-1.2,-104.5,0.4243",
+   "bone": "RightHand",
+   "src": "Not Attacking/Machine Gun/Machine Gun Backwards.json"
+  },
+  "mg/idle": {
+   "line": "0.0311,0.2624,-0.0402,-98.5,-12.9,-87.4,0.4015",
+   "bone": "RightHand",
+   "src": "Not Attacking/Machine Gun/Machine Gun Idle.json"
+  },
+  "mg/pain": {
+   "line": "0.0429,0.2433,0.0152,-80.5,10.4,-94.5,0.3950",
+   "bone": "RightHand",
+   "src": "Not Attacking/Machine Gun/Machine Gun Pain.json"
+  },
+  "mg/run": {
+   "line": "0.0303,0.2326,0.0136,-91.6,13.0,-91.6,0.3681",
+   "bone": "RightHand",
+   "src": "Not Attacking/Machine Gun/Machine Gun Running.json"
+  },
+  "pistol/walk_back": {
+   "line": "0.0532,0.1894,-0.0108,-66.8,-0.5,-100.3,0.1462",
+   "bone": "RightHand",
+   "src": "Not Attacking/Pistol/Pistol Backward.json"
+  },
+  "pistol/idle": {
+   "line": "0.0584,0.1861,-0.0105,-87.1,1.7,-101.9,0.1488",
+   "bone": "RightHand",
+   "src": "Not Attacking/Pistol/Pistol Idle.json"
+  },
+  "pistol/pain": {
+   "line": "0.0371,0.1859,0.0132,-68.6,9.7,-93.9,0.1363",
+   "bone": "RightHand",
+   "src": "Not Attacking/Pistol/Pistol Pain.json"
+  },
+  "pistol/run": {
+   "line": "0.0529,0.2025,0.0190,-92.3,14.0,-100.5,0.1485",
+   "bone": "RightHand",
+   "src": "Not Attacking/Pistol/Pistol Running.json"
+  },
+  "mg/death": {
+   "line": "0.0311,0.2624,-0.0402,-98.5,-12.9,-87.4,0.4015",
+   "bone": "RightHand",
+   "src": "(reused idle)"
+  },
+  "pistol/death": {
+   "line": "0.0584,0.1861,-0.0105,-87.1,1.7,-101.9,0.1488",
+   "bone": "RightHand",
+   "src": "(reused idle)"
+  },
+  "knife/death": {
+   "line": "0.0327,0.1207,-0.0548,-98.9,-40.1,-114.7,0.2000",
+   "bone": "RightHand",
+   "src": "(reused idle)"
+  },
+  "bazooka/death": {
+   "line": "0.1215,0.4042,-0.0670,-93.0,-3.3,-104.2,0.3916",
+   "bone": "RightHand",
+   "src": "(reused idle)"
+  }
+ },
+ "flash": {
+  "mg": [
+   0.005514751558769569,
+   -0.007058971053690489,
+   -0.3766666157711356,
+   0,
+   0.03453923061962224,
+   0.37512991566710274,
+   -0.006524485678503539,
+   0,
+   0.37514611827529504,
+   -0.03443397004162616,
+   0.006137804470883228,
+   0,
+   -1.282415454680821,
+   0.1560195802297913,
+   0.010509744504641403,
+   1
+  ],
+  "pistol": [
+   -0.003969931719410876,
+   0.0001464776592705641,
+   -0.4544832810888256,
+   0,
+   0.03413979141959181,
+   0.4532165995383484,
+   -0.0001521431856461444,
+   0,
+   0.4531992375178889,
+   -0.03413981619776983,
+   -0.003969718631403356,
+   0,
+   -1.349028701475972,
+   0.47469188589980155,
+   0.0010761056572953717,
+   1
+  ],
+  "bazooka": [
+   -0.009853280413497149,
+   0,
+   -0.44019855209484055,
+   0,
+   0,
+   0.44030881481217365,
+   0,
+   0,
+   0.44019855209484055,
+   0,
+   -0.009853280413497149,
+   0,
+   -1.3317253197596133,
+   0.06607497869464662,
+   0.010639434284636609,
+   1
+  ]
+ }
+}

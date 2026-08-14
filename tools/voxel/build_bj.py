@@ -25,23 +25,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 BLENDER = Path(r"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe")
 SRC = Path(r"C:\Users\cross\Desktop\HD BJ")
-# WEAPONS: each is (model, calibrated grip). The grip is per weapon and
-# per rig, never per clip - solve_grip.py once, reuse forever. The body
-# clips that HOLD a given weapon reference it by key.
+# WEAPONS: model per weapon. Grips are PER (weapon, clip) now - the
+# owner placed every weapon in every state himself with grip_lab.html
+# (Weapon Stuff/ capture set), and one bone-relative grip per weapon
+# could never be right in every pose anyway (the knife saga). The
+# converted lines live in grips_owner.json; death reuses idle.
 WEAPONS = {
-    # machine gun: solved + owner-corrected (grip slide, palm nudge)
-    "mg":     (Path(r"C:\Users\cross\Desktop\Machine Gun Model.glb"),
-               "0.0960,0.3139,-0.0638,-17,-169,73,0.3993", "RightHand"),
-    # pistol: solved + owner-picked cell B2 of the perpendicular grid
-    "pistol": (Path(r"C:\Users\cross\Desktop\Pistol.glb"),
-               "-0.0020,0.2054,-0.0140,172,-4,-86,0.1471", "RightHand"),
-    # knife: owner-placed in Grip Lab (Knife Idle.json, idle t=1.375),
-    # in the LEFT hand - his call, dual-wield style. Converted by
-    # grip_convert.py; the solver history is retired.
-    "knife":  (Path(r"C:\Users\cross\Desktop\HD BJ\Knife.glb"),
-               "-0.0576,0.1093,-0.0818,-114.8,-39.9,-51.6,0.2000",
-               "LeftHand"),
+    "mg":      Path(r"C:\Users\cross\Desktop\Machine Gun Model.glb"),
+    "pistol":  Path(r"C:\Users\cross\Desktop\Pistol.glb"),
+    "knife":   Path(r"C:\Users\cross\Desktop\HD BJ\Knife.glb"),
+    "bazooka": Path(r"C:\Users\cross\Desktop\HD BJ\Bazooka.glb"),
 }
+FLASH_GLB = Path(r"C:\Users\cross\Desktop\Muzzle Flash.glb")
+GRIPS = json.loads((Path(__file__).parent
+                    / "grips_owner.json").read_text())
+# the bone world scale every solve printed; folds grip lines to and
+# from actual basis matrices when composing the flash onto the gun
+BONE_K = 0.0100
 HEIGHT = 96
 
 # Gun sprite names are DERIVED: weapon prefix + the body set's kind
@@ -49,7 +49,12 @@ HEIGHT = 96
 # gun set posed by that clip, so whichever weapon is equipped, the
 # follower has models for every state - a pistol at his side while he
 # idles, not an MG.
-GUNPREFIX = {"mg": "WGN", "pistol": "WPS", "knife": "WKN"}
+GUNPREFIX = {"mg": "WGN", "pistol": "WPS", "knife": "WKN",
+             "bazooka": "WBZ"}
+# muzzle-flash sets, baked only for the fire clips
+FLASHPREFIX = {"mg": "FMG", "pistol": "FPS", "bazooka": "FBZ"}
+FIRECLIPS = {"pistol_fwd", "pistol_back",
+             "longgun_fwd", "longgun_back"}
 
 # clip -> (glb, times, kept poses IN ORDER, body sprite, per_pose,
 #          weapons whose gun sets this clip poses)
@@ -61,23 +66,23 @@ CLIPS = {
     "idle":  ("BJ Idle.glb",
               "0.000,0.253,0.496,0.787,1.085,1.438,1.704,1.900",
               [0, 1, 2, 3, 4, 5, 6], "BJ1S", False,
-              ["mg", "pistol", "knife"]),
+              ["mg", "pistol", "knife", "bazooka"]),
     "run":   ("BJ Running.glb",
               "0.000,0.103,0.203,0.271,0.377,0.481,0.602",
               [0, 1, 2, 3, 4, 6], "BJ1W", False,
-              ["mg", "pistol", "knife"]),
+              ["mg", "pistol", "knife", "bazooka"]),
     "pain":  ("BJ Pain.glb",
               "0.000,0.546,1.162,1.835,2.478,3.033",
-              [2, 5], "BJ1P", False, ["mg", "pistol", "knife"]),
+              [2, 5], "BJ1P", False, ["mg", "pistol", "knife", "bazooka"]),
     "death": ("BJ Death.glb",
               "0.000,0.354,0.882,1.392,1.929,2.523,3.000",
               [0, 1, 2, 3, 4, 5, 6], "BJ1D", False,
-              ["mg", "pistol", "knife"]),
+              ["mg", "pistol", "knife", "bazooka"]),
     # walking backward, NOT firing - whatever is held comes along
     "walk_back": ("BJ Backwards.glb",
                   "0.000,0.084,0.151,0.234,0.331,0.426,0.533",
                   [0, 1, 2, 3, 4, 5, 6], "BJ1B", True,
-                  ["mg", "pistol", "knife"]),
+                  ["mg", "pistol", "knife", "bazooka"]),
     "pistol_back": ("BJ Pistol Backward.glb",
                     "0.000,0.156,0.347,0.519,0.686,0.863,1.001",
                     [0, 1, 2, 3, 4, 5, 6], "BJ1K", True, ["pistol"]),
@@ -88,10 +93,10 @@ CLIPS = {
     # clip (BJ1A); same reversed-order trick for the forward set
     "longgun_back": ("BJ Long Gun Backwards.glb",
                      "0.000,0.216,0.451,0.664,0.859,1.093",
-                     [0, 1, 2, 3, 4, 5], "BJ1M", True, ["mg"]),
+                     [0, 1, 2, 3, 4, 5], "BJ1M", True, ["mg", "bazooka"]),
     "longgun_fwd": ("BJ Long Gun Backwards.glb",
                     "0.168,0.395,0.625,0.841,1.057,1.300",
-                    [5, 4, 3, 2, 1, 0], "BJ1L", True, ["mg"]),
+                    [5, 4, 3, 2, 1, 0], "BJ1L", True, ["mg", "bazooka"]),
     # knife attack; registered set - the lunge travels WITHIN the pose,
     # like the death fall
     "stab":  ("BJ Stab.glb",
@@ -111,13 +116,70 @@ def run(cmd, quiet=True):
     return r.stdout
 
 
-def bake(glb, out, times, gun_only, weapon):
-    gun, grip, bone = WEAPONS[weapon]
+import math
+
+
+def line_to_mat(line, k):
+    g = [float(v) for v in line.split(",")]
+    a, b, c = (math.radians(v) for v in g[3:6])
+    cx, sx = math.cos(a), math.sin(a)
+    cy, sy = math.cos(b), math.sin(b)
+    cz, sz = math.cos(c), math.sin(c)
+    R = [[cy*cz, sx*sy*cz - cx*sz, cx*sy*cz + sx*sz],
+         [cy*sz, sx*sy*sz + cx*cz, cx*sy*sz - sx*cz],
+         [-sy,   sx*cy,            cx*cy]]
+    sc = g[6] / k
+    M = [[R[i][j]*sc for j in range(3)] + [g[i]/k] for i in range(3)]
+    return M + [[0, 0, 0, 1]]
+
+
+def mat_to_line(M, k):
+    import math as m
+    sc = m.sqrt(sum(M[i][0]**2 for i in range(3)))
+    R = [[M[i][j]/sc for j in range(3)] for i in range(3)]
+    ey = m.asin(max(-1, min(1, -R[2][0])))
+    ex = m.atan2(R[2][1], R[2][2])
+    ez = m.atan2(R[1][0], R[0][0])
+    return "%.4f,%.4f,%.4f,%.1f,%.1f,%.1f,%.4f" % (
+        M[0][3]*k, M[1][3]*k, M[2][3]*k,
+        m.degrees(ex), m.degrees(ey), m.degrees(ez), sc*k)
+
+
+def matmul(A, B):
+    return [[sum(A[i][t]*B[t][j] for t in range(4)) for j in range(4)]
+            for i in range(4)]
+
+
+def flash_grip(weapon, clip_key):
+    """Compose the owner's flash-on-gun placement onto that clip's gun
+    grip: basis_flash = basis_gun @ Y @ F_gltf @ inv(Y), with Y the
+    fixed glTF-to-Blender +90-about-X. Everything stays in the legacy
+    7-number format, so the bake path needs nothing new."""
+    gun = GRIPS["grips"]["%s/%s" % (weapon, clip_key)]
+    F = GRIPS["flash"][weapon]          # column-major, three.js
+    Fm = [[F[0], F[4], F[8],  F[12]],
+          [F[1], F[5], F[9],  F[13]],
+          [F[2], F[6], F[10], F[14]],
+          [0, 0, 0, 1]]
+    Y = [[1, 0, 0, 0], [0, 0, -1, 0], [0, 1, 0, 0], [0, 0, 0, 1]]
+    Yi = [[1, 0, 0, 0], [0, 0, 1, 0], [0, -1, 0, 0], [0, 0, 0, 1]]
+    B = matmul(line_to_mat(gun["line"], BONE_K), matmul(Y, matmul(Fm, Yi)))
+    return mat_to_line(B, BONE_K), gun["bone"]
+
+
+def bake(glb, out, times, weapon=None, clip_key=None, flash=False):
     cmd = [BLENDER, "--background", "--python",
            ROOT / "tools/voxel/glb_to_obj.py", "--",
            SRC / glb, out, "--times", times, "--drop-unskinned"]
-    if gun_only:
-        cmd += ["--attach", gun, "--grip", grip, "--attach-only",
+    if weapon is not None:
+        if flash:
+            line, bone = flash_grip(weapon, clip_key)
+            mesh = FLASH_GLB
+        else:
+            g = GRIPS["grips"]["%s/%s" % (weapon, clip_key)]
+            line, bone = g["line"], g["bone"]
+            mesh = WEAPONS[weapon]
+        cmd += ["--attach", mesh, "--grip", line, "--attach-only",
                 "--bone", bone]
     run(cmd)
 
@@ -213,7 +275,7 @@ def main():
         bodyobj, bodyvox = base / "body_obj", base / "body_vox"
         print(f"\n=== {name}: {glb}")
 
-        bake(glb, bodyobj, times, False, weps[0])
+        bake(glb, bodyobj, times)
         voxelize(bodyobj, bodyvox, per_pose)
         ground_fix(bodyvox)
         if per_pose:
@@ -223,11 +285,19 @@ def main():
         for w in weps:
             gunobj = base / ("gun_obj_" + w)
             gunvox = base / ("gun_vox_" + w)
-            bake(glb, gunobj, times, True, w)
+            bake(glb, gunobj, times, w, name)
             voxelize(gunobj, gunvox, per_pose)
             run([sys.executable, ROOT / "tools/voxel/align_anchors.py",
                  bodyvox, gunvox])
             jobs.append((gunvox, GUNPREFIX[w] + bspr[3]))
+            if name in FIRECLIPS and w in FLASHPREFIX:
+                fobj = base / ("flash_obj_" + w)
+                fvox = base / ("flash_vox_" + w)
+                bake(glb, fobj, times, w, name, flash=True)
+                voxelize(fobj, fvox, per_pose)
+                run([sys.executable, ROOT / "tools/voxel/align_anchors.py",
+                     bodyvox, fvox])
+                jobs.append((fvox, FLASHPREFIX[w] + bspr[3]))
 
         for voxdir, sprite in jobs:
             emit(voxdir, keep, sprite, kvx, spr)
