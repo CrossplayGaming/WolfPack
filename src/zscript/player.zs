@@ -358,8 +358,10 @@ class WolfPlayer : DoomPlayer
     // the pack). The PACK's gun actor registers the names; these
     // lookups run only when the pack is present (voxOn), by which time
     // registration has happened.
-    static const name FIREG[] = { 'BJ1G', 'BJ2G', 'BJ3G', 'BJ4G' };
-    static const name FIREK[] = { 'BJ1K', 'BJ2K', 'BJ3K', 'BJ4K' };
+    // identifiers are case-insensitive (same trap as the skin tables),
+    // so the int arrays cannot share the constant arrays' names
+    static const name FIRESETG[] = { 'BJ1G', 'BJ2G', 'BJ3G', 'BJ4G' };
+    static const name FIRESETK[] = { 'BJ1K', 'BJ2K', 'BJ3K', 'BJ4K' };
     int fireG[4];
     int fireK[4];
     bool fireInit;
@@ -371,8 +373,8 @@ class WolfPlayer : DoomPlayer
             fireInit = true;
             for (int i = 0; i < 4; i++)
             {
-                fireG[i] = GetSpriteIndex(FIREG[i]);
-                fireK[i] = GetSpriteIndex(FIREK[i]);
+                fireG[i] = GetSpriteIndex(FIRESETG[i]);
+                fireK[i] = GetSpriteIndex(FIRESETK[i]);
             }
         }
         int v = SkinVariant();
