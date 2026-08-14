@@ -46,6 +46,15 @@ class WolfVoxBody
     const PFIRE_POSES = 7;
     const PFIRE_TICS  = 4;
 
+    // the long-gun pair (BJ?L / BJ?M), the plain backward walk (BJ?B),
+    // and the knife stab (BJ?T, played once per attack)
+    const LFIRE_POSES = 6;
+    const LFIRE_TICS  = 4;
+    const BWALK_POSES = 7;
+    const BWALK_TICS  = 4;
+    const STAB_POSES  = 5;
+    const STAB_TICS   = 2;
+
     static bool Present()
     {
         return Wads.CheckNumForFullName("WOLFVOX") >= 0;

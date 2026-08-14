@@ -5,14 +5,14 @@
 // uniform recolor would paint it (338 of the gun's 1147 voxels in a
 // firing pose fall inside the uniform's colour band), and a baked gun
 // costs four copies - one per uniform - of every pose, with every extra
-// weapon multiplying that again. Separate, one gun serves all four
-// uniforms and a second weapon is one more small set.
+// weapon multiplying that again. Separate, one weapon model serves all
+// four uniforms and a new weapon is one more small set.
 //
-// It needs no offset or rotation maths: each gun model was posed by the
-// same clip at the same instant as its body frame and then pivoted at
-// the BODY's pivot (tools/voxel/align_anchors.py), so drawing it at the
-// player's own position and angle puts it in his hands by construction.
-// The follower only has to mirror which frame the body is showing.
+// It needs no offset or rotation maths: each weapon model was posed by
+// the same clip at the same instant as its body frame and then pivoted
+// at the BODY's pivot (tools/voxel/align_anchors.py), so drawing it at
+// the player's own position and angle puts it in his hands by
+// construction. The follower only mirrors which frame the body shows.
 class WolfGunBody : Actor
 {
     Default
@@ -30,59 +30,88 @@ class WolfGunBody : Actor
     // returns -1 for a name no state ever mentions, even when the
     // sprite lumps are present. This class lives in the voxel pack
     // precisely so these frames are guaranteed to exist alongside it.
-    // The BJ?G/BJ?K body fire sets register here too - their frames are
-    // pack-only, so the base game's SkinReg cannot name them without
-    // becoming a load error for everyone without the pack.
+    // The pack-only BODY sets (directional fire, backward walk, stab)
+    // register here too - the base game's SkinReg cannot name them
+    // without becoming a load error for everyone without the pack.
     Spawn:
         WGNS ABCDEFG -1;
         WGNW ABCDEF -1;
-        WGNA ABC -1;
         WGNP AB -1;
         WGND ABCDEFG -1;
+        WGNB ABCDEFG -1;
+        WGNL ABCDEF -1;
+        WGNM ABCDEF -1;
         WPSS ABCDEFG -1;
         WPSW ABCDEF -1;
         WPSP AB -1;
         WPSD ABCDEFG -1;
+        WPSB ABCDEFG -1;
         WPSG ABCDEFG -1;
         WPSK ABCDEFG -1;
-        BJ1G ABCDEFG -1;
-        BJ2G ABCDEFG -1;
-        BJ3G ABCDEFG -1;
-        BJ4G ABCDEFG -1;
-        BJ1K ABCDEFG -1;
-        BJ2K ABCDEFG -1;
-        BJ3K ABCDEFG -1;
-        BJ4K ABCDEFG -1;
+        WKNS ABCDEFG -1;
+        WKNW ABCDEF -1;
+        WKNP AB -1;
+        WKND ABCDEFG -1;
+        WKNB ABCDEFG -1;
+        WKNT ABCDE -1;
+        BJ1G ABCDEFG -1; BJ2G ABCDEFG -1;
+        BJ3G ABCDEFG -1; BJ4G ABCDEFG -1;
+        BJ1K ABCDEFG -1; BJ2K ABCDEFG -1;
+        BJ3K ABCDEFG -1; BJ4K ABCDEFG -1;
+        BJ1L ABCDEF -1; BJ2L ABCDEF -1;
+        BJ3L ABCDEF -1; BJ4L ABCDEF -1;
+        BJ1M ABCDEF -1; BJ2M ABCDEF -1;
+        BJ3M ABCDEF -1; BJ4M ABCDEF -1;
+        BJ1B ABCDEFG -1; BJ2B ABCDEFG -1;
+        BJ3B ABCDEFG -1; BJ4B ABCDEFG -1;
+        BJ1T ABCDE -1; BJ2T ABCDE -1;
+        BJ3T ABCDE -1; BJ4T ABCDE -1;
         Stop;
     }
 
-    // kind (1..7) x weapon (1 long gun, 2 pistol) -> gun sprite. The
-    // kinds are the player's own, so nothing here reverse-engineers a
-    // sprite name, and the uniform recolor (which moves the BODY to
-    // BJ2/3/4 and leaves the gun alone) cannot confuse it.
+    // kind (1..8) x weapon (1 long gun, 2 pistol, 3 knife) -> weapon
+    // sprite. The kinds are the player's own, so nothing here
+    // reverse-engineers a sprite name, and the uniform recolor (which
+    // moves the BODY to BJ2/3/4 and leaves the weapon alone) cannot
+    // confuse it.
     name GunSprName(int kind, int wep)
     {
-        if (wep == 2)
+        if (wep == 1)
+        {
+            switch (kind)
+            {
+            case 1: return 'WGNS';
+            case 2: return 'WGNW';
+            case 3: return 'WGNB';
+            case 4: return 'WGND';
+            case 5: return 'WGNP';
+            case 6: return 'WGNL';
+            case 7: return 'WGNM';
+            }
+        }
+        else if (wep == 2)
         {
             switch (kind)
             {
             case 1: return 'WPSS';
             case 2: return 'WPSW';
+            case 3: return 'WPSB';
             case 4: return 'WPSD';
             case 5: return 'WPSP';
             case 6: return 'WPSG';
             case 7: return 'WPSK';
             }
         }
-        else if (wep == 1)
+        else if (wep == 3)
         {
             switch (kind)
             {
-            case 1: return 'WGNS';
-            case 2: return 'WGNW';
-            case 3: return 'WGNA';
-            case 4: return 'WGND';
-            case 5: return 'WGNP';
+            case 1: return 'WKNS';
+            case 2: return 'WKNW';
+            case 3: return 'WKNB';
+            case 4: return 'WKND';
+            case 5: return 'WKNP';
+            case 8: return 'WKNT';
             }
         }
         return 'None';
@@ -102,12 +131,11 @@ class WolfGunBody : Actor
         }
         SetOrigin(p.Vec3Offset(0, 0, 0), true);
 
-        // the knife shows no gun at all
         name sn = GunSprName(p.voxKind, p.VoxWeapon());
         int id = sn == 'None' ? -1 : GetSpriteIndex(sn);
         if (id <= 0)
         {
-            bInvisible = true;      // no gun set for this state/weapon
+            bInvisible = true;      // no weapon set for this state/weapon
             return;
         }
         // FIRST PERSON: the engine hides a player's own pawn from his

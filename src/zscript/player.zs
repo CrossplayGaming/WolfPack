@@ -246,13 +246,21 @@ class WolfPlayer : DoomPlayer
             }
         }
 
+        // Kinds: 1 idle, 2 walk fwd, 3 walk BACK, 4 death, 5 pain,
+        // 6 fire fwd, 7 fire back, 8 stab. Direction comes from
+        // replicated state (this game rebuilds vel from held input
+        // every tic), so every node picks the same cycle.
+        bool inMissile = InStateSequence(CurState, ResolveState("Missile"));
+        Vector2 fwdv = AngleToVector(angle);
+        bool movingBack = (vel.xy dot fwdv) < -0.1;
+
         int kind = 0;
         if (InStateSequence(CurState, ResolveState("Death")))
             kind = 4;
-        else if (InStateSequence(CurState, ResolveState("Missile")))
-            kind = 3;
+        else if (inMissile)
+            kind = 6;
         else if (InStateSequence(CurState, ResolveState("See")))
-            kind = 2;
+            kind = movingBack ? 3 : 2;
         else if (InStateSequence(CurState, ResolveState("Pain")))
             kind = 5;      // frames left to the state: two poses, two frames
         else if (InStateSequence(CurState, ResolveState("Spawn")))
@@ -268,21 +276,18 @@ class WolfPlayer : DoomPlayer
         bool sustained = player.ReadyWeapon != null
             && !player.ReadyWeapon.bNoAutofire
             && (player.cmd.buttons & BT_ATTACK) != 0;
-        bool firing = sustained || kind == 3;
+        bool firing = sustained || inMissile;
         if (firing && kind != 4 && kind != 5)
         {
-            // Firing states are per WEAPON. The pistol has directional
-            // walk-fire cycles; direction comes from replicated state
-            // (this game rebuilds vel from held input every tic), so
-            // every node picks the same cycle. Standing still fires the
-            // forward cycle - its first strides read fine in place.
-            if (VoxWeapon() == 2)
-            {
-                Vector2 fwd = AngleToVector(angle);
-                kind = (vel.xy dot fwd) < -0.1 ? 7 : 6;
-            }
+            // Firing states are per WEAPON: pistol and long gun each
+            // have a directional walk-fire pair, the knife has its
+            // stab. Standing still fires the forward cycle - its first
+            // strides read fine in place.
+            int wep = VoxWeapon();
+            if (wep == 3)
+                kind = 8;
             else
-                kind = 3;       // MG/chaingun: the advancing-fire set
+                kind = movingBack ? 7 : 6;
         }
         if (kind == 0)
         {
@@ -309,23 +314,35 @@ class WolfPlayer : DoomPlayer
             pose = (voxTic / WolfVoxBody.RUN_TICS) % WolfVoxBody.RUN_POSES;
         else if (kind == 3)
         {
-            // held fire stops at the FIRE pose (B) and stays there; the
-            // recover pose (C) belongs to a shot that ended
-            int last = sustained ? 1 : WolfVoxBody.SHOOT_POSES - 1;
-            pose = min(voxTic / WolfVoxBody.SHOOT_TICS, last);
-            // the shoot set was built as the ATTACK sprite (BJ?A); the
-            // Missile state names the single fire frame (BJ?F), so point
-            // at the set that actually has models
-            int id = SkinSprite(4);
+            // plain backward walk (BJ?B) - pack-only set, so the sprite
+            // is redirected the same way the fire sets are
+            pose = (voxTic / WolfVoxBody.BWALK_TICS)
+                   % WolfVoxBody.BWALK_POSES;
+            int id = PackSprite(4);
             if (id > 0)
                 sprite = id;
         }
         else if (kind == 6 || kind == 7)
         {
-            // pistol walk-fire: a full stride, looped while it lasts
-            pose = (voxTic / WolfVoxBody.PFIRE_TICS)
-                   % WolfVoxBody.PFIRE_POSES;
-            int id = FireSprite(kind == 7);
+            // directional walk-fire: pistol G/K, long gun L/M
+            bool back = kind == 7;
+            int wep = VoxWeapon();
+            int poses = wep == 2 ? WolfVoxBody.PFIRE_POSES
+                                 : WolfVoxBody.LFIRE_POSES;
+            int tics = wep == 2 ? WolfVoxBody.PFIRE_TICS
+                                : WolfVoxBody.LFIRE_TICS;
+            pose = (voxTic / tics) % poses;
+            int id = PackSprite(wep == 2 ? (back ? 1 : 0)
+                                         : (back ? 3 : 2));
+            if (id > 0)
+                sprite = id;
+        }
+        else if (kind == 8)
+        {
+            // knife stab: played once, held at the last pose
+            pose = min(voxTic / WolfVoxBody.STAB_TICS,
+                       WolfVoxBody.STAB_POSES - 1);
+            int id = PackSprite(5);
             if (id > 0)
                 sprite = id;
         }
@@ -338,7 +355,7 @@ class WolfPlayer : DoomPlayer
     }
 
     // Which weapon the voxel driver should dress him with:
-    // 0 none/knife, 1 long gun, 2 pistol.
+    // 0 none, 1 long gun, 2 pistol, 3 knife.
     int VoxWeapon()
     {
         let w = player.ReadyWeapon;
@@ -348,37 +365,39 @@ class WolfPlayer : DoomPlayer
         if (cn == 'WolfPistol')
             return 2;
         if (cn == 'WolfKnife')
-            return 0;
+            return 3;
         return 1;
     }
 
-    // The pistol fire sets (BJ?G/BJ?K) exist ONLY in the voxel pack -
+    // The directional and stab body sets exist ONLY in the voxel pack -
     // base art has no such frames, so they cannot appear in SkinReg (a
     // state naming a missing frame is a load error for anyone without
     // the pack). The PACK's gun actor registers the names; these
     // lookups run only when the pack is present (voxOn), by which time
     // registration has happened.
-    // identifiers are case-insensitive (same trap as the skin tables),
-    // so the int arrays cannot share the constant arrays' names
-    static const name FIRESETG[] = { 'BJ1G', 'BJ2G', 'BJ3G', 'BJ4G' };
-    static const name FIRESETK[] = { 'BJ1K', 'BJ2K', 'BJ3K', 'BJ4K' };
-    int fireG[4];
-    int fireK[4];
-    bool fireInit;
+    // Table rows: 0 pistol-fwd G, 1 pistol-back K, 2 longgun-fwd L,
+    // 3 longgun-back M, 4 walk-back B, 5 stab T; four uniforms each.
+    // (identifiers are case-insensitive - same trap as the skin tables -
+    // so the cache cannot share the constant array's name)
+    static const name PACKSETS[] = {
+        'BJ1G', 'BJ2G', 'BJ3G', 'BJ4G',
+        'BJ1K', 'BJ2K', 'BJ3K', 'BJ4K',
+        'BJ1L', 'BJ2L', 'BJ3L', 'BJ4L',
+        'BJ1M', 'BJ2M', 'BJ3M', 'BJ4M',
+        'BJ1B', 'BJ2B', 'BJ3B', 'BJ4B',
+        'BJ1T', 'BJ2T', 'BJ3T', 'BJ4T' };
+    int packSpr[24];
+    bool packInit;
 
-    int FireSprite(bool back)
+    int PackSprite(int row)
     {
-        if (!fireInit)
+        if (!packInit)
         {
-            fireInit = true;
-            for (int i = 0; i < 4; i++)
-            {
-                fireG[i] = GetSpriteIndex(FIRESETG[i]);
-                fireK[i] = GetSpriteIndex(FIRESETK[i]);
-            }
+            packInit = true;
+            for (int i = 0; i < 24; i++)
+                packSpr[i] = GetSpriteIndex(PACKSETS[i]);
         }
-        int v = SkinVariant();
-        return back ? fireK[v] : fireG[v];
+        return packSpr[row * 4 + SkinVariant()];
     }
 
     bool bIsRunning;

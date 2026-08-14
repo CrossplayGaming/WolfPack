@@ -34,9 +34,17 @@ WEAPONS = {
     # (owner report). gripfrac 0.06 instead of 0.30.
     "mg":     (Path(r"C:\Users\cross\Desktop\Machine Gun Model.glb"),
                "0.0960,0.3139,-0.0638,-17,-169,73,0.3993"),
-    # pistol: same solve, roll 180 chosen from the A/B (slide on top).
+    # pistol: solved, roll 180 (slide on top), then slid 0.10 m
+    # forward along the barrel - the owner's screenshot showed the
+    # grip buried in his forearm; the slide strip put the fist ON
+    # the grip at +0.10.
     "pistol": (Path(r"C:\Users\cross\Desktop\Pistol.glb"),
-               "-0.0074,0.1059,-0.0074,172,-4,-86,0.1471"),
+               "-0.0144,0.2054,-0.0144,172,-4,-86,0.1471"),
+    # knife: solved on the stab clip thrust pose (t=2.288), blade
+    # forward and level, err 0.0100. Strong grip signal (0.09 m)
+    # so the roll needed no override.
+    "knife":  (Path(r"C:\Users\cross\Desktop\HD BJ\Knife.glb"),
+               "0.0080,-0.1147,0.0396,280,199,94,0.1997"),
 }
 HEIGHT = 96
 
@@ -45,7 +53,7 @@ HEIGHT = 96
 # gun set posed by that clip, so whichever weapon is equipped, the
 # follower has models for every state - a pistol at his side while he
 # idles, not an MG.
-GUNPREFIX = {"mg": "WGN", "pistol": "WPS"}
+GUNPREFIX = {"mg": "WGN", "pistol": "WPS", "knife": "WKN"}
 
 # clip -> (glb, times, kept poses IN ORDER, body sprite, per_pose,
 #          weapons whose gun sets this clip poses)
@@ -56,25 +64,43 @@ GUNPREFIX = {"mg": "WGN", "pistol": "WPS"}
 CLIPS = {
     "idle":  ("BJ Idle.glb",
               "0.000,0.253,0.496,0.787,1.085,1.438,1.704,1.900",
-              [0, 1, 2, 3, 4, 5, 6], "BJ1S", False, ["mg", "pistol"]),
+              [0, 1, 2, 3, 4, 5, 6], "BJ1S", False,
+              ["mg", "pistol", "knife"]),
     "run":   ("BJ Running.glb",
               "0.000,0.103,0.203,0.271,0.377,0.481,0.602",
-              [0, 1, 2, 3, 4, 6], "BJ1W", False, ["mg", "pistol"]),
-    "shoot": ("BJ Shooting.glb",
-              "0.000,0.142,0.295,0.456,0.592",
-              [0, 2, 4], "BJ1A", True, ["mg"]),
+              [0, 1, 2, 3, 4, 6], "BJ1W", False,
+              ["mg", "pistol", "knife"]),
     "pain":  ("BJ Pain.glb",
               "0.000,0.546,1.162,1.835,2.478,3.033",
-              [2, 5], "BJ1P", False, ["mg", "pistol"]),
+              [2, 5], "BJ1P", False, ["mg", "pistol", "knife"]),
     "death": ("BJ Death.glb",
               "0.000,0.354,0.882,1.392,1.929,2.523,3.000",
-              [0, 1, 2, 3, 4, 5, 6], "BJ1D", False, ["mg", "pistol"]),
+              [0, 1, 2, 3, 4, 5, 6], "BJ1D", False,
+              ["mg", "pistol", "knife"]),
+    # walking backward, NOT firing - whatever is held comes along
+    "walk_back": ("BJ Backwards.glb",
+                  "0.000,0.084,0.151,0.234,0.331,0.426,0.533",
+                  [0, 1, 2, 3, 4, 5, 6], "BJ1B", True,
+                  ["mg", "pistol", "knife"]),
     "pistol_back": ("BJ Pistol Backward.glb",
                     "0.000,0.156,0.347,0.519,0.686,0.863,1.001",
                     [0, 1, 2, 3, 4, 5, 6], "BJ1K", True, ["pistol"]),
     "pistol_fwd": ("BJ Pistol Backward.glb",
                    "0.077,0.198,0.366,0.537,0.710,0.900,1.067",
                    [6, 5, 4, 3, 2, 1, 0], "BJ1G", True, ["pistol"]),
+    # the long-gun directional pair supersedes the old advancing-fire
+    # clip (BJ1A); same reversed-order trick for the forward set
+    "longgun_back": ("BJ Long Gun Backwards.glb",
+                     "0.000,0.216,0.451,0.664,0.859,1.093",
+                     [0, 1, 2, 3, 4, 5], "BJ1M", True, ["mg"]),
+    "longgun_fwd": ("BJ Long Gun Backwards.glb",
+                    "0.168,0.395,0.625,0.841,1.057,1.300",
+                    [5, 4, 3, 2, 1, 0], "BJ1L", True, ["mg"]),
+    # knife attack; registered set - the lunge travels WITHIN the pose,
+    # like the death fall
+    "stab":  ("BJ Stab.glb",
+              "1.829,1.941,2.288,3.133,3.488",
+              [0, 1, 2, 3, 4], "BJ1T", False, ["knife"]),
 }
 REF = ROOT / "build/bjvox/idle_true/frame.json"       # the scale reference
 
