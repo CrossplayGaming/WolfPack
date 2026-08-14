@@ -29,47 +29,18 @@ SRC = Path(r"C:\Users\cross\Desktop\HD BJ")
 # per rig, never per clip - solve_grip.py once, reuse forever. The body
 # clips that HOLD a given weapon reference it by key.
 WEAPONS = {
-    # machine gun: slid forward along the barrel so the HAND sits on the
-    # grip - at the solver's default the receiver rode up his forearm
-    # (owner report). gripfrac 0.06 instead of 0.30.
+    # machine gun: solved + owner-corrected (grip slide, palm nudge)
     "mg":     (Path(r"C:\Users\cross\Desktop\Machine Gun Model.glb"),
-               "0.0960,0.3139,-0.0638,-17,-169,73,0.3993"),
-    # pistol: solved, roll 180 (slide on top), then slid 0.10 m
-    # forward along the barrel - the owner's screenshot showed the
-    # grip buried in his forearm; the slide strip put the fist ON
-    # the grip at +0.10, then nudged 0.025 m sideways toward the
-    # palm - it clipped through the back of his hand (owner
-    # report). Final position: owner picked cell B2 from the 4x3
-    # labeled grid - x-0.025 had overshot to the far side.
+               "0.0960,0.3139,-0.0638,-17,-169,73,0.3993", "RightHand"),
+    # pistol: solved + owner-picked cell B2 of the perpendicular grid
     "pistol": (Path(r"C:\Users\cross\Desktop\Pistol.glb"),
-               "-0.0020,0.2054,-0.0140,172,-4,-86,0.1471"),
-    # knife: solved on the stab clip thrust pose (t=2.288), blade
-    # forward and level, err 0.0100. Strong grip signal (0.09 m)
-    # so the roll needed no override. Translation NOT taken from
-    # the solver: its gripfrac put the knife 11 cm up the forearm,
-    # which reads fine mid-thrust and floats at elbow height in a
-    # hanging hand (owner report). Re-derived on the IDLE carry:
-    # fist lands on the handle at frac 0.62 - and then the BLADE
-    # DIRECTION was still 180 degrees off in bone space (owner:
-    # blade up the forearm, handle behind the arm; the thrust pose
-    # hid it because the wrist flexes there). Flipped about bone Z
-    # and re-slid: handle in fist, blade down-forward at rest,
-    # forward in the thrust - and then handle/blade were still
-    # swapped end-for-end (owner). The FOURTH of the four 180-
-    # degree orientation states fixed the swap - and then the blade
-    # still ran along the FINGERS (down, in a hanging hand). MEASURED
-    # why: the hand bone rotates ~65 degrees between the hanging idle
-    # and the flexed thrust, so no fixed bone-space direction is
-    # forward in both. The adopted rotation aims the blade at an
-    # idle-biased blend of the two poses' world-forward (built from
-    # measured bone frames, not solved), so it reads forward at rest
-    # and near-forward in the thrust. Handle slid 3 cm out of the
-    # wrist into the fist, then raised 15 mm along bone -X - the
-    # owner's stab zoom showed the fist closed OVER the knife,
-    # which hung beneath the hand. Bone -X maps near world-up in
-    # BOTH poses (measured), so one offset seats it everywhere.
+               "-0.0020,0.2054,-0.0140,172,-4,-86,0.1471", "RightHand"),
+    # knife: owner-placed in Grip Lab (Knife Idle.json, idle t=1.375),
+    # in the LEFT hand - his call, dual-wield style. Converted by
+    # grip_convert.py; the solver history is retired.
     "knife":  (Path(r"C:\Users\cross\Desktop\HD BJ\Knife.glb"),
-               "-0.0100,0.0011,0.0349,127.4,-49.9,-80.0,0.1997"),
+               "-0.0576,0.1093,-0.0818,-114.8,-39.9,-51.6,0.2000",
+               "LeftHand"),
 }
 HEIGHT = 96
 
@@ -141,12 +112,13 @@ def run(cmd, quiet=True):
 
 
 def bake(glb, out, times, gun_only, weapon):
-    gun, grip = WEAPONS[weapon]
+    gun, grip, bone = WEAPONS[weapon]
     cmd = [BLENDER, "--background", "--python",
            ROOT / "tools/voxel/glb_to_obj.py", "--",
            SRC / glb, out, "--times", times, "--drop-unskinned"]
     if gun_only:
-        cmd += ["--attach", gun, "--grip", grip, "--attach-only"]
+        cmd += ["--attach", gun, "--grip", grip, "--attach-only",
+                "--bone", bone]
     run(cmd)
 
 
