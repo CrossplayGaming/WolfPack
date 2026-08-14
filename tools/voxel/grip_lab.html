@@ -173,7 +173,11 @@ function loadGLB(file){
       if (g.animations.length){
         mixer = new THREE.AnimationMixer(charRoot);
         const act = mixer.clipAction(g.animations[0]);
-        act.play(); act.paused = true;
+        // Do NOT pause: a paused action's time scale is zero, so it
+        // ignores mixer.setTime() and holds frame 0 forever (the
+        // frame_picker gotcha, re-stepped-on here). Play unpaused and
+        // drive time exclusively through mixer.setTime().
+        act.play();
         clipDur = g.animations[0].duration;
         mixer.setTime(0);
       }
