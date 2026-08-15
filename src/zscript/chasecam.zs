@@ -165,36 +165,54 @@ class WolfChaseCam : Actor
             if (pn >= 0) { oy = h.oyaw[pn]; op = h.opitch[pn]; }
         }
 
-        // Spherical placement around the eye. With the orbit at rest the
-        // elevation angle reproduces the old dist+lift geometry exactly,
-        // so the approved framing is unchanged and the orbit just swings
-        // the same sphere.
+        // Spherical placement around the eye. The at-rest point sits
+        // exactly `dist` behind and `lift` above the eye - so the
+        // Height slider truly RAISES the camera. (The first version
+        // used dist alone as the radius, which turned Height into a
+        // tilt-only knob: cranking it steepened a close camera toward
+        // top-down and read as "still blocked by the ceiling" - owner
+        // repro with the roof already open.) The orbit swings that
+        // same sphere.
         double yaw = p.angle + 180 + oy;
         double el = clamp(atan2(lift, dist) + op, -85, 85);
+        double radius = sqrt(dist * dist + lift * lift);
 
         // Pull in off level geometry: trace from the eye along the ACTUAL
         // 3D camera direction (negative LineTrace pitch = up), not just
         // horizontally - once the camera can swing overhead, a horizontal
         // trace stops describing where it is going. TRF_THRUACTORS so
         // other players and enemies never shove the camera; walls only.
+        // Open-roof rule first: if the camera's DESTINATION is in the
+        // sky above the map, it is in open air - no wall can truly be
+        // between it and the roofless room below, even though a
+        // straight trace to it clips wall segments on the way (one-
+        // sided lines block Doom traces at ANY height, so the trace
+        // cannot distinguish "through a wall" from "over it").
+        TextureID skyTex = TexMan.CheckForTexture("F_SKY1",
+                                                  TexMan.Type_Flat);
+        bool roofOpen = p.CurSector.GetTexture(Sector.ceiling) == skyTex;
+        double wantZ = eyez + sin(el) * radius;
+        // p.ceilingz = the actor's cached ceiling height (sectors
+        // expose no plain ceilingz field - engine parse error)
+        bool freeAir = roofOpen && wantZ > p.ceilingz + 8;
+
         FLineTraceData t;
-        bool hit = p.LineTrace(yaw, dist + CAM_PAD, -el,
+        bool hit = !freeAir
+            && p.LineTrace(yaw, radius + CAM_PAD, -el,
                         TRF_THRUACTORS | TRF_ABSOFFSET,
                         eyez - p.pos.z, data: t)
             && t.HitType != TRACE_HitNone;
-        // open-roof mode (skyceil.zs): a sky ceiling is a window, not a
-        // wall - ignore hits on it so the camera can rise out of the map
+        // a sky ceiling is a window, not a wall
         if (hit && t.HitType == TRACE_HitCeiling && t.HitSector != null
-            && t.HitSector.GetTexture(Sector.ceiling)
-               == TexMan.CheckForTexture("F_SKY1", TexMan.Type_Flat))
+            && t.HitSector.GetTexture(Sector.ceiling) == skyTex)
             hit = false;
         if (hit)
-            dist = max(8, t.Distance - CAM_PAD);
+            radius = max(8, t.Distance - CAM_PAD);
 
         Vector3 want = p.Vec3Offset(
-            cos(yaw) * cos(el) * dist,
-            sin(yaw) * cos(el) * dist,
-            (eyez - p.pos.z) + sin(el) * dist);
+            cos(yaw) * cos(el) * radius,
+            sin(yaw) * cos(el) * radius,
+            (eyez - p.pos.z) + sin(el) * radius);
         // SetOrigin(..., true) keeps render interpolation, so the view
         // glides at any framerate even though this runs per tic.
         SetOrigin(want, true);
@@ -205,11 +223,27 @@ class WolfChaseCam : Actor
             && pos.z > ceilingz - 4)
             SetZ(ceilingz - 4);
         if (pos.z < floorz + 4) SetZ(floorz + 4);
-        // Look back at the player: yaw+180 lands on p.angle when the
-        // orbit is at rest, so the at-rest view is the old one; pitch
-        // follows the elevation plus freelook.
+        // Look AT the player - closed-loop, from the camera's FINAL
+        // position. The first version assumed pitch = elevation angle,
+        // which only aims at him while the camera sits exactly on the
+        // ideal sphere; after a wall pull-in or a floor/ceiling clamp
+        // the assumed angle drifts off target (owner: "BJ doesn't seem
+        // to be the center of the sphere"). Computing pitch from the
+        // actual camera->eye vector holds him centered no matter what
+        // moved the camera. Freelook still tilts the view on top.
+        Vector3 toEye = p.Vec3Offset(0, 0, eyez - p.pos.z) - pos;
         angle = yaw + 180;
-        pitch = clamp(el + p.pitch, -85, 85);
+        double horiz = toEye.xy.Length();
+        double aim = horiz > 1 ? atan2(-toEye.z, horiz) : el;
+        pitch = clamp(aim + p.pitch, -85, 85);
+        CVar dbg = CVar.FindCVar("wolf_dbg_check");
+        if (dbg != null && dbg.GetInt() != 0 && Level.maptime % 30 == 0)
+            Console.Printf("CAMDBG cam=(%.0f,%.0f,%.0f) eye_z=%.0f "
+                           "toEye=(%.0f,%.0f,%.0f) aim=%.1f ppitch=%.1f "
+                           "el=%.1f R=%.0f freeAir=%d",
+                           pos.x, pos.y, pos.z, eyez,
+                           toEye.x, toEye.y, toEye.z, aim, p.pitch, el,
+                           radius, freeAir);
     }
 
     // per-player (replicated) float, with the default if it is missing
