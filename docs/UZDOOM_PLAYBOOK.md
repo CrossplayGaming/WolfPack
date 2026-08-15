@@ -2836,3 +2836,26 @@ weapon's geometry is already-converted data, so the basis needs a trailing
 inverse: inv(B) @ Y @ W @ inv(Y). Omitting it is invisible to solver-derived
 grips - the solver searches in the baked space and absorbs any fixed offset -
 and systematic for every externally-authored one.
+
+## The renderer stretches view pitch (non-square pixels)
+Displayed pitch is not assigned pitch: the view runs through the
+world's vertical pixel stretch (Doom's 1.2), displayed =
+atan(stretch * tan(assigned)). Invisible near horizontal, but at
+steep angles it AMPLIFIES pitch ~4-5 deg - a camera that computes a
+mathematically perfect aim at a target renders it off center, worse
+the steeper the look (measured: aim 57.8 assigned put the target a
+head above the crosshair; mirror error looking up). Aim in
+render space: assign atan(tan(wanted) / Level.pixelstretch).
+Corollary for chase cams: route the player's own pitch into the
+camera's ORBIT ELEVATION, not the aim - adding p.pitch to the aim
+tilts the view off the followed actor (vertical mouse breaks
+centering while horizontal keeps it, because position follows
+p.angle but not p.pitch).
+
+## `wait` in an exec chain dies on a mid-chain map change
+A console exec chain that issues `map X` gets its remaining `wait`
+commands flushed by the level transition - everything after runs on
+one tic (measured: three staged screenshots captured on the same
+frame). Start the level with `+map X` on the COMMAND LINE and lead
+the cfg with a plain `wait`; never change maps mid-chain in a
+scripted probe.

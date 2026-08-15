@@ -173,8 +173,16 @@ class WolfChaseCam : Actor
         // top-down and read as "still blocked by the ceiling" - owner
         // repro with the roof already open.) The orbit swings that
         // same sphere.
+        // p.pitch joins the ELEVATION, mirroring how p.angle drives the
+        // yaw: mouse-vertical moves the camera along the sphere (look
+        // down -> camera swings overhead, look up -> it drops low), and
+        // the aim below stays locked on the player. The first version
+        // added p.pitch to the AIM instead, which tilted the view off
+        // him - horizontal mouse kept him centered (position follows
+        // p.angle) but vertical mouse did not (owner repro, both orbit
+        // and rest).
         double yaw = p.angle + 180 + oy;
-        double el = clamp(atan2(lift, dist) + op, -85, 85);
+        double el = clamp(atan2(lift, dist) + op + p.pitch, -85, 85);
         double radius = sqrt(dist * dist + lift * lift);
 
         // Pull in off level geometry: trace from the eye along the ACTUAL
@@ -230,12 +238,22 @@ class WolfChaseCam : Actor
         // the assumed angle drifts off target (owner: "BJ doesn't seem
         // to be the center of the sphere"). Computing pitch from the
         // actual camera->eye vector holds him centered no matter what
-        // moved the camera. Freelook still tilts the view on top.
+        // moved the camera. p.pitch is already in the elevation above,
+        // so it must NOT tilt the aim too.
         Vector3 toEye = p.Vec3Offset(0, 0, eyez - p.pos.z) - pos;
         angle = yaw + 180;
         double horiz = toEye.xy.Length();
         double aim = horiz > 1 ? atan2(-toEye.z, horiz) : el;
-        pitch = clamp(aim + p.pitch, -85, 85);
+        // The renderer maps view pitch through the world's vertical
+        // pixel stretch (Doom's 1.2 non-square pixels): displayed
+        // pitch = atan(stretch * tan(assigned)). Near horizontal the
+        // difference vanishes, but at orbit-overhead angles it
+        // AMPLIFIES the pitch and pushes the player off frame center
+        // (measured: aim 57.8 assigned, he rendered ~a head above the
+        // crosshair; the mirror error looking up). Assign the inverse
+        // so the DISPLAYED center lands on him.
+        pitch = clamp(atan(tan(clamp(aim, -85, 85)) / Level.pixelstretch),
+                      -85, 85);
         CVar dbg = CVar.FindCVar("wolf_dbg_check");
         if (dbg != null && dbg.GetInt() != 0 && Level.maptime % 30 == 0)
             Console.Printf("CAMDBG cam=(%.0f,%.0f,%.0f) eye_z=%.0f "
