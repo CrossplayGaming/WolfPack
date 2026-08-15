@@ -71,11 +71,22 @@ class WolfOrbit : EventHandler
 
     override bool InputProcess(InputEvent e)
     {
-        if (e.Type != InputEvent.Type_Mouse || !OrbitHeld(consoleplayer))
+        if (e.Type != InputEvent.Type_Mouse)
             return false;
-        pendX += e.MouseX;
-        pendY += e.MouseY;
-        return true;            // eaten: the player's own view must not turn
+        if (OrbitHeld(consoleplayer))
+        {
+            pendX += e.MouseX;
+            pendY += e.MouseY;
+            return true;        // eaten: the player's own view must not turn
+        }
+        if (MouseLiftActive(consoleplayer))
+        {
+            // vertical only: the camera takes Y, the event passes on
+            // so X keeps turning the player (Y is inert there - the
+            // engine's freelook is denied whenever this path is live)
+            pendY += e.MouseY;
+        }
+        return false;
     }
 
     override void UiTick()
@@ -86,6 +97,33 @@ class WolfOrbit : EventHandler
             pendX = 0;
             pendY = 0;
         }
+    }
+
+    // Third person reads mouse VERTICAL for the camera even in classic
+    // (engine freelook denied) - entering 3P just works, leaving it
+    // returns the mouse to classic horizontal-only, nothing to restore.
+    // Setting sv_freelook at runtime is not an option (the VM forbids
+    // server-cvar writes outside menu code), so the orbit's own
+    // replicated capture channel does the job instead. Stands down
+    // when the engine's freelook is allowed (sv_freelook 2, the
+    // Modernization choice): there p.pitch already drives the camera
+    // and capturing would double-apply. wolf_tp_autolook 0 decouples
+    // (Camera menu).
+    clearscope static bool MouseLiftActive(int pn)
+    {
+        if (pn < 0 || !playeringame[pn])
+            return false;
+        PlayerInfo pi = players[pn];
+        if (pi == null)
+            return false;
+        CVar tp = CVar.GetCVar("wolf_mod_tp", pi);
+        if (tp == null || tp.GetInt() == 0)
+            return false;
+        CVar al = CVar.GetCVar("wolf_tp_autolook", pi);
+        if (al == null || al.GetInt() == 0)
+            return false;
+        CVar sv = CVar.FindCVar("sv_freelook");
+        return sv == null || sv.GetInt() != 2;
     }
 
     override void NetworkProcess(ConsoleEvent e)
@@ -120,8 +158,13 @@ class WolfOrbit : EventHandler
             // third person stands down, so death or a boss cutscene
             // never hands the view back swung sideways)
             oyaw[pn] *= 0.85;
-            opitch[pn] *= 0.85;
             if (abs(oyaw[pn]) < 0.5) oyaw[pn] = 0;
+            // the mouse-lift elevation HOLDS like a look pitch would -
+            // only when it stands down (1P, decoupled, or modern
+            // freelook takes over) does the camera glide back to rest
+            if (MouseLiftActive(pn))
+                continue;
+            opitch[pn] *= 0.85;
             if (abs(opitch[pn]) < 0.5) opitch[pn] = 0;
         }
     }

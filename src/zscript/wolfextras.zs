@@ -621,6 +621,10 @@ class WolfCameraMenu : WolfWidgetMenu
         // ranges sized for the open roof: pull far back and high
         AddSlider("Distance", "wolf_tp_dist", 48, 400, 8);
         AddSlider("Height", "wolf_tp_lift", -16, 320, 8);
+        // ON: third person switches mouse look on and first person
+        // restores the Modernization "Mouse Vertical Aim" choice.
+        // OFF decouples them - the views share one manual setting.
+        AddToggleV("Auto Mouse Look", "wolf_tp_autolook", 1, 0);
         AddBindRow("Orbit Key (hold)", "+user1");
         AddSlider("  Orbit Speed", "wolf_tp_orbsens", 0.05, 1.0, 0.05);
         AddToggleV("  Invert Orbit X", "wolf_tp_orbinvx", 1, 0);

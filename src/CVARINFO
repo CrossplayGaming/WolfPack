@@ -61,6 +61,9 @@ user float wolf_tp_lift = 36;      // height above eye level at rest
 user float wolf_tp_orbsens = 0.2;   // orbit degrees per mouse unit
 user int wolf_tp_orbinvx = 0;
 user int wolf_tp_orbinvy = 0;
+// Third person auto-enables mouse look and first person restores the
+// player's standing Modernization choice; 0 decouples them (Camera menu)
+user int wolf_tp_autolook = 1;
 user int wolf_xhair_color = 0;  // crosshair color preset index (menu)
 user int wolf_mod_light = 0;    // enhanced lighting (lighting.zs)
 user int wolf_mod_hdtex = 0;    // RMST HD textures (next launch, mod_args)
