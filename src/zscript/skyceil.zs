@@ -20,6 +20,11 @@ class WolfSkyCeil : EventHandler
     bool skyOn;
     Array<TextureID> saved;         // per-sector ceiling, index = sector
 
+    clearscope static WolfSkyCeil Get()
+    {
+        return WolfSkyCeil(EventHandler.Find("WolfSkyCeil"));
+    }
+
     static clearscope bool AnyThirdPerson()
     {
         for (int i = 0; i < MAXPLAYERS; i++)
@@ -35,8 +40,15 @@ class WolfSkyCeil : EventHandler
 
     override void WorldLoaded(WorldEvent e)
     {
-        skyOn = false;
-        saved.Clear();
+        // Handler fields ride inside savegames: a save made with the
+        // roof open restores skyOn=true and the real saved ceilings.
+        // Resetting on a LOAD would re-capture the sky as "original"
+        // and the roof could never close again.
+        if (!e.IsSaveGame)
+        {
+            skyOn = false;
+            saved.Clear();
+        }
     }
 
     override void WorldTick()

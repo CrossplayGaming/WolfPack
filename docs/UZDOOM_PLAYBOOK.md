@@ -2859,3 +2859,24 @@ one tic (measured: three staged screenshots captured on the same
 frame). Start the level with `+map X` on the COMMAND LINE and lead
 the cfg with a plain `wait`; never change maps mid-chain in a
 scripted probe.
+
+## The renderer clamps its viewpoint inside the camera sector's planes
+Symptom: a scripted camera flies high but the RENDERED view stays
+pinned under the ceiling ("the level geometry won't let the camera
+past it" - the owner's exact read, and correct). R_SetupFrame clamps
+viewpoint Z to the camera sector's ceilingplane - 4 / floorplane + 4.
+It is a GEOMETRY clamp: swapping ceiling textures to F_SKY1 does not
+lift it, and raising the ceiling PLANES "works" but makes every
+one-sided wall tower to the new height (rooms become well shafts).
+The engine's own escape hatch: give the camera actor a ViewPos with
+VPSF_ALLOWOUTOFBOUNDS - `SetViewPos((0,0,0), VPSF_ALLOWOUTOFBOUNDS)`
+in PostBeginPlay - and the clamp is skipped entirely (hardware
+renderer only; software keeps clamping).
+
+## Ground-truth the renderer with RenderEvent, not screenshots
+When rendered framing contradicts correct sim numbers, stop doing
+pixel forensics: RenderOverlay's RenderEvent carries e.ViewPos /
+e.ViewPitch / e.ViewAngle - the viewpoint the frame was ACTUALLY
+drawn with. Screen.DrawText them next to the sim values and the
+screenshot becomes self-measuring (this is what exposed the clamp:
+sim z=335, rendered z=60, pitch identical).

@@ -141,6 +141,21 @@ class WolfChaseCam : Actor
         RenderStyle "None";
     }
 
+    override void PostBeginPlay()
+    {
+        Super.PostBeginPlay();
+        // The renderer clamps its viewpoint inside the camera sector's
+        // floor/ceiling planes (R_SetupFrame: ceilingplane - 4) - a
+        // GEOMETRY clamp, so the open-roof sky texture never freed the
+        // camera (measured: sim camera at z=335 rendered from z=60
+        // under the 64 ceiling; owner called it: "a limitation of the
+        // level geometry forcing the camera not to move past it").
+        // VPSF_ALLOWOUTOFBOUNDS is the engine's own escape hatch for
+        // exactly this (hardware renderer only): a ViewPos with the
+        // flag and zero offset renders from the actor's true position.
+        SetViewPos((0, 0, 0), VPSF_ALLOWOUTOFBOUNDS);
+    }
+
     override void Tick()
     {
         // No Super.Tick(): this actor simulates nothing. Its position
@@ -182,8 +197,23 @@ class WolfChaseCam : Actor
         // p.angle) but vertical mouse did not (owner repro, both orbit
         // and rest).
         double yaw = p.angle + 180 + oy;
-        double el = clamp(atan2(lift, dist) + op + p.pitch, -85, 85);
+        double elRest = atan2(lift, dist);
+        double el = clamp(elRest + op + p.pitch, -85, 85);
         double radius = sqrt(dist * dist + lift * lift);
+        // Overhead gain: a FIXED-radius sphere tops out barely two
+        // wall-heights up, and swinging overhead brings the player's
+        // head much nearer the lens than his eye - he balloons in
+        // frame and it reads as the camera diving in (owner: "pushed
+        // or pulled in close when I move it above BJ"). Tilting above
+        // the at-rest elevation therefore spirals the camera OUT as
+        // it rises - up to 2.5x radius straight overhead, the real
+        // dollhouse view. Below rest nothing changes: floors and
+        // walls stay solid and the wall pull-in still owns that zone.
+        if (el > elRest)
+        {
+            double t = (el - elRest) / max(1, 85 - elRest);
+            radius *= 1 + 1.5 * t * t;
+        }
 
         // Pull in off level geometry: trace from the eye along the ACTUAL
         // 3D camera direction (negative LineTrace pitch = up), not just
@@ -198,7 +228,8 @@ class WolfChaseCam : Actor
         // cannot distinguish "through a wall" from "over it").
         TextureID skyTex = TexMan.CheckForTexture("F_SKY1",
                                                   TexMan.Type_Flat);
-        bool roofOpen = p.CurSector.GetTexture(Sector.ceiling) == skyTex;
+        let sk = WolfSkyCeil.Get();
+        bool roofOpen = sk != null && sk.skyOn;
         double wantZ = eyez + sin(el) * radius;
         // p.ceilingz = the actor's cached ceiling height (sectors
         // expose no plain ceilingz field - engine parse error)
@@ -252,9 +283,9 @@ class WolfChaseCam : Actor
         // (measured: aim 57.8 assigned, he rendered ~a head above the
         // crosshair; the mirror error looking up). Assign the inverse
         // so the DISPLAYED center lands on him.
-        pitch = clamp(atan(tan(clamp(aim, -85, 85)) / Level.pixelstretch),
-                      -85, 85);
         CVar dbg = CVar.FindCVar("wolf_dbg_check");
+        pitch = clamp(atan(tan(clamp(aim, -85, 85))
+                          / Level.pixelstretch), -85, 85);
         if (dbg != null && dbg.GetInt() != 0 && Level.maptime % 30 == 0)
             Console.Printf("CAMDBG cam=(%.0f,%.0f,%.0f) eye_z=%.0f "
                            "toEye=(%.0f,%.0f,%.0f) aim=%.1f ppitch=%.1f "
@@ -285,6 +316,23 @@ class WolfChaseXhair : EventHandler
         PlayerInfo p = players[consoleplayer];
         if (p == null || p.mo == null || !(p.camera is "WolfChaseCam"))
             return;
+        // CAMDBG ground truth: what the RENDERER actually used this
+        // frame vs what the sim assigned - ends the guessing about
+        // where the view is aimed. Debug-gated, probe only.
+        CVar dbgc = CVar.FindCVar("wolf_dbg_check");
+        if (dbgc != null && dbgc.GetInt() != 0)
+        {
+            String s = String.Format(
+                "RENDER vp=(%.0f,%.0f,%.0f) pitch=%.1f ang=%.1f | "
+                "SIM cam=(%.0f,%.0f,%.0f) pitch=%.1f ang=%.1f",
+                e.ViewPos.x, e.ViewPos.y, e.ViewPos.z,
+                e.ViewPitch, e.ViewAngle,
+                p.camera.pos.x, p.camera.pos.y, p.camera.pos.z,
+                p.camera.pitch, p.camera.angle);
+            Screen.DrawText(smallfont, Font.CR_GOLD, 8,
+                Screen.GetHeight() / 2, s, DTA_ScaleX, 2.0,
+                DTA_ScaleY, 2.0);
+        }
         // A center-screen reticle only tells the truth while the camera
         // looks down the player's own facing. Once the orbit swings off
         // rest it would aim at whatever happens to be under the middle
