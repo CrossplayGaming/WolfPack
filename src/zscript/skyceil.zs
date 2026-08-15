@@ -54,7 +54,7 @@ class WolfSkyCeil : EventHandler
     override void WorldTick()
     {
         bool want = AnyThirdPerson() && Level.MapName != "TITLEMAP";
-        if (want == skyOn)
+        if (!want && !skyOn)
             return;
         TextureID sky = TexMan.CheckForTexture("F_SKY1",
                                                TexMan.Type_Flat);
@@ -62,19 +62,33 @@ class WolfSkyCeil : EventHandler
             return;
         if (want)
         {
+            // Capture-and-assert EVERY tic, not just on the toggle:
+            // WolfFlats also writes ceiling textures, and a flats
+            // toggle under the open roof would stomp the sky off its
+            // sectors (owner repro: "the camera fix only applies when
+            // floor and ceiling textures are enabled"). Whatever
+            // another system wrote becomes the new restore target and
+            // the sky goes back on top - this handler is registered
+            // after WolfFlats, so it wins the tic.
             saved.Resize(Level.sectors.Size());
             for (int i = 0; i < Level.sectors.Size(); i++)
             {
-                saved[i] = Level.sectors[i].GetTexture(Sector.ceiling);
-                Level.sectors[i].SetTexture(Sector.ceiling, sky);
+                TextureID cur =
+                    Level.sectors[i].GetTexture(Sector.ceiling);
+                if (cur != sky)
+                {
+                    saved[i] = cur;
+                    Level.sectors[i].SetTexture(Sector.ceiling, sky);
+                }
             }
+            skyOn = true;
         }
         else
         {
             for (int i = 0; i < Level.sectors.Size()
                  && i < saved.Size(); i++)
                 Level.sectors[i].SetTexture(Sector.ceiling, saved[i]);
+            skyOn = false;
         }
-        skyOn = want;
     }
 }
