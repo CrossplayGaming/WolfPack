@@ -95,6 +95,10 @@ class WolfGameState : StaticEventHandler
             }
             ClearRatios();
         }
+        // heal pre-cap saves: lives once grew past GiveExtraMan's limit
+        // of 9 (WL_AGENT.C:494) and the status bar has one digit
+        for (int i = 0; i < MAXPLAYERS; i++)
+            lives[i] = min(lives[i], 9);
     }
 
     // MLI (CHEAT-001): M+L+I held together in-game. Raw key tracking is
@@ -260,7 +264,10 @@ eliminated your chances of
         while (score[pnum] >= nextExtra[pnum])
         {
             nextExtra[pnum] += EXTRAPOINTS;
-            lives[pnum]++;
+            // GiveExtraMan (WL_AGENT.C:494): lives cap at 9 - only the
+            // increment is guarded, the fanfare still plays at the cap
+            if (lives[pnum] < 9)
+                lives[pnum]++;
             if (players[pnum].mo != null)
                 players[pnum].mo.A_StartSound("wolf/bonus1up", CHAN_AUTO);
         }
@@ -386,7 +393,9 @@ class WolfPickup : Inventory abstract
         case BO_FULLHEAL:                       // PICK-007
             toucher.GiveBody(99, 100);
             GiveAmmo_(toucher, 25);
-            gs.lives[WolfGameState.PnumOf(toucher)]++;
+            // GiveExtraMan cap (WL_AGENT.C:494): never past 9
+            if (gs.lives[WolfGameState.PnumOf(toucher)] < 9)
+                gs.lives[WolfGameState.PnumOf(toucher)]++;
             if (wl != null) wl.treasureCount++;
             toucher.A_StartSound("wolf/bonus1up", CHAN_ITEM);
             break;
