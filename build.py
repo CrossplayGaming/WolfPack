@@ -57,6 +57,12 @@ def build(spear: bool = False) -> Path:
         rl = subprocess.run([sys.executable, "tools/gen_lighting.py"])
         if rl.returncode != 0:
             sys.exit("gen_lighting failed")
+        # sound priorities (ID_SD.C): per set, into that set's tree
+        cmd = [sys.executable, "tools/gen_sndpriority.py"]
+        if spear:
+            cmd.append("sod")
+        if subprocess.run(cmd, cwd=str(ROOT)).returncode:
+            sys.exit("gen_sndpriority failed")
         # scrub stale wolf_dbg_ values from the playtest config: any
         # launcher that bypasses play.bat's +set forces would load them
         for iniName in ("playtest.ini", "join.ini", "check.ini"):

@@ -84,7 +84,7 @@ class WolfBJVictory : Actor
                     seqTics = JUMPTICS[seq];
                     frame = JUMPFRAME[seq];
                     if (seq == 1)
-                        A_StartSound("wolf/yeah", CHAN_VOICE);  // T_BJYell
+                        WolfSnd.Emit(self, "wolf/yeah", CHAN_VOICE);  // T_BJYell
                     if (seq == 3)
                         holdTics = 60;      // let the yell play out; the
                                             // original fades during it

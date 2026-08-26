@@ -57,10 +57,10 @@ class WolfHans : WolfBoss
         Super.PostBeginPlay();
         dir = 6;                    // MAP-018: Hans faces south
     }
-    override void SightSound() { A_StartSound("wolf/gutentag", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("wolf/mutti", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "wolf/gutentag", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "wolf/mutti", CHAN_VOICE); }
     override String DeathSnd() { return "wolf/mutti"; }
-    override void AttackSound() { A_StartSound("wolf/bossfire", CHAN_WEAPON); }
+    override void AttackSound() { WolfSnd.Emit(self, "wolf/bossfire", CHAN_WEAPON); }
     override void DropItem_() { PlaceDrop("WolfStatic20"); }   // BOSS-002
 }
 
@@ -91,10 +91,10 @@ class WolfGretel : WolfBoss
         dir = 2;                    // MAP-018: Gretel faces north
     }
     override int ChaseSpeedMul() { return 3; }
-    override void SightSound() { A_StartSound("wolf/kein", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("wolf/mein", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "wolf/kein", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "wolf/mein", CHAN_VOICE); }
     override String DeathSnd() { return "wolf/mein"; }
-    override void AttackSound() { A_StartSound("wolf/bossfire", CHAN_WEAPON); }
+    override void AttackSound() { WolfSnd.Emit(self, "wolf/bossfire", CHAN_WEAPON); }
     override void DropItem_() { PlaceDrop("WolfStatic20"); }
 }
 
@@ -126,8 +126,8 @@ class WolfSchabbs : WolfBoss
     override int ChaseSpeedMul() { return 3; }
     override bool DeathCamBoss() { return true; }
     override int DeathCamState() { return WolfSchabbsTable.SCHABBDEATHCAM; }       // BOSS-003
-    override void SightSound() { A_StartSound("wolf/schabbsha", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("wolf/meingott", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "wolf/schabbsha", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "wolf/meingott", CHAN_VOICE); }
     override String DeathSnd() { return "wolf/meingott"; }
 }
 
@@ -159,8 +159,8 @@ class WolfGift : WolfBoss
     override int ChaseSpeedMul() { return 3; }
     override bool DeathCamBoss() { return true; }
     override int DeathCamState() { return WolfGiftTable.GIFTDEATHCAM; }
-    override void SightSound() { A_StartSound("wolf/eine", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("wolf/donner", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "wolf/eine", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "wolf/donner", CHAN_VOICE); }
     override String DeathSnd() { return "wolf/donner"; }
 }
 
@@ -192,8 +192,8 @@ class WolfFat : WolfBoss
     override int ChaseSpeedMul() { return 3; }
     override bool DeathCamBoss() { return true; }
     override int DeathCamState() { return WolfFatTable.FATDEATHCAM; }
-    override void SightSound() { A_StartSound("wolf/erlauben", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("wolf/rose", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "wolf/erlauben", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "wolf/rose", CHAN_VOICE); }
     override String DeathSnd() { return "wolf/rose"; }
 }
 
@@ -225,8 +225,8 @@ class WolfFakeHitler : WolfBoss
         Super.PostBeginPlay();
     }
     override int ChaseSpeedMul() { return 3; }
-    override void SightSound() { A_StartSound("wolf/tothund", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("wolf/hitlerha", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "wolf/tothund", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "wolf/hitlerha", CHAN_VOICE); }
     override String DeathSnd() { return "wolf/hitlerha"; }
 }
 
@@ -256,10 +256,10 @@ class WolfMechaHitler : WolfBoss
         Super.PostBeginPlay();
     }
     override int ChaseSpeedMul() { return 3; }
-    override void SightSound() { A_StartSound("wolf/die", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("wolf/scheist", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "wolf/die", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "wolf/scheist", CHAN_VOICE); }
     override String DeathSnd() { return "wolf/scheist"; }
-    override void AttackSound() { A_StartSound("wolf/bossfire", CHAN_WEAPON); }
+    override void AttackSound() { WolfSnd.Emit(self, "wolf/bossfire", CHAN_WEAPON); }
 }
 
 // --------------------------------------------------------- Real Hitler
@@ -292,10 +292,10 @@ class WolfHitler : WolfBoss
     override int ChaseSpeedMul() { return 1; }
     override bool DeathCamBoss() { return true; }
     override int DeathCamState() { return WolfHitlerTable.HITLERDEATHCAM; }
-    override void SightSound() { A_StartSound("wolf/die", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("wolf/eva", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "wolf/die", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "wolf/eva", CHAN_VOICE); }
     override String DeathSnd() { return "wolf/eva"; }
-    override void AttackSound() { A_StartSound("wolf/bossfire", CHAN_WEAPON); }
+    override void AttackSound() { WolfSnd.Emit(self, "wolf/bossfire", CHAN_WEAPON); }
 }
 
 // ------------------------------------------------------- projectiles
@@ -365,7 +365,7 @@ class WolfProjectile : Actor abstract
         if (st != 0)                        // wall or closed door
         {
             if (BoomsOnWall())
-                A_StartSound("wolf/missilehit", CHAN_AUTO);
+                WolfSnd.Emit(self, "wolf/missilehit", CHAN_AUTO);
             Destroy();
             return;
         }

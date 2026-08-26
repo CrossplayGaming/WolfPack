@@ -269,7 +269,7 @@ eliminated your chances of
             if (lives[pnum] < 9)
                 lives[pnum]++;
             if (players[pnum].mo != null)
-                players[pnum].mo.A_StartSound("wolf/bonus1up", CHAN_AUTO);
+                WolfSnd.Emit(players[pnum].mo, "wolf/bonus1up", CHAN_AUTO);
         }
     }
 
@@ -324,45 +324,45 @@ class WolfPickup : Inventory abstract
         case BO_FIRSTAID:                       // PICK-004
             if (toucher.health >= 100) return false;
             toucher.GiveBody(25, 100);
-            toucher.A_StartSound("wolf/health2", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/health2", CHAN_ITEM);
             break;
         case BO_FOOD:                           // PICK-005
             if (toucher.health >= 100) return false;
             toucher.GiveBody(10, 100);
-            toucher.A_StartSound("wolf/health1", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/health1", CHAN_ITEM);
             break;
         case BO_ALPO:                           // PICK-006
             if (toucher.health >= 100) return false;
             toucher.GiveBody(4, 100);
-            toucher.A_StartSound("wolf/health1", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/health1", CHAN_ITEM);
             break;
         case BO_GIBS:                           // PICK-012: heal 1 at <=10 HP
             if (toucher.health > 10) return false;
             toucher.GiveBody(1, 100);
-            toucher.A_StartSound("wolf/slurpie", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/slurpie", CHAN_ITEM);
             break;
         case BO_CLIP:                           // PICK-001
             if (ammo >= 99) return false;
             GiveAmmo_(toucher, 8);
-            toucher.A_StartSound("wolf/getammo", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/getammo", CHAN_ITEM);
             break;
         case BO_CLIP2:                          // PICK-002
             if (ammo >= 99) return false;
             GiveAmmo_(toucher, 4);
-            toucher.A_StartSound("wolf/getammo", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/getammo", CHAN_ITEM);
             break;
         case BO_25CLIP:                         // PICK-003 (SoD)
             if (ammo >= 99) return false;
             GiveAmmo_(toucher, 25);
-            toucher.A_StartSound("wolf/getammo", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/getammo", CHAN_ITEM);
             break;
         case BO_MACHINEGUN:
             GiveWeapon_(toucher, "WolfMachineGun");
-            toucher.A_StartSound("wolf/getmachine", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/getmachine", CHAN_ITEM);
             break;
         case BO_CHAINGUN:
             GiveWeapon_(toucher, "WolfChaingun");
-            toucher.A_StartSound("wolf/getgatling", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/getgatling", CHAN_ITEM);
             {
                 WolfPlayer wp = WolfPlayer(toucher);
                 if (wp != null)
@@ -373,22 +373,22 @@ class WolfPickup : Inventory abstract
         case BO_CROSS:                          // PICK-008
             gs.GivePoints(WolfGameState.PnumOf(toucher), 100);
             if (wl != null) wl.treasureCount++;
-            toucher.A_StartSound("wolf/bonus1", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/bonus1", CHAN_ITEM);
             break;
         case BO_CHALICE:
             gs.GivePoints(WolfGameState.PnumOf(toucher), 500);
             if (wl != null) wl.treasureCount++;
-            toucher.A_StartSound("wolf/bonus2", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/bonus2", CHAN_ITEM);
             break;
         case BO_BIBLE:
             gs.GivePoints(WolfGameState.PnumOf(toucher), 1000);
             if (wl != null) wl.treasureCount++;
-            toucher.A_StartSound("wolf/bonus3", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/bonus3", CHAN_ITEM);
             break;
         case BO_CROWN:
             gs.GivePoints(WolfGameState.PnumOf(toucher), 5000);
             if (wl != null) wl.treasureCount++;
-            toucher.A_StartSound("wolf/bonus4", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/bonus4", CHAN_ITEM);
             break;
         case BO_FULLHEAL:                       // PICK-007
             toucher.GiveBody(99, 100);
@@ -397,15 +397,15 @@ class WolfPickup : Inventory abstract
             if (gs.lives[WolfGameState.PnumOf(toucher)] < 9)
                 gs.lives[WolfGameState.PnumOf(toucher)]++;
             if (wl != null) wl.treasureCount++;
-            toucher.A_StartSound("wolf/bonus1up", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/bonus1up", CHAN_ITEM);
             break;
         case BO_KEY1:                           // PICK-011
             toucher.GiveInventoryType("WolfGoldKey");
-            toucher.A_StartSound("wolf/getkey", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/getkey", CHAN_ITEM);
             break;
         case BO_KEY2:
             toucher.GiveInventoryType("WolfSilverKey");
-            toucher.A_StartSound("wolf/getkey", CHAN_ITEM);
+            WolfSnd.Emit(toucher, "wolf/getkey", CHAN_ITEM);
             break;
         default:
             return false;
@@ -455,7 +455,7 @@ class WolfPickup : Inventory abstract
             // standing on the spot simply takes it again
             bInvisible = false;
             bSpecial = true;
-            A_StartSound("wolf/getammo", CHAN_ITEM, volume: 0.4);
+            WolfSnd.Emit(self, "wolf/getammo", CHAN_ITEM, volume: 0.4);
         }
     }
 

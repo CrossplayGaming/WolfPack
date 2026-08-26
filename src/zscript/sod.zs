@@ -50,10 +50,10 @@ class WolfTrans : WolfSodBoss
         return HP[Clamp(skill - 1, 0, 3)];
     }
     override int SightSpeed() { return 1536; }
-    override void SightSound() { A_StartSound("sod/transsight", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("sod/transdeath", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "sod/transsight", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "sod/transdeath", CHAN_VOICE); }
     override String DeathSnd() { return "sod/transdeath"; }
-    override void AttackSound() { A_StartSound("wolf/bossfire", CHAN_WEAPON); }
+    override void AttackSound() { WolfSnd.Emit(self, "wolf/bossfire", CHAN_WEAPON); }
 }
 
 // --------------------------------------------------- Barnacle Wilhelm
@@ -77,10 +77,10 @@ class WolfWill : WolfSodBoss
         return HP[Clamp(skill - 1, 0, 3)];
     }
     override int SightSpeed() { return 2048; }
-    override void SightSound() { A_StartSound("sod/willsight", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("sod/willdeath", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "sod/willsight", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "sod/willdeath", CHAN_VOICE); }
     override String DeathSnd() { return "sod/willdeath"; }
-    override void AttackSound() { A_StartSound("wolf/bossfire", CHAN_WEAPON); }
+    override void AttackSound() { WolfSnd.Emit(self, "wolf/bossfire", CHAN_WEAPON); }
 }
 
 // --------------------------------------------------------- Ubermutant
@@ -105,9 +105,9 @@ class WolfUber : WolfSodBoss
     }
     override int SightSpeed() { return 3000; }
     override void SightSound() {}            // the Ubermutant is silent
-    override void DeathSound() { A_StartSound("sod/uberdeath", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "sod/uberdeath", CHAN_VOICE); }
     override String DeathSnd() { return "sod/uberdeath"; }
-    override void AttackSound() { A_StartSound("wolf/bossfire", CHAN_WEAPON); }
+    override void AttackSound() { WolfSnd.Emit(self, "wolf/bossfire", CHAN_WEAPON); }
 }
 
 // -------------------------------------------------------- Death Knight
@@ -131,8 +131,8 @@ class WolfDeathKnight : WolfSodBoss
         return HP[Clamp(skill - 1, 0, 3)];
     }
     override int SightSpeed() { return 2048; }
-    override void SightSound() { A_StartSound("sod/knightsight", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("sod/knightdeath", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "sod/knightsight", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "sod/knightdeath", CHAN_VOICE); }
     override String DeathSnd() { return "sod/knightdeath"; }
     // the knight fires paired heat-seekers, angled by its shoot state
     override bool IsDeathKnight() { return true; }
@@ -159,8 +159,8 @@ class WolfAngel : WolfSodBoss
         return HP[Clamp(skill - 1, 0, 3)];
     }
     override int SightSpeed() { return 1536; }
-    override void SightSound() { A_StartSound("sod/angelsight", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("sod/angeldeath", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "sod/angelsight", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "sod/angeldeath", CHAN_VOICE); }
     override String DeathSnd() { return "sod/angeldeath"; }
     override bool IsAngel() { return true; }
     // A_Relaunch's tired branch and the chase return both live in the
@@ -190,8 +190,8 @@ class WolfSpectre : WolfEnemySim
         return HP[Clamp(skill - 1, 0, 3)];
     }
     override int KillPoints() { return 200; }
-    override void SightSound() { A_StartSound("sod/ghostsight", CHAN_VOICE); }
-    override void DeathSound() { A_StartSound("sod/ghostfade", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "sod/ghostsight", CHAN_VOICE); }
+    override void DeathSound() { WolfSnd.Emit(self, "sod/ghostfade", CHAN_VOICE); }
     override String DeathSnd() { return "sod/ghostfade"; }
 
     override void PostBeginPlay()
@@ -272,7 +272,7 @@ class WolfSpearOfDestiny : Inventory
             gs.spearY[i] = players[i].mo.pos.y;
             gs.spearAngle[i] = players[i].mo.angle;
         }
-        toucher.A_StartSound("sod/getspear", CHAN_ITEM);
+        WolfSnd.Emit(toucher, "sod/getspear", CHAN_ITEM);
         let wp = WolfPlayer(toucher);
         if (wp != null)
             wp.bonusCount = 64;                  // StartBonusFlash

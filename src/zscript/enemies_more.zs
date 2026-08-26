@@ -28,13 +28,13 @@ class WolfOfficer : WolfEnemySim abstract
     override int BaseHP(int skill) { return 50; }
     override int KillPoints() { return 400; }               // KILL-002
     override int ReactionTics(WolfLevel wl) { return 2; }   // REACT-002
-    override void SightSound() { A_StartSound("wolf/spion", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "wolf/spion", CHAN_VOICE); }
     override void DeathSound()
     {
         if (!SecretScream())
-            A_StartSound("wolf/neinsovas", CHAN_VOICE);
+            WolfSnd.Emit(self, "wolf/neinsovas", CHAN_VOICE);
     }
-    override void AttackSound() { A_StartSound("wolf/nazifire", CHAN_WEAPON); }
+    override void AttackSound() { WolfSnd.Emit(self, "wolf/nazifire", CHAN_WEAPON); }
     override void DropItem_() { PlaceDrop("WolfStatic48"); }
 }
 
@@ -80,13 +80,13 @@ class WolfSS : WolfEnemySim abstract
     override int KillPoints() { return 500; }               // KILL-003
     override int ReactionTics(WolfLevel wl) { return 1 + wl.RndT() / 6; }
     override bool BetterShot() { return true; }             // ECOMBAT-002
-    override void SightSound() { A_StartSound("wolf/schutzad", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "wolf/schutzad", CHAN_VOICE); }
     override void DeathSound()
     {
         if (!SecretScream())
-            A_StartSound("wolf/leben", CHAN_VOICE);
+            WolfSnd.Emit(self, "wolf/leben", CHAN_VOICE);
     }
-    override void AttackSound() { A_StartSound("wolf/ssfire", CHAN_WEAPON); }
+    override void AttackSound() { WolfSnd.Emit(self, "wolf/ssfire", CHAN_WEAPON); }
     override void DropItem_()
     {
         // KILL-003: bestweapon < machinegun -> machine gun, else a clip
@@ -148,9 +148,9 @@ class WolfMutant : WolfEnemySim abstract
     override void DeathSound()
     {
         if (!SecretScream())
-            A_StartSound("wolf/ahhhg", CHAN_VOICE);
+            WolfSnd.Emit(self, "wolf/ahhhg", CHAN_VOICE);
     }
-    override void AttackSound() { A_StartSound("wolf/nazifire", CHAN_WEAPON); }
+    override void AttackSound() { WolfSnd.Emit(self, "wolf/nazifire", CHAN_WEAPON); }
     override void DropItem_() { PlaceDrop("WolfStatic48"); }
 }
 

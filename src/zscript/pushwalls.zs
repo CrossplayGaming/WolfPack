@@ -106,14 +106,14 @@ class WolfPushwall : Actor
         if (maxTravel[d] == 0 || TileOccupied(tileX + dx, tileY + dy))
         {
             if (user != null)
-                user.A_StartSound("wolf/noway", CHAN_VOICE);
+                WolfSnd.Emit(user, "wolf/noway", CHAN_VOICE);
             return;
         }
 
         WolfLevel wl = WolfLevel.Get();
         if (wl != null)
             wl.secretCount++;           // PWALL-006
-        A_StartSound("wolf/pushwall", CHAN_AUTO, attenuation: 1.0);
+        WolfSnd.Emit(self, "wolf/pushwall", CHAN_AUTO, attenuation: 1.0);
         dirIdx = d;
         plannedTiles = Min(2, maxTravel[d]);
         unitsMoved = 0;

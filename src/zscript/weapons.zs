@@ -140,7 +140,7 @@ class WolfWeapon : Weapon abstract
 
 class WolfKnife : WolfWeapon
 {
-    override void AttackSnd() { Owner.A_StartSound("wolf/knife", CHAN_WEAPON); }
+    override void AttackSnd() { WolfSnd.Emit(Owner, "wolf/knife", CHAN_WEAPON); }
     Default
     {
         Weapon.SlotNumber 1;   // original key 1
@@ -179,7 +179,7 @@ class WolfPistol : WolfWeapon
         Weapon.AmmoGive1 0;
         +WEAPON.NOAUTOFIRE
     }
-    override void AttackSnd() { Owner.A_StartSound("wolf/pistol", CHAN_WEAPON); }
+    override void AttackSnd() { WolfSnd.Emit(Owner, "wolf/pistol", CHAN_WEAPON); }
     States
     {
     Ready:
@@ -210,7 +210,7 @@ class WolfMachineGun : WolfWeapon
         Weapon.AmmoUse1 1;
         Weapon.AmmoGive1 6;             // GiveWeapon +6 (PICK-009)
     }
-    override void AttackSnd() { Owner.A_StartSound("wolf/machinegun", CHAN_WEAPON); }
+    override void AttackSnd() { WolfSnd.Emit(Owner, "wolf/machinegun", CHAN_WEAPON); }
     States
     {
     Ready:
@@ -243,7 +243,7 @@ class WolfChaingun : WolfWeapon
         Weapon.AmmoUse1 1;
         Weapon.AmmoGive1 6;
     }
-    override void AttackSnd() { Owner.A_StartSound("wolf/gatling", CHAN_WEAPON); }
+    override void AttackSnd() { WolfSnd.Emit(Owner, "wolf/gatling", CHAN_WEAPON); }
     States
     {
     Ready:

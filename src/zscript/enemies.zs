@@ -79,7 +79,7 @@ class WolfEnemySim : Actor abstract
             return false;
         if (wl.RndT() != 0)
             return false;
-        A_StartSound("wolf/death6", CHAN_VOICE);
+        WolfSnd.Emit(self, "wolf/death6", CHAN_VOICE);
         return true;
     }
 
@@ -312,7 +312,7 @@ class WolfEnemySim : Actor abstract
         case 35: A_Victory(); break;
         case 36: burstCount = 0; break;  // A_StartAttack
         case 37: A_Dormant(); break;
-        case 38: A_StartSound("sod/angeltired", CHAN_VOICE); break;
+        case 38: WolfSnd.Emit(self, "sod/angeltired", CHAN_VOICE); break;
         case 32: A_Relaunch(); break;    // Angel: 3 shots then tired
         case 20: BossChase(3); break;   // T_Schabb
         case 21: BossChase(3); break;   // T_Gift
@@ -322,8 +322,8 @@ class WolfEnemySim : Actor abstract
         case 25: ThrowProjectile("WolfRocket", 0x2000); break;
         case 26: ThrowProjectile("WolfFire", 0x1200); break;
         case 14: HitlerMorph(); break;  // A_HitlerMorph
-        case 29: A_StartSound("wolf/mechstep", CHAN_BODY); break;
-        case 30: A_StartSound("wolf/slurpie", CHAN_VOICE); break;
+        case 29: WolfSnd.Emit(self, "wolf/mechstep", CHAN_BODY); break;
+        case 30: WolfSnd.Emit(self, "wolf/slurpie", CHAN_VOICE); break;
         case 10:
             if (screamDone)
                 screamDone = false;      // replay: already played in full
@@ -1048,7 +1048,7 @@ class WolfEnemySim : Actor abstract
         if (IsAngel())
         {
             cls = "WolfSpark";
-            A_StartSound("sod/angelfire", CHAN_WEAPON);
+            WolfSnd.Emit(self, "sod/angelfire", CHAN_WEAPON);
         }
         else if (IsDeathKnight())
         {
@@ -1056,7 +1056,7 @@ class WolfEnemySim : Actor abstract
             cls = "WolfHeatSeeker";
             // ANGLES/8 = 45 degrees per 4 units; alternate per shot
             spread = (burstCount++ & 1) != 0 ? 45.0 : -45.0;
-            A_StartSound("sod/knightmissile", CHAN_WEAPON);
+            WolfSnd.Emit(self, "sod/knightmissile", CHAN_WEAPON);
         }
         ThrowProjectile(cls, 0x2000, spread);
     }
@@ -1273,7 +1273,7 @@ class WolfGuard : WolfEnemySim abstract
     override int ShootState() { return WolfGuardTable.GRDSHOOT1; }
     override int DieState() { return WolfGuardTable.GRDDIE1; }
     override int BaseHP(int skill) { return 25; }    // HP table: guard
-    override void SightSound() { A_StartSound("wolf/halt", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "wolf/halt", CHAN_VOICE); }
     override void DeathSound()
     {
         if (SecretScream())
@@ -1283,9 +1283,9 @@ class WolfGuard : WolfEnemySim abstract
         static const String CRIES[] = { "wolf/death1", "wolf/death2",
             "wolf/death3", "wolf/death4", "wolf/death5", "wolf/death7",
             "wolf/death8", "wolf/death9" };
-        A_StartSound(CRIES[wl.RndT() % 8], CHAN_VOICE);
+        WolfSnd.Emit(self, CRIES[wl.RndT() % 8], CHAN_VOICE);
     }
-    override void AttackSound() { A_StartSound("wolf/nazifire", CHAN_WEAPON); }
+    override void AttackSound() { WolfSnd.Emit(self, "wolf/nazifire", CHAN_WEAPON); }
     override void DropItem_() { PlaceDrop("WolfStatic48"); }   // bo_clip2
     override int ReactionTics(WolfLevel wl) { return 1 + wl.RndT() / 4; }
     override int KillPoints() { return 100; }        // KILL-001
@@ -1337,13 +1337,13 @@ class WolfDog : WolfEnemySim abstract
     override int BaseHP(int skill) { return 1; }
     override bool CardinalDiag() { return true; }    // CHASE-003
     override int KillPoints() { return 200; }
-    override void SightSound() { A_StartSound("wolf/dogbark", CHAN_VOICE); }
+    override void SightSound() { WolfSnd.Emit(self, "wolf/dogbark", CHAN_VOICE); }
     override void DeathSound()
     {
         if (!SecretScream())
-            A_StartSound("wolf/dogdeath", CHAN_VOICE);
+            WolfSnd.Emit(self, "wolf/dogdeath", CHAN_VOICE);
     }
-    override void AttackSound() { A_StartSound("wolf/dogattack", CHAN_WEAPON); }
+    override void AttackSound() { WolfSnd.Emit(self, "wolf/dogattack", CHAN_WEAPON); }
     override int ReactionTics(WolfLevel wl) { return 1 + wl.RndT() / 8; } // REACT-005
 }
 

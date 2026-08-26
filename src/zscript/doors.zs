@@ -144,7 +144,7 @@ class WolfDoor : Actor
             if (user == null || user.FindInventory(need) == null)
             {
                 if (user != null)
-                    user.A_StartSound("wolf/noway", CHAN_VOICE);
+                    WolfSnd.Emit(user, "wolf/noway", CHAN_VOICE);
                 if (user && user.player)
                     user.A_Log(lock == 1 ? "You need a gold key"
                                          : "You need a silver key");
@@ -174,7 +174,7 @@ class WolfDoor : Actor
         }
         if (doorAction == DR_OPENING)
             return;
-        A_StartSound("wolf/dooropen", CHAN_AUTO, attenuation: 1.0);
+        WolfSnd.Emit(self, "wolf/dooropen", CHAN_AUTO, attenuation: 1.0);
         Level.ExecuteSpecial(87, self, null, false, polyId);   // Polyobj_Stop
         Level.ExecuteSpecial(88, self, null, false,            // Polyobj_MoveTo
                              polyId, MOVESPEED, OpenX(), OpenY());
@@ -237,7 +237,7 @@ class WolfDoor : Actor
             return;
         }
         A_SetSolid(true);           // closing: the tile blocks again
-        A_StartSound("wolf/doorclose", CHAN_AUTO, attenuation: 1.0);
+        WolfSnd.Emit(self, "wolf/doorclose", CHAN_AUTO, attenuation: 1.0);
         Level.ExecuteSpecial(87, self, null, false, polyId);
         Level.ExecuteSpecial(88, self, null, false,
                              polyId, MOVESPEED, homeX, homeY);

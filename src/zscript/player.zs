@@ -533,7 +533,7 @@ class WolfPlayer : DoomPlayer
         killerActor = source;
         deathPhase = 1;
         deathTimer = 0;
-        A_StartSound("wolf/playerdeath", CHAN_VOICE);
+        WolfSnd.Emit(self, "wolf/playerdeath", CHAN_VOICE);
         // gamestate.weapon = -1: the weapon is taken away immediately
         if (player != null)
         {
@@ -852,7 +852,7 @@ class WolfPlayer : DoomPlayer
         {
             exiting = true;
             wl.FlipSwitch(cx, cy);
-            A_StartSound("wolf/leveldone", CHAN_VOICE);
+            WolfSnd.Emit(self, "wolf/leveldone", CHAN_VOICE);
             bool secret = wl.AreaAt(tx, ty) == 0;
             if (secret)
                 Level.SecretExitLevel(0);
