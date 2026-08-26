@@ -31,6 +31,7 @@ class WolfEnemySim : Actor abstract
     bool attackMode;        // FL_ATTACKMODE
     bool firstAttack;       // FL_FIRSTATTACK
     bool ambushFlag;        // FL_AMBUSH
+    bool patrolSpawn;       // SpawnPatrol, not SpawnStand
     bool activeFlag;
     bool dead;
 
@@ -109,13 +110,17 @@ class WolfEnemySim : Actor abstract
     {
         simInit = true;
         areanumber = wl.AreaAt(spawnTX, spawnTY);
-        ambushFlag = wl.AmbushAt(spawnTX, spawnTY);   // FL_AMBUSH
+        // only SpawnStand reads the ambush tile (WL_ACT2.C:900);
+        // SpawnPatrol walks straight past that block, so a patroller
+        // standing on one is NOT deaf. One exists: MAP06 (60,30).
+        ambushFlag = !patrolSpawn && wl.AmbushAt(spawnTX, spawnTY);
     }
 
     virtual int BaseHP(int skill) { return 25; }     // guard (HP table)
 
     void InitPatrol()
     {
+        patrolSpawn = true;
         // SpawnPatrol: destination = next tile in dir, claim it
         SetState_(PathState());
         distance = TILEGLOBAL;
