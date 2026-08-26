@@ -199,6 +199,7 @@ class WolfSpectre : WolfEnemySim
         wolfSpeed = 800;
         Super.PostBeginPlay();
         ambushFlag = true;              // FL_AMBUSH, as SpawnSpectre sets
+        dir = NODIR;                    // and it never assigns dir
         SetState_(StandState());
     }
 

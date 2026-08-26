@@ -12,11 +12,21 @@
 
 class WolfBoss : WolfEnemySim abstract
 {
+    // Each Spawn* assigns a FIXED facing after SpawnNewObj set
+    // dir = nodir (WL_ACT2.C); a boss map tile carries no direction,
+    // so the angle-derived dir the base class computes is wrong.
+    // It left every boss but Hans and Gretel facing east, and since
+    // bosses are FL_AMBUSH - deaf, wakeable only by sight - one
+    // approached from any other side stayed frozen until it took a
+    // hit. nodir matches no case in CheckSight's facing switch, so
+    // it means "sees in every direction" (the Spear bosses keep it).
+    virtual int SpawnDir() { return NODIR; }
     override void PostBeginPlay()
     {
         Super.PostBeginPlay();
         // SpawnBoss: FL_AMBUSH -> sight only, never noise
         ambushFlag = true;
+        dir = SpawnDir();
     }
     override void LazyInit(WolfLevel wl)
     {
@@ -33,6 +43,7 @@ class WolfBoss : WolfEnemySim abstract
 // ---------------------------------------------------------------- Hans
 class WolfHans : WolfBoss
 {
+    override int SpawnDir() { return 6; }   // south (WL_ACT2.C:945)
     override int StateRot(int i) { return WolfHansTable.ROT[i]; }
     override String StateSpr(int i) { return WolfHansTable.SPR[i]; }
     override int StateFrm(int i) { return WolfHansTable.FRM[i]; }
@@ -55,7 +66,6 @@ class WolfHans : WolfBoss
     {
         wolfSpeed = 512 * 3;        // SPDPATROL*3, assigned outright
         Super.PostBeginPlay();
-        dir = 6;                    // MAP-018: Hans faces south
     }
     override void SightSound() { WolfSnd.Emit(self, "wolf/gutentag", CHAN_VOICE); }
     override void DeathSound() { WolfSnd.Emit(self, "wolf/mutti", CHAN_VOICE); }
@@ -67,6 +77,7 @@ class WolfHans : WolfBoss
 // -------------------------------------------------------------- Gretel
 class WolfGretel : WolfBoss
 {
+    override int SpawnDir() { return 2; }   // north (WL_ACT2.C:968)
     override int StateRot(int i) { return WolfGretelTable.ROT[i]; }
     override String StateSpr(int i) { return WolfGretelTable.SPR[i]; }
     override int StateFrm(int i) { return WolfGretelTable.FRM[i]; }
@@ -88,7 +99,6 @@ class WolfGretel : WolfBoss
     {
         wolfSpeed = 512;
         Super.PostBeginPlay();
-        dir = 2;                    // MAP-018: Gretel faces north
     }
     override int ChaseSpeedMul() { return 3; }
     override void SightSound() { WolfSnd.Emit(self, "wolf/kein", CHAN_VOICE); }
@@ -101,6 +111,7 @@ class WolfGretel : WolfBoss
 // ------------------------------------------------------------- Schabbs
 class WolfSchabbs : WolfBoss
 {
+    override int SpawnDir() { return 6; }   // south (WL_ACT2.C:2226)
     override int StateRot(int i) { return WolfSchabbsTable.ROT[i]; }
     override String StateSpr(int i) { return WolfSchabbsTable.SPR[i]; }
     override int StateFrm(int i) { return WolfSchabbsTable.FRM[i]; }
@@ -134,6 +145,7 @@ class WolfSchabbs : WolfBoss
 // ---------------------------------------------------------------- Gift
 class WolfGift : WolfBoss
 {
+    override int SpawnDir() { return 2; }   // north (WL_ACT2.C:2255)
     override int StateRot(int i) { return WolfGiftTable.ROT[i]; }
     override String StateSpr(int i) { return WolfGiftTable.SPR[i]; }
     override int StateFrm(int i) { return WolfGiftTable.FRM[i]; }
@@ -167,6 +179,7 @@ class WolfGift : WolfBoss
 // ----------------------------------------------------------------- Fat
 class WolfFat : WolfBoss
 {
+    override int SpawnDir() { return 6; }   // south (WL_ACT2.C:2284)
     override int StateRot(int i) { return WolfFatTable.ROT[i]; }
     override String StateSpr(int i) { return WolfFatTable.SPR[i]; }
     override int StateFrm(int i) { return WolfFatTable.FRM[i]; }
@@ -200,6 +213,7 @@ class WolfFat : WolfBoss
 // --------------------------------------------------------- Fake Hitler
 class WolfFakeHitler : WolfBoss
 {
+    override int SpawnDir() { return 2; }   // north (WL_ACT2.C:2841)
     override int StateRot(int i) { return WolfFakeTable.ROT[i]; }
     override String StateSpr(int i) { return WolfFakeTable.SPR[i]; }
     override int StateFrm(int i) { return WolfFakeTable.FRM[i]; }
@@ -233,6 +247,7 @@ class WolfFakeHitler : WolfBoss
 // -------------------------------------------------------- Mecha Hitler
 class WolfMechaHitler : WolfBoss
 {
+    override int SpawnDir() { return 6; }   // south (WL_ACT2.C:2871)
     override int StateRot(int i) { return WolfMechaTable.ROT[i]; }
     override String StateSpr(int i) { return WolfMechaTable.SPR[i]; }
     override int StateFrm(int i) { return WolfMechaTable.FRM[i]; }
