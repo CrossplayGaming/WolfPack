@@ -328,7 +328,9 @@ class WolfEnemySim : Actor abstract
         case 26: ThrowProjectile("WolfFire", 0x1200); break;
         case 14: HitlerMorph(); break;  // A_HitlerMorph
         case 29: WolfSnd.Emit(self, "wolf/mechstep", CHAN_BODY); break;
-        case 30: WolfSnd.Emit(self, "wolf/slurpie", CHAN_VOICE); break;
+        // A_Slurpie: off the slot, so it layers under the death line
+        // instead of cutting it (see WolfSnd.EmitFree)
+        case 30: WolfSnd.EmitFree(self, "wolf/slurpie", CHAN_BODY); break;
         case 10:
             if (screamDone)
                 screamDone = false;      // replay: already played in full
