@@ -2880,3 +2880,65 @@ e.ViewPitch / e.ViewAngle - the viewpoint the frame was ACTUALLY
 drawn with. Screen.DrawText them next to the sim values and the
 screenshot becomes self-measuring (this is what exposed the clamp:
 sim z=335, rendered z=60, pitch identical).
+
+## Doom's sector types are dead in zdoom-namespace UDMF -- the living numbers sit at 65+
+Symptom: a sector with `special = 1` (Doom's random blink) does
+nothing in a `namespace = "zdoom";` TEXTMAP. Doom's sector TYPES
+are `doom`-namespace numbers, and the xlat translator
+(`xlat/doom.txt`, e.g. `sector 1 = dLight_Flicker`) never runs for
+zdoom-namespace UDMF; a sweep of specials 1..32 found four numbers
+that move a light and none of them a vanilla blink (GameBuilder,
+measured 2026-08-19). The zdoom namespace has its OWN sector-special
+numbers for the same effects, one sweep-window up: measured
+2026-08-20 (`tools/mach_r6_probe.py sweep 65`, one boot), the movers
+in 65..96 are 65 (random flicker), 66/67 (0.5s / 1.0s strobes -- the
+identities fall out of the turn counts, 40 vs 19 in the same
+window), 68 (hurt strobe), 72 (glow -- GLIDES where strobes JUMP),
+76/77 (sync strobes, slow/fast), 81 (fire flicker -- narrow band
+near the top), 84 (a second hurt strobe). Damaging floors do NOT
+need any of these: `damageamount` is a first-class UDMF field.
+Trap for fixtures: a strobe blinks between the sector's own light
+and the DARKEST light of a NEIGHBOUR sector -- in a room of uniform
+brightness a working effect and a dead number produce the same flat
+line, so put the effect sector well above its surroundings (128
+units survives any rounding).
+
+## `play` is a ZScript reserved word, and it takes the whole file down with it
+Symptom: `Unexpected 'play' / Expecting identifier` on EVERY line that
+calls it, plus the declaration - so the error list points everywhere
+except at the cause. A static named `Play` on a sound helper did it
+(WolfPack, measured 2026-08-26, 4.14.3). `play` is a scope qualifier,
+so it can never be an identifier; renaming to `Emit` cleared all 86
+errors at once. Same family as `action`, `auto`, `states` and `ACTION`
+(matching is case-insensitive): when a rename produces errors at every
+CALL SITE, suspect the NAME, not the calls.
+
+## Wolf refuses sounds, it does not mix them (ID_SD.C)
+Wolf keeps exactly one digitized sound and one AdLib effect alive, and
+`SD_PlaySound` drops a new one outright when its priority is lower than
+what that slot already holds (`if (s->priority < DigiPriority) return
+false`, ID_SD.C:2169/2185). Priorities are a word in each AdLib chunk's
+header - read even for sounds that play digitised - and the slot falls
+back to 0 when the sound ends (SDL_DigitizedDone, ID_SD.C:1184). So the
+quiet sound never truncates the loud one: picking up treasure (70)
+cannot cut the machine gun pickup (80), it simply stays silent. EQUAL
+priorities DO replace, which is authentic and not a bug to chase - it
+is what cuts Hitler's last line short when A_Slurpie fires twenty tics
+later (EVASND and SLURPIESND are both 99, both digitised).
+Port note: the slot is global, as it was in hardware, so a replacement
+has to stop the PREVIOUS emitter explicitly - per-actor channels do not
+interfere with each other the way one sound card did.
+
+## A self-test that can find no subject is not a self-test
+WolfPack's CheckSight probe searched for a stand-guard three tiles EAST
+of the player's current position and printed `no usable guard` when it
+found none - which the harness counted as a PASS. On MAP01 the one
+candidate had a wall to its east, and by the time the probe ran the
+door test had already teleported the player into a different area, so
+it had been inert for weeks while reporting green (measured
+2026-08-26). Three separate lessons: search ALL four cardinals and
+require the tiles BETWEEN to be clear (CheckSight ends in a line
+trace); never let "could not run" share an exit code with "passed";
+and give a probe its own engine run when the others move the player or
+keep `madenoise` alive - shared runs made this one pass or fail by luck
+of the draw.

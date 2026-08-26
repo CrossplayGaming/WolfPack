@@ -400,6 +400,7 @@ class WolfDebugHandler : EventHandler
     int t;
     bool found;
     WolfEnemySim sightEnemy;
+    int sightToward;        // dirtype the subject must face to see
     bool sightWakeDone;
     int blockProbe;
     WolfDoor door;
@@ -1062,24 +1063,57 @@ class WolfDebugHandler : EventHandler
             if (t == 400 && sightEnemy == null)
             {
                 WolfLevel wl = WolfLevel.Get();
-                // only guards in the PLAYER'S OWN area: SightPlayer's
-                // areabyplayer gate follows door connectivity, not
-                // teleports, so a guard behind unopened doors can never
-                // wake - which made this test pick-dependent and flaky
-                PlayerPawn pp = players[0].mo;
-                int parea = wl.AreaAt(int(pp.pos.x) / 64,
-                                      63 - (int(pp.pos.y) / 64));
+                // SightPlayer's areabyplayer gate follows door
+                // connectivity, not teleports, so the player must end
+                // up in the SUBJECT'S OWN area - which the stand-off
+                // tile below guarantees, since it is picked out of that
+                // same area. Filtering on where the player happens to
+                // BE does not work: the door test has already moved
+                // them to a door by now, and on MAP01 that left no
+                // candidate at all.
                 ThinkerIterator it = ThinkerIterator.Create("WolfGuardStand");
                 WolfEnemySim e;
                 while ((e = WolfEnemySim(it.Next())) != null)
                 {
-                    if (e.areanumber != parea)
+                    // any cardinal will do, and only one may: on
+                    // MAP01 the single stand-guard in the player's
+                    // area has a WALL three tiles east, so an
+                    // east-only probe found nobody and the whole
+                    // test passed without ever running.
+                    static const int PDX[] = { 3, 0, -3, 0 };
+                    static const int PDY[] = { 0, -3, 0, 3 };
+                    static const int PDIR[] = { 0, 2, 4, 6 };
+                    int px = 0, py = 0, toward = -1;
+                    for (int k = 0; k < 4; k++)
+                    {
+                        // EVERY tile in between must be open, not just
+                        // the stand-off tile: CheckSight ends in a line
+                        // trace, so a wall two tiles along means the
+                        // subject can never see the player and the test
+                        // fails on the probe rather than on the game.
+                        // That is what made this pick-dependent.
+                        bool clear = true;
+                        int cx = 0, cy = 0;
+                        for (int d = 1; d <= 3; d++)
+                        {
+                            cx = e.tileX + PDX[k] * d / 3;
+                            cy = e.tileY + PDY[k] * d / 3;
+                            int st; WolfDoor dd;
+                            [st, dd] = wl.TileState(cx, cy);
+                            if (st != 0 || wl.AreaAt(cx, cy) != e.areanumber)
+                            {
+                                clear = false;
+                                break;
+                            }
+                        }
+                        if (!clear)
+                            continue;
+                        px = cx; py = cy; toward = PDIR[k];
+                        break;
+                    }
+                    if (toward < 0)
                         continue;
-                    int px = e.tileX + 3, py = e.tileY;
-                    int st; WolfDoor dd;
-                    [st, dd] = wl.TileState(px, py);
-                    if (st != 0 || wl.AreaAt(px, py) != e.areanumber)
-                        continue;
+                    sightToward = toward;
                     sightEnemy = e;
                     players[0].mo.SetOrigin((px * 64 + 32,
                         4096.0 - (py * 64 + 32), 0), false);
@@ -1090,7 +1124,7 @@ class WolfDebugHandler : EventHandler
                     // and the test subject: the weapon-soak test sprays
                     // rounds on this same floor, and a corpse never wakes
                     e.bINVULNERABLE = true;
-                    e.dir = 4;              // face WEST, player is east
+                    e.dir = (toward + 4) & 7;   // face AWAY from the player
                     e.temp2 = 0;
                     e.ambushFlag = false;
                     e.attackMode = false;   // baseline: asleep
@@ -1115,7 +1149,7 @@ class WolfDebugHandler : EventHandler
             {
                 Console.Printf("WOLFDBG sight: facing-away attack=%d dir=%d",
                                sightEnemy.attackMode, sightEnemy.dir);
-                sightEnemy.dir = 0;         // now face EAST, toward player
+                sightEnemy.dir = sightToward;   // now face the player
                 sightEnemy.temp2 = 0;
             }
             // latched poll, not a fixed deadline: the reaction delay is

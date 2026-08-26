@@ -193,7 +193,6 @@ def check():
                              "+set", "wolf_dbg_doortest", "1",
                              "+set", "wolf_dbg_weapon", "1",
                              "+set", "wolf_dbg_forcefire", "1",
-                             "+set", "wolf_dbg_sight", "1",
                              "+map", "MAP01"], cwd=str(ROOT))
     loaded = False
     for _ in range(75):
@@ -274,10 +273,31 @@ def check():
     elif loaded:
         errors.append("weapon soak never reported")
 
-    # CheckSight facing rule (WL_STATE.C:1210-1231): an enemy must not see
-    # the player behind it, and must wake once turned toward them.
-    away = re.search(r"sight: facing-away attack=(\d)", text)
-    toward = re.search(r"sight: facing-player attack=(\d)", text)
+    # CheckSight facing rule (WL_STATE.C:1210-1231): an enemy must not
+    # see the player behind it, and must wake once turned toward them.
+    # Its OWN run: the door test above teleports the player away from
+    # the subject mid-probe and the weapon soak keeps madenoise alive,
+    # which made this pass or fail by luck of the draw.
+    slog = DIST / "selfcheck-sight.log"
+    if slog.exists():
+        slog.unlink()
+    sproc = subprocess.Popen([str(UZDOOM), "-iwad", str(PK3),
+                              "-config", str(ROOT / "dist" / "check.ini"),
+                              "+logfile", str(slog),
+                              "-nosound", "-noautoload",
+                              "+set", "wolf_dbg_check", "1",
+                              "+set", "wolf_dbg_sight", "1",
+                              "+map", "MAP01"], cwd=str(ROOT))
+    stext = ""
+    for _ in range(60):
+        time.sleep(1)
+        stext = slog.read_text(errors="replace") if slog.exists() else ""
+        if "sight: facing-player" in stext or "no usable guard" in stext:
+            break
+    sproc.kill()
+    sproc.wait()
+    away = re.search(r"sight: facing-away attack=(\d)", stext)
+    toward = re.search(r"sight: facing-player attack=(\d)", stext)
     if away and toward:
         if away.group(1) != "0":
             errors.append("sight: enemy facing AWAY woke (facing test broken)")
@@ -285,8 +305,12 @@ def check():
             errors.append("sight: enemy facing the player did not wake")
         else:
             print("  sight: blind behind, wakes when facing - OK")
-    elif loaded and "sight: no usable guard" not in text:
-        errors.append("sight test never reported")
+    else:
+        # "no usable guard" used to count as a pass, so the probe
+        # sat inert on MAP01 for as long as nobody read the log
+        errors.append("sight test never reported"
+                      if "sight: no usable guard" not in stext
+                      else "sight test found no subject (probe inert)")
     for line in LOG.read_text(errors="replace").splitlines():
         if any(p.search(line) for p in ERROR_PATTERNS):
             errors.append(line)
