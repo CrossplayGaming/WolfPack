@@ -202,6 +202,9 @@ def gen_for_set(setname):
 
     # a root file named gldefs.txt becomes the GLDEFS lump automatically
     (assets / "gldefs.txt").write_text("\n\n".join(gl) + "\n")
+    # this runs on BOTH sets during either set's build, so the other
+    # set's tree may be half-built from an interrupted run
+    (assets / "wolfdata").mkdir(parents=True, exist_ok=True)
     (assets / "wolfdata" / "lighting.txt").write_text(
         "\n".join(swap) + "\n")
     (assets / "wolfdata" / "lights.txt").write_text(
