@@ -2925,9 +2925,20 @@ cannot cut the machine gun pickup (80), it simply stays silent. EQUAL
 priorities DO replace, which is authentic and not a bug to chase - it
 is what cuts Hitler's last line short when A_Slurpie fires twenty tics
 later (EVASND and SLURPIESND are both 99, both digitised).
-Port note: the slot is global, as it was in hardware, so a replacement
-has to stop the PREVIOUS emitter explicitly - per-actor channels do not
-interfere with each other the way one sound card did.
+Port note - implement the REFUSAL, not the REPLACEMENT. The first
+attempt (0.9.9) did both: a global slot per device, and A_StopSound on
+the previous emitter when an equal-or-higher sound arrived, which is
+exactly what the card did. It was worse, not better (owner: "cut off
+left and right"). On one mono channel replacement is invisible - there
+was never a second sound to lose - but nearly everything in a firefight
+is priority 50 (every weapon, every Halt, every death cry, NAZIFIRESND),
+so faithful replace means each shot silences each dying guard, and on a
+positional stereo engine that reads as destruction. Keep the gate (a
+lower sound is refused, which is what makes the original sound
+composed), let an accepted sound play ALONGSIDE on the channel the
+caller asked for, and do not funnel a whole actor onto one channel -
+its Halt, its gunfire and its death cry were cutting each other at the
+engine level before the slot even got involved.
 
 ## A self-test that can find no subject is not a self-test
 WolfPack's CheckSight probe searched for a stand-guard three tiles EAST
