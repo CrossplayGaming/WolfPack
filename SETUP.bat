@@ -16,11 +16,11 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
-python -c "import PIL" >nul 2>nul || pip install pillow
-python -c "import pefile" >nul 2>nul || pip install pefile
-python -c "import numpy" >nul 2>nul || pip install numpy
-python -c "import soundfile" >nul 2>nul || pip install soundfile
-python -c "import pyopl" >nul 2>nul || pip install pyopl
+python -c "import PIL" >nul 2>nul || python -m pip install pillow
+python -c "import pefile" >nul 2>nul || python -m pip install pefile
+python -c "import numpy" >nul 2>nul || python -m pip install numpy
+python -c "import soundfile" >nul 2>nul || python -m pip install soundfile
+python -c "import pyopl" >nul 2>nul || python -m pip install pyopl
 
 if exist engine\uzdoom.exe goto :haveengine
 echo   The UZDoom engine is not in engine\ yet.

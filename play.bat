@@ -32,6 +32,14 @@ python tools\convert_udmf.py || goto :fail
     python tools\make_assets.py || goto :fail
 )
 
+REM The python on PATH can change under us (a new install landing in
+REM Program Files ahead of the one SETUP.bat provisioned did exactly
+REM that): make sure THIS python has the kit's packages before building,
+REM the same way SETUP.bat does, rather than dying on an ImportError.
+python -c "import PIL, pefile, numpy, soundfile, pyopl" >nul 2>nul || (
+    echo Installing the build's Python packages...
+    python -m pip install --quiet pillow pefile numpy soundfile pyopl || goto :fail
+)
 python build.py || goto :fail
 :run
 REM keep the previous session log: a VM abort report must survive
